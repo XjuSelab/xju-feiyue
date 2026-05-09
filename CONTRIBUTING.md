@@ -8,9 +8,14 @@
 
 ```
 Aurash/
-├── components/  pages/  stylesheets/      design 稿（HTML / CSS / JSX 参照）
-├── docs/                                  spec + architecture + design-decisions
-├── frontend/                              生产级 React 应用（本说明大部分针对它）
+├── archive/design-refs/    早期 design 稿（HTML / CSS / JSX 参照，已冻结）
+├── backend/                FastAPI + SQLAlchemy 后端（uv 管理）
+├── docs/                   architecture + design-decisions
+├── frontend/               生产级 React 应用
+├── scripts/sync/           HF Dataset 状态同步（DB + .env.local）
+├── BACKEND_SPEC.md         前端↔后端契约（19 routes + 10 schemas）
+├── CONTRIBUTING.md         本文件
+├── Makefile                根 make 入口（目前主要是 sync-* 目标）
 └── .github/PULL_REQUEST_TEMPLATE.md
 ```
 
@@ -89,6 +94,37 @@ pnpm build       # 成功 + 主 bundle gzip < 200 KB
 
 - design 稿改在 `components/` `pages/` `stylesheets/`，提交时打 `docs(design): …` tag 不打 frontend
 - spec round 文档不再修改（已冻结）；新规范进 `docs/design-decisions.md`
+
+## 状态同步（HF Dataset）
+
+`backend/labnotes.db` 和两个 `.env.local` 不进 git，但需要在 WSL/服务器之间共享。
+通过私有 HF Dataset 同步，secrets 用 age 对称加密。
+
+新机器恢复流程：
+
+```bash
+git clone <repo>
+cd Aurash
+sudo apt install age bsdextrautils sqlite3   # 一次
+make sync-bootstrap                          # 输 HF token + age passphrase
+make sync-pull                               # 拉回 DB + .env.local
+cd backend && uv sync && uv run alembic upgrade head
+```
+
+日常：
+
+```bash
+make sync-push           # 手动推送当前状态
+make sync-cron-install   # 装 */30 自动推
+make sync-status         # 看上次推送是谁、什么时候
+```
+
+完整说明见 `scripts/sync/README.md`。
+
+铁律（与 `MEMORY.md` 一致）：
+- **代码** 仍走 git push/pull，不走 HF
+- **运行时状态**（DB + secrets）走 HF
+- 不要 rsync / scp 直接覆盖另一台机器
 
 ---
 
