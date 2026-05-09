@@ -85,3 +85,76 @@ async def demo_user(db_session: AsyncSession) -> models.User:
     await db_session.commit()
     await db_session.refresh(user)
     return user
+
+
+@pytest_asyncio.fixture
+async def seeded_notes(db_session: AsyncSession) -> dict:
+    """5 notes across 3 categories with varied likes/comments for sort tests.
+
+    Layout (newer → older):
+      note_005  tools    1d ago  1 like   1 comment   tag-a
+      note_004  kaggle   2d ago  3 likes  2 comments  tag-c
+      note_003  research 3d ago  2 likes  0 comments  tag-a tag-b   (q='kaggle' hit)
+      note_002  kaggle   4d ago  1 like   1 comment   tag-b
+      note_001  research 5d ago  0 likes  0 comments  tag-a
+    """
+    from datetime import datetime, timedelta, timezone
+
+    from app.services.auth import hash_password
+
+    pwd = hash_password("123456")
+    users = []
+    for i in range(4):
+        u = models.User(
+            id=f"usr_test_{i:02d}",
+            sid=f"2021101000{i + 1}",
+            name=f"User {i}",
+            password_hash=pwd,
+        )
+        db_session.add(u)
+        users.append(u)
+    await db_session.flush()
+
+    now = datetime.now(timezone.utc)
+    spec = [
+        # (id, category, days_ago, n_likes, n_comments, title, summary, tags)
+        ("note_001", "research", 5, 0, 0, "Research A", "summary A", ["tag-a"]),
+        ("note_002", "kaggle", 4, 1, 1, "Kaggle B", "summary B", ["tag-b"]),
+        ("note_003", "research", 3, 2, 0, "Research C", "Kaggle in summary C", ["tag-a", "tag-b"]),
+        ("note_004", "kaggle", 2, 3, 2, "Kaggle D", "summary D", ["tag-c"]),
+        ("note_005", "tools", 1, 1, 1, "Tools E", "summary E", ["tag-a"]),
+    ]
+    for nid, cat, days, _l, _c, title, summary, tags in spec:
+        db_session.add(
+            models.Note(
+                id=nid,
+                title=title,
+                summary=summary,
+                content="",
+                category=cat,
+                tags=tags,
+                author_id=users[0].id,
+                created_at=now - timedelta(days=days),
+                read_minutes=5,
+            )
+        )
+    await db_session.flush()
+
+    for nid, _cat, _days, n_likes, n_comments, *_rest in spec:
+        for j in range(n_likes):
+            db_session.add(models.Like(note_id=nid, user_id=users[j].id))
+        for j in range(n_comments):
+            db_session.add(
+                models.Comment(
+                    id=f"cmt_{nid}_{j}",
+                    note_id=nid,
+                    author_id=users[j].id,
+                    content=f"comment {j}",
+                )
+            )
+    await db_session.commit()
+
+    return {
+        "users": users,
+        "note_ids": [s[0] for s in spec],
+    }
