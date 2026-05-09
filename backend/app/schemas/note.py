@@ -1,0 +1,45 @@
+"""Mirrors frontend src/api/schemas/note.ts (NoteSchema, ListNotesQuery, PaginatedNotes)."""
+from datetime import datetime
+from typing import Literal
+
+from pydantic import Field
+
+from app.schemas._base import CamelModel
+
+CategoryId = Literal[
+    "research", "course", "recommend", "competition", "kaggle", "tools", "life"
+]
+
+
+class NoteAuthorOut(CamelModel):
+    id: str
+    name: str
+    avatar: str | None = None
+
+
+class NoteOut(CamelModel):
+    id: str
+    title: str
+    summary: str
+    cover: str | None = None
+    category: CategoryId
+    tags: list[str] = Field(default_factory=list)
+    author: NoteAuthorOut
+    created_at: datetime
+    likes: int = Field(ge=0)
+    comments: int = Field(ge=0)
+    read_minutes: int = Field(ge=1)
+
+
+class ListNotesQuery(CamelModel):
+    cat: CategoryId | None = None
+    q: str | None = None
+    sort: Literal["latest", "hot", "liked"] | None = None
+    tags: list[str] | None = None
+    cursor: str | None = None
+    limit: int | None = Field(default=None, ge=1, le=50)
+
+
+class PaginatedNotes(CamelModel):
+    items: list[NoteOut]
+    next_cursor: str | None = None

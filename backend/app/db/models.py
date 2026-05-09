@@ -1,0 +1,148 @@
+"""SQLAlchemy ORM models — single source of truth for the DB schema.
+
+The 7 categories are kept as a Python `Literal` (mirroring frontend
+`CategoryId`) and stored as a string column. Postgres has a native enum
+type, but using strings keeps SQLite-fallback workable for tests.
+"""
+from __future__ import annotations
+
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import (
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import JSON, TypeDecorator
+
+from app.db.base import Base
+
+if TYPE_CHECKING:
+    pass
+
+
+class StringList(TypeDecorator):
+    """Use ARRAY(Text) on Postgres, JSON on SQLite. Keeps tests cheap."""
+
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):  # type: ignore[no-untyped-def]
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(ARRAY(Text))
+        return dialect.type_descriptor(JSON())
+
+
+CATEGORY_VALUES = (
+    "research",
+    "course",
+    "recommend",
+    "competition",
+    "kaggle",
+    "tools",
+    "life",
+)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    sid: Mapped[str] = mapped_column(String(11), unique=True, index=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    avatar: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    notes: Mapped[list[Note]] = relationship(back_populates="author", lazy="raise")
+    drafts: Mapped[list[Draft]] = relationship(back_populates="owner", lazy="raise")
+
+
+class Note(Base):
+    __tablename__ = "notes"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    cover: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    category: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    tags: Mapped[list[str]] = mapped_column(StringList(), nullable=False, default=list)
+    author_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+    read_minutes: Mapped[int] = mapped_column(nullable=False, default=1)
+
+    author: Mapped[User] = relationship(back_populates="notes", lazy="joined")
+    likes: Mapped[list[Like]] = relationship(back_populates="note", lazy="raise")
+    comments: Mapped[list[Comment]] = relationship(back_populates="note", lazy="raise")
+
+
+class Draft(Base):
+    __tablename__ = "drafts"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    owner_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    category: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    tags: Mapped[list[str]] = mapped_column(StringList(), nullable=False, default=list)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+        index=True,
+    )
+
+    owner: Mapped[User] = relationship(back_populates="drafts", lazy="joined")
+
+
+class Like(Base):
+    __tablename__ = "likes"
+    __table_args__ = (UniqueConstraint("note_id", "user_id", name="uq_likes_note_user"),)
+
+    note_id: Mapped[str] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    note: Mapped[Note] = relationship(back_populates="likes", lazy="raise")
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    note_id: Mapped[str] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    author_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+
+    note: Mapped[Note] = relationship(back_populates="comments", lazy="raise")
+    author: Mapped[User] = relationship(lazy="joined")
