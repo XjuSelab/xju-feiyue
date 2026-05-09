@@ -43,7 +43,7 @@ export function BrandPanel() {
     <aside
       aria-label="LabNotes 简介"
       data-brand-panel
-      className="relative hidden overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:px-20 lg:py-16 xl:px-24"
+      className="relative hidden overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:justify-center lg:px-24 lg:py-20 xl:px-32"
       style={BRAND_PANEL_BG_STYLE}
     >
       <header className="relative">
@@ -65,13 +65,13 @@ export function BrandPanel() {
         </p>
       </header>
 
-      <div aria-hidden className="relative mx-auto mt-10 h-[260px] w-full max-w-[640px]">
+      <div aria-hidden className="relative mx-auto mt-8 h-[240px] w-full max-w-[640px]">
         {HERO_NOTES.map((note, i) => (
           <NoteStackCard key={note.id} note={note} index={i} />
         ))}
       </div>
 
-      <footer className="relative mt-auto pt-10">
+      <footer className="relative mt-8">
         <ul className="flex flex-wrap gap-2">
           {CATEGORIES.map((c) => {
             const Icon = c.icon
