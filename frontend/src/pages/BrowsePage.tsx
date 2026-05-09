@@ -1,28 +1,52 @@
-import { useSearchParams } from 'react-router-dom'
+import { FilterSidebar } from '@/features/browse/FilterSidebar'
+import { NoteGrid } from '@/features/browse/NoteGrid'
+import { RightRail } from '@/features/browse/RightRail'
+import { SearchBar } from '@/features/browse/SearchBar'
+import { useBrowseParams } from '@/features/browse/useBrowseParams'
+import { CATEGORIES } from '@/lib/categories'
 
 /**
- * Round 3 placeholder. Round 4 browse-agent 替换为：
- *   FilterSidebar + SearchBar + NoteGrid (useInfiniteQuery) + RightRail
+ * Round 4 browse-agent: 三栏 (filter sidebar / 主网格 / right rail)，
+ * 顶部 SearchBar。useBrowseParams 把 cat/sort/q/tags 双向同步到 URL。
  */
 export function BrowsePage() {
-  const [params] = useSearchParams()
-  const cat = params.get('cat')
-  const q = params.get('q')
+  const { cat, q } = useBrowseParams()
+  const activeCat = cat
+    ? CATEGORIES.find((c) => c.id === cat)
+    : null
 
   return (
     <section
       data-page="browse"
-      className="mx-auto max-w-6xl px-6 py-12"
+      className="mx-auto max-w-7xl px-6 py-8"
     >
-      <h1 className="font-serif text-2xl font-semibold text-text">浏览</h1>
-      <p className="mt-2 text-sm text-text-muted">
-        BrowsePage placeholder · Round 4 browse-agent 接管。
-      </p>
-      {(cat || q) && (
-        <pre className="mt-4 rounded-md bg-bg-subtle p-3 font-mono text-xs">
-          {JSON.stringify({ cat, q }, null, 2)}
-        </pre>
-      )}
+      <header className="mb-6 space-y-3">
+        <h1 className="font-serif text-2xl font-semibold text-text">
+          浏览
+          {activeCat ? (
+            <span
+              className="ml-3 align-middle text-base font-medium text-text-muted"
+              style={{ color: `var(${activeCat.colorVar})` }}
+            >
+              {activeCat.label}
+            </span>
+          ) : null}
+        </h1>
+        {q && (
+          <p className="text-sm text-text-muted">
+            搜索结果：<span className="text-text">「{q}」</span>
+          </p>
+        )}
+        <SearchBar />
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-[200px_minmax(0,1fr)_240px]">
+        <FilterSidebar />
+        <NoteGrid />
+        <div className="hidden lg:block">
+          <RightRail />
+        </div>
+      </div>
     </section>
   )
 }
