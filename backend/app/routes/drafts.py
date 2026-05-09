@@ -1,41 +1,164 @@
-"""Drafts routes — Phase 5 will fill in CRUD + publish."""
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+"""Drafts routes — see BACKEND_SPEC.md §2 (Drafts). All routes require auth."""
+from __future__ import annotations
 
-from app.db.models import User
-from app.deps import get_current_user
+from datetime import datetime, timezone
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.models import Draft, Note, User
+from app.deps import get_current_user, get_db
 from app.schemas.draft import DraftIn, DraftOut
-from app.schemas.note import NoteOut
+from app.schemas.note import NoteAuthorOut, NoteOut
 
 router = APIRouter(prefix="/notes/drafts", tags=["drafts"])
 
+_SUMMARY_MAX = 200
+
+
+def _summary_from(content: str) -> str:
+    """First non-empty paragraph trimmed to {_SUMMARY_MAX} chars; ellipsis if cut."""
+    text = content.strip()
+    if not text:
+        return ""
+    first_para = next((p.strip() for p in text.split("\n\n") if p.strip()), text)
+    if len(first_para) <= _SUMMARY_MAX:
+        return first_para
+    return first_para[:_SUMMARY_MAX].rstrip() + "…"
+
+
+def _read_minutes(content: str) -> int:
+    # ~500 CJK chars per minute is the loose convention used in similar apps.
+    return max(1, round(len(content) / 500))
+
+
+async def _get_owned_draft(
+    draft_id: str, user: User, db: AsyncSession
+) -> Draft:
+    draft = await db.get(Draft, draft_id)
+    if not draft or draft.owner_id != user.id:
+        raise HTTPException(status_code=404, detail="草稿不存在")
+    return draft
+
 
 @router.post("", response_model=DraftOut, status_code=status.HTTP_201_CREATED)
-async def create(body: DraftIn, user: User = Depends(get_current_user)) -> DraftOut:
-    raise HTTPException(status_code=501, detail="drafts: phase 5")
+async def create(
+    body: DraftIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DraftOut:
+    draft = Draft(
+        id=str(uuid4()),
+        owner_id=user.id,
+        title=body.title or "",
+        content=body.content or "",
+        category=body.category,
+        tags=list(body.tags or []),
+    )
+    db.add(draft)
+    await db.commit()
+    await db.refresh(draft)
+    return DraftOut.model_validate(draft)
 
 
 @router.get("", response_model=list[DraftOut])
-async def list_mine(user: User = Depends(get_current_user)) -> list[DraftOut]:
-    return []
+async def list_mine(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[DraftOut]:
+    stmt = (
+        select(Draft).where(Draft.owner_id == user.id).order_by(Draft.updated_at.desc())
+    )
+    drafts = (await db.execute(stmt)).scalars().all()
+    return [DraftOut.model_validate(d) for d in drafts]
 
 
 @router.get("/{draft_id}", response_model=DraftOut)
-async def get_one(draft_id: str, user: User = Depends(get_current_user)) -> DraftOut:
-    raise HTTPException(status_code=404, detail="草稿不存在")
+async def get_one(
+    draft_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DraftOut:
+    draft = await _get_owned_draft(draft_id, user, db)
+    return DraftOut.model_validate(draft)
 
 
 @router.patch("/{draft_id}", response_model=DraftOut)
 async def update(
-    draft_id: str, body: DraftIn, user: User = Depends(get_current_user)
+    draft_id: str,
+    body: DraftIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ) -> DraftOut:
-    raise HTTPException(status_code=501, detail="drafts: phase 5")
+    draft = await _get_owned_draft(draft_id, user, db)
+    if body.title is not None:
+        draft.title = body.title
+    if body.content is not None:
+        draft.content = body.content
+    if body.category is not None:
+        draft.category = body.category
+    if body.tags is not None:
+        draft.tags = list(body.tags)
+    await db.commit()
+    await db.refresh(draft)
+    return DraftOut.model_validate(draft)
 
 
 @router.delete("/{draft_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete(draft_id: str, user: User = Depends(get_current_user)) -> Response:
+async def delete(
+    draft_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    draft = await _get_owned_draft(draft_id, user, db)
+    await db.delete(draft)
+    await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/{draft_id}/publish", response_model=NoteOut)
-async def publish(draft_id: str, user: User = Depends(get_current_user)) -> NoteOut:
-    raise HTTPException(status_code=501, detail="drafts: phase 5")
+async def publish(
+    draft_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> NoteOut:
+    draft = await _get_owned_draft(draft_id, user, db)
+
+    if not draft.title.strip():
+        raise HTTPException(status_code=422, detail="发布前必须填写标题")
+    if not draft.content.strip():
+        raise HTTPException(status_code=422, detail="发布前必须填写正文")
+    if not draft.category:
+        raise HTTPException(status_code=422, detail="发布前必须选择分类")
+
+    note = Note(
+        id=str(uuid4()),
+        title=draft.title,
+        summary=_summary_from(draft.content),
+        content=draft.content,
+        category=draft.category,
+        tags=list(draft.tags),
+        author_id=user.id,
+        created_at=datetime.now(timezone.utc),
+        read_minutes=_read_minutes(draft.content),
+    )
+    db.add(note)
+    await db.delete(draft)
+    await db.commit()
+    await db.refresh(note)
+
+    return NoteOut(
+        id=note.id,
+        title=note.title,
+        summary=note.summary,
+        cover=note.cover,
+        category=note.category,  # type: ignore[arg-type]
+        tags=list(note.tags),
+        author=NoteAuthorOut(id=user.id, name=user.name, avatar=user.avatar),
+        created_at=note.created_at,
+        likes=0,
+        comments=0,
+        read_minutes=note.read_minutes,
+    )

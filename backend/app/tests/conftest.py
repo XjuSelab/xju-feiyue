@@ -88,6 +88,21 @@ async def demo_user(db_session: AsyncSession) -> models.User:
 
 
 @pytest_asyncio.fixture
+async def authed_token(client: AsyncClient, demo_user: models.User) -> str:
+    """POST /auth/login as demo_user and hand back the JWT."""
+    r = await client.post(
+        "/auth/login", json={"sid": "20211010001", "password": "123456"}
+    )
+    assert r.status_code == 200, r.text
+    return r.json()["token"]
+
+
+@pytest_asyncio.fixture
+async def auth_headers(authed_token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {authed_token}"}
+
+
+@pytest_asyncio.fixture
 async def seeded_notes(db_session: AsyncSession) -> dict:
     """5 notes across 3 categories with varied likes/comments for sort tests.
 
