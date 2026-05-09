@@ -1,82 +1,156 @@
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { NotebookPen } from 'lucide-react'
-import { CATEGORIES } from '@/lib/categories'
+import { NotebookPen, Heart, MessageSquare, Clock } from 'lucide-react'
+import { CATEGORIES, getCategory } from '@/lib/categories'
+import type { Note } from '@/api/schemas/note'
+import notesJson from '@/api/mock/notes.json'
+
+const NOTES = notesJson as readonly Note[]
+
+/** 从 mock 数据里挑 3 张高赞 + 跨类别的笔记做 hero 瀑布。 */
+const HERO_NOTE_IDS = ['note_recommend_002', 'note_course_001', 'note_kaggle_001'] as const
+
+const HERO_NOTES: readonly Note[] = HERO_NOTE_IDS.map((id) => {
+  const found = NOTES.find((n) => n.id === id)
+  if (!found) throw new Error(`hero note missing: ${id}`)
+  return found
+})
+
+const STACK_POSITIONS = [
+  { x: '-72%', y: '0px', rot: '-4deg' },
+  { x: '-50%', y: '24px', rot: '2deg' },
+  { x: '-28%', y: '48px', rot: '-1deg' },
+] as const
+
+const BRAND_PANEL_BG_STYLE: CSSProperties = {
+  backgroundColor: 'var(--brand-panel-bg)',
+  backgroundImage: [
+    'radial-gradient(at 12% 18%, var(--brand-panel-glow-warm), transparent 55%)',
+    'radial-gradient(at 82% 82%, var(--brand-panel-glow-cool), transparent 60%)',
+    'radial-gradient(var(--brand-panel-grid) 1px, transparent 1px)',
+  ].join(', '),
+  backgroundSize: 'auto, auto, 24px 24px',
+  backgroundPosition: '0 0, 0 0, 0 0',
+}
 
 /**
- * BrandPanel — 登录页左栏。仅 lg+ 显示；移动端 LoginPage 单栏渲染。
- * 内容：logo / slogan / 7 类预览（4+3 排布）
+ * BrandPanel — 登录页左栏 (R5 direction B)。
+ * 仅 lg+ 显示。从顶到底：wordmark → 56px hero → 18px subhead
+ * → 3 张笔记卡瀑布 → 7 类 chip strip → footer 提示。
  */
 export function BrandPanel() {
-  const firstRow = CATEGORIES.slice(0, 4)
-  const secondRow = CATEGORIES.slice(4, 7)
-
   return (
     <aside
       aria-label="LabNotes 简介"
-      className="hidden lg:flex lg:flex-col lg:justify-between lg:gap-12 lg:bg-bg-subtle lg:p-12"
+      data-brand-panel
+      className="relative hidden overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:justify-between lg:px-20 lg:py-20 xl:px-24"
+      style={BRAND_PANEL_BG_STYLE}
     >
-      <div>
+      <header className="relative">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 font-serif text-2xl font-semibold text-text"
+          className="inline-flex items-center gap-2 font-serif text-[18px] font-semibold text-text"
         >
-          <NotebookPen size={22} strokeWidth={1.75} aria-hidden />
+          <NotebookPen size={20} strokeWidth={1.75} aria-hidden />
           LabNotes
         </Link>
-        <p className="mt-3 max-w-md text-sm leading-relaxed text-text-muted">
-          实验室经验共享。Notion 极简白的外壳，Claude 导出 PDF 的内容质感。
-          把今天的实验日志、Kaggle 复盘、读书笔记，写成下次能直接抄的作业。
+
+        <h1 className="mt-16 max-w-[18ch] font-serif text-[44px] font-semibold leading-[1.08] tracking-[-0.01em] text-text xl:text-[56px]">
+          把今天的实验，
+          <br />
+          写成下次能直接抄的作业。
+        </h1>
+        <p className="mt-6 max-w-[42ch] text-[18px] leading-[1.6] text-text-muted">
+          科研 · 课程 · 推免 · 竞赛 · Kaggle · 工具 · 生活 —— 七类笔记，一个共享笔记本。
         </p>
+      </header>
+
+      <div aria-hidden className="relative mx-auto mt-12 h-[280px] w-full max-w-[640px]">
+        {HERO_NOTES.map((note, i) => (
+          <NoteStackCard key={note.id} note={note} index={i} />
+        ))}
       </div>
 
-      <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-faint">
-          七大板块
-        </h3>
-        <div className="space-y-2">
-          <CategoryRow categories={firstRow} />
-          <CategoryRow categories={secondRow} />
-        </div>
-      </div>
-
-      <p className="text-xs leading-relaxed text-text-faint">
-        登录后即可写作 / 收藏 / 评论；游客模式仅可浏览。
-      </p>
+      <footer className="relative mt-12">
+        <ul className="flex flex-wrap gap-2">
+          {CATEGORIES.map((c) => {
+            const Icon = c.icon
+            return (
+              <li
+                key={c.id}
+                data-cat={c.id}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-bg px-3 py-1.5 text-[12.5px] font-medium text-text-muted"
+              >
+                <span
+                  aria-hidden
+                  className="flex size-4 items-center justify-center"
+                  style={{ color: `var(${c.colorVar})` }}
+                >
+                  <Icon size={14} strokeWidth={1.75} />
+                </span>
+                {c.label}
+              </li>
+            )
+          })}
+        </ul>
+        <p className="mt-6 text-[12.5px] text-text-faint">
+          登录后可写作 · 收藏 · 评论；游客仅可浏览。
+        </p>
+      </footer>
     </aside>
   )
 }
 
-function CategoryRow({
-  categories,
-}: {
-  categories: (typeof CATEGORIES)[number][]
-}) {
+function NoteStackCard({ note, index }: { note: Note; index: number }) {
+  const cat = getCategory(note.category)
+  const pos = STACK_POSITIONS[index] ?? STACK_POSITIONS[1]
+  const Icon = cat.icon
+  const cardStyle = {
+    '--card-x': pos.x,
+    '--card-y': pos.y,
+    '--card-rot': pos.rot,
+    zIndex: index + 1,
+    animationDelay: `${index * 120}ms`,
+  } as CSSProperties
+
   return (
-    <div className="grid grid-cols-4 gap-2">
-      {categories.map((c) => {
-        const Icon = c.icon
-        return (
-          <div
-            key={c.id}
-            data-cat={c.id}
-            className="flex flex-col items-center gap-1.5 rounded-md border border-border bg-bg p-3"
-          >
-            <span
-              aria-hidden
-              className="flex size-8 items-center justify-center rounded-md"
-              style={{
-                backgroundColor: `var(${c.tagBgVar})`,
-                color: `var(${c.colorVar})`,
-              }}
-            >
-              <Icon size={16} strokeWidth={1.75} />
-            </span>
-            <span className="text-[11px] font-medium text-text-muted">
-              {c.label}
-            </span>
-          </div>
-        )
-      })}
-    </div>
+    <article
+      className="note-stack-card absolute left-1/2 top-0 w-[420px] rounded-lg border border-border bg-bg p-5 shadow-card"
+      style={cardStyle}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11.5px] font-medium"
+          style={{
+            backgroundColor: `var(${cat.tagBgVar})`,
+            color: `var(${cat.colorVar})`,
+          }}
+        >
+          <Icon size={12} strokeWidth={2} aria-hidden />
+          {cat.label}
+        </span>
+        <span className="text-[12px] text-text-faint">{note.author.name}</span>
+      </div>
+      <h3 className="mt-2.5 font-serif text-[17px] font-semibold leading-[1.35] text-text">
+        {note.title}
+      </h3>
+      <p className="mt-1.5 line-clamp-2 text-[13.5px] leading-[1.55] text-text-muted">
+        {note.summary}
+      </p>
+      <div className="mt-3 flex items-center gap-4 text-[12px] text-text-faint">
+        <span className="inline-flex items-center gap-1">
+          <Heart size={12} strokeWidth={1.75} aria-hidden />
+          {note.likes}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <MessageSquare size={12} strokeWidth={1.75} aria-hidden />
+          {note.comments}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Clock size={12} strokeWidth={1.75} aria-hidden />
+          {note.readMinutes} min
+        </span>
+      </div>
+    </article>
   )
 }

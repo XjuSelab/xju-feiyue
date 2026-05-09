@@ -7,10 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/stores/authStore'
-import {
-  LoginRequestSchema,
-  type LoginRequest,
-} from '@/api/schemas/user'
+import { LoginRequestSchema, type LoginRequest } from '@/api/schemas/user'
 import { ApiError } from '@/api/client'
 
 export function LoginForm() {
@@ -47,10 +44,8 @@ export function LoginForm() {
       toast.success('登录成功')
       navigate(from, { replace: true })
     } catch (err) {
-      const msg =
-        err instanceof ApiError ? err.message : '登录失败，请稍后再试'
+      const msg = err instanceof ApiError ? err.message : '登录失败，请稍后再试'
       toast.error(msg)
-      // 字段下方红字
       setError('password', { type: 'server', message: msg })
     }
   })
@@ -62,64 +57,65 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-sm">
-      <h2 className="font-serif text-2xl font-semibold text-text">登录</h2>
-      <p className="mt-1 text-sm text-text-muted">用学号登录开始记录。</p>
+    <div className="w-full max-w-[408px] rounded-lg border border-border bg-bg p-10 shadow-card">
+      <h2 className="font-serif text-[32px] font-semibold leading-[1.15] text-text">登录</h2>
+      <p className="mt-2 text-[15px] leading-[1.5] text-text-muted">用学号登录开始记录。</p>
 
-      <form className="mt-6 space-y-4" noValidate onSubmit={onSubmit}>
+      <form className="mt-8 space-y-4" noValidate onSubmit={onSubmit}>
         <div className="space-y-1.5">
-          <Label htmlFor="login-sid">学号</Label>
+          <Label htmlFor="login-sid" className="text-[13px]">
+            学号
+          </Label>
           <Input
             id="login-sid"
             type="text"
             inputMode="numeric"
             autoComplete="username"
             placeholder="20210001"
+            className="h-11 rounded-md text-base"
             aria-invalid={!!errors.sid}
             aria-describedby={errors.sid ? 'login-sid-err' : undefined}
             {...register('sid')}
           />
           {errors.sid && (
-            <p
-              id="login-sid-err"
-              role="alert"
-              className="text-xs text-cat-research"
-            >
+            <p id="login-sid-err" role="alert" className="text-xs text-cat-research">
               {errors.sid.message}
             </p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="login-password">密码</Label>
+          <Label htmlFor="login-password" className="text-[13px]">
+            密码
+          </Label>
           <Input
             id="login-password"
             type="password"
             autoComplete="current-password"
             placeholder="••••••"
+            className="h-11 rounded-md text-base"
             aria-invalid={!!errors.password}
-            aria-describedby={
-              errors.password ? 'login-password-err' : undefined
-            }
+            aria-describedby={errors.password ? 'login-password-err' : undefined}
             {...register('password')}
           />
           {errors.password && (
-            <p
-              id="login-password-err"
-              role="alert"
-              className="text-xs text-cat-research"
-            >
+            <p id="login-password-err" role="alert" className="text-xs text-cat-research">
               {errors.password.message}
             </p>
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          size="lg"
+          className="h-11 w-full rounded-md text-[15px]"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? '登录中…' : '登录'}
         </Button>
       </form>
 
-      <div className="my-4 flex items-center gap-3 text-xs text-text-faint">
+      <div className="my-5 flex items-center gap-3 text-xs text-text-faint">
         <span className="h-px flex-1 bg-border" />
         <span>或</span>
         <span className="h-px flex-1 bg-border" />
@@ -128,15 +124,14 @@ export function LoginForm() {
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        size="lg"
+        className="h-11 w-full rounded-md text-[15px]"
         onClick={onGuest}
       >
         以游客身份浏览
       </Button>
 
-      <p className="mt-6 text-center text-xs text-text-faint">
-        演示账号：20210001 / 123456
-      </p>
+      <p className="mt-6 text-center text-[12.5px] text-text-faint">演示账号：20210001 / 123456</p>
     </div>
   )
 }

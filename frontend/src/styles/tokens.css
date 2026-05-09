@@ -66,12 +66,17 @@
   /* === Shadow === */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
 
+  /* === Login brand panel (R5+) === */
+  --brand-panel-bg: var(--color-bg-subtle);
+  --brand-panel-grid: rgba(55, 53, 47, 0.06);
+  --brand-panel-glow-warm: rgba(217, 115, 13, 0.06);
+  --brand-panel-glow-cool: rgba(11, 110, 153, 0.05);
+
   /* === Motion === */
   --transition: 150ms ease;
 
   /* === Type stacks === */
-  --font-sans:
-    'Inter Tight', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter Tight', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 
