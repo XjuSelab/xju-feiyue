@@ -1,13 +1,31 @@
-import { DesignSystemPage } from '@/pages/_dev/DesignSystemPage'
+import { useEffect } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider } from 'react-router-dom'
+import { Toaster } from '@/components/ui/sonner'
+import { router } from '@/router'
+import { useAuthStore } from '@/stores/authStore'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 export default function App() {
-  // R3 起会接 router；本轮 dev 直挂 design-system 页面用于视觉对照。
-  if (import.meta.env.DEV) {
-    return <DesignSystemPage />
-  }
+  const hydrate = useAuthStore((s) => s.hydrateFromToken)
+
+  useEffect(() => {
+    void hydrate()
+  }, [hydrate])
+
   return (
-    <main className="grid min-h-screen place-items-center font-mono text-2xl">
-      LabNotes
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" richColors />
+    </QueryClientProvider>
   )
 }

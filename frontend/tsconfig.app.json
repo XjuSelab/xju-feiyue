@@ -36,6 +36,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["src/api/mock/**"]
+  "include": ["src"]
 }
