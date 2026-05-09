@@ -20,6 +20,7 @@ class NoteOut(CamelModel):
     id: str
     title: str
     summary: str
+    content: str = ""
     cover: str | None = None
     category: CategoryId
     tags: list[str] = Field(default_factory=list)

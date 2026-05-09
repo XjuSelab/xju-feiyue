@@ -1,170 +1,98 @@
 [
   {
-    "id": "note_research_001",
-    "title": "CIBMTR HCT Survival 复盘：CV-LB 一致性的两个细节",
-    "summary": "从 public LB 第 27 名 shake 到 private 第 312 名的过程，最关键的两个工程决策。把 CV 切分和 OOF 监控写在桌子上。",
-    "category": "research",
-    "tags": ["复盘", "Kaggle", "CV-LB", "shake-up"],
-    "author": { "id": "usr_zilun", "name": "Zilun Wei" },
-    "createdAt": "2026-05-09T10:00:00Z",
-    "likes": 142,
-    "comments": 28,
-    "readMinutes": 12
-  },
-  {
-    "id": "note_research_002",
-    "title": "阅读 ICLR 2026 Best Paper：状态空间模型的归纳偏置",
-    "summary": "Mamba 之后的下一步：把卷积归纳偏置显式注入 SSM。这篇论文最聪明的地方在于推导 ablation 是怎么定义的。",
-    "category": "research",
-    "tags": ["论文阅读", "SSM", "ICLR2026", "归纳偏置"],
-    "author": { "id": "usr_hanxu", "name": "Hanxu Liu" },
-    "createdAt": "2026-05-06T14:30:00Z",
-    "likes": 88,
-    "comments": 14,
-    "readMinutes": 18
-  },
-  {
-    "id": "note_course_001",
-    "title": "算法课期末复习：图论与动态规划速通",
-    "summary": "把 18 周的算法课内容压成 6 张图。重点：拓扑排序的两种实现、状态压缩 DP 的设计套路、最短路对比表。",
-    "category": "course",
-    "tags": ["算法", "DP", "图论", "考前突击"],
-    "author": { "id": "usr_xinyi", "name": "Xinyi Chen" },
-    "createdAt": "2026-05-01T09:15:00Z",
-    "likes": 215,
-    "comments": 41,
-    "readMinutes": 15
-  },
-  {
-    "id": "note_course_002",
-    "title": "高等数学 II 错题集（多元微积分）",
-    "summary": "二重积分换元、Stokes 公式应用、隐函数定理 —— 我把考研真题里这三类错的最多的题做了汇总，附我的错因分类。",
-    "category": "course",
-    "tags": ["高数", "错题集", "考研"],
-    "author": { "id": "usr_yutong", "name": "Yutong Zhao" },
-    "createdAt": "2026-04-28T20:00:00Z",
-    "likes": 67,
-    "comments": 9,
+    "id": "note_tools_winbeau_001",
+    "title": "Docker 容器配置",
+    "summary": "深度学习 Docker 容器化：GPU 透传 + Jupyter 隧道 + Zsh/Starship/Vim-Plug 美化 + 多端口映射全流程。",
+    "content": "深度学习项目放容器里跑，下面是我现在用的整套设置。\n\n## 1. 起容器（GPU + Jupyter 端口）\n\n只指定一张卡：\n\n```bash\ndocker run --gpus '\"device=0\"' \\\n  -it --name winbeau-dev \\\n  -v /home/winbeau/work:/workspace \\\n  -p 8890:8888 \\\n  nvcr.io/nvidia/pytorch:23.10-py3 bash\n```\n\n全部 GPU + 多端口（Jupyter / Gradio / API / TensorBoard）：\n\n```bash\ndocker run --gpus all \\\n  -it --name winbeau \\\n  -v /home/winbeau/Root:/root \\\n  -v /home/winbeau/Workspace:/workspace \\\n  -p 8890:8888 -p 7860:7860 -p 8000:8000 -p 6006:6006 \\\n  nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 bash\n```\n\n容器里起 Jupyter：\n\n```bash\njupyter lab --ip=0.0.0.0 --no-browser --allow-root --port=8888\n```\n\n宿主上做 SSH 隧道：\n\n```bash\nssh -L 8890:localhost:8888 target-server\n```\n\n浏览器开 `http://localhost:8890` 即可。\n\n## 2. shell 美化（Zsh + Starship）\n\n```bash\napt install -y zsh curl git\nchsh -s $(which zsh)\ncurl -sS https://starship.rs/install.sh | sh\necho 'eval \"$(starship init zsh)\"' >> ~/.zshrc\n```\n\n`~/.config/starship.toml` 我自己用的：用户名 + 目录截断 4 级 + git 状态符号\n（`+` 暂存 / `!` 已改 / `?` 未跟踪 / `✘` 删除）+ conda env 提示 + 成功失败 ❯。\n\n补全 + 高亮：\n\n```bash\ngit clone https://github.com/zsh-users/zsh-autosuggestions   ~/.zsh/plugins/zsh-autosuggestions\ngit clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.zsh/plugins/zsh-syntax-highlighting\n\ncat >> ~/.zshrc <<'EOF'\nsource ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh\nsource ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh\nEOF\n```\n\n## 3. Vim 进 Vim-Plug\n\n```bash\ncurl -fLo ~/.vim/autoload/plug.vim --create-dirs \\\n  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim\n```\n\n`.vimrc`（节选）：\n\n```vim\ncall plug#begin('~/.vim/plugged')\n  Plug 'NLKNguyen/papercolor-theme'\n  Plug 'vim-airline/vim-airline'\n  Plug 'Yggdroot/indentLine'\n  Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }\n  Plug 'jiangmiao/auto-pairs'\n  Plug 'vim-syntastic/syntastic'\n  Plug 'mattn/emmet-vim'\n  Plug 'tpope/vim-fugitive'\ncall plug#end()\n\nnnoremap <F3> :NERDTreeToggle<CR>\nnnoremap <F5> :!python %<CR>\n```\n\n进 Vim 第一次跑 `:PlugInstall`。\n",
+    "category": "tools",
+    "tags": ["Docker", "容器", "深度学习"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-05-08T10:00:00Z",
+    "likes": 0,
+    "comments": 0,
     "readMinutes": 8
   },
   {
-    "id": "note_recommend_001",
-    "title": "清华叉院夏令营经历：从笔试到面试",
-    "summary": "三天笔试 + 两轮面试的完整流程。笔试题型（数学+编程+英语）+ 面试问题清单 + 我自己的回答复盘。",
-    "category": "recommend",
-    "tags": ["夏令营", "清华叉院", "面试"],
-    "author": { "id": "usr_chenmu", "name": "Chenmu Wang" },
-    "createdAt": "2026-05-04T18:00:00Z",
-    "likes": 198,
-    "comments": 56,
-    "readMinutes": 14
-  },
-  {
-    "id": "note_recommend_002",
-    "title": "给学弟的预推免套磁信模板",
-    "summary": "一封被四个老师回复的套磁信长什么样。模板里的 5 个 placeholder 你必须改，不然像群发；3 个段落顺序最容易出错。",
-    "category": "recommend",
-    "tags": ["套磁", "模板", "预推免"],
-    "author": { "id": "usr_zilun", "name": "Zilun Wei" },
-    "createdAt": "2026-04-30T11:20:00Z",
-    "likes": 312,
-    "comments": 78,
-    "readMinutes": 6
-  },
-  {
-    "id": "note_competition_001",
-    "title": "数模国赛 B 题方案复盘：差分进化 + LSTM 混合",
-    "summary": "三天三夜的 B 题，差分进化优化 LSTM 超参 + 物理约束惩罚项。我们组从 25% 国一到 8% 国一的关键分歧点。",
-    "category": "competition",
-    "tags": ["数模", "国赛", "差分进化", "LSTM"],
-    "author": { "id": "usr_hanxu", "name": "Hanxu Liu" },
-    "createdAt": "2026-05-07T22:30:00Z",
-    "likes": 76,
-    "comments": 12,
-    "readMinutes": 11
-  },
-  {
-    "id": "note_competition_002",
-    "title": "蓝桥杯 Java A 组：图论题型整理",
-    "summary": "近五年蓝桥杯 Java A 组里图论题的出题分布 + 我的解题模板。最常考的不是最短路，是 BFS 多状态。",
-    "category": "competition",
-    "tags": ["蓝桥杯", "Java", "图论", "题型整理"],
-    "author": { "id": "usr_xinyi", "name": "Xinyi Chen" },
-    "createdAt": "2026-04-25T16:45:00Z",
-    "likes": 54,
-    "comments": 7,
-    "readMinutes": 9
-  },
-  {
-    "id": "note_kaggle_001",
-    "title": "Stable Diffusion Image-to-Prompt 50 名复盘",
-    "summary": "用 BLIP-2 给图配 caption + 反检索数据集中的相似 prompt + 一个轻量 reranker，金牌区差 0.003。下次怎么补这 0.003。",
-    "category": "kaggle",
-    "tags": ["Stable Diffusion", "BLIP-2", "image-to-text"],
-    "author": { "id": "usr_yutong", "name": "Yutong Zhao" },
-    "createdAt": "2026-05-08T08:00:00Z",
-    "likes": 189,
-    "comments": 23,
-    "readMinutes": 16
-  },
-  {
-    "id": "note_kaggle_002",
-    "title": "KDD Cup 2025 多模态推荐：特征工程 trick",
-    "summary": "比赛里我们做对的三个特征 + 做错的两个特征。target encoding 的平滑系数应该按召回组别动态调整，不该全局取 20。",
-    "category": "kaggle",
-    "tags": ["KDD Cup", "推荐系统", "特征工程"],
-    "author": { "id": "usr_chenmu", "name": "Chenmu Wang" },
-    "createdAt": "2026-04-22T13:00:00Z",
-    "likes": 95,
-    "comments": 18,
-    "readMinutes": 13
-  },
-  {
-    "id": "note_tools_001",
-    "title": "uv + tmux 多实验流程：4 fold 并行不串",
-    "summary": "uv 比 conda 快十倍是其次，关键是 lock 一致性。配合 tmux 的 send-keys + new-window，一条命令拉起 5 个 fold。",
+    "id": "note_tools_winbeau_002",
+    "title": "CUDA 安装",
+    "summary": "RTX 50 系上 CUDA + cuDNN 安装全过程：驱动、官方源、版本切换 (symlink) + 环境变量两套方案。",
+    "content": "RTX 50 系新卡装 CUDA 一不留神就版本错位，按下面顺序来不会翻车。\n\n## 1. 驱动先装对\n\n```bash\nsudo apt install -y nvidia-driver-550   # 5090 / 4090 至少 550\nsudo reboot\nnvidia-smi                              # 确认驱动加载\n```\n\n## 2. NVIDIA 官方源\n\n```bash\nsudo apt install -y gnupg\nwget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb\nsudo dpkg -i cuda-keyring_1.1-1_all.deb\nsudo apt update\n```\n\n## 3. 指定版本 CUDA + cuDNN\n\nCUDA 11.6 + cuDNN 8.4：\n\n```bash\nwget https://developer.download.nvidia.com/compute/cuda/11.6.0/local_installers/cuda_11.6.0_510.39.01_linux.run\nsudo sh cuda_11.6.0_510.39.01_linux.run\n\nwget https://developer.download.nvidia.com/compute/redist/cudnn/v8.4.1/local_installers/11.6/cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive.tar.xz\ntar -xJvf cudnn-*.tar.xz\ncd cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive\nsudo mv include/* /usr/local/cuda-11.6/include/\nsudo mv lib/libcudnn*  /usr/local/cuda-11.6/lib64/\n```\n\n## 4A. 多版本切换：symlink 法（系统级）\n\n```bash\nsudo rm -f /usr/local/cuda\nsudo ln -s /usr/local/cuda-11.6 /usr/local/cuda\nnvcc -V\n```\n\n## 4B. 多版本切换：环境变量法（per-shell）\n\n```bash\nexport CUDA_HOME=/usr/local/cuda-11.6\nexport PATH=$CUDA_HOME/bin:$PATH\nexport LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH\n```\n\n写在 conda env 的 activate 脚本里最优雅，不会污染系统其他用户。\n",
     "category": "tools",
-    "tags": ["uv", "tmux", "工程化", "ablation"],
-    "author": { "id": "usr_hanxu", "name": "Hanxu Liu" },
-    "createdAt": "2026-05-05T15:30:00Z",
-    "likes": 248,
-    "comments": 34,
-    "readMinutes": 7
-  },
-  {
-    "id": "note_tools_002",
-    "title": "我的极简 zsh / nvim 配置（2026 版）",
-    "summary": "去掉了过去三年攒下的所有 plugin，留下 11 行 zshrc + 80 行 init.lua。开机时间 0.2s，启动 nvim 大文件 50ms。",
-    "category": "tools",
-    "tags": ["zsh", "nvim", "dotfiles", "极简"],
-    "author": { "id": "usr_zilun", "name": "Zilun Wei" },
-    "createdAt": "2026-04-20T19:00:00Z",
-    "likes": 167,
-    "comments": 31,
-    "readMinutes": 10
-  },
-  {
-    "id": "note_life_001",
-    "title": "实验室搬家记：从北航到中关村",
-    "summary": "把六年的代码、读书笔记、咖啡杯一起搬过去。新工位窗外是国贸三期 —— 写论文之外，能看见城市的呼吸。",
-    "category": "life",
-    "tags": ["实验室", "搬家", "心情碎片"],
-    "author": { "id": "usr_xinyi", "name": "Xinyi Chen" },
-    "createdAt": "2026-05-02T21:30:00Z",
-    "likes": 89,
-    "comments": 22,
+    "tags": ["CUDA", "GPU", "深度学习"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-05-05T14:00:00Z",
+    "likes": 0,
+    "comments": 0,
     "readMinutes": 5
   },
   {
-    "id": "note_life_002",
-    "title": "凌晨 3 点的实验楼：写在 deadline 前",
-    "summary": "ICLR rebuttal 最后一天。整层楼只剩三盏灯。我用过去 30 天里最快的两小时把 3 个 reviewer 的疑问回完。",
-    "category": "life",
-    "tags": ["deadline", "实验楼", "rebuttal"],
-    "author": { "id": "usr_yutong", "name": "Yutong Zhao" },
-    "createdAt": "2026-05-09T03:15:00Z",
-    "likes": 134,
-    "comments": 19,
-    "readMinutes": 4
+    "id": "note_tools_winbeau_003",
+    "title": "Nginx",
+    "summary": "从 0 配置 Nginx 部署前端：站点配置、API 代理、SSL、Gzip、缓存控制完整记录。",
+    "content": "前端打完包之后用 Nginx 当反向代理，下面是从 0 上线的步骤。\n\n## 0. /etc/nginx/nginx.conf 总开关\n\n```nginx\nuser www-data;\nworker_processes auto;\nevents { worker_connections 1024; }\n\nhttp {\n  sendfile on;\n  keepalive_timeout 65;\n  ssl_protocols TLSv1.2 TLSv1.3;\n  gzip on;\n  gzip_types text/plain text/css application/json application/javascript;\n  access_log /var/log/nginx/access.log;\n  error_log  /var/log/nginx/error.log;\n  include /etc/nginx/sites-enabled/*;\n}\n```\n\n## 1. 部署前端 dist\n\n```bash\ncp -r ~/repo/frontend/dist /var/www/labnotes\n```\n\n## 2. 站点配置 /etc/nginx/sites-available/labnotes\n\n```nginx\nserver {\n  listen 80;\n  server_name labnotes.example.com;\n\n  root /var/www/labnotes;\n  index index.html;\n\n  location / {\n    try_files $uri $uri/ /index.html;     # SPA fallback\n  }\n\n  location /api/ {\n    proxy_pass http://127.0.0.1:8000/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n  }\n\n  location ~* \\.html$ {\n    add_header Cache-Control \"no-store\";  # 强制刷新 index.html\n  }\n\n  location ~* \\.(js|css|png|jpg|svg|woff2)$ {\n    expires 30d;\n    add_header Cache-Control \"public, immutable\";\n  }\n}\n```\n\n## 3. 启用 + 重启\n\n```bash\nsudo ln -sf /etc/nginx/sites-available/labnotes /etc/nginx/sites-enabled/\nsudo nginx -t\nsudo systemctl reload nginx\n```\n\n`reload` 而不是 `restart` —— reload 复用现有连接，新配置生效不掉线。\n",
+    "category": "tools",
+    "tags": ["Nginx", "服务器", "部署", "SSL"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-05-02T09:30:00Z",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 5
+  },
+  {
+    "id": "note_tools_winbeau_004",
+    "title": "WSL Git(SSH) 操作速查表",
+    "summary": "WSL 下用 SSH 走代理操作 GitHub 的速查表：SSH config、ProxyCommand、HTTPS fallback。",
+    "content": "## SSH 走代理连 GitHub（WSL 下最稳）\n\n`~/.ssh/config`：\n\n```\nHost github.com\n  HostName github.com\n  User git\n  Port 22\n  IdentityFile ~/.ssh/id_ed25519\n  ProxyCommand nc -X connect -x 127.0.0.1:9098 %h %p\n```\n\n`http_proxy / https_proxy` 只影响 HTTPS 协议；走 SSH 必须显式 `ProxyCommand`，\n否则 22 端口经常被运营商 / 公司防火墙断掉。\n\n## 第一次 init 一个仓库\n\n```bash\ncd ~/project\ngit init\ngit branch -M main\ngit config --global user.name  \"winbeau\"\ngit config --global user.email \"your@email\"\ngit remote add origin git@github.com:you/repo.git\ngit add .\ngit commit -m \"initial commit\"\ngit push -u origin main\n```\n\n## 日常工作流\n\n```bash\ngit checkout -b dev               # 新分支\n# 改代码\ngit add . && git commit -m \"feat: ...\"\ngit checkout main && git merge dev\ngit push\n```\n\n临时打断：\n\n```bash\ngit stash                         # 暂存\ngit checkout other-branch\n# 切回来\ngit stash pop\n```\n\n## SSH 全断时的 HTTPS fallback\n\n```bash\ngit remote set-url origin https://github.com/you/repo.git\ngit config --global credential.helper store     # 之后只输一次\n```\n\n只在 SSH 真的连不上时用。日常还是 SSH 干净。\n",
+    "category": "tools",
+    "tags": ["Git", "SSH", "WSL", "速查表"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-28T20:00:00Z",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 3
+  },
+  {
+    "id": "note_tools_winbeau_005",
+    "title": "Vim 配置文件 (.vimrc) 详细分析",
+    "summary": ".vimrc 11 段配置实战：缩进、语法、状态栏、补全、快捷键 + 文件类型联动逐段拆解。",
+    "content": "我自己的 .vimrc 攒了 5 年，下面把它拆成 11 段说每一段做什么。\n\n## 1. 缩进\n\n```vim\nset sw=4 ts=4 sts=4 expandtab\nset autoindent smartindent\n```\n\n`expandtab` 是关键 —— Python / YAML 这类对 tab 敏感的文件，没它一不小心就缩进错。\n\n## 2. 文件类型字典 + 语法检查\n\n```vim\nau FileType php    set dictionary+=~/.vim/dict/php.dict\nau FileType python set dictionary+=~/.vim/dict/python.dict\nlet g:syntastic_python_checker = 'pylint'\n```\n\n## 3. Go 路径\n\n```vim\nlet g:go_path = '/usr/local/go'\n```\n\n## 4. 显示\n\n```vim\nsyntax on\nset cursorline cursorcolumn       \" 高亮当前行 / 列\ncolorscheme ron\nset guifont=Consolas:h11:cANSI\nset antialias\n```\n\n## 5. 状态栏\n\n```vim\nset ruler showcmd laststatus=2\nset statusline=%F%m%r%h%w\\ [FORMAT=%{&ff}]\\ [TYPE=%Y]\\ [POS=%l,%v][%p%%]\\ %{strftime(\"%d/%m/%y\\ -\\ %H:%M\")}\n```\n\n## 6. 编码\n\n```vim\nset encoding=utf-8 termencoding=utf-8 fileencoding=utf-8\nif v:version >= 603\n  set helplang=cn\nendif\n```\n\n## 7. 高级缩进 + tabstop 一致\n\n```vim\nset autoindent cindent\nset tabstop=4 softtabstop=4 shiftwidth=4\n```\n\n## 8. 搜索 + history\n\n```vim\nset number history=1000\nset hlsearch incsearch\nset langmenu=zh_CN.UTF-8\nlanguage messages zh_CN.utf-8\n```\n\n## 9. filetype + 补全\n\n```vim\nset cmdheight=2\nfiletype on\nfiletype plugin on\nfiletype indent on\nset iskeyword+=_,$,@,%,#,-\n```\n\n## 10. 文件类型关联\n\n```vim\nau BufRead,BufNewFile *.md set filetype=markdown\nau BufRead,BufNewFile *.go set filetype=go\nau BufRead,BufNewFile *.js set filetype=javascript\n```\n\n## 11. 快捷键\n\n```vim\nnnoremap md :!pandoc %:p -o %:p:r.html<CR>\nnnoremap fi :!firefox %:p:r.html<CR>\nnnoremap tt :%s/\\t/    /g<CR>\n```\n\n`md` 把当前 markdown 转 HTML，`fi` 在 Firefox 里打开它 —— 写笔记时一键预览。\n",
+    "category": "tools",
+    "tags": ["Vim", "编辑器", "配置"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-22T16:00:00Z",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 6
+  },
+  {
+    "id": "note_tools_winbeau_006",
+    "title": "SQL [PostgreSQL]",
+    "summary": "PostgreSQL 常用操作速查：DDL/DML 区分、CREATE/ALTER/DROP、SELECT/INSERT/UPDATE/DELETE 模板。",
+    "content": "日常碰得最多的几条，按 DDL / DML 分类速查。\n\n## DDL（动结构）\n\n| 语义 | 模板 |\n|---|---|\n| 建库 | `CREATE DATABASE labnotes;` |\n| 删库 | `DROP DATABASE labnotes;` |\n| 建表 | `CREATE TABLE notes (id SERIAL PRIMARY KEY, title TEXT NOT NULL);` |\n| 删表 | `DROP TABLE notes;` |\n| 改表 | `ALTER TABLE notes ADD COLUMN tags TEXT[];` |\n\n## DML（动数据）\n\n| 语义 | 模板 |\n|---|---|\n| 查 | `SELECT * FROM notes WHERE category='tools' LIMIT 10;` |\n| 增 | `INSERT INTO notes (title, body) VALUES ('foo', 'bar');` |\n| 改 | `UPDATE notes SET title='new' WHERE id=42;` |\n| 删 | `DELETE FROM notes WHERE created_at < NOW() - INTERVAL '90 days';` |\n\n## 索引 + 性能\n\n```sql\nCREATE INDEX idx_notes_category    ON notes(category);\nCREATE INDEX idx_notes_created_desc ON notes(created_at DESC);\n```\n\nPostgreSQL 不会自动给外键加索引（不像 MySQL InnoDB），多表 join 前手动检查。\n\n## 备份\n\n```bash\npg_dump -Fc labnotes > labnotes.dump\npg_restore -d labnotes_new labnotes.dump\n```\n\n`-Fc` 是 custom 格式，比 plain SQL 体积小 + 支持并行 restore。\n",
+    "category": "tools",
+    "tags": ["SQL", "PostgreSQL", "数据库"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-15T11:00:00Z",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 3
   }
 ]

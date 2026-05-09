@@ -1,8 +1,8 @@
 """Seed the DB from frontend/src/api/mock/notes.json.
 
-Creates 5 named users (demo = Zilun Wei, sid `20211010001`, password `123456`)
-+ 14 notes + deterministic likes/comments. Safe to re-run — drops and recreates
-all tables before seeding.
+Creates one user per distinct author in the JSON (currently only `winbeau`,
+sid `20211010001`, password `123456`) + every note in the file. Safe to
+re-run — drops and recreates all tables before seeding.
 """
 from __future__ import annotations
 
@@ -28,14 +28,11 @@ NOTES_JSON = REPO_ROOT / "frontend/src/api/mock/notes.json"
 
 DEMO_PASSWORD = "123456"
 
-# Map each unique mock author id → 11-digit student id. The first one is the
-# canonical demo account documented in BACKEND_SPEC.md.
+# Map each mock author id → 11-digit student id. `usr_winbeau` is the
+# canonical demo account documented in BACKEND_SPEC.md and shown in the
+# login page footer.
 SID_BY_AUTHOR: dict[str, str] = {
-    "usr_zilun": "20211010001",
-    "usr_hanxu": "20211010002",
-    "usr_xinyi": "20211010003",
-    "usr_yutong": "20211010004",
-    "usr_chenmu": "20211010005",
+    "usr_winbeau": "20211010001",
 }
 
 SAMPLE_COMMENTS = [
@@ -97,7 +94,7 @@ async def main() -> None:
                     sid=sid,
                     name=str(data["name"]),
                     avatar=data["avatar"],
-                    bio=("科研笔记 + Kaggle 复盘" if uid == "usr_zilun" else None),
+                    bio=("工程速查 + 深度学习环境配置" if uid == "usr_winbeau" else None),
                     password_hash=pwd_hash,
                 )
             )
@@ -154,7 +151,6 @@ async def main() -> None:
     print(f"seed done: {len(unique_authors)} users / {len(raw)} notes")
     print(f"          {likes_total} likes / {comments_total} comments")
     print(f"demo: sid=20211010001 / password={DEMO_PASSWORD}")
-    print("other users:", ", ".join(SID_BY_AUTHOR[u] for u in user_ids if u in SID_BY_AUTHOR))
 
 
 if __name__ == "__main__":

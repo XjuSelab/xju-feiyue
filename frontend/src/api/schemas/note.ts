@@ -27,6 +27,8 @@ export const NoteSchema = z.object({
   id: z.string(),
   title: z.string(),
   summary: z.string(),
+  /** Markdown body. Empty string for legacy notes that have no body yet. */
+  content: z.string(),
   cover: z.string().url().nullish(),
   category: CategoryIdSchema,
   tags: z.array(z.string()),

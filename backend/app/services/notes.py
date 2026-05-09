@@ -57,6 +57,7 @@ def to_note_out(note: Note, likes: int, comments: int) -> NoteOut:
         id=note.id,
         title=note.title,
         summary=note.summary,
+        content=note.content or "",
         cover=note.cover,
         category=cast(CategoryId, note.category),
         tags=list(note.tags or []),

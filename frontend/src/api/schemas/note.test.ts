@@ -5,6 +5,7 @@ const VALID_NOTE = {
   id: 'n1',
   title: 'Hello',
   summary: 'A note',
+  content: '',
   category: 'research' as const,
   tags: ['paper'],
   author: { id: 'u1', name: 'Alice' },

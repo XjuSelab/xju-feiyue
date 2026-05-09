@@ -15,10 +15,10 @@ const VALID_PASSWORD = '123456'
 const TOKEN_PREFIX = 'mock-jwt-'
 
 const FAKE_USER = {
-  id: 'usr_zilun',
+  id: 'usr_winbeau',
   sid: VALID_SID,
-  name: 'Zilun Wei',
-  bio: '科研笔记 + Kaggle 复盘',
+  name: 'winbeau',
+  bio: '工程速查 + 深度学习环境配置',
 }
 
 registerMock('POST', '/auth/login', async (req: MockReq) => {
