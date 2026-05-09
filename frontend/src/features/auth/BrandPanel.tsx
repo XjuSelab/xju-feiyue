@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { NotebookPen, Heart, MessageSquare, Clock } from 'lucide-react'
+import { Clock, Heart, MessageSquare, NotebookPen } from 'lucide-react'
 import { CATEGORIES, getCategory } from '@/lib/categories'
 import type { Note } from '@/api/schemas/note'
 import notesJson from '@/api/mock/notes.json'
@@ -73,25 +73,24 @@ export function BrandPanel() {
 
       <footer className="relative mt-8">
         <ul className="flex flex-wrap gap-2">
-          {CATEGORIES.map((c) => {
-            const Icon = c.icon
-            return (
-              <li
-                key={c.id}
-                data-cat={c.id}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-bg px-3 py-1.5 text-[12.5px] font-medium text-text-muted"
-              >
-                <span
-                  aria-hidden
-                  className="flex size-4 items-center justify-center"
-                  style={{ color: `var(${c.colorVar})` }}
-                >
-                  <Icon size={14} strokeWidth={1.75} />
-                </span>
-                {c.label}
-              </li>
-            )
-          })}
+          {CATEGORIES.map((c) => (
+            <li
+              key={c.id}
+              data-cat={c.id}
+              className="inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[12.5px] font-medium"
+              style={{
+                backgroundColor: `var(${c.tagBgVar})`,
+                color: `var(${c.colorVar})`,
+              }}
+            >
+              <span
+                aria-hidden
+                className="size-1.5 rounded-full"
+                style={{ backgroundColor: `var(${c.colorVar})` }}
+              />
+              {c.label}
+            </li>
+          ))}
         </ul>
         <p className="mt-6 text-[12.5px] text-text-faint">
           登录后可写作 · 收藏 · 评论；游客仅可浏览。

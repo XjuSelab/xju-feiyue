@@ -71,7 +71,8 @@ export function LoginForm() {
             type="text"
             inputMode="numeric"
             autoComplete="username"
-            placeholder="20210001"
+            placeholder="20211010001"
+            maxLength={11}
             className="h-11 rounded-md text-base"
             aria-invalid={!!errors.sid}
             aria-describedby={errors.sid ? 'login-sid-err' : undefined}
@@ -131,7 +132,9 @@ export function LoginForm() {
         以游客身份浏览
       </Button>
 
-      <p className="mt-6 text-center text-[12.5px] text-text-faint">演示账号：20210001 / 123456</p>
+      <p className="mt-6 text-center text-[12.5px] text-text-faint">
+        演示账号：20211010001 / 123456
+      </p>
     </div>
   )
 }

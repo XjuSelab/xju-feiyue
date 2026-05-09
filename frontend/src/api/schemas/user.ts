@@ -16,9 +16,7 @@ export const LoginResponseSchema = z.object({
 export type LoginResponse = z.infer<typeof LoginResponseSchema>
 
 export const LoginRequestSchema = z.object({
-  sid: z
-    .string()
-    .regex(/^\d{8,12}$/, '学号需 8-12 位纯数字'),
+  sid: z.string().regex(/^\d{11}$/, '学号需 11 位纯数字'),
   password: z.string().min(1, '密码不能为空'),
 })
 export type LoginRequest = z.infer<typeof LoginRequestSchema>

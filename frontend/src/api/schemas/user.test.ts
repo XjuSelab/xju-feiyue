@@ -3,14 +3,14 @@ import { LoginRequestSchema, LoginResponseSchema, UserSchema } from './user'
 
 describe('UserSchema', () => {
   it('accepts a minimal user', () => {
-    expect(() => UserSchema.parse({ id: 'u1', sid: '20210001', name: 'Alice' })).not.toThrow()
+    expect(() => UserSchema.parse({ id: 'u1', sid: '20211010001', name: 'Alice' })).not.toThrow()
   })
 
   it('accepts optional avatar URL and bio', () => {
     expect(() =>
       UserSchema.parse({
         id: 'u1',
-        sid: '20210001',
+        sid: '20211010001',
         name: 'Alice',
         avatar: 'https://example.com/a.png',
         bio: 'hello',
@@ -22,7 +22,7 @@ describe('UserSchema', () => {
     expect(() =>
       UserSchema.parse({
         id: 'u1',
-        sid: '20210001',
+        sid: '20211010001',
         name: 'Alice',
         avatar: 'not-a-url',
       }),
@@ -31,25 +31,25 @@ describe('UserSchema', () => {
 })
 
 describe('LoginRequestSchema', () => {
-  it('accepts 8-12 digit sid + non-empty password', () => {
-    expect(() => LoginRequestSchema.parse({ sid: '20210001', password: '123456' })).not.toThrow()
+  it('accepts exactly 11-digit sid + non-empty password', () => {
+    expect(() => LoginRequestSchema.parse({ sid: '20211010001', password: '123456' })).not.toThrow()
     expect(() => LoginRequestSchema.parse({ sid: '12345678901', password: 'x' })).not.toThrow()
   })
 
-  it('rejects sid shorter than 8 digits', () => {
-    expect(() => LoginRequestSchema.parse({ sid: '1234567', password: 'x' })).toThrow(/8-12/)
+  it('rejects sid shorter than 11 digits', () => {
+    expect(() => LoginRequestSchema.parse({ sid: '2021001', password: 'x' })).toThrow(/11/)
   })
 
-  it('rejects sid longer than 12 digits', () => {
-    expect(() => LoginRequestSchema.parse({ sid: '1234567890123', password: 'x' })).toThrow()
+  it('rejects sid longer than 11 digits', () => {
+    expect(() => LoginRequestSchema.parse({ sid: '202110100012', password: 'x' })).toThrow(/11/)
   })
 
   it('rejects sid with non-digit characters', () => {
-    expect(() => LoginRequestSchema.parse({ sid: '2021000a', password: 'x' })).toThrow()
+    expect(() => LoginRequestSchema.parse({ sid: '2021101000a', password: 'x' })).toThrow()
   })
 
   it('rejects empty password', () => {
-    expect(() => LoginRequestSchema.parse({ sid: '20210001', password: '' })).toThrow()
+    expect(() => LoginRequestSchema.parse({ sid: '20211010001', password: '' })).toThrow()
   })
 })
 
@@ -57,7 +57,7 @@ describe('LoginResponseSchema', () => {
   it('requires user + token', () => {
     expect(() =>
       LoginResponseSchema.parse({
-        user: { id: 'u1', sid: '20210001', name: 'A' },
+        user: { id: 'u1', sid: '20211010001', name: 'A' },
         token: 'abc',
       }),
     ).not.toThrow()
@@ -66,7 +66,7 @@ describe('LoginResponseSchema', () => {
   it('rejects empty token', () => {
     expect(() =>
       LoginResponseSchema.parse({
-        user: { id: 'u1', sid: '20210001', name: 'A' },
+        user: { id: 'u1', sid: '20211010001', name: 'A' },
         token: '',
       }),
     ).toThrow()

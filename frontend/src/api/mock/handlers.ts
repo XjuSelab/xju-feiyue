@@ -4,16 +4,13 @@
  */
 import { ApiError, registerMock, type MockReq } from '../client'
 import { NoteSchema, type Note, type ListNotesQuery } from '../schemas/note'
-import {
-  AIComposeRequestSchema,
-  type AIComposeMode,
-} from '../schemas/ai'
+import { AIComposeRequestSchema, type AIComposeMode } from '../schemas/ai'
 import { computeDiff } from '@/features/editor/ai/diffEngine'
 import notesFixture from './notes.json'
 
 // ============== auth ==============
 
-const VALID_SID = '20210001'
+const VALID_SID = '20211010001'
 const VALID_PASSWORD = '123456'
 const TOKEN_PREFIX = 'mock-jwt-'
 
@@ -26,11 +23,7 @@ const FAKE_USER = {
 
 registerMock('POST', '/auth/login', async (req: MockReq) => {
   const body = req.body as { sid?: string; password?: string } | undefined
-  if (
-    !body ||
-    body.sid !== VALID_SID ||
-    body.password !== VALID_PASSWORD
-  ) {
+  if (!body || body.sid !== VALID_SID || body.password !== VALID_PASSWORD) {
     throw new ApiError('学号或密码不正确', 401, req.path)
   }
   return {
@@ -50,9 +43,7 @@ registerMock('GET', '/auth/me', async (req: MockReq) => {
 // ============== notes ==============
 
 // Validate fixtures at load time — fail fast if JSON drifts from schema.
-const ALL_NOTES: Note[] = (notesFixture as unknown[]).map((n) =>
-  NoteSchema.parse(n),
-)
+const ALL_NOTES: Note[] = (notesFixture as unknown[]).map((n) => NoteSchema.parse(n))
 
 const DEFAULT_LIMIT = 6
 const MAX_LIMIT = 50
@@ -113,13 +104,10 @@ registerMock('GET', '/notes', async (req: MockReq) => {
   const q = parseListQuery(req)
   const list = filterAndSort(q)
   const limit = q.limit ?? DEFAULT_LIMIT
-  const startIdx = q.cursor
-    ? list.findIndex((n) => n.id === q.cursor) + 1
-    : 0
+  const startIdx = q.cursor ? list.findIndex((n) => n.id === q.cursor) + 1 : 0
   const items = list.slice(startIdx, startIdx + limit)
   const lastItem = items.at(-1)
-  const nextCursor =
-    startIdx + limit < list.length && lastItem ? lastItem.id : null
+  const nextCursor = startIdx + limit < list.length && lastItem ? lastItem.id : null
   return { items, nextCursor }
 })
 
