@@ -1,10 +1,14 @@
 /**
  * Mock dispatch table for dev. Loaded once at app boot via api/index.ts.
- * R3 注册了 auth；R4 home-agent 扩 notes；R4 editor-agent 在 ai.ts handler
- * step 扩 ai。
+ * R3 注册了 auth；R4 home-agent 扩 notes；R4 editor-agent 扩 ai。
  */
 import { ApiError, registerMock, type MockReq } from '../client'
 import { NoteSchema, type Note, type ListNotesQuery } from '../schemas/note'
+import {
+  AIComposeRequestSchema,
+  type AIComposeMode,
+} from '../schemas/ai'
+import { computeDiff } from '@/features/editor/ai/diffEngine'
 import notesFixture from './notes.json'
 
 // ============== auth ==============
@@ -142,4 +146,60 @@ registerMock('GET', '/notes/get', async (req: MockReq) => {
   const note = ALL_NOTES.find((n) => n.id === id)
   if (!note) throw new ApiError('笔记不存在', 404, req.path)
   return note
+})
+
+// ============== AI compose ==============
+
+function transform(
+  text: string,
+  mode: AIComposeMode,
+  options: Record<string, unknown> | undefined,
+): string {
+  switch (mode) {
+    case 'polish': {
+      let r = text
+      r = r.replace(/我觉得/g, '笔者认为')
+      r = r.replace(/(\S)\s+(\S)/g, '$1 $2')
+      // 末尾补句号
+      if (r.length > 0 && !/[。！？.!?]$/.test(r)) r = `${r}。`
+      return r
+    }
+    case 'shorten': {
+      const sentences = text.split(/(?<=[。！？.!?])/).filter(Boolean)
+      const half = Math.max(1, Math.ceil(sentences.length / 2))
+      return sentences.slice(0, half).join('').trim()
+    }
+    case 'expand': {
+      return `${text}\n\n这一点尤其重要：上面提到的细节往往决定了实验结果的可复现性，建议在下一次开赛前做成 checklist 贴在工位上。`
+    }
+    case 'tone': {
+      const target = (options?.['target'] as string) ?? 'formal'
+      if (target === 'formal') {
+        return text.replace(/我们/g, '研究者').replace(/我/g, '笔者')
+      }
+      return text.replace(/笔者/g, '我').replace(/研究者/g, '我们')
+    }
+    case 'translate': {
+      return `[Auto-translated · zh→en mock]\n\n${text}`
+    }
+    case 'custom': {
+      const prompt = (options?.['prompt'] as string) ?? ''
+      return `${text}\n\n（按 prompt 修改：${prompt || '未提供 prompt'}）`
+    }
+  }
+}
+
+registerMock('POST', '/ai/compose', async (req: MockReq) => {
+  const parsed = AIComposeRequestSchema.parse(req.body)
+  const before = parsed.text
+  const after = transform(before, parsed.mode, parsed.options)
+  // 模拟 400-1000ms 额外延迟（client 已有 200ms 全局延迟）
+  const extra = Math.round(400 + Math.random() * 600)
+  await new Promise((r) => setTimeout(r, extra))
+  return {
+    segments: computeDiff(before, after),
+    before,
+    after,
+    elapsedMs: 200 + extra,
+  }
 })
