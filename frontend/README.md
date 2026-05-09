@@ -5,8 +5,8 @@ seven categories of research notes. Mock-only data layer with a contract-frozen
 seam so the future real backend swap is zero-churn.
 
 > 工程位置：`/home/winbeau/wenbiao_zhao/Aurash/frontend/`
-> 设计稿仓：同仓库 `../components` `../pages` `../stylesheets`
-> 5 轮 spec：同仓库 `../docs/round{1..5}.md`
+> 设计稿（已归档）：`../archive/design-refs/`
+> 后端契约：`../BACKEND_SPEC.md`
 
 ---
 
@@ -92,18 +92,32 @@ flowchart LR
 
 切真后端：把 `client.ts` 中的 `dev → mock` 分支注释掉、改 `baseURL` 即可，业务代码 0 改动。
 
+### 接真后端（联调）
+
+```bash
+# 1. .env.local 指向后端
+echo 'VITE_API_BASE=http://localhost:8000' > .env.local
+
+# 2. （可选）注释 src/api/index.ts 的 dev mock import 让所有请求都走真后端：
+# if (import.meta.env.DEV) {
+#   await import('./mock/handlers')
+# }
+```
+
+完整契约见 `../BACKEND_SPEC.md`。
+
+### 演示账号
+
+学号 `20211010001` / 密码 `123456`；游客模式点登录页「以游客身份浏览」。
+
 ---
 
-## Round 进度
+## 文档地图
 
-- [x] **Round 1** — 工程基建 (vite + ts strict + tailwind v3 + shadcn config + eslint/prettier/husky/commitlint + playwright config)
-- [x] **Round 2** — 设计系统迁移 (tokens / shadcn 组件 / prose-claude 容器)
-- [x] **Round 3** — 布局与路由 (Header / MegaMenu / Footer / authStore / 守卫 / 占位页 + 冻结 R4 contracts)
-- [x] **Round 4** — 业务页面 (home / browse / editor / login，4 commit 各自独立)
-- [x] **Round 5** — 集成验证 (单测 / 一致性审计 / 文档 / Husky 接通 + INTEGRATION_REPORT)
-
-详细 spec 见 `../docs/round{1..5}.md`；架构详解见 `../docs/architecture.md`；
-关键决策见 `../docs/design-decisions.md`；交付报告见 `INTEGRATION_REPORT.md`。
+- `INTEGRATION_REPORT.md` — 5 轮交付报告 / 性能 / 单测 / 偏差 / 已知 issue
+- `../docs/architecture.md` — 数据流 / 路由树 / 组件分层 / 状态管理
+- `../docs/design-decisions.md` — 12 条关键决策与原因
+- `../BACKEND_SPEC.md` — 后端 API 契约（19 路由 + 10 schema）
 
 ## 测试
 

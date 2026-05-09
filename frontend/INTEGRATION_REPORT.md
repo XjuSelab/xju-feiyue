@@ -183,7 +183,7 @@ Duration   6.47 s
 
 ## 8 · 下一阶段建议（按业务价值）
 
-1. **接真后端**：spec 设计的 client.ts / endpoints 双层抽象天然支持。先要后端定义返回 NoteSchema 的 RESTful 接口；前端只需 `.env` 切 `VITE_API_BASE`。
+1. **接真后端**：spec 设计的 client.ts / endpoints 双层抽象天然支持。完整契约见 `../BACKEND_SPEC.md`（19 条路由 + 10 schema）；前端只需 `.env` 切 `VITE_API_BASE` + 注释 `src/api/index.ts` 的 dev mock import。
 2. **暗色模式**：`next-themes` 已在 R2 装入；tokens.css 加 `[data-theme="dark"]` overrides；`prose-claude--dark` 占位类已存。
 3. **i18n**：当前界面纯中文；引入 `react-i18next`，category labels / sidebar headers 等先上 zh + en。
 4. **笔记详情页**：`NoteDetailPage` 当前是占位；接通 `useNote(id)` + `<Markdown />` 渲染，加评论模块。
@@ -222,7 +222,7 @@ http://localhost:5173/write                       WritePage（需登录）
 http://localhost:5173/_dev/design-system          DEV-only 设计系统对照页
 
 # 模拟 mock 登录
-学号: 20210001  密码: 123456
+学号: 20211010001  密码: 123456
 游客模式: 点击「以游客身份浏览」按钮
 ```
 
