@@ -2,10 +2,11 @@
 
 Used by bootstrap.py / push.py / pull.py. Stdlib + huggingface_hub only.
 
-age passphrase scripting: age 1.x reads the passphrase from /dev/tty, so we
-allocate a pty via util-linux's `script -qec` and feed both the passphrase
-prompt(s) and the payload through it. `script` is in every base WSL/Ubuntu
-install so this is portable enough for our targets.
+age passphrase scripting: age opens /dev/tty for the passphrase prompt and
+reads ciphertext from stdin. We give it a private pty as its controlling tty
+(for the prompt) and a regular pipe for stdin (for the data) — that way the
+binary tar bytes never traverse the pty's line discipline, which would echo
+them back and deadlock the pipeline.
 """
 
 from __future__ import annotations
@@ -16,9 +17,12 @@ import fcntl
 import hashlib
 import json
 import os
+import pty
 import shutil
 import socket
 import subprocess
+import termios
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -41,11 +45,6 @@ from config import (
 
 def have_cmd(cmd: str) -> bool:
     return shutil.which(cmd) is not None
-
-
-def shq(s: str) -> str:
-    """POSIX single-quote escaper for embedding in /bin/sh -c strings."""
-    return "'" + s.replace("'", "'\\''") + "'"
 
 
 # ---------- file flock ------------------------------------------------------
@@ -140,15 +139,125 @@ def _read_passphrase() -> str:
 def _ensure_age_deps() -> None:
     if not have_cmd("age"):
         raise RuntimeError("`age` not on PATH (apt install age / brew install age).")
-    if not have_cmd("script"):
-        raise RuntimeError(
-            "`script` (util-linux) not on PATH — needed to allocate a pty for age. "
-            "Install with: apt install bsdextrautils (or util-linux)."
-        )
+
+
+def _spawn_with_split_io(
+    args: list[str],
+) -> tuple[int, int, int]:
+    """fork+exec args with passphrase prompt over a pty, stdin over a pipe.
+
+    age opens /dev/tty for the passphrase prompt; we make a fresh pty the
+    child's controlling tty so writes to that pty's master fd reach the
+    prompt. age reads ciphertext/plaintext from stdin; we give it an
+    ordinary pipe so binary data doesn't traverse the pty's line discipline.
+
+    Returns (pid, stdin_pipe_write_fd, pty_master_fd). The caller is
+    responsible for writing/closing both fds and waitpid'ing the child.
+    """
+    master_fd, slave_fd = pty.openpty()
+    stdin_r, stdin_w = os.pipe()
+
+    pid = os.fork()
+    if pid == 0:
+        # child
+        try:
+            os.close(master_fd)
+            os.close(stdin_w)
+
+            # Detach from parent's controlling tty so we can claim slave_fd.
+            os.setsid()
+            try:
+                fcntl.ioctl(slave_fd, termios.TIOCSCTTY, 0)
+            except OSError:
+                pass
+
+            os.dup2(stdin_r, 0)
+            os.dup2(slave_fd, 1)
+            os.dup2(slave_fd, 2)
+            if stdin_r > 2:
+                os.close(stdin_r)
+            if slave_fd > 2:
+                os.close(slave_fd)
+
+            os.execvp(args[0], args)
+        except Exception:
+            os._exit(127)
+
+    # parent
+    os.close(slave_fd)
+    os.close(stdin_r)
+    return pid, stdin_w, master_fd
+
+
+def _drain(fd: int, into: bytearray) -> None:
+    """Continuously read from fd until EOF; used to keep age's prompt writes
+    from blocking the pty buffer. Errors after EOF (EIO on closed pty) end
+    the loop cleanly."""
+    while True:
+        try:
+            chunk = os.read(fd, 4096)
+        except OSError as e:
+            if e.errno == errno.EIO:
+                return
+            raise
+        if not chunk:
+            return
+        into.extend(chunk)
+
+
+def _run_age(
+    *,
+    args: list[str],
+    passphrase: str,
+    passphrase_repeat: int,
+    payload_path: Path,
+) -> None:
+    """Spawn `age` via _spawn_with_split_io, feed the passphrase + payload, wait."""
+    pid, stdin_w, master_fd = _spawn_with_split_io(args)
+    prompt_buf = bytearray()
+    drainer = threading.Thread(target=_drain, args=(master_fd, prompt_buf), daemon=True)
+    drainer.start()
+
+    try:
+        # Write passphrase the right number of times (encrypt prompts twice
+        # for confirmation; decrypt prompts once).
+        line = (passphrase + "\n").encode("utf-8")
+        for _ in range(passphrase_repeat):
+            os.write(master_fd, line)
+
+        # Stream payload to age's stdin pipe.
+        with payload_path.open("rb") as f:
+            while True:
+                chunk = f.read(64 * 1024)
+                if not chunk:
+                    break
+                # os.write on a pipe is blocking; pty drain thread keeps
+                # the prompt fd from filling. age handles backpressure on
+                # stdin via its own scrypt-based read loop.
+                view = memoryview(chunk)
+                while view:
+                    written = os.write(stdin_w, view)
+                    view = view[written:]
+        os.close(stdin_w)
+        stdin_w = -1
+
+        _, status = os.waitpid(pid, 0)
+        rc = os.waitstatus_to_exitcode(status)
+        if rc != 0:
+            raise RuntimeError(
+                f"age failed (exit={rc}); prompt buffer={bytes(prompt_buf)!r}"
+            )
+    finally:
+        with contextlib.suppress(OSError):
+            os.close(master_fd)
+        if stdin_w >= 0:
+            with contextlib.suppress(OSError):
+                os.close(stdin_w)
+        drainer.join(timeout=2.0)
 
 
 def encrypt_secrets(repo_root: Path, dst: Path) -> list[Path]:
-    """tar the existing SECRETS_PATHS, pipe through `age -p`, write `dst`.
+    """tar the existing SECRETS_PATHS, encrypt with `age -p`, write `dst`.
 
     Skips members that don't exist locally; raises if none exist. Returns the
     list of relative paths actually included (lands in manifest.files).
@@ -166,7 +275,6 @@ def encrypt_secrets(repo_root: Path, dst: Path) -> list[Path]:
     if dst.exists():
         dst.unlink()
 
-    # Stage the tar to a tempfile so we can drive age's tty cleanly.
     tar_tmp = dst.with_suffix(dst.suffix + ".tar.tmp")
     if tar_tmp.exists():
         tar_tmp.unlink()
@@ -178,24 +286,14 @@ def encrypt_secrets(repo_root: Path, dst: Path) -> list[Path]:
                 check=True,
             )
 
-        # Pipeline:
-        #   ( printf "$PP\n$PP\n"; cat "$TAR" ) | script -qec "age -p --armor -o DST" /dev/null
-        # `script` allocates a pty so age reads its prompt; we feed both the
-        # passphrase confirmation (twice) and the binary archive on stdin.
-        env = {**os.environ, "PP": pp, "TAR": str(tar_tmp)}
-        glue = 'printf "%s\\n%s\\n" "$PP" "$PP"; cat "$TAR"'
-        age_cmd = f"age -p --armor -o {shq(str(dst))}"
-        proc = subprocess.run(
-            ["bash", "-c", f"({glue}) | script -qec {shq(age_cmd)} /dev/null"],
-            env=env,
-            capture_output=True,
+        _run_age(
+            args=["age", "-p", "--armor", "-o", str(dst)],
+            passphrase=pp,
+            passphrase_repeat=2,
+            payload_path=tar_tmp,
         )
-        if proc.returncode != 0 or not dst.exists() or dst.stat().st_size == 0:
-            stderr = (proc.stderr or b"").decode("utf-8", errors="replace")
-            stdout = (proc.stdout or b"").decode("utf-8", errors="replace")
-            raise RuntimeError(
-                f"age encryption failed (rc={proc.returncode})\nstdout: {stdout}\nstderr: {stderr}"
-            )
+        if not dst.exists() or dst.stat().st_size == 0:
+            raise RuntimeError("age produced an empty output file")
     finally:
         if tar_tmp.exists():
             tar_tmp.unlink()
@@ -212,18 +310,14 @@ def decrypt_secrets(src: Path, repo_root: Path) -> list[Path]:
     if tar_tmp.exists():
         tar_tmp.unlink()
     try:
-        # age -d asks for the passphrase exactly once.
-        env = {**os.environ, "PP": pp, "ENC": str(src)}
-        glue = 'printf "%s\\n" "$PP"; cat "$ENC"'
-        age_cmd = f"age -d -o {shq(str(tar_tmp))}"
-        proc = subprocess.run(
-            ["bash", "-c", f"({glue}) | script -qec {shq(age_cmd)} /dev/null"],
-            env=env,
-            capture_output=True,
+        _run_age(
+            args=["age", "-d", "-o", str(tar_tmp)],
+            passphrase=pp,
+            passphrase_repeat=1,
+            payload_path=src,
         )
-        if proc.returncode != 0 or not tar_tmp.exists() or tar_tmp.stat().st_size == 0:
-            stderr = (proc.stderr or b"").decode("utf-8", errors="replace")
-            raise RuntimeError(f"age decryption failed (rc={proc.returncode}): {stderr}")
+        if not tar_tmp.exists() or tar_tmp.stat().st_size == 0:
+            raise RuntimeError("age decryption produced an empty tar")
 
         listing = subprocess.run(
             ["tar", "-tf", str(tar_tmp)], capture_output=True, check=True
@@ -323,7 +417,6 @@ def read_manifest(src: Path) -> dict[str, object]:
 
 __all__ = [
     "have_cmd",
-    "shq",
     "file_lock",
     "sha256_of",
     "humanize_bytes",
