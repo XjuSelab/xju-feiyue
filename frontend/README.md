@@ -22,17 +22,17 @@ pnpm dev           # http://localhost:5173
 
 ## Scripts
 
-| script             | what                                                                   |
-| ------------------ | ---------------------------------------------------------------------- |
-| `pnpm dev`         | Vite dev server at `http://localhost:5173`                             |
-| `pnpm build`       | `tsc -b` (project references) then Vite production build               |
-| `pnpm preview`     | preview the production build                                           |
-| `pnpm typecheck`   | `tsc -b --noEmit` over `app + node + mock` projects                    |
-| `pnpm lint`        | ESLint flat config across the repo                                     |
-| `pnpm format`      | Prettier write across the repo                                         |
-| `pnpm test`        | Vitest (jsdom) — unit & component tests                                |
-| `pnpm e2e`         | Playwright (chromium) — auto-starts dev server via `webServer.command` |
-| `pnpm bundle-viz`  | open `vite-bundle-visualizer`                                          |
+| script            | what                                                                   |
+| ----------------- | ---------------------------------------------------------------------- |
+| `pnpm dev`        | Vite dev server at `http://localhost:5173`                             |
+| `pnpm build`      | `tsc -b` (project references) then Vite production build               |
+| `pnpm preview`    | preview the production build                                           |
+| `pnpm typecheck`  | `tsc -b --noEmit` over `app + node + mock` projects                    |
+| `pnpm lint`       | ESLint flat config across the repo                                     |
+| `pnpm format`     | Prettier write across the repo                                         |
+| `pnpm test`       | Vitest (jsdom) — unit & component tests                                |
+| `pnpm e2e`        | Playwright (chromium) — auto-starts dev server via `webServer.command` |
+| `pnpm bundle-viz` | open `vite-bundle-visualizer`                                          |
 
 ## Conventions
 
@@ -97,9 +97,17 @@ flowchart LR
 ## Round 进度
 
 - [x] **Round 1** — 工程基建 (vite + ts strict + tailwind v3 + shadcn config + eslint/prettier/husky/commitlint + playwright config)
-- [ ] **Round 2** — 设计系统迁移 (tokens / shadcn 组件 / prose-claude 容器)
-- [ ] **Round 3** — 布局与路由 (Header / MegaMenu / Footer / authStore / 守卫 / 占位页 + 冻结 R4 contracts)
-- [ ] **Round 4** — 业务页面 (home / browse / editor / login，4 subagent 并行)
-- [ ] **Round 5** — 集成验证 (跨页一致性 / 性能 / a11y / 视觉回归 / 文档 + INTEGRATION_REPORT)
+- [x] **Round 2** — 设计系统迁移 (tokens / shadcn 组件 / prose-claude 容器)
+- [x] **Round 3** — 布局与路由 (Header / MegaMenu / Footer / authStore / 守卫 / 占位页 + 冻结 R4 contracts)
+- [x] **Round 4** — 业务页面 (home / browse / editor / login，4 commit 各自独立)
+- [x] **Round 5** — 集成验证 (单测 / 一致性审计 / 文档 / Husky 接通 + INTEGRATION_REPORT)
 
-详细 spec 见 `../docs/round{1..5}.md` 与 `~/.claude/plans/5-docs-5-review-agent-approval-commit-humming-bachman.md`。
+详细 spec 见 `../docs/round{1..5}.md`；架构详解见 `../docs/architecture.md`；
+关键决策见 `../docs/design-decisions.md`；交付报告见 `INTEGRATION_REPORT.md`。
+
+## 测试
+
+```bash
+pnpm test         # vitest（72 个单测覆盖 lib + api/schemas + diffEngine + CategoryBadge）
+pnpm e2e          # Playwright（需 OS deps：libnss3/libatk-bridge 等，本机 VPS 不可用）
+```

@@ -1,1 +1,5 @@
-pnpm exec lint-staged
+#!/usr/bin/env sh
+# Run lint-staged from frontend/ (frontend is a sub-directory of the Aurash
+# repo, so .git lives one level up; pnpm -C resolves package.json correctly
+# regardless of current working directory).
+pnpm -C frontend exec lint-staged
