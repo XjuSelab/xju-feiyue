@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # Wire as a comma-separated string (e.g. CORS_ORIGINS=a,b,c).
     # pydantic-settings v2 would try JSON-parsing list[str] env vars and
     # crash on plain CSV; sticking to str + a derived list property avoids it.
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:
