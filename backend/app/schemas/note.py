@@ -1,10 +1,9 @@
 """Mirrors frontend src/api/schemas/note.ts (NoteSchema, ListNotesQuery, PaginatedNotes)."""
-from datetime import datetime
 from typing import Literal
 
 from pydantic import Field
 
-from app.schemas._base import CamelModel
+from app.schemas._base import CamelModel, UtcDateTime
 
 CategoryId = Literal[
     "research", "course", "recommend", "competition", "kaggle", "tools", "life"
@@ -25,7 +24,7 @@ class NoteOut(CamelModel):
     category: CategoryId
     tags: list[str] = Field(default_factory=list)
     author: NoteAuthorOut
-    created_at: datetime
+    created_at: UtcDateTime
     likes: int = Field(ge=0)
     comments: int = Field(ge=0)
     read_minutes: int = Field(ge=1)

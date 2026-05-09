@@ -1,9 +1,7 @@
 """Likes / Comments — see BACKEND_SPEC.md §3."""
-from datetime import datetime
-
 from pydantic import Field
 
-from app.schemas._base import CamelModel
+from app.schemas._base import CamelModel, UtcDateTime
 from app.schemas.note import NoteAuthorOut
 
 
@@ -16,7 +14,7 @@ class CommentOut(CamelModel):
     note_id: str
     author: NoteAuthorOut
     content: str
-    created_at: datetime
+    created_at: UtcDateTime
 
 
 class PaginatedComments(CamelModel):

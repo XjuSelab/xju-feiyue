@@ -130,6 +130,8 @@ async def test_get_one_existing_includes_full_camelcase_shape(
     # camelCase keys present, snake_case absent
     assert "createdAt" in body
     assert "created_at" not in body
+    # Spec §1: ISO 8601 UTC with `Z` suffix
+    assert body["createdAt"].endswith("Z"), body["createdAt"]
     # Author shape
     assert body["author"]["id"] == "usr_test_00"
     assert body["author"]["name"] == "User 0"

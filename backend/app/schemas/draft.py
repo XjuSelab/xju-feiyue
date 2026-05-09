@@ -1,9 +1,7 @@
 """Draft schemas — see BACKEND_SPEC.md §3 (Drafts)."""
-from datetime import datetime
-
 from pydantic import Field
 
-from app.schemas._base import CamelModel
+from app.schemas._base import CamelModel, UtcDateTime
 from app.schemas.note import CategoryId
 
 
@@ -20,4 +18,4 @@ class DraftOut(CamelModel):
     content: str
     category: CategoryId | None = None
     tags: list[str] = Field(default_factory=list)
-    updated_at: datetime
+    updated_at: UtcDateTime
