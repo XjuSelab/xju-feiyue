@@ -9,15 +9,19 @@ from __future__ import annotations
 import asyncio
 import json
 import random
+import sys
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
-from app.db import models  # noqa: F401 - register on Base.metadata
-from app.db.base import Base
-from app.db.models import Comment, Like, Note, User
-from app.db.session import AsyncSessionLocal, engine
-from app.services.auth import hash_password
+# Allow `uv run python scripts/seed.py` from the backend/ dir.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.db import models  # noqa: E402,F401 - register on Base.metadata
+from app.db.base import Base  # noqa: E402
+from app.db.models import Comment, Like, Note, User  # noqa: E402
+from app.db.session import AsyncSessionLocal, engine  # noqa: E402
+from app.services.auth import hash_password  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTES_JSON = REPO_ROOT / "frontend/src/api/mock/notes.json"

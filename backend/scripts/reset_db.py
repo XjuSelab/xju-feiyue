@@ -5,10 +5,14 @@ Use this for local dev resets only — production uses alembic migrations.
 from __future__ import annotations
 
 import asyncio
+import sys
+from pathlib import Path
 
-from app.db import models  # noqa: F401 - register models
-from app.db.base import Base
-from app.db.session import engine
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.db import models  # noqa: E402,F401 - register models
+from app.db.base import Base  # noqa: E402
+from app.db.session import engine  # noqa: E402
 
 
 async def main() -> None:
