@@ -1,7 +1,7 @@
 import { request } from '../client'
 import {
-  NoteSchema,
   NoteListSchema,
+  NoteSchema,
   PaginatedNotesSchema,
   type Note,
   type ListNotesQuery,
@@ -9,40 +9,65 @@ import {
 } from '../schemas/note'
 
 /**
- * R3 contracts — 函数签名冻结，body 全部 throw NotImplemented。
- * R4 home-agent (subagent A) 替换 listNotes / getHotThisWeek /
- * getLatest / getMostLiked 的 body 为基于 mock/handlers.ts 的真实
- * dispatch。getNote 在 R4 末尾或 R5 由谁来填都行。
- *
- * 不要改这些函数的入参/返回类型 —— 4 个 subagent 共享。
+ * R4 home-agent 实现：所有函数走 client.request → mock dispatcher (dev) /
+ * fetch (prod)，输入输出经 Zod schema 校验。R3 contracts 定义的签名不变。
  */
 
-const NOT_IMPLEMENTED = (fn: string): never => {
-  throw new Error(`NotImplemented: ${fn} (round-4a home-agent)`)
+function toRequestQuery(
+  q: ListNotesQuery | undefined,
+): Record<string, string | number | undefined> | undefined {
+  if (!q) return undefined
+  const params: Record<string, string | number> = {}
+  if (q.cat) params['cat'] = q.cat
+  if (q.q) params['q'] = q.q
+  if (q.sort) params['sort'] = q.sort
+  if (q.cursor) params['cursor'] = q.cursor
+  if (typeof q.limit === 'number') params['limit'] = q.limit
+  if (q.tags && q.tags.length > 0) params['tags'] = q.tags.join(',')
+  return params
 }
 
-export async function listNotes(_query?: ListNotesQuery): Promise<PaginatedNotes> {
-  void _query
-  void request
-  void PaginatedNotesSchema
-  return NOT_IMPLEMENTED('listNotes')
+export async function listNotes(
+  query?: ListNotesQuery,
+): Promise<PaginatedNotes> {
+  const requestQuery = toRequestQuery(query)
+  return request({
+    method: 'GET',
+    path: '/notes',
+    schema: PaginatedNotesSchema,
+    ...(requestQuery !== undefined ? { query: requestQuery } : {}),
+  })
 }
 
 export async function getHotThisWeek(): Promise<Note[]> {
-  void NoteListSchema
-  return NOT_IMPLEMENTED('getHotThisWeek')
+  return request({
+    method: 'GET',
+    path: '/notes/hot',
+    schema: NoteListSchema,
+  })
 }
 
 export async function getLatest(): Promise<Note[]> {
-  return NOT_IMPLEMENTED('getLatest')
+  return request({
+    method: 'GET',
+    path: '/notes/latest',
+    schema: NoteListSchema,
+  })
 }
 
 export async function getMostLiked(): Promise<Note[]> {
-  return NOT_IMPLEMENTED('getMostLiked')
+  return request({
+    method: 'GET',
+    path: '/notes/liked',
+    schema: NoteListSchema,
+  })
 }
 
-export async function getNote(_id: string): Promise<Note> {
-  void _id
-  void NoteSchema
-  return NOT_IMPLEMENTED('getNote')
+export async function getNote(id: string): Promise<Note> {
+  return request({
+    method: 'GET',
+    path: '/notes/get',
+    query: { id },
+    schema: NoteSchema,
+  })
 }
