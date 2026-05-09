@@ -1,13 +1,7 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { LayoutGrid } from 'lucide-react'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { CATEGORIES } from '@/lib/categories'
 import { cn } from '@/lib/cn'
 
@@ -25,6 +19,7 @@ export function MegaMenu() {
 
 function DesktopMegaMenu() {
   const [open, setOpen] = useState(false)
+  const [pinned, setPinned] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -36,23 +31,43 @@ function DesktopMegaMenu() {
     closeTimer.current = null
   }
   const scheduleOpen = () => {
+    if (pinned) return
     clearTimers()
     openTimer.current = setTimeout(() => setOpen(true), HOVER_OPEN_DELAY_MS)
   }
   const scheduleClose = () => {
+    if (pinned) return
     clearTimers()
     closeTimer.current = setTimeout(() => setOpen(false), HOVER_CLOSE_DELAY_MS)
+  }
+  const closeAll = useCallback(() => {
+    if (openTimer.current) clearTimeout(openTimer.current)
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    openTimer.current = null
+    closeTimer.current = null
+    setPinned(false)
+    setOpen(false)
+  }, [])
+  const togglePinned = () => {
+    clearTimers()
+    if (pinned) {
+      setPinned(false)
+      setOpen(false)
+    } else {
+      setPinned(true)
+      setOpen(true)
+    }
   }
 
   useEffect(() => () => clearTimers(), [])
   useEffect(() => {
     if (!open) return
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') closeAll()
     }
     const onClick = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) {
-        setOpen(false)
+        closeAll()
       }
     }
     document.addEventListener('keydown', onKey)
@@ -61,13 +76,13 @@ function DesktopMegaMenu() {
       document.removeEventListener('keydown', onKey)
       document.removeEventListener('mousedown', onClick)
     }
-  }, [open])
+  }, [open, closeAll])
 
-  const onTriggerKey = (e: KeyboardEvent<HTMLAnchorElement>) => {
-    // Spec: Tab 到「浏览」按 Enter → 面板展开；鼠标点击仍走 Link 跳转。
-    if (e.key === 'Enter') {
+  const onTriggerKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    // Spec: Tab 聚焦「浏览」后 Enter/Space 切换 pinned 状态（与点击一致）。
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      setOpen((o) => !o)
+      togglePinned()
     }
   }
 
@@ -78,25 +93,26 @@ function DesktopMegaMenu() {
       onMouseEnter={scheduleOpen}
       onMouseLeave={scheduleClose}
     >
-      <Link
-        to="/browse"
+      <button
+        type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-pressed={pinned}
+        onClick={togglePinned}
         onKeyDown={onTriggerKey}
         className={cn(
           'inline-flex h-9 items-center rounded-sm px-3 text-sm font-medium transition',
-          open
-            ? 'bg-bg-subtle text-text'
-            : 'text-text-muted hover:bg-bg-subtle hover:text-text',
+          open ? 'bg-bg-subtle text-text' : 'text-text-muted hover:bg-bg-subtle hover:text-text',
         )}
       >
         浏览
-      </Link>
+      </button>
 
       <div
         role="dialog"
         aria-label="分类浏览"
         data-state={open ? 'open' : 'closed'}
+        data-pinned={pinned ? 'true' : 'false'}
         onMouseEnter={() => {
           if (closeTimer.current) clearTimeout(closeTimer.current)
         }}
@@ -112,7 +128,7 @@ function DesktopMegaMenu() {
           width: 'min(1080px, calc(100vw - 32px))',
         }}
       >
-        <PanelContent onPick={() => setOpen(false)} />
+        <PanelContent onPick={closeAll} />
       </div>
     </div>
   )
@@ -143,21 +159,10 @@ function MobileMegaMenu() {
   )
 }
 
-function PanelContent({
-  onPick,
-  mobile = false,
-}: {
-  onPick: () => void
-  mobile?: boolean
-}) {
+function PanelContent({ onPick, mobile = false }: { onPick: () => void; mobile?: boolean }) {
   return (
     <div className="flex flex-col gap-6">
-      <div
-        className={cn(
-          'grid gap-4',
-          mobile ? 'grid-cols-1' : 'grid-cols-4',
-        )}
-      >
+      <div className={cn('grid gap-4', mobile ? 'grid-cols-1' : 'grid-cols-4')}>
         {CATEGORIES.map((c) => {
           const Icon = c.icon
           return (
@@ -179,12 +184,8 @@ function PanelContent({
                 <Icon size={18} strokeWidth={1.75} />
               </span>
               <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="truncate text-sm font-medium text-text">
-                  {c.label}
-                </span>
-                <span className="truncate text-xs text-text-muted">
-                  {c.desc}
-                </span>
+                <span className="truncate text-sm font-medium text-text">{c.label}</span>
+                <span className="truncate text-xs text-text-muted">{c.desc}</span>
               </span>
             </Link>
           )
@@ -224,9 +225,7 @@ function BottomList({ title }: { title: string }) {
       <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-faint">
         {title}
       </h4>
-      <p className="text-xs text-text-muted">
-        R4 home-agent 接通 useNotes 后展示
-      </p>
+      <p className="text-xs text-text-muted">R4 home-agent 接通 useNotes 后展示</p>
     </div>
   )
 }
