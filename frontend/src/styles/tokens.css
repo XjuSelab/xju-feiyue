@@ -1,1 +1,91 @@
-/* Round 2 will populate design tokens here (colors, fonts, radius, shadows). */
+/* ==========================================================================
+   LabNotes Design Tokens — Single Source of Truth (Round 2)
+   ----------------------------------------------------------------------------
+   - 主名采用 spec 语义化命名 (--color-bg / --color-text / ...)
+   - 同时保留 design 稿原始短名 (--bg / --fg / --line) 作为 alias
+   - 圆角采用 spec 决议值 (6/8/12)，非 design 原始 4/6/8
+   - shadcn 桥接的 HSL 形式变量在 globals.css :root 中映射
+   ========================================================================== */
+
+:root {
+  /* === Surfaces === */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f6f3;
+  --bg-hover: #f1f1ef;
+
+  /* === Text === */
+  --color-text: #37352f;
+  --color-text-muted: #787774;
+  --color-text-faint: #9b9a97;
+
+  /* === Lines === */
+  --color-border: #edece9;
+  --line-strong: #dcdad4;
+
+  /* === Link === */
+  --color-link: #2383e2;
+
+  /* === 7 类别强调色 === */
+  --cat-research: #e03e3e;
+  --cat-course: #d9730d;
+  --cat-recommend: #9065b0;
+  --cat-competition: #b8405e;
+  --cat-kaggle: #0b6e99;
+  --cat-tools: #0f7b6c;
+  --cat-life: #b5926a;
+
+  /* === 7 类 12% alpha tag tints === */
+  --tag-research-bg: rgba(224, 62, 62, 0.12);
+  --tag-course-bg: rgba(217, 115, 13, 0.12);
+  --tag-recommend-bg: rgba(144, 101, 176, 0.12);
+  --tag-competition-bg: rgba(184, 64, 94, 0.12);
+  --tag-kaggle-bg: rgba(11, 110, 153, 0.12);
+  --tag-tools-bg: rgba(15, 123, 108, 0.12);
+  --tag-life-bg: rgba(181, 146, 106, 0.12);
+  --tag-tool-bg: var(--tag-tools-bg); /* alias for legacy 'tool' singular */
+
+  /* === Inline code === */
+  --code-inline-bg: rgba(135, 131, 120, 0.15);
+  --code-inline-fg: #eb5757;
+
+  /* === AI diff (R4 editor 引用) === */
+  --ai-add-soft: #fafbfa;
+  --ai-add-strong: #0f7b6c;
+  --ai-add-bg: rgba(15, 123, 108, 0.12);
+  --ai-add-fg: #0f5e54;
+  --ai-add-border: rgba(15, 123, 108, 0.32);
+  --ai-del-bg: rgba(224, 62, 62, 0.12);
+  --ai-del-fg: #b91c1c;
+  --ai-del-border: rgba(224, 62, 62, 0.32);
+
+  /* === Radii (spec values, override design 4/6/8) === */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* === Shadow === */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  /* === Motion === */
+  --transition: 150ms ease;
+
+  /* === Type stacks === */
+  --font-sans:
+    'Inter Tight', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* === Aliases (compat with design HTML / styles.css 原文) === */
+  --bg: var(--color-bg);
+  --bg-soft: var(--color-bg-subtle);
+  --fg: var(--color-text);
+  --fg-muted: var(--color-text-muted);
+  --fg-faint: var(--color-text-faint);
+  --line: var(--color-border);
+  --link: var(--color-link);
+  --t-fast: var(--transition);
+  --font-ui: var(--font-sans);
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+}

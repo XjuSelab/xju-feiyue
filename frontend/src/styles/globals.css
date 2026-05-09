@@ -1,3 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600&display=swap');
+
+@import './tokens.css';
+@import './prose-claude.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==========================================================================
+   shadcn variable bridge → tokens.css 单一色源
+   ----------------------------------------------------------------------------
+   shadcn (new-york / stone) 期望 colors 以 hsl(var(--xxx)) 形式被 Tailwind
+   消费，因此这里给出 HSL 形式的桥接变量。值由 tokens.css 中 hex 手算
+   推导：
+     #FFFFFF → 0 0% 100%
+     #37352F → 40 9% 20%       (text)
+     #787774 → 43 3% 46%       (text-muted)
+     #9B9A97 → 40 2% 60%       (text-faint)
+     #F7F6F3 → 40 22% 96%      (bg-subtle)
+     #EDECE9 → 40 11% 92%      (border)
+     #DCDAD4 → 42 12% 84%      (line-strong)
+     #E03E3E → 0 73% 56%       (cat-research → destructive)
+   ========================================================================== */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 40 9% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 40 9% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 40 9% 20%;
+
+    --primary: 40 9% 20%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 22% 96%;
+    --secondary-foreground: 40 9% 20%;
+
+    --muted: 40 22% 96%;
+    --muted-foreground: 43 3% 46%;
+
+    --accent: 40 22% 96%;
+    --accent-foreground: 40 9% 20%;
+
+    --destructive: 0 73% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 11% 92%;
+    --input: 40 11% 92%;
+    --ring: 43 3% 46%;
+
+    --radius: 0.5rem; /* 8px == --radius-md */
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* shadcn-add 默认会写一个 *,*::before,*::after { border-color: var(--border) }
+     的 base reset；这里同步加，确保 shadcn 组件 border 颜色生效。 */
+  * {
+    @apply border-border;
+  }
+}

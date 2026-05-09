@@ -1,0 +1,76 @@
+import { useEffect, useRef, useState } from 'react'
+import { Check, Copy } from 'lucide-react'
+import { cn } from '@/lib/cn'
+
+type Props = {
+  code: string
+  language?: string
+  className?: string
+}
+
+/**
+ * CodeBlock — prose-claude 内 fenced code 的渲染组件。
+ * 行为：
+ * - hover 显示右上角复制按钮（focus-within 也显示，便于键盘可达）
+ * - 点击 `navigator.clipboard.writeText`，按钮态切到 "Copied" 1.5s
+ * - 左上角显示 language label（如 ```python ... ``` → "python"）
+ */
+export function CodeBlock({ code, language, className }: Props) {
+  const [copied, setCopied] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopied(true)
+      if (timerRef.current) clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => setCopied(false), 1500)
+    } catch (err) {
+      // 静默失败：clipboard 在 http context 可能无权限；R3+ 可加 toast
+      console.warn('clipboard write failed', err)
+    }
+  }
+
+  return (
+    <pre className={cn('group relative', className)}>
+      {language ? (
+        <span className="absolute left-3 top-2 select-none font-mono text-xs text-text-faint">
+          {language}
+        </span>
+      ) : null}
+      <button
+        type="button"
+        onClick={onCopy}
+        aria-label={
+          copied ? 'Copied to clipboard' : 'Copy code to clipboard'
+        }
+        className={cn(
+          'absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-bg-subtle px-2 py-1 text-xs text-text-muted opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        )}
+      >
+        {copied ? (
+          <Check size={12} aria-hidden />
+        ) : (
+          <Copy size={12} aria-hidden />
+        )}
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <code
+        className={cn(
+          'block',
+          language ? `language-${language}` : undefined,
+          // 给左上 lang label 让位，避免代码首行被 label 覆盖
+          language ? 'pt-5' : undefined,
+        )}
+      >
+        {code}
+      </code>
+    </pre>
+  )
+}

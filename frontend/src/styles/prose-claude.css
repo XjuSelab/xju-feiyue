@@ -1,1 +1,158 @@
-/* Round 2 will populate Claude-style prose container styles. */
+/* ==========================================================================
+   prose-claude — Claude PDF 风格 Markdown 排版容器
+   ----------------------------------------------------------------------------
+   - 使用 Source Serif 4 / Noto Serif SC 衬线主体字
+   - 与 design 稿一致：H2 底边线 / blockquote 左边线 / table 圆角包边
+   - 内部代码块依赖 src/components/common/CodeBlock.tsx 提供 hover 复制按钮
+   ========================================================================== */
+
+.prose-claude {
+  max-width: 720px;
+  margin: 0 auto;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+}
+
+.prose-claude h1 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 2rem 0 1rem;
+}
+
+.prose-claude h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+  margin: 2rem 0 1rem;
+}
+
+.prose-claude h3,
+.prose-claude h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.prose-claude h3 {
+  font-size: 1.25rem;
+}
+
+.prose-claude h4 {
+  font-size: 1.05rem;
+}
+
+.prose-claude p {
+  margin: 1em 0;
+}
+
+.prose-claude blockquote {
+  border-left: 3px solid var(--color-text-muted);
+  padding-left: 1em;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin: 1em 0;
+}
+
+.prose-claude ul,
+.prose-claude ol {
+  padding-left: 1.5em;
+}
+
+.prose-claude ul {
+  list-style: disc;
+}
+
+.prose-claude ol {
+  list-style: decimal;
+}
+
+.prose-claude li {
+  margin: 0.25em 0;
+}
+
+.prose-claude a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-claude table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin: 1.5em 0;
+  font-size: 0.95em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.prose-claude thead {
+  background: var(--color-bg-subtle);
+}
+
+.prose-claude th,
+.prose-claude td {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.prose-claude th {
+  font-weight: 600;
+}
+
+.prose-claude tr:last-child td {
+  border-bottom: none;
+}
+
+.prose-claude code {
+  background: var(--code-inline-bg);
+  color: var(--code-inline-fg);
+  padding: 0.15em 0.35em;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.prose-claude pre {
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  line-height: 1.6;
+  position: relative; /* 供 CodeBlock 顶部右上 copy / 左上 lang label 使用 */
+}
+
+.prose-claude pre code {
+  background: transparent;
+  color: var(--color-text);
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.prose-claude img {
+  border-radius: 6px;
+  max-width: 100%;
+}
+
+.prose-claude hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2em 0;
+}
+
+/* Dark variant placeholder（暂不实现具体值，预留 R5+ 主题切换） */
+.prose-claude--dark {
+  /* TODO: dark scheme overrides in future round */
+}
