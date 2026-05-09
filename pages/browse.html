@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>浏览 · LabNotes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<style>
+  body { font-size: 15px; }
+
+  /* ---------- top nav (matches home.html) ---------- */
+  .nav { height: 56px; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 30; display: flex; align-items: center; padding: 0 28px; gap: 24px; }
+  .nav-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: var(--fg); cursor: pointer; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { font-family: var(--font-ui); font-size: 14px; font-weight: 500; color: var(--fg-muted); padding: 7px 12px; border-radius: var(--r-md); cursor: pointer; transition: background var(--t-fast), color var(--t-fast); }
+  .nav-tab:hover { background: var(--bg-soft); color: var(--fg); }
+  .nav-tab.active { color: var(--fg); background: var(--bg-soft); }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .guest-badge { font-family: var(--font-ui); font-size: 12px; color: var(--fg-muted); background: var(--bg-soft); padding: 4px 10px; border-radius: var(--r-sm); font-weight: 500; }
+  .avatar-trigger { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-soft); color: var(--fg); font-family: var(--font-ui); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--line); }
+
+  /* ---------- 3-column shell ---------- */
+  .shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 260px;
+    gap: 32px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 28px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) { .shell { grid-template-columns: 200px 1fr; } .col-right { display: none; } }
+  @media (max-width: 760px)  { .shell { grid-template-columns: 1fr; } .col-left { display: none; } }
+
+  .col-left, .col-right {
+    position: sticky;
+    top: 72px;
+    align-self: start;
+    padding: 28px 0 32px;
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+  }
+  .col-left::-webkit-scrollbar, .col-right::-webkit-scrollbar { width: 0; }
+
+  .col-main { padding: 0 0 64px; min-width: 0; }
+
+  /* ---------- side widgets ---------- */
+  .widget + .widget { margin-top: 28px; }
+  .widget-h {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 10px;
+  }
+
+  .filter-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    margin: 0 -10px;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 13.5px;
+    color: var(--fg);
+    transition: background var(--t-fast);
+    user-select: none;
+  }
+  .filter-item:hover { background: var(--bg-soft); }
+  .filter-item.active {
+    background: var(--bg-soft);
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .filter-item.active.cat-research    { background: var(--tag-research-bg);    color: var(--cat-research); }
+  .filter-item.active.cat-course      { background: var(--tag-course-bg);      color: var(--cat-course); }
+  .filter-item.active.cat-recommend   { background: var(--tag-recommend-bg);   color: var(--cat-recommend); }
+  .filter-item.active.cat-competition { background: var(--tag-competition-bg); color: var(--cat-competition); }
+  .filter-item.active.cat-kaggle      { background: var(--tag-kaggle-bg);      color: var(--cat-kaggle); }
+  .filter-item.active.cat-tool        { background: var(--tag-tools-bg);       color: var(--cat-tools); }
+  .filter-item.active.cat-life        { background: var(--tag-life-bg);        color: var(--cat-life); }
+  .filter-item.active.cat-all         { background: var(--bg-soft); color: var(--fg); }
+  .filter-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .filter-name { flex: 1; }
+  .filter-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg-faint);
+  }
+  .filter-item.active .filter-count { color: inherit; opacity: 0.7; }
+
+  .radio-item { display: flex; align-items: center; gap: 9px; padding: 7px 14px; margin: 0 -10px; border-radius: var(--r-md); cursor: pointer; font-family: var(--font-ui); font-size: 13.5px; transition: background var(--t-fast); }
+  .radio-item:hover { background: var(--bg-soft); }
+  .radio-mark { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex: 0 0 auto; position: relative; }
+  .radio-item.active .radio-mark { border-color: var(--fg); }
+  .radio-item.active .radio-mark::after { content: ""; position: absolute; inset: 2.5px; background: var(--fg); border-radius: 50%; }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+    user-select: none;
+  }
+  .chip:hover { background: var(--bg-soft); }
+  .chip.active { background: var(--fg); color: #fff; border-color: var(--fg); }
+  .chip.tag-cloud { font-family: var(--font-ui); font-size: 12px; }
+
+  /* ---------- main: search bar ---------- */
+  .search-bar {
+    position: sticky;
+    top: 56px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 0;
+    margin-bottom: 24px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .big-search {
+    flex: 1; position: relative;
+  }
+  .big-search .s-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--fg-faint);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px;
+    pointer-events: none;
+  }
+  .big-search input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    color: var(--fg);
+    transition: background var(--t-fast), border-color var(--t-fast);
+  }
+  .big-search input::placeholder { color: var(--fg-faint); }
+  .big-search input:focus { outline: none; background: var(--bg); border-color: var(--line-strong); }
+  .clear-link {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--fg-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--t-fast);
+  }
+  .clear-link:hover { color: var(--fg); }
+
+  /* ---------- card grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 720px)  { .grid { grid-template-columns: 1fr; } }
+
+  @keyframes cardFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .card-anim { animation: cardFadeIn 220ms ease both; }
+
+  .note-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: background var(--t-fast), border-color var(--t-fast);
+    display: flex;
+    flex-direction: column;
+  }
+  .note-card:hover { background: var(--bg-soft); }
+  .note-cover {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    background: var(--bg-soft);
+    background-image: repeating-linear-gradient(45deg, transparent 0 14px, rgba(0,0,0,0.025) 14px 28px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .note-cover.solid {
+    background-image: none;
+  }
+  .note-cover.cat-research    { background-color: rgba(224,  62,  62, 0.10); }
+  .note-cover.cat-course      { background-color: rgba(217, 115,  13, 0.10); }
+  .note-cover.cat-recommend   { background-color: rgba(144, 101, 176, 0.10); }
+  .note-cover.cat-competition { background-color: rgba(184,  64,  94, 0.10); }
+  .note-cover.cat-kaggle      { background-color: rgba( 11, 110, 153, 0.10); }
+  .note-cover.cat-tool        { background-color: rgba( 15, 123, 108, 0.10); }
+  .note-cover.cat-life        { background-color: rgba(181, 146, 106, 0.10); }
+  .note-cover .cover-emoji { filter: saturate(0.85); }
+  .note-cover .cover-stripe-label {
+    position: absolute; bottom: 8px; right: 10px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--fg-faint);
+  }
+
+  .note-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .note-top {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-ui); font-size: 12px; color: var(--fg-faint);
+  }
+  .note-cat-pill {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 2px 10px;
+    border-radius: var(--r-sm);
+    line-height: 1.7;
+  }
+  .note-cat-pill.cat-research    { background: var(--tag-research-bg);    color: var(--cat-research); }
+  .note-cat-pill.cat-course      { background: var(--tag-course-bg);      color: var(--cat-course); }
+  .note-cat-pill.cat-recommend   { background: var(--tag-recommend-bg);   color: var(--cat-recommend); }
+  .note-cat-pill.cat-competition { background: var(--tag-competition-bg); color: var(--cat-competition); }
+  .note-cat-pill.cat-kaggle      { background: var(--tag-kaggle-bg);      color: var(--cat-kaggle); }
+  .note-cat-pill.cat-tool        { background: var(--tag-tools-bg);       color: var(--cat-tools); }
+  .note-cat-pill.cat-life        { background: var(--tag-life-bg);        color: var(--cat-life); }
+
+  .note-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    color: var(--fg);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .note-summary {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--fg-muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .note-author {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-faint);
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+  }
+  .note-author .avatar { width: 22px; height: 22px; font-size: 10.5px; }
+  .note-author .sep { color: var(--line-strong); }
+
+  .note-actions {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-muted);
+    padding-top: 4px;
+  }
+  .note-act {
+    display: inline-flex; align-items: center; gap: 4px;
+    cursor: pointer; padding: 3px 6px; margin: 0 -6px;
+    border-radius: var(--r-sm);
+    transition: background var(--t-fast), color var(--t-fast), transform 200ms cubic-bezier(.34,1.56,.64,1);
+    user-select: none;
+  }
+  .note-act:hover { background: var(--bg-hover); color: var(--fg); }
+  .note-act.bumped { transform: scale(1.18); }
+  .note-act.lit-research    { color: var(--cat-research); }
+  .note-act.lit-course      { color: var(--cat-course); }
+  .note-act.lit-recommend   { color: var(--cat-recommend); }
+  .note-act.lit-competition { color: var(--cat-competition); }
+  .note-act.lit-kaggle      { color: var(--cat-kaggle); }
+  .note-act.lit-tool        { color: var(--cat-tools); }
+  .note-act.lit-life        { color: var(--cat-life); }
+
+  /* highlight inside title/summary */
+  mark { background: #FEF3C7; color: var(--fg); padding: 0 2px; border-radius: 2px; }
+
+  /* empty state */
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 64px 16px;
+    border: 1px dashed var(--line);
+    border-radius: var(--r-lg);
+    color: var(--fg-faint);
+    font-family: var(--font-ui);
+    font-size: 14px;
+  }
+
+  /* pagination */
+  .pager {
+    display: flex; justify-content: center; align-items: center; gap: 4px;
+    margin-top: 36px;
+    font-family: var(--font-ui); font-size: 13.5px;
+  }
+  .pg-btn {
+    min-width: 32px; height: 32px;
+    padding: 0 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    color: var(--fg-muted);
+    transition: background var(--t-fast), color var(--t-fast);
+    user-select: none;
+  }
+  .pg-btn:hover { background: var(--bg-soft); color: var(--fg); }
+  .pg-btn.active { background: var(--fg); color: #fff; }
+  .pg-btn.disabled { color: var(--line-strong); cursor: not-allowed; }
+  .pg-btn.disabled:hover { background: transparent; color: var(--line-strong); }
+
+  /* right column rows */
+  .author-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0;
+    font-family: var(--font-ui); font-size: 13px;
+  }
+  .author-row + .author-row { border-top: 1px solid var(--line); }
+  .author-row .avatar { width: 26px; height: 26px; font-size: 11px; }
+  .author-name { color: var(--fg); font-weight: 500; }
+  .author-meta { color: var(--fg-faint); font-size: 12px; margin-left: auto; }
+
+  .timeline-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    font-family: var(--font-ui); font-size: 13px;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .timeline-row + .timeline-row { border-top: 1px solid var(--line); }
+  .timeline-row .tm-count { color: var(--fg-faint); font-family: var(--font-mono); font-size: 12px; }
+
+  .more-link { font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-muted); cursor: pointer; margin-top: 8px; display: inline-block; }
+  .more-link:hover { color: var(--fg); }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: var(--fg); color: #fff;
+    font-family: var(--font-ui); font-size: 13px;
+    padding: 9px 14px; border-radius: var(--r-md);
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--t-fast), transform var(--t-fast);
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* footer */
+  .footer { height: 60px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-faint); background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ---------- icons ---------- */
+const Icon = {
+  search: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  thumb:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H7V10l4.42-9.04a1 1 0 0 1 1.83.65L15 5.88z"/></svg>,
+  thumbFill: <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"><path d="M7 10v12h10.5a2 2 0 0 0 1.92-1.44l2.33-8A2 2 0 0 0 19.83 10H14l1-4.12a1 1 0 0 0-1.83-.65L9 10z"/></svg>,
+  msg:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  bookmark: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>,
+  bookmarkFill: <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>,
+  chevL:  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+  chevR:  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+  chevD:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+};
+
+/* ---------- data ---------- */
+const CAT_COUNTS = { all: 84, research: 32, course: 14, recommend: 9, competition: 7, kaggle: 24, tool: 28, life: 6 };
+const FILTER_ORDER = ['all', ...CAT_ORDER];
+function catView(k) {
+  if (k === 'all') return { label: '全部', color: 'var(--fg-faint)' };
+  return CATS[k];
+}
+
+const NOTES = [
+  // 科研 × 2
+  { id: 'r1', cat: 'research', title: 'DDPM 论文精读笔记 · 推导填坑',
+    summary: '从 q(x_t|x_{t-1}) 一路推到训练目标，把原文跳过的 Bayes 反向、ELBO 拆项、参数化的三种选择写清楚，附自绘示意图。',
+    author: 'Bohan',    initials: 'BH', date: '5 月 6 日', minutes: 14, likes: 36, comments: 12, liked: false, saved: true,  hasCode: true },
+  { id: 'r2', cat: 'research', title: '我的第一篇 NeurIPS rebuttal 学到的事',
+    summary: '一周写出 4 份 rebuttal 的工作流：先问 reviewer 真正担心什么，再决定补什么实验。附我们组 review 数据库共享。',
+    author: 'Yixuan',   initials: 'YX', date: '5 月 4 日', minutes: 9,  likes: 41, comments: 15, liked: true,  saved: false },
+
+  // 课程 × 2
+  { id: 'c1', cat: 'course',   title: '高等数理统计 期末重点整理',
+    summary: '从充分统计量、完备统计量、MLE 三大性质，到假检验三大武器的一份 30 页重点讲义，附去年真题分类错题本。',
+    author: 'Mingxuan', initials: 'MX', date: '5 月 7 日', minutes: 11, likes: 28, comments: 6, liked: false, saved: false },
+  { id: 'c2', cat: 'course',   title: '机器学习课程 Lab 4 报告模板',
+    summary: '从问题定义、数据划分、baseline 到 ablation，按助教推荐的打分维度逆向拼出的报告骨架。LaTeX 源文件附上。',
+    author: 'Yuting',   initials: 'YT', date: '5 月 1 日', minutes: 7,  likes: 19, comments: 4, liked: false, saved: false, hasCode: true },
+
+  // 推免 × 2
+  { id: 'p1', cat: 'recommend', title: '2024 浙大 CS 夏令营复盘 + 时间线',
+    summary: '从初审、机试、面试三轮都问了什么，以及我提前两个月怎么准备个人陈述与项目。附原始面经记录。',
+    author: 'Yiwen',    initials: 'YW', date: '5 月 5 日', minutes: 12, likes: 64, comments: 21, liked: true,  saved: true },
+  { id: 'p2', cat: 'recommend', title: '如何写好一封套磁邮件 · 从档案到面谈',
+    summary: '讲清楚一件事 + 领域化改写 + 可验证的动机。我发了 32 封邮件拿到 6 个面谈后总结的三个额外招。',
+    author: 'Yiwen',    initials: 'YW', date: '4 月 26 日', minutes: 8, likes: 48, comments: 13, liked: false, saved: false },
+
+  // 竞赛 × 2
+  { id: 'm1', cat: 'competition', title: '美赛 O 奖论文 + 建模思路全公开',
+    summary: '题目选择·5 小时内决定·可视化的 5 张图·论文 22 页的结构，给下一届准备参赛的学弟学妹。',
+    author: 'Tianyu',   initials: 'TY', date: '5 月 3 日', minutes: 14, likes: 92, comments: 24, liked: false, saved: true,  hasCode: false },
+  { id: 'm2', cat: 'competition', title: '挑战杯省赛答辩 PPT 经验与坑',
+    summary: '三位评委问什么、答什么不会失分、不该在什么地方详细展开。附我们那个 8 分钟版本的带 backup 幻灯片。',
+    author: 'Tianyu',   initials: 'TY', date: '4 月 22 日', minutes: 9, likes: 33, comments: 8, liked: false, saved: false },
+
+  // Kaggle × 2
+  { id: 'k1', cat: 'kaggle',   title: 'Kaggle CIBMTR 银牌方案复盘',
+    summary: 'CV-LB 一致性比模型选择重要 10 倍。我把这次比赛里影响最大的两个工程决策写下来，方便下次直接抄自己的作业。',
+    author: 'Zilun',    initials: 'ZL', date: '5 月 8 日', minutes: 12, likes: 56, comments: 18, liked: true,  saved: true,  hasCode: true },
+  { id: 'k2', cat: 'kaggle',   title: '从 LB 第 27 跌到 312 的 shake-up 教训',
+    summary: '盯着 public LB 调参的代价，以及我下一场比赛会怎么强制自己只看 OOF。附一份 5 条的赛前 checklist。',
+    author: 'Zilun',    initials: 'ZL', date: '5 月 5 日', minutes: 10, likes: 89, comments: 22, liked: false, saved: false, hasCode: true },
+
+  // 工具 × 2
+  { id: 't1', cat: 'tool',     title: '服务器 SSH 跳板配置 · 一份能直接抄的 ~/.ssh/config',
+    summary: '从校园网 → 跳板 → GPU 节点的三层 ProxyJump，外加 mosh 自动重连。附小白都能看懂的图解。',
+    author: 'Ruoyu',    initials: 'RY', date: '5 月 7 日', minutes: 7, likes: 33, comments: 9, liked: false, saved: false, hasCode: true },
+  { id: 't2', cat: 'tool',     title: '一台服务器，4 个人，0 冲突 —— 我们的 GPU 调度约定',
+    summary: '我们用 Slack + 一个 50 行的 Python 脚本管理 8 张 4090，三个学期没有出过抢卡事故。',
+    author: 'Bohan',    initials: 'BH', date: '4 月 25 日', minutes: 8, likes: 47, comments: 11, liked: false, saved: false, hasCode: true },
+
+  // 生活 × 2
+  { id: 'l1', cat: 'life',     title: '实验室咖啡机使用指南 · 从入门到不烦人',
+    summary: '豆豆多久一换、冲洗重点、刷卡额度、包括一份“今天谁主子”轮值表模板。让微信群少点“又不冲了”。',
+    author: 'Linyu',    initials: 'LY', date: '5 月 6 日', minutes: 4, likes: 18, comments: 7, liked: false, saved: false },
+  { id: 'l2', cat: 'life',     title: '在城西科创园找午饭的 N 种方式',
+    summary: '隐藏在 19 楼的面馆、仅周二开的实验室加餐、下雨天才会并桌的咖啡馆 —— 一份五年同学才会心领神会的地图。',
+    author: 'Linyu',    initials: 'LY', date: '4 月 18 日', minutes: 5, likes: 31, comments: 9, liked: false, saved: false },
+];
+
+const TAG_CLOUD = ['#PyTorch', '#Diffusion', '#LLM 微调', '#Pandas trick', '#服务器配置', '#tmux', '#NeurIPS', '#论文写作', '#特征工程', '#Slurm', '#可视化', '#组会'];
+const AUTHORS = [
+  { initials: 'ZL', name: 'Zilun',   count: 14 },
+  { initials: 'HX', name: 'Hanxu',   count: 12 },
+  { initials: 'BH', name: 'Bohan',   count: 11 },
+  { initials: 'YX', name: 'Yixuan',  count: 9  },
+  { initials: 'YT', name: 'Yuting',  count: 7  },
+];
+const TIMELINE = [
+  { m: '2026 · 5 月', n: 18 },
+  { m: '2026 · 4 月', n: 22 },
+  { m: '2026 · 3 月', n: 16 },
+  { m: '2026 · 2 月', n: 11 },
+  { m: '2026 · 1 月', n: 9  },
+];
+
+/* ---------- helpers ---------- */
+function highlight(text, q) {
+  if (!q) return text;
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if (idx < 0) return text;
+  return <>{text.slice(0, idx)}<mark>{text.slice(idx, idx + q.length)}</mark>{text.slice(idx + q.length)}</>;
+}
+
+/* ---------- nav ---------- */
+function TopNav({ user }) {
+  return (
+    <nav className="nav">
+      <div className="nav-brand" onClick={() => location.href = 'home.html'}>
+        <span style={{ fontSize: 18 }}>📓</span>LabNotes
+      </div>
+      <div className="nav-tabs">
+        <div className="nav-tab" onClick={() => location.href='home.html'}>主页</div>
+        <div className="nav-tab active">浏览</div>
+        <div className="nav-tab"
+             style={user.role === 'guest' ? { opacity: 0.4, cursor: 'not-allowed' } : null}
+             onClick={() => user.role !== 'guest' && (location.href='write.html')}>写作</div>
+      </div>
+      <div className="nav-right">
+        {user.role === 'guest' ? (
+          <>
+            <span className="guest-badge">游客模式</span>
+            <a className="btn btn-sm btn-primary" href="login.html" style={{ textDecoration: 'none' }}>登录</a>
+          </>
+        ) : (
+          <div className="avatar-trigger" title={user.name}>{user.initials}</div>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+/* ---------- left filters ---------- */
+function LeftFilters({ cat, setCat, sort, setSort, flags, toggleFlag, onClear }) {
+  const items = FILTER_ORDER;
+  return (
+    <aside className="col-left">
+      <div className="widget">
+        <h3 className="widget-h">类别</h3>
+        {items.map(k => {
+          const c = catView(k);
+          return (
+            <div key={k}
+                 className={`filter-item ${cat === k ? 'active cat-' + k : ''}`}
+                 onClick={() => setCat(k)}>
+              <span className="filter-dot" style={{ background: c.color }}></span>
+              <span className="filter-name" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {k !== 'all' && <CatIcon cat={k} size={14} />}
+                {c.label}
+              </span>
+              <span className="filter-count">{CAT_COUNTS[k]}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="widget">
+        <h3 className="widget-h">排序</h3>
+        {[
+          ['recent', '最新发布'],
+          ['hot',    '最热（按 👍）'],
+          ['msg',    '最多评论'],
+        ].map(([k, label]) => (
+          <div key={k}
+               className={`radio-item ${sort === k ? 'active' : ''}`}
+               onClick={() => setSort(k)}>
+            <span className="radio-mark"></span>{label}
+          </div>
+        ))}
+      </div>
+
+      <div className="widget">
+        <h3 className="widget-h">筛选</h3>
+        <div className="chip-row">
+          {[
+            ['saved', '仅看我收藏的'],
+            ['liked', '仅看我点赞的'],
+            ['code',  '含代码的'],
+          ].map(([k, label]) => (
+            <span key={k}
+                  className={`chip ${flags[k] ? 'active' : ''}`}
+                  onClick={() => toggleFlag(k)}>
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ---------- right widgets ---------- */
+function RightSide() {
+  const [tlOpen, setTlOpen] = useState(true);
+  return (
+    <aside className="col-right">
+      <div className="widget">
+        <h3 className="widget-h">🏷️ 热门标签</h3>
+        <div className="chip-row">
+          {TAG_CLOUD.map(t => <span key={t} className="chip tag-cloud">{t}</span>)}
+        </div>
+      </div>
+
+      <div className="widget">
+        <h3 className="widget-h">👥 活跃作者</h3>
+        {AUTHORS.map(a => (
+          <div className="author-row" key={a.name}>
+            <span className="avatar">{a.initials}</span>
+            <span className="author-name">{a.name}</span>
+            <span className="author-meta">{a.count} 篇笔记</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="widget">
+        <h3 className="widget-h" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+            onClick={() => setTlOpen(o => !o)}>
+          📅 时间线
+          <span style={{ transform: tlOpen ? 'none' : 'rotate(-90deg)', transition: 'transform 150ms ease', display: 'inline-flex' }}>{Icon.chevD}</span>
+        </h3>
+        {tlOpen && TIMELINE.map(t => (
+          <div className="timeline-row" key={t.m}>
+            <span>{t.m}</span>
+            <span className="tm-count">{t.n}</span>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+/* ---------- card ---------- */
+function NoteCard({ n, q, isGuest, onLike, onSave, onGuestBlock }) {
+  const c = CATS[n.cat];
+  const [bumped, setBumped] = useState({ like: false, save: false });
+  const bump = (k) => { setBumped(b => ({ ...b, [k]: true })); setTimeout(() => setBumped(b => ({ ...b, [k]: false })), 220); };
+
+  const onLikeClick = (e) => {
+    e.stopPropagation();
+    if (isGuest) return onGuestBlock();
+    bump('like'); onLike(n.id);
+  };
+  const onSaveClick = (e) => {
+    e.stopPropagation();
+    if (isGuest) return onGuestBlock();
+    bump('save'); onSave(n.id);
+  };
+  const onMsgClick = (e) => {
+    e.stopPropagation();
+    if (isGuest) return onGuestBlock();
+  };
+
+  return (
+    <article className="note-card card-anim" onClick={() => alert('Open note · ' + n.title)}>
+      <div className={`note-cover solid cat-${n.cat}`}>
+        <span className="cover-emoji" style={{ display: 'inline-flex', opacity: 0.55 }}>
+          <CatIcon cat={n.cat} size={44} stroke={1.5} />
+        </span>
+        <span className="cover-stripe-label">[ cover ]</span>
+      </div>
+      <div className="note-body">
+        <div className="note-top">
+          <span className={`note-cat-pill cat-${n.cat}`}>{c.label}</span>
+          <span>{n.minutes} min read</span>
+        </div>
+
+        <h3 className="note-title">{highlight(n.title, q)}</h3>
+        <p className="note-summary">{highlight(n.summary, q)}</p>
+
+        <div className="note-author">
+          <span className="avatar">{n.initials}</span>
+          <span style={{ color: 'var(--fg-muted)' }}>{n.author}</span>
+          <span className="sep">·</span>
+          <span>{n.date}</span>
+        </div>
+
+        <div className="note-actions">
+          <span className={`note-act ${n.liked ? 'lit-' + n.cat : ''} ${bumped.like ? 'bumped' : ''}`} onClick={onLikeClick}>
+            {n.liked ? Icon.thumbFill : Icon.thumb} {n.likes}
+          </span>
+          <span className="note-act" onClick={onMsgClick}>{Icon.msg} {n.comments}</span>
+          <span className={`note-act ${n.saved ? 'lit-' + n.cat : ''} ${bumped.save ? 'bumped' : ''}`} onClick={onSaveClick}>
+            {n.saved ? Icon.bookmarkFill : Icon.bookmark} {n.saved ? '已收藏' : '收藏'}
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ---------- pagination ---------- */
+function Pager({ page, total, onChange }) {
+  const pages = [];
+  for (let i = 1; i <= total; i++) pages.push(i);
+  return (
+    <div className="pager">
+      <span className={`pg-btn ${page === 1 ? 'disabled' : ''}`} onClick={() => page > 1 && onChange(page - 1)}>{Icon.chevL} 上一页</span>
+      {pages.map(p => (
+        <span key={p} className={`pg-btn ${page === p ? 'active' : ''}`} onClick={() => onChange(p)}>{p}</span>
+      ))}
+      <span className={`pg-btn ${page === total ? 'disabled' : ''}`} onClick={() => page < total && onChange(page + 1)}>下一页 {Icon.chevR}</span>
+    </div>
+  );
+}
+
+/* ---------- app ---------- */
+function App() {
+  const [user] = useState(() => {
+    let role = 'member';
+    try { role = sessionStorage.getItem('labnotes_role') || 'member'; } catch (_) {}
+    return role === 'guest'
+      ? { role: 'guest', name: 'Guest', initials: 'G' }
+      : { role: 'member', name: 'Zilun', initials: 'ZL' };
+  });
+
+  const [cat, setCat]   = useState('all');
+  const [sort, setSort] = useState('recent');
+  const [flags, setFlags] = useState({ saved: false, liked: false, code: false });
+  const [q, setQ] = useState('');
+  const [page, setPage] = useState(1);
+  const [notes, setNotes] = useState(NOTES);
+  const [toast, setToast] = useState('');
+  const [animKey, setAnimKey] = useState(0);
+
+  // re-trigger card animation when filters change
+  useEffect(() => { setAnimKey(k => k + 1); setPage(1); }, [cat, sort, flags, q]);
+
+  const toggleFlag = (k) => setFlags(f => ({ ...f, [k]: !f[k] }));
+  const clearAll = () => { setCat('all'); setSort('recent'); setFlags({ saved:false, liked:false, code:false }); setQ(''); };
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+  const guestBlock = () => showToast('请登录后操作');
+
+  const onLike = (id) => setNotes(ns => ns.map(n => n.id === id ? { ...n, liked: !n.liked, likes: n.likes + (n.liked ? -1 : 1) } : n));
+  const onSave = (id) => setNotes(ns => ns.map(n => n.id === id ? { ...n, saved: !n.saved } : n));
+
+  const filtered = useMemo(() => {
+    let list = notes.slice();
+    if (cat !== 'all') list = list.filter(n => n.cat === cat);
+    if (flags.saved)   list = list.filter(n => n.saved);
+    if (flags.liked)   list = list.filter(n => n.liked);
+    if (flags.code)    list = list.filter(n => n.hasCode);
+    if (q) {
+      const Q = q.toLowerCase();
+      list = list.filter(n => n.title.toLowerCase().includes(Q) || n.summary.toLowerCase().includes(Q));
+    }
+    if (sort === 'recent') list.sort((a, b) => b.id.localeCompare(a.id));
+    if (sort === 'hot')    list.sort((a, b) => b.likes - a.likes);
+    if (sort === 'msg')    list.sort((a, b) => b.comments - a.comments);
+    return list;
+  }, [notes, cat, flags, q, sort]);
+
+  const isGuest = user.role === 'guest';
+
+  return (
+    <>
+      <TopNav user={user} />
+
+      <div className="shell">
+        <LeftFilters
+          cat={cat} setCat={setCat}
+          sort={sort} setSort={setSort}
+          flags={flags} toggleFlag={toggleFlag}
+          onClear={clearAll}
+        />
+
+        <main className="col-main">
+          <div className="search-bar">
+            <div className="big-search">
+              <span className="s-icon">{Icon.search}</span>
+              <input
+                placeholder="搜索标题或正文内容…"
+                value={q}
+                onChange={e => setQ(e.target.value)}
+              />
+            </div>
+            <span className="clear-link" onClick={clearAll}>清除筛选</span>
+          </div>
+
+          <div className="grid" key={animKey}>
+            {filtered.length === 0
+              ? <div className="empty">没有匹配的笔记。试试清除筛选。</div>
+              : filtered.map(n => (
+                  <NoteCard
+                    key={n.id} n={n} q={q}
+                    isGuest={isGuest}
+                    onLike={onLike} onSave={onSave}
+                    onGuestBlock={guestBlock}
+                  />
+                ))
+            }
+          </div>
+
+          {filtered.length > 0 && <Pager page={page} total={5} onChange={setPage} />}
+
+          {/* prose-claude container reserved for inline preview */}
+          <div className="prose-claude" style={{ display: 'none' }}></div>
+        </main>
+
+        <RightSide />
+      </div>
+
+      <footer className="footer">
+        LabNotes · 实验室内部交流，请勿外传 · Built with ☕ and 🌙
+      </footer>
+
+      <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+
+</body>
+</html>

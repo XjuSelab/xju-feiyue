@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>登录 · LabNotes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<style>
+  /* Tailwind preflight resets some of our token-driven base — reapply what matters */
+  html, body { background: var(--bg); color: var(--fg); font-family: var(--font-ui); }
+  body { font-size: 15px; line-height: 1.55; }
+
+  /* Page-specific */
+  .login-shell {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 880px) {
+    .login-shell { grid-template-columns: 1fr; }
+    .login-brand { display: none; }
+  }
+  .login-brand {
+    background: var(--bg-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    border-right: 1px solid var(--line);
+  }
+  .login-form-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+  }
+  .login-form { width: 100%; max-width: 360px; }
+
+  .field {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .field .input { padding-right: 38px; }
+  .field .eye {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: 0; padding: 4px;
+    color: var(--fg-faint); cursor: pointer;
+    border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background var(--t-fast), color var(--t-fast);
+  }
+  .field .eye:hover { background: var(--bg-soft); color: var(--fg-muted); }
+  .field-error {
+    color: var(--accent-research);
+    font-size: 12.5px;
+    margin-top: 6px;
+    font-family: var(--font-ui);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .input.has-error { border-color: var(--accent-research); }
+  .input.has-error:focus { border-color: var(--accent-research); }
+
+  .btn-block { width: 100%; justify-content: center; padding: 10px 14px; font-size: 14px; }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--fg-faint);
+    font-size: 12px;
+    font-family: var(--font-ui);
+    margin: 22px 0;
+    letter-spacing: 0.04em;
+  }
+  .divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px; background: var(--line);
+  }
+
+  .preview-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 12px 14px;
+    transition: background var(--t-fast), transform var(--t-fast);
+    cursor: default;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .preview-card:hover { background: var(--bg-soft); }
+  .preview-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--fg);
+    margin: 4px 0 2px;
+    letter-spacing: -0.005em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .preview-meta {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--fg-faint);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--fg);
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: var(--r-md);
+    opacity: 0;
+    transition: opacity var(--t-fast), transform var(--t-fast);
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+/* -------- inline icons -------- */
+const Eye = ({ open }) =>
+  open ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+  );
+
+const Alert = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+);
+
+/* -------- LEFT: brand + previews -------- */
+function BrandPane() {
+  const previews = [
+    { cat: 'research',    title: '我的第一篇 NeurIPS rebuttal',          meta: 'Yixuan · 8 min read'  },
+    { cat: 'course',      title: '高等数理统计 · 期末重点整理',         meta: 'Mengyao · 6 min read' },
+    { cat: 'recommend',   title: '2024 浙大 CS 夏令营复盘 + 时间线',         meta: 'Linyi · 14 min read'  },
+    { cat: 'competition', title: '美赛 O 奖论文 + 建模思路全公开',         meta: 'Yuxi · 11 min read'   },
+    { cat: 'kaggle',      title: '银牌方案：CV-LB 一致性的两个细节',     meta: 'Zilun · 12 min read'  },
+    { cat: 'tool',        title: '在 tmux 里用 uv 管理多个实验环境',       meta: 'Hanxu · 5 min read'   },
+    { cat: 'life',        title: '实验室咖啡机使用指南',                       meta: 'Yixuan · 3 min read'  },
+  ];
+
+  return (
+    <div className="login-brand">
+      <div style={{ width: '100%', maxWidth: 360 }}>
+
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{
+            fontFamily: 'var(--font-serif)',
+            fontWeight: 600,
+            fontSize: 36,
+            letterSpacing: '-0.015em',
+            color: 'var(--fg)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 12,
+            lineHeight: 1.1,
+          }}>
+            <span style={{ fontSize: 32 }}>📓</span>
+            LabNotes
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: 14,
+            color: 'var(--fg-muted)',
+            marginTop: 12,
+            lineHeight: 1.6,
+          }}>
+            An open notebook for our lab<br/>
+            <span style={{ color: 'var(--fg-faint)' }}>科研 &middot; 课程 &middot; 推免 &middot; 竞赛 &middot; Kaggle &middot; 工具 &middot; 生活</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {previews.map(p => {
+            const c = CATS[p.cat];
+            return (
+              <div className="preview-card" key={p.cat}>
+                <span className={`tag tag-${p.cat === 'tool' ? 'tool' : p.cat}`}>
+                  <span className="tag-dot"></span>
+                  <CatIcon cat={p.cat} size={12} />
+                  {c.label}
+                </span>
+                <div className="preview-title">{p.title}</div>
+                <div className="preview-meta">{p.meta}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{
+          marginTop: 28,
+          fontFamily: 'var(--font-ui)',
+          fontSize: 12,
+          color: 'var(--fg-faint)',
+          textAlign: 'center',
+        }}>
+          闭环管理 · 仅实验室成员可写作
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* -------- RIGHT: form -------- */
+function LoginForm() {
+  const [studentId, setStudentId] = useState('');
+  const [password, setPassword]   = useState('');
+  const [showPwd, setShowPwd]     = useState(false);
+  const [errors, setErrors]       = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast]         = useState('');
+  const idRef = useRef(null);
+
+  useEffect(() => { idRef.current?.focus(); }, []);
+
+  const validate = () => {
+    const e = {};
+    if (!studentId) e.studentId = '请输入学号';
+    else if (!/^\d{8,12}$/.test(studentId)) e.studentId = '学号应为 8-12 位数字';
+    if (!password) e.password = '请输入密码';
+    else if (password.length < 6) e.password = '密码至少 6 位';
+    return e;
+  };
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
+
+  const goHome = (asGuest) => {
+    if (asGuest) {
+      try { sessionStorage.setItem('labnotes_role', 'guest'); } catch (_) {}
+      showToast('以游客身份进入…');
+    } else {
+      try { sessionStorage.setItem('labnotes_role', 'member'); } catch (_) {}
+      showToast('登录成功，正在进入…');
+    }
+    setTimeout(() => {
+      // Home page will be wired up next; for now this is a placeholder
+      window.location.href = 'home.html';
+    }, 700);
+  };
+
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    const e = validate();
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      goHome(false);
+    }, 500);
+  };
+
+  return (
+    <div className="login-form-wrap">
+      <form className="login-form" onSubmit={onSubmit} noValidate>
+
+        <h1 style={{
+          fontFamily: 'var(--font-ui)',
+          fontWeight: 600,
+          fontSize: 24,
+          letterSpacing: '-0.01em',
+          color: 'var(--fg)',
+          margin: '0 0 6px',
+        }}>登录 LabNotes</h1>
+        <p style={{
+          fontFamily: 'var(--font-ui)',
+          fontSize: 14,
+          color: 'var(--fg-muted)',
+          margin: '0 0 28px',
+        }}>使用学号登录，或以游客身份浏览</p>
+
+        {/* student id */}
+        <div className="field">
+          <label className="field-label" htmlFor="studentId">学号</label>
+          <input
+            id="studentId"
+            ref={idRef}
+            className={`input ${errors.studentId ? 'has-error' : ''}`}
+            type="text"
+            inputMode="numeric"
+            autoComplete="username"
+            placeholder="请输入学号"
+            value={studentId}
+            onChange={e => { setStudentId(e.target.value.replace(/\s/g, '')); if (errors.studentId) setErrors(x => ({...x, studentId: undefined})); }}
+          />
+          {errors.studentId && <div className="field-error"><Alert />{errors.studentId}</div>}
+        </div>
+
+        {/* password */}
+        <div className="field">
+          <label className="field-label" htmlFor="password">密码</label>
+          <input
+            id="password"
+            className={`input ${errors.password ? 'has-error' : ''}`}
+            type={showPwd ? 'text' : 'password'}
+            autoComplete="current-password"
+            placeholder="请输入密码"
+            value={password}
+            onChange={e => { setPassword(e.target.value); if (errors.password) setErrors(x => ({...x, password: undefined})); }}
+            style={{ paddingRight: 40 }}
+          />
+          <button
+            type="button"
+            className="eye"
+            onClick={() => setShowPwd(s => !s)}
+            aria-label={showPwd ? '隐藏密码' : '显示密码'}
+            style={{ top: 'calc(50% + 11px)' }}
+          >
+            <Eye open={showPwd} />
+          </button>
+          {errors.password
+            ? <div className="field-error"><Alert />{errors.password}</div>
+            : <div style={{ fontSize: 13, color: 'var(--fg-faint)', fontFamily: 'var(--font-ui)', marginTop: 6 }}>
+                首次登录请使用学号后 6 位作为密码
+              </div>}
+        </div>
+
+        {/* primary submit */}
+        <button
+          type="submit"
+          className="btn btn-primary btn-block"
+          disabled={submitting}
+          style={{ marginTop: 18 }}
+        >
+          {submitting ? '正在登录…' : '登录'}
+        </button>
+
+        {/* divider */}
+        <div className="divider">或者</div>
+
+        {/* guest */}
+        <button
+          type="button"
+          className="btn btn-block"
+          onClick={() => goHome(true)}
+        >
+          以游客身份浏览
+        </button>
+
+        {/* forgot */}
+        <p style={{
+          marginTop: 28,
+          fontFamily: 'var(--font-ui)',
+          fontSize: 12.5,
+          color: 'var(--fg-faint)',
+          textAlign: 'center',
+          lineHeight: 1.6,
+        }}>
+          忘记密码？请联系实验室管理员&nbsp;
+          <a href="mailto:admin@lab.edu" style={{ color: 'var(--link)' }}>admin@lab.edu</a>
+        </p>
+
+      </form>
+
+      <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div className="login-shell">
+      <BrandPane />
+      <LoginForm />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+
+</body>
+</html>

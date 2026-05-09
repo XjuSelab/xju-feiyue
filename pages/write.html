@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>写作 · LabNotes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="styles.css" />
+<!-- highlight.js github theme -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css" />
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="ai-drawer.jsx"></script>
+
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { font-size: 15px; overflow: hidden; }
+  #app { height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    height: 56px; flex: 0 0 56px;
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    padding: 0 20px;
+    background: var(--bg);
+    gap: 16px;
+  }
+  .crumbs {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-ui); font-size: 13px;
+    color: var(--fg-muted);
+  }
+  .crumbs .brand-mini { color: var(--fg); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .crumbs .crumbs-sep { color: var(--line-strong); }
+
+  .title-input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+  }
+  .title-input::placeholder { color: var(--fg-faint); }
+  .title-input:focus { background: var(--bg-soft); }
+
+  .top-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+
+  .cat-select {
+    position: relative;
+    font-family: var(--font-ui); font-size: 13.5px;
+    cursor: pointer;
+  }
+  .cat-trigger {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--bg);
+    transition: background var(--t-fast);
+  }
+  .cat-trigger:hover { background: var(--bg-soft); }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .cat-menu {
+    position: absolute; top: calc(100% + 6px); right: 0;
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+    padding: 4px; min-width: 280px; z-index: 40;
+  }
+  .cat-menu .cat-opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 10px; border-radius: var(--r-sm); cursor: pointer;
+    transition: background var(--t-fast);
+  }
+  .cat-menu .cat-opt:hover { background: var(--bg-soft); }
+  .cat-opt-text { display: flex; flex-direction: column; gap: 2px; }
+  .cat-opt-name { font-size: 13.5px; color: var(--fg); font-weight: 500; }
+  .cat-opt-desc { font-size: 12px; color: var(--fg-faint); line-height: 1.4; }
+
+  /* ---------- subbar ---------- */
+  .subbar {
+    height: 40px; flex: 0 0 40px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+  }
+  .md-btns { display: flex; gap: 2px; }
+  .md-btn {
+    width: 28px; height: 28px;
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: background var(--t-fast), color var(--t-fast);
+    user-select: none;
+    position: relative;
+  }
+  .md-btn:hover { background: rgba(0,0,0,0.05); color: var(--fg); }
+  .md-btn .tip {
+    position: absolute; top: 110%; left: 50%; transform: translateX(-50%);
+    background: var(--fg); color: #fff;
+    font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+    padding: 3px 7px; border-radius: 4px;
+    white-space: nowrap; pointer-events: none;
+    opacity: 0; transition: opacity 100ms ease 80ms;
+    z-index: 30;
+  }
+  .md-btn:hover .tip { opacity: 1; }
+  .md-sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+
+  .tag-input-wrap {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    padding: 0 6px;
+    min-height: 28px;
+  }
+  .tag-pill {
+    font-family: var(--font-ui); font-size: 12px;
+    background: var(--bg); border: 1px solid var(--line);
+    color: var(--fg); padding: 2px 8px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .tag-pill .x {
+    cursor: pointer; color: var(--fg-faint); font-size: 14px; line-height: 1;
+  }
+  .tag-pill .x:hover { color: var(--fg); }
+  .tag-input {
+    border: 0; outline: 0; background: transparent;
+    font-family: var(--font-ui); font-size: 12.5px;
+    color: var(--fg); flex: 1; min-width: 140px;
+    padding: 4px 0;
+  }
+  .tag-input::placeholder { color: var(--fg-faint); }
+
+  .sub-right { display: flex; align-items: center; gap: 14px; font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-faint); }
+  .mode-group {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .mode-btn {
+    padding: 4px 9px;
+    font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+    color: var(--fg-muted);
+    cursor: pointer;
+    border: 0; background: transparent;
+    border-right: 1px solid var(--line);
+    transition: background var(--t-fast), color var(--t-fast);
+  }
+  .mode-btn:last-child { border-right: 0; }
+  .mode-btn:hover { background: var(--bg-soft); color: var(--fg); }
+  .mode-btn.active { background: var(--fg); color: #fff; }
+
+  /* ---------- main split ---------- */
+  .split { flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr; min-height: 0; }
+  .split.mode-preview { grid-template-columns: 0 1fr; }
+  .split.mode-write   { grid-template-columns: 1fr 0; }
+
+  .pane {
+    overflow: auto;
+    min-width: 0; min-height: 0;
+    position: relative;
+  }
+  .pane::-webkit-scrollbar { width: 8px; }
+  .pane::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+  .editor-pane { background: #FAFAFA; border-right: 1px solid var(--line); }
+  .editor-inner {
+    padding: 32px;
+    min-height: 100%;
+    box-sizing: border-box;
+  }
+  .editor {
+    width: 100%;
+    min-height: calc(100vh - 56px - 40px - 32px - 32px);
+    border: 0;
+    outline: 0;
+    background: transparent;
+    resize: none;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.75;
+    tab-size: 2;
+    white-space: pre;
+    /* sync wrap */
+    white-space: pre-wrap;
+    word-break: break-word;
+    caret-color: var(--fg);
+  }
+  .editor::placeholder { color: var(--fg-faint); }
+
+  /* highlighted overlay (poor-man syntax tint via background gradient) */
+  .preview-pane { background: var(--bg); }
+  .preview-inner {
+    padding: 48px 64px;
+    min-height: 100%;
+    box-sizing: border-box;
+  }
+  /* mode-preview centers the preview content */
+  .split.mode-preview .preview-inner { padding: 56px max(64px, calc(50% - 360px)); }
+  .split.mode-write   .editor-inner   { padding: 32px max(32px, calc(50% - 360px)); }
+
+  /* ---------- status bar ---------- */
+  .status {
+    height: 32px; flex: 0 0 32px;
+    background: var(--bg-soft);
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    padding: 0 20px;
+    font-family: var(--font-ui); font-size: 12px; color: var(--fg-faint);
+  }
+  .status .center { text-align: center; }
+  .status .right { text-align: right; }
+  .status kbd {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0 5px;
+    color: var(--fg-muted);
+  }
+
+  /* ---------- modal ---------- */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(15,15,15,0.32);
+    z-index: 80;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 150ms ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+  .modal {
+    width: 520px; max-width: calc(100vw - 32px);
+    background: var(--bg);
+    border-radius: var(--r-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    padding: 28px;
+    animation: popIn 180ms cubic-bezier(.34,1.56,.64,1);
+  }
+  .modal h2 { margin: 0 0 6px; font-family: var(--font-ui); font-weight: 600; font-size: 18px; letter-spacing: -0.005em; }
+  .modal .modal-sub { margin: 0 0 20px; font-family: var(--font-ui); font-size: 13px; color: var(--fg-muted); }
+  .modal-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .modal-row label { font-family: var(--font-ui); font-size: 12px; color: var(--fg-muted); font-weight: 500; }
+  .cover-pick {
+    display: flex; gap: 10px; align-items: center;
+  }
+  .cover-thumb {
+    width: 96px; height: 64px; border-radius: var(--r-md);
+    background: var(--bg-soft);
+    background-image: repeating-linear-gradient(45deg, transparent 0 12px, rgba(0,0,0,0.025) 12px 24px);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 11px; color: var(--fg-faint);
+    flex: 0 0 auto;
+  }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .modal-counter { font-family: var(--font-mono); font-size: 11px; color: var(--fg-faint); align-self: flex-end; }
+
+  /* ---------- toast ---------- */
+  .toast {
+    position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: var(--fg); color: #fff;
+    font-family: var(--font-ui); font-size: 13px;
+    padding: 9px 14px; border-radius: var(--r-md);
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--t-fast), transform var(--t-fast);
+    z-index: 90;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* prose container: it inherits from styles.css; here we only override max-width
+     because the preview pane is wider than the default. */
+  .preview-inner .prose-claude {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  /* math display */
+  .preview-inner .math-display {
+    overflow-x: auto;
+    margin: 1.4em 0;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- ============================================================ -->
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+/* ===================== sample markdown ===================== */
+const LAB_NOTE_PARA = `今天看了一篇 NeurIPS 上挺有意思的论文，讲的是怎么用对比学习来做长尾分布。说实话作者的实验设计挺有问题的，比如他们 baseline 选的特别老，2020 年的 ResNet 改一改就当 baseline 了。然后 ablation 也只跑了一个 seed，这个东西在小数据集上方差挺大的，我觉得不太靠谱。
+
+不过 idea 还可以，就是把对比学习的 anchor 换成了类原型，这样长尾里那些数据特别少的稀有类也能有个稳定的 anchor。`;
+
+const SAMPLE = `# 论文阅读笔记 · LongTail-CL
+
+> 作者：S. Wang et al. · NeurIPS 2024 · [arXiv 链接](https://arxiv.org/)
+
+${LAB_NOTE_PARA}
+
+---
+
+# 从一次失败的 Kaggle 复盘说起
+
+> 如果你的 OOF 不动而 LB 在涨，几乎可以肯定你在过拟合榜单。
+
+上周 *CIBMTR · Equity in Post-HCT Survival* 比赛结束。我从 public LB 第 27 名，一路 shake 到 private 第 312 名 —— 这是一个非常昂贵的教训。
+
+## 一、问题出在哪里
+
+事后看，我犯了一个最朴素的错误：**把 public LB 当成了 validation set**。
+
+我每天提交 5 次，盯着 LB 调超参，但 OOF 分数其实从第三天起就没有再涨过。这意味着我后面所有的「优化」都是噪声。
+
+### 量化一下
+
+我们在 metric \`C-index\` 上的关系大致可以写成：
+
+$$
+C_\\text{LB} = C_\\text{true} + \\epsilon, \\quad \\epsilon \\sim \\mathcal{N}(0, \\sigma^2)
+$$
+
+其中 $\\sigma$ 在 public set 上随提交次数增加而被你"挤出来"。
+
+## 二、新的工作流程
+
+从这场比赛开始，我把工作流改成了下面这样：
+
+1. 开赛 24h 内确定 CV 切分方式
+2. 每个实验跑前先写一行 \`hypothesis:\`
+3. 每天最多 2 次提交
+4. 最后三天禁止改 CV 切分
+
+清单上还包括：
+
+- 分组列是什么？
+- 分层列是什么？
+- 是否有第二个独立指标？
+
+### 关键代码片段
+
+\`\`\`python
+from sklearn.model_selection import StratifiedGroupKFold
+import numpy as np
+
+def make_folds(df, n_splits=5, seed=42):
+    """Stratify on event, group by patient_id."""
+    sgkf = StratifiedGroupKFold(
+        n_splits=n_splits, shuffle=True, random_state=seed
+    )
+    df = df.copy()
+    df["fold"] = -1
+    for i, (_, val_idx) in enumerate(
+        sgkf.split(df, df.event, df.patient_id)
+    ):
+        df.loc[val_idx, "fold"] = i
+    return df
+\`\`\`
+
+## 三、对照表
+
+| 决策 | 提升 | 是否保留 |
+| --- | --- | --- |
+| StratifiedGroupKFold | +0.012 OOF | 是 |
+| Target encoding | +0.004 OOF | 是 |
+| Pseudo labeling | -0.003 OOF | 否 |
+| SWA on last 3 epochs | +0.002 OOF | 试探 |
+
+![训练曲线](placeholder)
+
+下次见。
+`;
+
+/* ===================== markdown engine ===================== */
+const md = window.markdownit({
+  html: true,
+  linkify: true,
+  typographer: false,
+  breaks: false,
+  highlight: function (str, lang) {
+    let out = '';
+    if (lang && hljs.getLanguage(lang)) {
+      try { out = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value; }
+      catch (e) { out = md.utils.escapeHtml(str); }
+    } else {
+      out = md.utils.escapeHtml(str);
+    }
+    const langLabel = lang ? `<span class="code-lang">${md.utils.escapeHtml(lang)}</span>` : '';
+    const copyBtn = `<button class="copy-btn" type="button" data-copy><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>`;
+    return `<pre>${langLabel}${copyBtn}<code class="hljs language-${lang||'plain'}">${out}</code></pre>`;
+  }
+});
+
+/* ---- placeholder image ---- */
+md.renderer.rules.image = (tokens, idx, opts, env, self) => {
+  const t = tokens[idx];
+  const alt = t.content || '';
+  const src = t.attrGet('src') || '';
+  if (src === 'placeholder' || !src) {
+    return `<figure><div style="height:200px;border-radius:6px;background:var(--bg-soft);background-image:repeating-linear-gradient(45deg,transparent 0 12px,rgba(0,0,0,0.025) 12px 24px);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;color:var(--fg-faint);">[ image · ${md.utils.escapeHtml(alt || 'placeholder')} ]</div>${alt ? `<figcaption>${md.utils.escapeHtml(alt)}</figcaption>` : ''}</figure>`;
+  }
+  return self.renderToken(tokens, idx, opts);
+};
+
+/* ---- math plugin (inline + block) ---- */
+function mathPlugin(md) {
+  md.inline.ruler.after('escape', 'math_inline', function(state, silent) {
+    const start = state.pos;
+    if (state.src[start] !== '$') return false;
+    // skip if escaped
+    if (start > 0 && state.src[start-1] === '\\') return false;
+    // skip $$
+    if (state.src[start+1] === '$') return false;
+    const end = state.src.indexOf('$', start + 1);
+    if (end < 0) return false;
+    const content = state.src.slice(start + 1, end);
+    if (!content.length) return false;
+    // disallow whitespace right after $ or right before $
+    if (/^[\s]/.test(content) || /[\s]$/.test(content)) return false;
+    if (!silent) {
+      const token = state.push('math_inline', 'span', 0);
+      token.content = content;
+      token.markup = '$';
+    }
+    state.pos = end + 1;
+    return true;
+  });
+
+  md.block.ruler.after('blockquote', 'math_block', function(state, startLine, endLine, silent) {
+    const start = state.bMarks[startLine] + state.tShift[startLine];
+    const max = state.eMarks[startLine];
+    if (state.src.slice(start, start + 2) !== '$$') return false;
+    let nextLine = startLine;
+    let content = '';
+    let found = false;
+    const firstLine = state.src.slice(start + 2, max);
+    if (firstLine.trim().endsWith('$$') && firstLine.trim().length >= 2) {
+      content = firstLine.slice(0, firstLine.lastIndexOf('$$'));
+      found = true;
+    } else {
+      content = firstLine + '\n';
+      nextLine = startLine + 1;
+      while (nextLine < endLine) {
+        const ls = state.bMarks[nextLine];
+        const le = state.eMarks[nextLine];
+        const line = state.src.slice(ls, le);
+        if (line.trim() === '$$') { found = true; break; }
+        content += line + '\n';
+        nextLine++;
+      }
+    }
+    if (!found) return false;
+    if (silent) return true;
+    const token = state.push('math_block', 'div', 0);
+    token.block = true;
+    token.content = content.trim();
+    state.line = nextLine + 1;
+    return true;
+  });
+
+  md.renderer.rules.math_inline = (tokens, idx) => {
+    try { return katex.renderToString(tokens[idx].content, { throwOnError: false }); }
+    catch (e) { return md.utils.escapeHtml(tokens[idx].content); }
+  };
+  md.renderer.rules.math_block = (tokens, idx) => {
+    try { return '<div class="math-display">' + katex.renderToString(tokens[idx].content, { displayMode: true, throwOnError: false }) + '</div>'; }
+    catch (e) { return '<pre>' + md.utils.escapeHtml(tokens[idx].content) + '</pre>'; }
+  };
+}
+md.use(mathPlugin);
+
+/* ===================== icons ===================== */
+const Ic = {
+  back: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+  chev: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+  eye:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+  edit: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4z"/></svg>,
+  pen:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>,
+};
+
+/* ===================== top bar ===================== */
+// CATS / CAT_ORDER come from icons.jsx
+
+function CategorySelect({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+  const cur = CATS[value];
+  return (
+    <div className="cat-select" ref={ref}>
+      <div className="cat-trigger" onClick={() => setOpen(o => !o)}>
+        <span className="cat-dot" style={{ background: cur.color }}></span>
+        <CatIcon cat={value} size={14} />
+        <span>{cur.label}</span>
+        {Ic.chev}
+      </div>
+      {open && (
+        <div className="cat-menu">
+          {CAT_ORDER.map(k => {
+            const c = CATS[k];
+            return (
+              <div key={k} className="cat-opt" onClick={() => { onChange(k); setOpen(false); }}>
+                <span className="cat-dot" style={{ background: c.color, marginTop: 6 }}></span>
+                <span className="cat-opt-text">
+                  <span className="cat-opt-name" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <CatIcon cat={k} size={14} />
+                    {c.label}
+                  </span>
+                  <span className="cat-opt-desc">{c.desc}</span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TopBar({ title, setTitle, cat, setCat, onSaveDraft, onPublish }) {
+  return (
+    <header className="topbar">
+      <div className="crumbs">
+        <span className="brand-mini" onClick={() => location.href='home.html'}>
+          <span style={{ fontSize: 16 }}>📓</span> LabNotes
+        </span>
+        <span className="crumbs-sep">/</span>
+        <span>写作</span>
+        <span className="crumbs-sep">/</span>
+        <span style={{ color: 'var(--fg)' }}>新建笔记</span>
+      </div>
+
+      <input
+        className="title-input"
+        placeholder="无标题笔记"
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+      />
+
+      <div className="top-right">
+        <CategorySelect value={cat} onChange={setCat} />
+        <button className="btn btn-sm" onClick={onSaveDraft}>保存草稿</button>
+        <button className="btn btn-sm btn-primary" onClick={onPublish}>发布</button>
+      </div>
+    </header>
+  );
+}
+
+/* ===================== sub bar ===================== */
+const MD_BTNS = [
+  { k: 'h1',     glyph: 'H1', tip: '一级标题',     wrap: ['# ', ''], block: true },
+  { k: 'h2',     glyph: 'H2', tip: '二级标题',     wrap: ['## ', ''], block: true },
+  { sep: true },
+  { k: 'b',      glyph: <b>B</b>, tip: '加粗',     wrap: ['**', '**'] },
+  { k: 'i',      glyph: <i>I</i>, tip: '斜体',     wrap: ['*', '*'] },
+  { k: 'link',   glyph: '🔗', tip: '链接',         wrap: ['[', '](https://)'] },
+  { k: 'img',    glyph: '🖼', tip: '图片',         wrap: ['![', '](placeholder)'] },
+  { sep: true },
+  { k: 'code',   glyph: '</>', tip: '代码块',      wrap: ['\n```python\n', '\n```\n'], block: true },
+  { k: 'quote',  glyph: '❝',  tip: '引用',         wrap: ['> ', ''], block: true },
+  { k: 'ul',     glyph: '•',  tip: '无序列表',     wrap: ['- ', ''], block: true },
+  { k: 'table',  glyph: '⊞',  tip: '表格',
+    insert: '\n| 列 1 | 列 2 | 列 3 |\n| --- | --- | --- |\n| a | b | c |\n' },
+  { k: 'hr',     glyph: '—',  tip: '分割线',       insert: '\n\n---\n\n' },
+];
+
+function SubBar({ tags, setTags, mode, setMode, words, mins, onMd, aiOpen, onToggleAi }) {
+  const [draft, setDraft] = useState('');
+  const onKey = (e) => {
+    if (e.key === 'Enter' && draft.trim()) {
+      e.preventDefault();
+      const v = draft.trim().replace(/^#/, '');
+      if (v && !tags.includes(v)) setTags([...tags, v]);
+      setDraft('');
+    } else if (e.key === 'Backspace' && !draft && tags.length) {
+      setTags(tags.slice(0, -1));
+    }
+  };
+  return (
+    <div className="subbar">
+      <div className="md-btns">
+        {MD_BTNS.map((b, i) => b.sep
+          ? <span key={i} className="md-sep" />
+          : <span key={b.k} className="md-btn" onClick={() => onMd(b)}>{b.glyph}<span className="tip">{b.tip}</span></span>
+        )}
+      </div>
+
+      <div className="tag-input-wrap">
+        {tags.map(t => (
+          <span key={t} className="tag-pill"># {t}<span className="x" onClick={() => setTags(tags.filter(x => x !== t))}>×</span></span>
+        ))}
+        <input
+          className="tag-input"
+          placeholder={tags.length ? '继续添加…' : '添加标签… (Enter 确认)'}
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onKeyDown={onKey}
+        />
+      </div>
+
+      <div className="sub-right">
+        <span>{words.toLocaleString()} 字 · 预计 {mins} 分钟阅读</span>
+        <button className={`ai-btn-sub ${aiOpen ? 'is-on' : ''}`} onClick={onToggleAi} title="AI 助手">
+          <Icon name="sparkles" size={14} stroke={1.8} color="#fff" />
+          AI 助手
+        </button>
+        <div className="mode-group">
+          <button className={`mode-btn ${mode==='write'?'active':''}`}   onClick={() => setMode('write')} title="纯写作">📝 写作</button>
+          <button className={`mode-btn ${mode==='split'?'active':''}`}   onClick={() => setMode('split')} title="双栏">✏️ 双栏</button>
+          <button className={`mode-btn ${mode==='preview'?'active':''}`} onClick={() => setMode('preview')} title="预览">👁 预览</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== editor + preview panes ===================== */
+function getCaretCoords(textarea, position) {
+  const div = document.createElement('div');
+  const styles = getComputedStyle(textarea);
+  const props = ['boxSizing','width','overflowX','overflowY','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','paddingTop','paddingRight','paddingBottom','paddingLeft','fontStyle','fontVariant','fontWeight','fontStretch','fontSize','fontSizeAdjust','lineHeight','fontFamily','textAlign','textTransform','textIndent','letterSpacing','wordSpacing','tabSize','whiteSpace','wordBreak','wordWrap'];
+  props.forEach(p => { try { div.style[p] = styles[p]; } catch(e){} });
+  div.style.position = 'absolute';
+  div.style.visibility = 'hidden';
+  div.style.whiteSpace = 'pre-wrap';
+  div.style.wordBreak = 'break-word';
+  div.style.overflow = 'hidden';
+  div.style.left = '-9999px';
+  div.style.top = '0';
+  div.textContent = textarea.value.substring(0, position);
+  const span = document.createElement('span');
+  span.textContent = textarea.value.substring(position) || '.';
+  div.appendChild(span);
+  document.body.appendChild(div);
+  const rect = textarea.getBoundingClientRect();
+  const lh = parseFloat(styles.lineHeight) || 22;
+  const x = rect.left + span.offsetLeft - textarea.scrollLeft;
+  const y = rect.top  + span.offsetTop  - textarea.scrollTop;
+  document.body.removeChild(div);
+  return { x, y, height: lh };
+}
+
+function Panes({ src, setSrc, mode, editorRef, previewRef, onTextareaSelect }) {
+  const html = useMemo(() => md.render(src), [src]);
+
+  // wire copy buttons after render
+  useEffect(() => {
+    if (!previewRef.current) return;
+    const btns = previewRef.current.querySelectorAll('button[data-copy]');
+    const handlers = [];
+    btns.forEach(btn => {
+      const onClick = () => {
+        const pre = btn.closest('pre');
+        const code = pre?.querySelector('code');
+        const text = code ? code.innerText : '';
+        navigator.clipboard?.writeText(text).then(() => {
+          const orig = btn.innerHTML;
+          btn.classList.add('copied');
+          btn.innerHTML = 'Copied ✓';
+          setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+        });
+      };
+      btn.addEventListener('click', onClick);
+      handlers.push([btn, onClick]);
+    });
+    return () => handlers.forEach(([btn, h]) => btn.removeEventListener('click', h));
+  }, [html]);
+
+  // scroll sync (left → right)
+  const syncing = useRef(false);
+  const scrollDeb = useRef(null);
+  const onEditorScroll = () => {
+    if (mode !== 'split') return;
+    if (syncing.current) return;
+    if (scrollDeb.current) clearTimeout(scrollDeb.current);
+    scrollDeb.current = setTimeout(() => {
+      const e = editorRef.current?.parentElement?.parentElement; // pane
+      const p = previewRef.current?.parentElement?.parentElement;
+      if (!e || !p) return;
+      const ratio = e.scrollTop / Math.max(1, (e.scrollHeight - e.clientHeight));
+      syncing.current = true;
+      p.scrollTop = ratio * (p.scrollHeight - p.clientHeight);
+      requestAnimationFrame(() => { syncing.current = false; });
+    }, 50);
+  };
+
+  return (
+    <div className={`split mode-${mode}`}>
+      <div className="pane editor-pane" onScroll={onEditorScroll}>
+        <div className="editor-inner">
+          <textarea
+            ref={editorRef}
+            className="editor"
+            value={src}
+            onChange={e => setSrc(e.target.value)}
+            onSelect={e => onTextareaSelect && onTextareaSelect(e.target.selectionStart, e.target.selectionEnd, e.target.value)}
+            onMouseUp={e => onTextareaSelect && onTextareaSelect(e.target.selectionStart, e.target.selectionEnd, e.target.value)}
+            onKeyUp={e => onTextareaSelect && onTextareaSelect(e.target.selectionStart, e.target.selectionEnd, e.target.value)}
+            placeholder="# 用一个清晰的标题开始你的笔记…"
+            spellCheck={false}
+          />
+        </div>
+      </div>
+      <div className="pane preview-pane">
+        <div className="preview-inner">
+          <article ref={previewRef} className="prose-claude" dangerouslySetInnerHTML={{ __html: html }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== publish modal ===================== */
+function PublishModal({ open, onClose, title, cat, setCat, tags, summary, setSummary, onConfirm }) {
+  if (!open) return null;
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <h2>准备发布这篇笔记</h2>
+        <p className="modal-sub">{title || '无标题笔记'}</p>
+
+        <div className="modal-row">
+          <label>封面图</label>
+          <div className="cover-pick">
+            <div className="cover-thumb">[ 1st image ]</div>
+            <button className="btn btn-sm">上传替换</button>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--fg-faint)' }}>默认使用正文第一张图</span>
+          </div>
+        </div>
+
+        <div className="modal-row">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label>一句话摘要</label>
+            <span className="modal-counter">{summary.length}/150</span>
+          </div>
+          <textarea
+            className="textarea"
+            rows={3}
+            maxLength={150}
+            value={summary}
+            onChange={e => setSummary(e.target.value)}
+            placeholder="用一句话概括这篇笔记…（自动从首段截取）"
+          />
+        </div>
+
+        <div className="modal-row">
+          <label>类别 &amp; 标签</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <CategorySelect value={cat} onChange={setCat} />
+            {tags.length === 0
+              ? <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--fg-faint)' }}>未添加标签</span>
+              : tags.map(t => <span key={t} className="tag-pill" style={{ borderColor: 'var(--line)' }}># {t}</span>)
+            }
+          </div>
+        </div>
+
+        <div className="modal-actions">
+          <button className="btn btn-sm" onClick={onClose}>取消</button>
+          <button className="btn btn-sm btn-primary" onClick={onConfirm}>确认发布</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== app ===================== */
+function App() {
+  const [title, setTitle] = useState('从一次失败的 Kaggle 复盘说起');
+  const [cat, setCat]     = useState('kaggle');
+  const [tags, setTags]   = useState(['Kaggle', 'CV', '复盘']);
+  const [src, setSrc]     = useState(SAMPLE);
+  const [mode, setMode]   = useState('split');
+  const [savedAt, setSavedAt] = useState(new Date());
+  const [showPublish, setShowPublish] = useState(false);
+  const [summary, setSummary]   = useState('');
+  const [toast, setToast]       = useState('');
+
+  const editorRef = useRef(null);
+  const previewRef = useRef(null);
+
+  /* AI drawer state */
+  const [aiOpen, setAiOpen]         = useState(false);
+  const [drawerWidth, setDrawerWidth] = useState(380);
+  const [selection, setSelection]   = useState({ start: 0, end: 0, text: '' });
+  const [floatRect, setFloatRect]   = useState(null);
+  const [initialOp, setInitialOp]   = useState(null);
+  const [aiHistory, setAiHistory]   = useState([]);
+  const didPreload                  = useRef(false);
+
+  const onTextareaSelect = (start, end, value) => {
+    const text = value.slice(start, end);
+    setSelection({ start, end, text });
+    if (text.length >= 4 && !aiOpen) {
+      const ta = editorRef.current;
+      if (ta) {
+        const startCoords = getCaretCoords(ta, start);
+        const endCoords   = getCaretCoords(ta, end);
+        const top    = Math.min(startCoords.y, endCoords.y);
+        const left   = (startCoords.x + endCoords.x) / 2;
+        const bottom = Math.max(startCoords.y, endCoords.y) + endCoords.height;
+        setFloatRect({ top, left: left - 100, width: 200, bottom });
+      }
+    } else if (text.length < 4) {
+      setFloatRect(null);
+    }
+  };
+
+  const closeFloat = () => setFloatRect(null);
+
+  const startOp = (action) => {
+    closeFloat();
+    setAiOpen(true);
+    setInitialOp({ action });
+  };
+
+  const applyAiResult = (newText, replacedText) => {
+    setSrc(prev => {
+      // if a selection range was used at start of op, replace by index range to be safe
+      if (selection.text && selection.text.trim() && replacedText === selection.text) {
+        return prev.slice(0, selection.start) + newText + prev.slice(selection.end);
+      }
+      // otherwise replace whole doc
+      return newText;
+    });
+    // collapse selection to end of insert so next op works on full doc by default
+    setTimeout(() => {
+      const ta = editorRef.current;
+      if (ta) {
+        const newPos = (selection.text && selection.text.trim()) ? selection.start + newText.length : newText.length;
+        ta.setSelectionRange(newPos, newPos);
+        ta.focus();
+      }
+      setSelection({ start: 0, end: 0, text: '' });
+    }, 0);
+  };
+
+  const onAiUndo = (entry) => {
+    if (entry.undoSnapshot != null) setSrc(entry.undoSnapshot);
+    setAiHistory(h => h.filter(e => e !== entry));
+    showToast('已撤销');
+  };
+
+  /* one-time pre-load demo: select the lab note paragraph and auto-run 润色 */
+  useEffect(() => {
+    if (didPreload.current) return;
+    didPreload.current = true;
+    const idx = SAMPLE.indexOf(LAB_NOTE_PARA);
+    if (idx === -1) return;
+    const start = idx;
+    const end   = idx + LAB_NOTE_PARA.length;
+    setSelection({ start, end, text: LAB_NOTE_PARA });
+    setAiOpen(true);
+    setInitialOp({ action: 'polish' });
+    setTimeout(() => {
+      const ta = editorRef.current;
+      if (ta) { ta.setSelectionRange(start, end); }
+    }, 50);
+  }, []);
+
+  const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 1800); };
+
+  /* word/min count (Chinese-aware) */
+  const { words, mins } = useMemo(() => {
+    const stripped = src
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`[^`]*`/g, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/[#>*_\-\|`]/g, '');
+    const cn = (stripped.match(/[\u4e00-\u9fff]/g) || []).length;
+    const en = (stripped.match(/[A-Za-z]+(?:'[A-Za-z]+)?/g) || []).length;
+    const total = cn + en;
+    return { words: total, mins: Math.max(1, Math.round(total / 350)) };
+  }, [src]);
+
+  /* autosave every 5s */
+  useEffect(() => {
+    const t = setTimeout(() => setSavedAt(new Date()), 5000);
+    return () => clearTimeout(t);
+  }, [src, title, tags, cat]);
+
+  /* toolbar md insert */
+  const onMd = (b) => {
+    const ta = editorRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const before = src.slice(0, start), sel = src.slice(start, end), after = src.slice(end);
+    let next, caret;
+    if (b.insert) {
+      next = before + b.insert + after;
+      caret = start + b.insert.length;
+    } else {
+      const [pre, post] = b.wrap;
+      // ensure block elements start on a fresh line
+      const fixedPre = b.block && before && !before.endsWith('\n') ? '\n' + pre : pre;
+      next = before + fixedPre + sel + post + after;
+      caret = end + fixedPre.length + post.length;
+    }
+    setSrc(next);
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(caret, caret); }, 0);
+  };
+
+  /* shortcuts */
+  useEffect(() => {
+    const onKey = (e) => {
+      const meta = e.metaKey || e.ctrlKey;
+      if (!meta) return;
+      if (e.key === 's') { e.preventDefault(); setSavedAt(new Date()); showToast('已保存草稿'); }
+      else if (e.key === 'Enter') { e.preventDefault(); openPublish(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [src, title]);
+
+  /* image drop */
+  const onDrop = (e) => {
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0];
+    if (!f || !/^image\//.test(f.type)) return;
+    // mock: insert placeholder reference
+    const md = `\n\n![${f.name}](placeholder)\n\n`;
+    setSrc(s => s + md);
+    showToast('已插入图片占位符');
+  };
+  const onDragOver = (e) => e.preventDefault();
+
+  /* publish */
+  const openPublish = () => {
+    if (!summary) {
+      const firstPara = src.split('\n').map(s => s.trim())
+        .find(s => s && !s.startsWith('#') && !s.startsWith('>') && !s.startsWith('!') && !s.startsWith('|') && !s.startsWith('-') && !s.startsWith('*') && !s.startsWith('`'));
+      setSummary((firstPara || '').slice(0, 150));
+    }
+    setShowPublish(true);
+  };
+
+  const fmtTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const modeLabel = { write: '纯写作', split: '双栏模式', preview: '预览模式' }[mode];
+
+  return (
+    <>
+      <TopBar
+        title={title} setTitle={setTitle}
+        cat={cat} setCat={setCat}
+        onSaveDraft={() => { setSavedAt(new Date()); showToast('已保存草稿'); }}
+        onPublish={openPublish}
+      />
+      <SubBar
+        tags={tags} setTags={setTags}
+        mode={mode} setMode={setMode}
+        words={words} mins={mins}
+        onMd={onMd}
+        aiOpen={aiOpen}
+        onToggleAi={() => { setAiOpen(o => !o); closeFloat(); }}
+      />
+
+      <div style={{ flex: '1 1 auto', display: 'flex', minHeight: 0 }}>
+        <div onDrop={onDrop} onDragOver={onDragOver}
+             style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', minHeight: 0, minWidth: 0 }}>
+          <Panes src={src} setSrc={setSrc} mode={mode}
+                 editorRef={editorRef} previewRef={previewRef}
+                 onTextareaSelect={onTextareaSelect} />
+        </div>
+        {aiOpen && (
+          <AIDrawer
+            open={aiOpen}
+            width={drawerWidth} setWidth={setDrawerWidth}
+            selectionText={selection.text}
+            fullText={src}
+            initialOp={initialOp}
+            consumeInitialOp={() => setInitialOp(null)}
+            onClose={() => { setAiOpen(false); setInitialOp(null); }}
+            onApply={applyAiResult}
+            showToast={showToast}
+            history={aiHistory} setHistory={setAiHistory}
+            onUndo={onAiUndo}
+          />
+        )}
+      </div>
+
+      {floatRect && !aiOpen && (
+        <FloatingToolbar
+          rect={floatRect}
+          onPick={(act) => startOp(act)}
+          onClose={closeFloat}
+        />
+      )}
+
+      <div className="status">
+        <div>已自动保存于 {fmtTime(savedAt)}</div>
+        <div className="center">{modeLabel} · {words.toLocaleString()} 字 · {tags.length ? tags.map(t => '#'+t).join(' ') : '未添加标签'}</div>
+        <div className="right"><kbd>⌘</kbd> + <kbd>S</kbd> 保存 &middot; <kbd>⌘</kbd> + <kbd>↵</kbd> 发布</div>
+      </div>
+
+      <PublishModal
+        open={showPublish}
+        onClose={() => setShowPublish(false)}
+        title={title} cat={cat} setCat={setCat} tags={tags}
+        summary={summary} setSummary={setSummary}
+        onConfirm={() => { setShowPublish(false); showToast('已发布 · 跳转到详情页…'); setTimeout(() => location.href = 'browse.html', 800); }}
+      />
+
+      <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+
+</body>
+</html>

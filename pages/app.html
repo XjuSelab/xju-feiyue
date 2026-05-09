@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>LabNotes · App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100vh; }
+
+  .nav {
+    height: 56px; flex: 0 0 56px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    display: flex; align-items: center; padding: 0 28px; gap: 24px;
+  }
+  .nav-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: var(--fg); cursor: pointer; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { font-family: var(--font-ui); font-size: 14px; font-weight: 500; color: var(--fg-muted); padding: 7px 12px; border-radius: var(--r-md); cursor: pointer; transition: background var(--t-fast), color var(--t-fast); }
+  .nav-tab:hover { background: var(--bg-soft); color: var(--fg); }
+  .nav-tab.active { color: var(--fg); background: var(--bg-soft); }
+  .nav-tab.disabled { opacity: 0.4; cursor: not-allowed; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .guest-badge { font-family: var(--font-ui); font-size: 12px; color: var(--fg-muted); background: var(--bg-soft); padding: 4px 10px; border-radius: var(--r-sm); font-weight: 500; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-soft); color: var(--fg); font-family: var(--font-ui); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--line); }
+  .gate-banner {
+    flex: 0 0 auto;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-ui); font-size: 13px;
+    color: var(--fg-muted);
+    padding: 8px 28px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .frame { flex: 1 1 auto; min-height: 0; border: 0; width: 100%; background: var(--bg); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const ROUTES = [
+  { hash: 'home',   label: '主页',   file: 'home.html'   },
+  { hash: 'browse', label: '浏览',   file: 'browse.html' },
+  { hash: 'write',  label: '写作',   file: 'write.html'  },
+];
+
+function getRouteFromHash() {
+  const h = (location.hash || '#home').replace('#', '');
+  return ROUTES.find(r => r.hash === h) || ROUTES[0];
+}
+
+function readRole() {
+  try { return sessionStorage.getItem('labnotes_role') || ''; } catch (_) { return ''; }
+}
+
+function App() {
+  const [route, setRoute] = useState(getRouteFromHash);
+  const [role, setRole]   = useState(readRole);
+
+  useEffect(() => {
+    const onHash = () => setRoute(getRouteFromHash());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  // not logged in → bounce to login.html (same-tab)
+  useEffect(() => {
+    if (!role) {
+      // demo convenience: auto-set member so the iframe routing works on first visit;
+      // a real app would `location.href = 'login.html'` here.
+      try { sessionStorage.setItem('labnotes_role', 'member'); } catch (_) {}
+      setRole('member');
+    }
+  }, [role]);
+
+  if (!role) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexDirection: 'column', gap: 16, fontFamily: 'var(--font-ui)', color: 'var(--fg-muted)'
+      }}>
+        <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, fontSize: 24, color: 'var(--fg)' }}>需要先登录</div>
+        <a className="btn btn-primary btn-sm" href="login.html">前往登录页</a>
+      </div>
+    );
+  }
+
+  const isGuest = role === 'guest';
+
+  const go = (r) => {
+    if (r.hash === 'write' && isGuest) return; // guests can't write
+    location.hash = r.hash;
+  };
+
+  const logout = () => {
+    try { sessionStorage.removeItem('labnotes_role'); } catch (_) {}
+    location.href = 'login.html';
+  };
+
+  return (
+    <>
+      <nav className="nav">
+        <div className="nav-brand" onClick={() => location.hash = 'home'}>
+          <span style={{ fontSize: 18 }}>📓</span> LabNotes
+        </div>
+        <div className="nav-tabs">
+          {ROUTES.map(r => (
+            <div
+              key={r.hash}
+              className={`nav-tab ${route.hash === r.hash ? 'active' : ''} ${r.hash === 'write' && isGuest ? 'disabled' : ''}`}
+              onClick={() => go(r)}
+            >{r.label}</div>
+          ))}
+        </div>
+        <div className="nav-right">
+          {isGuest ? (
+            <>
+              <span className="guest-badge">游客模式</span>
+              <a className="btn btn-sm btn-primary" href="login.html" style={{ textDecoration: 'none' }}>登录</a>
+            </>
+          ) : (
+            <div className="avatar" onClick={logout} title="点击退出登录">ZL</div>
+          )}
+        </div>
+      </nav>
+
+      <div className="gate-banner">
+        <span>🧭 路由 demo · 当前 <code style={{ fontFamily: 'var(--font-mono)', background: 'var(--bg)', padding: '1px 6px', borderRadius: 4, border: '1px solid var(--line)' }}>#{route.hash}</code></span>
+        <span style={{ color: 'var(--fg-faint)' }}>顶部导航在所有路由间共享；下方页面以子框架方式整合。</span>
+      </div>
+
+      <iframe
+        key={route.hash}
+        className="frame"
+        src={route.file}
+        title={route.label}
+      />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+</body>
+</html>

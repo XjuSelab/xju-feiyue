@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>LabNotes · Design System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* ---- Page-only layout for the showcase ---- */
+  .ds-shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+  .ds-side {
+    border-right: 1px solid var(--line);
+    padding: 24px 16px;
+    position: sticky; top: 0;
+    height: 100vh;
+    background: var(--bg);
+    font-family: var(--font-ui);
+  }
+  .ds-side h4 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-faint);
+    font-weight: 600;
+  }
+  .ds-side a {
+    display: block;
+    padding: 5px 8px;
+    border-radius: 4px;
+    color: var(--fg);
+    font-size: 13.5px;
+    margin-bottom: 1px;
+  }
+  .ds-side a:hover { background: var(--bg-soft); text-decoration: none; }
+  .ds-side .ds-side-group { margin-bottom: 18px; }
+
+  .ds-main { padding: 56px 64px 120px; max-width: 1080px; }
+  .ds-section { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .ds-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-faint);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .ds-h1 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 42px;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
+    line-height: 1.15;
+  }
+  .ds-h2 {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+  .ds-h3 {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.005em;
+    margin: 24px 0 10px;
+    color: var(--fg);
+  }
+  .ds-lead { color: var(--fg-muted); font-size: 15px; max-width: 640px; margin: 0 0 28px; }
+  .ds-meta { color: var(--fg-faint); font-size: 13px; }
+
+  /* swatch grid */
+  .swatch-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+  .swatch {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .swatch-chip { height: 92px; }
+  .swatch-meta { padding: 10px 12px; }
+  .swatch-name { font-family: var(--font-ui); font-size: 13px; font-weight: 600; }
+  .swatch-hex  { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); margin-top: 2px; }
+
+  /* type specimen */
+  .type-row { display: grid; grid-template-columns: 160px 1fr; gap: 24px; padding: 18px 0; border-top: 1px solid var(--line); }
+  .type-row:first-of-type { border-top: none; }
+  .type-label {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 6px;
+  }
+  .type-spec { color: var(--fg-faint); font-family: var(--font-mono); font-size: 12px; margin-top: 4px; }
+
+  /* spec rows for radii / shadows / motion */
+  .spec-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+  .spec-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 16px;
+  }
+  .spec-card .demo {
+    height: 64px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+  .spec-card .demo.r-md { border-radius: var(--r-md); }
+  .spec-card .demo.r-lg { border-radius: var(--r-lg); }
+  .spec-card .demo.r-sm { border-radius: var(--r-sm); }
+  .spec-card .demo.shadow { box-shadow: var(--shadow-card); border-color: transparent; background: #fff; }
+  .spec-name { font-family: var(--font-ui); font-size: 13px; font-weight: 600; }
+  .spec-val  { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); margin-top: 2px; }
+
+  /* component preview frame */
+  .demo-pane {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    background: var(--bg);
+  }
+  .demo-pane.tinted { background: var(--bg-soft); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  /* prose pane */
+  .prose-pane {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg);
+    padding: 56px 64px;
+  }
+
+  /* table for tokens reference */
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .token-table th, .token-table td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .token-table th {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .swatch-inline {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    vertical-align: -3px;
+    margin-right: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="ds-shell">
+  <!-- Sidebar -->
+  <aside class="ds-side">
+    <div class="brand" style="margin-bottom: 28px;">
+      <span class="brand-mark">L</span>
+      <span>LabNotes</span>
+    </div>
+
+    <div class="ds-side-group">
+      <h4>Foundations</h4>
+      <a href="#colors">Colors</a>
+      <a href="#typography">Typography</a>
+      <a href="#radii">Radii &amp; Shadows</a>
+      <a href="#motion">Motion</a>
+    </div>
+    <div class="ds-side-group">
+      <h4>Components</h4>
+      <a href="#buttons">Buttons</a>
+      <a href="#inputs">Inputs</a>
+      <a href="#tags">Tags</a>
+      <a href="#cards">Cards</a>
+    </div>
+    <div class="ds-side-group">
+      <h4>Markdown</h4>
+      <a href="#prose">.prose-claude</a>
+      <a href="#prose-code">Code blocks</a>
+      <a href="#prose-table">Tables</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="ds-main">
+    <header class="ds-section" style="margin-bottom: 56px;">
+      <div class="ds-eyebrow">Design System · v1.0</div>
+      <h1 class="ds-h1">LabNotes</h1>
+      <p class="ds-lead">
+        实验室经验共享。Notion 极简白的外壳，Claude 导出 PDF 的内容质感。
+        本页是整个产品的设计基线，所有页面 <code style="font-family:var(--font-mono); font-size:13px; background:var(--bg-soft); padding:2px 6px; border-radius:4px;">@import 'styles.css'</code>。
+      </p>
+    </header>
+
+    <!-- ===== Colors ===== -->
+    <section id="colors" class="ds-section">
+      <h2 class="ds-h2">Colors</h2>
+      <p class="ds-meta">克制的灰阶 + 三个语义强调色。强调色仅用于按钮、标签、链接。</p>
+
+      <h3 class="ds-h3">Surface &amp; Text</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-chip" style="background:#FFFFFF; border-bottom:1px solid var(--line);"></div><div class="swatch-meta"><div class="swatch-name">bg</div><div class="swatch-hex">#FFFFFF</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#F7F6F3;"></div><div class="swatch-meta"><div class="swatch-name">bg-soft</div><div class="swatch-hex">#F7F6F3</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#37352F;"></div><div class="swatch-meta"><div class="swatch-name">fg</div><div class="swatch-hex">#37352F</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#787774;"></div><div class="swatch-meta"><div class="swatch-name">fg-muted</div><div class="swatch-hex">#787774</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#9B9A97;"></div><div class="swatch-meta"><div class="swatch-name">fg-faint</div><div class="swatch-hex">#9B9A97</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#EDECE9;"></div><div class="swatch-meta"><div class="swatch-name">line</div><div class="swatch-hex">#EDECE9</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#DCDAD4;"></div><div class="swatch-meta"><div class="swatch-name">line-strong</div><div class="swatch-hex">#DCDAD4</div></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#2383E2;"></div><div class="swatch-meta"><div class="swatch-name">link</div><div class="swatch-hex">#2383E2</div></div></div>
+      </div>
+
+      <h3 class="ds-h3">Semantic accents</h3>
+      <div class="swatch-grid" style="grid-template-columns: repeat(3, minmax(0,1fr));">
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#E03E3E;"></div>
+          <div class="swatch-meta">
+            <div class="swatch-name">accent-research <span class="tag tag-research" style="margin-left:6px;"><span class="tag-dot"></span>科研</span></div>
+            <div class="swatch-hex">#E03E3E · tint rgba(.,.,.,0.12)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#0F7B6C;"></div>
+          <div class="swatch-meta">
+            <div class="swatch-name">accent-tool <span class="tag tag-tool" style="margin-left:6px;"><span class="tag-dot"></span>工具</span></div>
+            <div class="swatch-hex">#0F7B6C · tint rgba(.,.,.,0.12)</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#0B6E99;"></div>
+          <div class="swatch-meta">
+            <div class="swatch-name">accent-kaggle <span class="tag tag-kaggle" style="margin-left:6px;"><span class="tag-dot"></span>Kaggle</span></div>
+            <div class="swatch-hex">#0B6E99 · tint rgba(.,.,.,0.12)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Typography ===== -->
+    <section id="typography" class="ds-section">
+      <h2 class="ds-h2">Typography</h2>
+      <p class="ds-meta">三档字体栈：Source Serif 4（替代 Galaxie / Tiempos）· Inter Tight（替代 Styrene）· JetBrains Mono。</p>
+
+      <div style="margin-top: 16px;">
+        <div class="type-row">
+          <div>
+            <div class="type-label">Display H1</div>
+            <div class="type-spec">Source Serif 4 · 600 · 36px / 1.25</div>
+          </div>
+          <div style="font-family: var(--font-serif); font-weight: 600; font-size: 36px; line-height: 1.25; letter-spacing: -0.01em;">
+            克制是最难的设计选择
+          </div>
+        </div>
+        <div class="type-row">
+          <div>
+            <div class="type-label">H2</div>
+            <div class="type-spec">Source Serif 4 · 600 · 28px / 1.3</div>
+          </div>
+          <div style="font-family: var(--font-serif); font-weight: 600; font-size: 28px; line-height: 1.3; letter-spacing: -0.01em;">
+            从一次失败的 Kaggle 复盘说起
+          </div>
+        </div>
+        <div class="type-row">
+          <div>
+            <div class="type-label">H3 (UI)</div>
+            <div class="type-spec">Inter Tight · 600 · 20px</div>
+          </div>
+          <div style="font-family: var(--font-ui); font-weight: 600; font-size: 20px;">
+            实验流程与关键产出
+          </div>
+        </div>
+        <div class="type-row">
+          <div>
+            <div class="type-label">Body</div>
+            <div class="type-spec">Source Serif 4 · 400 · 16px / 1.75 · max 720px</div>
+          </div>
+          <div style="font-family: var(--font-serif); font-size: 16px; line-height: 1.75; max-width: 540px;">
+            正文承载阅读体验。我们刻意把行高拉到 1.75，行宽控制在 720px，让眼睛在长段落里也不会疲劳。这一段是为了让你看到真实的密度。
+          </div>
+        </div>
+        <div class="type-row">
+          <div>
+            <div class="type-label">UI text</div>
+            <div class="type-spec">Inter Tight · 500 · 14px</div>
+          </div>
+          <div style="font-family: var(--font-ui); font-weight: 500; font-size: 14px;">
+            导航 · 按钮 · 元数据 · 标签
+          </div>
+        </div>
+        <div class="type-row">
+          <div>
+            <div class="type-label">Mono</div>
+            <div class="type-spec">JetBrains Mono · 400 · 14px</div>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 14px;">
+            from sklearn.ensemble import RandomForestClassifier
+          </div>
+        </div>
+        <div class="type-row">
+          <div>
+            <div class="type-label">Caption</div>
+            <div class="type-spec">Inter Tight · 400 · 13px · #9B9A97</div>
+          </div>
+          <div style="font-family: var(--font-ui); font-size: 13px; color: var(--fg-faint);">
+            图 1 · 训练曲线（前 50 epoch 学习率 1e-3）
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Radii & Shadows ===== -->
+    <section id="radii" class="ds-section">
+      <h2 class="ds-h2">Radii &amp; Shadows</h2>
+      <p class="ds-meta">圆角分三档；阴影几乎不可见。</p>
+      <div class="spec-grid" style="margin-top: 16px;">
+        <div class="spec-card">
+          <div class="demo r-sm"></div>
+          <div class="spec-name">--r-sm</div><div class="spec-val">4px · 标签 / 行内代码</div>
+        </div>
+        <div class="spec-card">
+          <div class="demo r-md"></div>
+          <div class="spec-name">--r-md</div><div class="spec-val">6px · 按钮 / 输入框</div>
+        </div>
+        <div class="spec-card">
+          <div class="demo r-lg"></div>
+          <div class="spec-name">--r-lg</div><div class="spec-val">8px · 卡片 / 代码块</div>
+        </div>
+        <div class="spec-card">
+          <div class="demo r-lg shadow"></div>
+          <div class="spec-name">--shadow-card</div><div class="spec-val">0 1px 2px rgba(0,0,0,.04)</div>
+        </div>
+        <div class="spec-card">
+          <div class="demo r-lg" style="background:#fff; border:1px solid var(--line);"></div>
+          <div class="spec-name">no shadow (preferred)</div><div class="spec-val">1px var(--line)</div>
+        </div>
+        <div class="spec-card">
+          <div class="demo r-lg" style="background: var(--bg-soft); border-color: transparent;"></div>
+          <div class="spec-name">soft surface</div><div class="spec-val">--bg-soft fill, no border</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Motion ===== -->
+    <section id="motion" class="ds-section">
+      <h2 class="ds-h2">Motion</h2>
+      <p class="ds-meta">所有过渡 <span style="font-family:var(--font-mono);">150ms ease</span>。卡片 hover 背景下沉至 <span style="font-family:var(--font-mono);">--bg-soft</span>；按钮 hover 仅背景下沉 4%。</p>
+      <div class="row" style="margin-top: 16px;">
+        <div class="card" style="width: 220px;">
+          <div style="font-family: var(--font-ui); font-weight: 600; font-size: 14px;">Hover me</div>
+          <div style="font-family: var(--font-ui); font-size: 13px; color: var(--fg-muted); margin-top: 4px;">背景从 #FFFFFF → #F7F6F3</div>
+        </div>
+        <button class="btn">Hover button</button>
+        <button class="btn btn-primary">Hover primary</button>
+      </div>
+    </section>
+
+    <!-- ===== Buttons ===== -->
+    <section id="buttons" class="ds-section">
+      <h2 class="ds-h2">Buttons</h2>
+      <div class="demo-pane">
+        <div class="row" style="gap: 10px;">
+          <button class="btn btn-primary">Publish</button>
+          <button class="btn">Save draft</button>
+          <button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-sm">Small</button>
+          <button class="btn btn-primary btn-sm">Small primary</button>
+          <button class="btn" disabled style="opacity:.4; cursor:default;">Disabled</button>
+        </div>
+        <div class="row" style="gap: 10px; margin-top: 16px;">
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New note
+          </button>
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Inputs ===== -->
+    <section id="inputs" class="ds-section">
+      <h2 class="ds-h2">Inputs</h2>
+      <div class="demo-pane">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 640px;">
+          <div>
+            <label class="field-label">Title</label>
+            <input class="input" placeholder="Untitled note" />
+          </div>
+          <div>
+            <label class="field-label">Category</label>
+            <input class="input" value="Kaggle" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label class="field-label">Summary</label>
+            <textarea class="textarea" rows="3" placeholder="One sentence about what this note is."></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Tags ===== -->
+    <section id="tags" class="ds-section">
+      <h2 class="ds-h2">Tags</h2>
+      <div class="demo-pane">
+        <div class="row">
+          <span class="tag tag-research"><span class="tag-dot"></span>科研</span>
+          <span class="tag tag-tool"><span class="tag-dot"></span>工具</span>
+          <span class="tag tag-kaggle"><span class="tag-dot"></span>Kaggle</span>
+          <span class="tag tag-neutral">draft</span>
+          <span class="tag tag-neutral">2026-05-09</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Cards ===== -->
+    <section id="cards" class="ds-section">
+      <h2 class="ds-h2">Cards</h2>
+      <div class="demo-pane tinted">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; max-width: 720px;">
+
+          <article class="card" style="background: var(--bg);">
+            <div class="row" style="gap: 8px;">
+              <span class="tag tag-kaggle"><span class="tag-dot"></span>Kaggle</span>
+              <span style="font-family: var(--font-ui); font-size: 12px; color: var(--fg-faint);">12 min read</span>
+            </div>
+            <h3 style="font-family: var(--font-serif); font-weight: 600; font-size: 20px; margin: 10px 0 6px; letter-spacing: -0.005em;">
+              银牌方案：CV-LB 一致性的两个细节
+            </h3>
+            <p style="font-family: var(--font-serif); font-size: 14.5px; line-height: 1.6; color: var(--fg-muted); margin: 0;">
+              我把这次比赛里影响最大的两个工程决策写下来，方便下次直接抄自己的作业。
+            </p>
+            <div class="row" style="gap: 8px; margin-top: 14px; align-items: center;">
+              <span class="avatar">ZL</span>
+              <span style="font-family: var(--font-ui); font-size: 13px;">Zilun · 2 days ago</span>
+            </div>
+          </article>
+
+          <article class="card" style="background: var(--bg);">
+            <div class="row" style="gap: 8px;">
+              <span class="tag tag-tool"><span class="tag-dot"></span>工具</span>
+              <span style="font-family: var(--font-ui); font-size: 12px; color: var(--fg-faint);">5 min read</span>
+            </div>
+            <h3 style="font-family: var(--font-serif); font-weight: 600; font-size: 20px; margin: 10px 0 6px; letter-spacing: -0.005em;">
+              在 tmux 里用 uv 管理多个实验环境
+            </h3>
+            <p style="font-family: var(--font-serif); font-size: 14.5px; line-height: 1.6; color: var(--fg-muted); margin: 0;">
+              uv 比 conda 快十倍，配合 tmux 的窗口可以同时跑 4 个 ablation 还不串。
+            </p>
+            <div class="row" style="gap: 8px; margin-top: 14px; align-items: center;">
+              <span class="avatar">HX</span>
+              <span style="font-family: var(--font-ui); font-size: 13px;">Hanxu · 5 days ago</span>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Prose / Markdown ===== -->
+    <section id="prose" class="ds-section">
+      <h2 class="ds-h2">Markdown — <span style="font-family: var(--font-mono); font-size: 18px; color: var(--fg-muted);">.prose-claude</span></h2>
+      <p class="ds-meta">这是核心：所有用户写的内容都在这个容器里渲染。规则参考 Claude 导出 PDF。</p>
+
+      <div class="prose-pane" style="margin-top: 18px;">
+        <article class="prose-claude">
+
+          <h1>从一次失败的 Kaggle 复盘说起</h1>
+          <p style="color: var(--fg-faint); font-family: var(--font-ui); font-size: 13px; margin-top: -0.6em;">
+            Zilun · 2026-05-09 · <span class="tag tag-kaggle" style="vertical-align: 1px;"><span class="tag-dot"></span>Kaggle</span>
+          </p>
+
+          <p>
+            上周 <a href="#">CIBMTR · Equity in Post-HCT Survival</a> 比赛结束。我从 public LB 第 27 名，一路 shake 到 private 第 312 名 —— 这是一个非常昂贵的教训。这篇笔记不是炫耀，是把 <strong>我能复用到下一场比赛</strong> 的部分写下来。
+          </p>
+
+          <h2>一、问题出在哪里</h2>
+          <p>
+            事后看，我犯了一个最朴素的错误：<em>把 public LB 当成了 validation set</em>。我每天提交 5 次，盯着 LB 调超参，但 OOF 分数其实从第三天起就没有再涨过。这意味着我后面所有的「优化」都是噪声。
+          </p>
+
+          <blockquote>
+            如果你的 OOF 不动而 LB 在涨，几乎可以肯定你在过拟合榜单。把它写在桌子上。
+          </blockquote>
+
+          <h2>二、新的工作流程</h2>
+          <p>从这场比赛开始，我把工作流改成了下面这样：</p>
+
+          <ol>
+            <li>开赛 24h 内确定 CV 切分方式，并在 README 里画出 fold 分布图。</li>
+            <li>每个实验跑前先写一行 <code>hypothesis:</code>，跑完写一行 <code>result:</code>。</li>
+            <li>每天最多 2 次提交，且只提交 OOF 显著上涨的版本。</li>
+            <li>最后三天禁止改 CV 切分，禁止加新特征。</li>
+          </ol>
+
+          <h3>关键代码片段</h3>
+          <p>下面是新的 CV 模板，我把它放在 <code>utils/cv.py</code>：</p>
+
+          <pre><span class="code-lang">python</span><button class="copy-btn" type="button"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button><code class="language-python"><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> StratifiedGroupKFold
+<span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+
+<span class="hljs-keyword">def</span> <span class="hljs-title">make_folds</span>(df, n_splits=<span class="hljs-number">5</span>, seed=<span class="hljs-number">42</span>):
+    <span class="hljs-string">"""Stratify on event, group by patient_id."""</span>
+    sgkf = StratifiedGroupKFold(n_splits=n_splits, shuffle=<span class="hljs-literal">True</span>, random_state=seed)
+    df = df.copy()
+    df[<span class="hljs-string">"fold"</span>] = -<span class="hljs-number">1</span>
+    <span class="hljs-keyword">for</span> i, (_, val_idx) <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(sgkf.split(df, df.event, df.patient_id)):
+        df.loc[val_idx, <span class="hljs-string">"fold"</span>] = i
+    <span class="hljs-keyword">return</span> df</code></pre>
+
+          <p>
+            行内的小提示也是常用的：把 <code>random_state</code> 固定成你出生年月的后四位，跑 ablation 时永远别动它。
+          </p>
+
+          <h2>三、我会保留的东西</h2>
+
+          <table>
+            <thead>
+              <tr><th>决策</th><th>带来的提升</th><th>是否保留</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>StratifiedGroupKFold</td><td>+0.012 OOF</td><td>是</td></tr>
+              <tr><td>Target encoding (smoothing=20)</td><td>+0.004 OOF</td><td>是</td></tr>
+              <tr><td>Pseudo labeling</td><td>−0.003 OOF</td><td>否</td></tr>
+              <tr><td>SWA on last 3 epochs</td><td>+0.002 OOF</td><td>试探</td></tr>
+            </tbody>
+          </table>
+
+          <h3>一段命令行</h3>
+          <pre><span class="code-lang">bash</span><button class="copy-btn" type="button"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button><code><span class="hljs-comment"># 在 tmux 里同时跑 4 个 fold</span>
+<span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> 0 1 2 3; <span class="hljs-keyword">do</span>
+  tmux new-window -n <span class="hljs-string">"fold-<span class="hljs-variable">$f</span>"</span> \
+    <span class="hljs-string">"uv run python train.py fold=<span class="hljs-variable">$f</span> seed=42"</span>
+<span class="hljs-keyword">done</span></code></pre>
+
+          <h3>一张图</h3>
+          <figure>
+            <div style="height: 220px; background: var(--bg-soft); border-radius: var(--r-md); display:flex; align-items:center; justify-content:center; font-family: var(--font-mono); font-size: 13px; color: var(--fg-faint); background-image: repeating-linear-gradient(45deg, transparent 0 12px, rgba(0,0,0,0.025) 12px 24px);">
+              [ training curve · 50 epochs ]
+            </div>
+            <figcaption>图 1 · 5 folds 的 validation loss，shake-up 后看更平的曲线反而更可靠</figcaption>
+          </figure>
+
+          <h2>四、下次开赛前的检查清单</h2>
+          <ul>
+            <li>CV 切分是否反映 test 分布？
+              <ul>
+                <li>分组列是什么？</li>
+                <li>分层列是什么？</li>
+              </ul>
+            </li>
+            <li>是否有第二个独立指标和 LB 交叉验证？</li>
+            <li>提交配额是否被合理分配（前期探索 / 后期收敛）？</li>
+          </ul>
+
+          <hr />
+
+          <p style="color: var(--fg-muted); font-size: 14px;">
+            如果你也在打这场比赛，欢迎在 <a href="#">讨论区</a> 找我交换 fold idx。下次见。
+          </p>
+
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== Token reference ===== -->
+    <section class="ds-section">
+      <h2 class="ds-h2">CSS variables</h2>
+      <p class="ds-meta">所有 token 在 <code style="font-family:var(--font-mono); font-size:13px;">:root</code>。直接引用：</p>
+      <table class="token-table" style="margin-top: 14px;">
+        <thead>
+          <tr><th>Variable</th><th>Value</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>--bg</td><td><span class="swatch-inline" style="background:#FFFFFF;"></span>#FFFFFF</td><td>page background</td></tr>
+          <tr><td>--bg-soft</td><td><span class="swatch-inline" style="background:#F7F6F3;"></span>#F7F6F3</td><td>cards, sidebar, hover</td></tr>
+          <tr><td>--fg</td><td><span class="swatch-inline" style="background:#37352F;"></span>#37352F</td><td>primary text</td></tr>
+          <tr><td>--fg-muted</td><td><span class="swatch-inline" style="background:#787774;"></span>#787774</td><td>secondary text</td></tr>
+          <tr><td>--fg-faint</td><td><span class="swatch-inline" style="background:#9B9A97;"></span>#9B9A97</td><td>captions, metadata</td></tr>
+          <tr><td>--line</td><td><span class="swatch-inline" style="background:#EDECE9;"></span>#EDECE9</td><td>dividers, borders</td></tr>
+          <tr><td>--link</td><td><span class="swatch-inline" style="background:#2383E2;"></span>#2383E2</td><td>links</td></tr>
+          <tr><td>--accent-research</td><td><span class="swatch-inline" style="background:#E03E3E;"></span>#E03E3E</td><td>科研 tag</td></tr>
+          <tr><td>--accent-tool</td><td><span class="swatch-inline" style="background:#0F7B6C;"></span>#0F7B6C</td><td>工具 tag</td></tr>
+          <tr><td>--accent-kaggle</td><td><span class="swatch-inline" style="background:#0B6E99;"></span>#0B6E99</td><td>Kaggle tag</td></tr>
+          <tr><td>--r-sm / md / lg</td><td>4 / 6 / 8 px</td><td>radii ladder</td></tr>
+          <tr><td>--shadow-card</td><td>0 1px 2px rgba(0,0,0,.04)</td><td>card shadow (optional)</td></tr>
+          <tr><td>--t-fast</td><td>150ms ease</td><td>all transitions</td></tr>
+          <tr><td>--font-serif</td><td>'Source Serif 4', 'Noto Serif SC', Georgia</td><td>headings &amp; body</td></tr>
+          <tr><td>--font-ui</td><td>'Inter Tight', 'PingFang SC', system</td><td>UI &amp; UI headings</td></tr>
+          <tr><td>--font-mono</td><td>'JetBrains Mono', 'SF Mono', Menlo</td><td>code</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer style="border-top: 1px solid var(--line); padding-top: 24px; margin-top: 80px; color: var(--fg-faint); font-size: 13px; font-family: var(--font-ui);">
+      LabNotes Design System · v1.0 · 等候下一份页面需求（登录 / 主页 / 分栏 / 写作）
+    </footer>
+  </main>
+</div>
+
+<!-- copy-button behavior — wired here so it works in the prose preview too -->
+<script>
+  document.querySelectorAll('.prose-claude pre .copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pre = btn.closest('pre');
+      const code = pre.querySelector('code');
+      const text = code ? code.innerText : '';
+      navigator.clipboard?.writeText(text).then(() => {
+        const original = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = 'Copied ✓';
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = original; }, 2000);
+      }).catch(() => {
+        btn.innerHTML = 'Copy failed';
+        setTimeout(() => { btn.innerHTML = 'Copy'; }, 2000);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
