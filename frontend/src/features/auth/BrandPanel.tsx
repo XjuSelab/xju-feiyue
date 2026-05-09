@@ -43,7 +43,7 @@ export function BrandPanel() {
     <aside
       aria-label="LabNotes 简介"
       data-brand-panel
-      className="relative hidden overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:justify-between lg:px-20 lg:py-20 xl:px-24"
+      className="relative hidden overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:px-20 lg:py-16 xl:px-24"
       style={BRAND_PANEL_BG_STYLE}
     >
       <header className="relative">
@@ -55,23 +55,23 @@ export function BrandPanel() {
           LabNotes
         </Link>
 
-        <h1 className="mt-16 max-w-[18ch] font-serif text-[44px] font-semibold leading-[1.08] tracking-[-0.01em] text-text xl:text-[56px]">
+        <h1 className="mt-10 max-w-[16ch] font-serif text-[44px] font-semibold leading-[1] tracking-[-0.02em] text-text xl:text-[56px]">
           把今天的实验，
           <br />
           写成下次能直接抄的作业。
         </h1>
-        <p className="mt-6 max-w-[42ch] text-[18px] leading-[1.6] text-text-muted">
+        <p className="mt-4 max-w-[42ch] text-[16px] leading-[1.5] text-text-muted">
           科研 · 课程 · 推免 · 竞赛 · Kaggle · 工具 · 生活 —— 七类笔记，一个共享笔记本。
         </p>
       </header>
 
-      <div aria-hidden className="relative mx-auto mt-12 h-[280px] w-full max-w-[640px]">
+      <div aria-hidden className="relative mx-auto mt-10 h-[260px] w-full max-w-[640px]">
         {HERO_NOTES.map((note, i) => (
           <NoteStackCard key={note.id} note={note} index={i} />
         ))}
       </div>
 
-      <footer className="relative mt-12">
+      <footer className="relative mt-auto pt-10">
         <ul className="flex flex-wrap gap-2">
           {CATEGORIES.map((c) => {
             const Icon = c.icon
