@@ -1,4 +1,3 @@
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,16 +14,14 @@ class Settings(BaseSettings):
     deepseek_dry_run: bool = False
     deepseek_timeout_s: float = 30.0
 
-    cors_origins: list[str] = ["http://localhost:5173"]
+    # Wire as a comma-separated string (e.g. CORS_ORIGINS=a,b,c).
+    # pydantic-settings v2 would try JSON-parsing list[str] env vars and
+    # crash on plain CSV; sticking to str + a derived list property avoids it.
+    cors_origins: str = "http://localhost:5173"
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def _split_cors(cls, v: object) -> object:
-        # pydantic-settings v2 tries json.loads on list[str] env vars; we want
-        # plain comma-separated strings (`CORS_ORIGINS=a,b`). Pre-split here.
-        if isinstance(v, str):
-            return [s.strip() for s in v.split(",") if s.strip()]
-        return v
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [s.strip() for s in self.cors_origins.split(",") if s.strip()]
 
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.local"),
