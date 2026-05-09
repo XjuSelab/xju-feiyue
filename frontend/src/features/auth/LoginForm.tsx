@@ -58,12 +58,16 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-[408px] rounded-lg border border-border bg-bg p-10 shadow-card">
-      <h2 className="font-serif text-[32px] font-semibold leading-[1.15] text-text">登录</h2>
-      <p className="mt-2 text-[15px] leading-[1.5] text-text-muted">用学号登录开始记录。</p>
+      <h2 className="select-none font-serif text-[32px] font-semibold leading-[1.15] text-text">
+        登录
+      </h2>
+      <p className="mt-2 select-none text-[15px] leading-[1.5] text-text-muted">
+        用学号登录开始记录。
+      </p>
 
       <form className="mt-8 space-y-4" noValidate onSubmit={onSubmit}>
         <div className="space-y-1.5">
-          <Label htmlFor="login-sid" className="text-[13px]">
+          <Label htmlFor="login-sid" className="select-none text-[13px]">
             学号
           </Label>
           <Input
@@ -79,14 +83,14 @@ export function LoginForm() {
             {...register('sid')}
           />
           {errors.sid && (
-            <p id="login-sid-err" role="alert" className="text-xs text-cat-research">
+            <p id="login-sid-err" role="alert" className="select-none text-xs text-cat-research">
               {errors.sid.message}
             </p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="login-password" className="text-[13px]">
+          <Label htmlFor="login-password" className="select-none text-[13px]">
             密码
           </Label>
           <Input
@@ -100,7 +104,11 @@ export function LoginForm() {
             {...register('password')}
           />
           {errors.password && (
-            <p id="login-password-err" role="alert" className="text-xs text-cat-research">
+            <p
+              id="login-password-err"
+              role="alert"
+              className="select-none text-xs text-cat-research"
+            >
               {errors.password.message}
             </p>
           )}
@@ -116,7 +124,7 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs text-text-faint">
+      <div className="my-5 flex select-none items-center gap-3 text-xs text-text-faint">
         <span className="h-px flex-1 bg-border" />
         <span>或</span>
         <span className="h-px flex-1 bg-border" />
@@ -133,7 +141,8 @@ export function LoginForm() {
       </Button>
 
       <p className="mt-6 text-center text-[12.5px] text-text-faint">
-        演示账号：20211010001 / 123456
+        <span className="select-none">演示账号：</span>
+        <span className="select-text font-mono">20211010001 / 123456</span>
       </p>
     </div>
   )

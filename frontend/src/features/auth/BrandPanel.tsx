@@ -43,7 +43,7 @@ export function BrandPanel() {
     <aside
       aria-label="LabNotes 简介"
       data-brand-panel
-      className="relative hidden overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:justify-center lg:px-24 lg:py-20 xl:px-32"
+      className="relative hidden select-none overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:justify-center lg:px-24 lg:py-20 xl:px-32"
       style={BRAND_PANEL_BG_STYLE}
     >
       <header className="relative">
