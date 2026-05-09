@@ -1,0 +1,15 @@
+// Round 4 uses this tsconfig for mock fixtures (json/ts files under src/api/mock/).
+// Keep this file checked in but DO NOT reference it from tsconfig.json until mock
+// files exist, otherwise tsc -b reports TS18003 (no inputs found).
+// Round 3 末尾 contracts step will re-add { "path": "./tsconfig.mock.json" } to
+// tsconfig.json references after creating src/api/mock/notes.json + handlers.ts.
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.mock.tsbuildinfo",
+    "composite": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src/api/mock/**/*.ts", "src/api/mock/**/*.tsx"],
+  "exclude": []
+}
