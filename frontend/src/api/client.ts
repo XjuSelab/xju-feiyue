@@ -9,8 +9,7 @@ import type { ZodType } from 'zod'
  */
 
 const isDev = import.meta.env.DEV
-const baseURL =
-  (import.meta.env['VITE_API_BASE'] as string | undefined) ?? '/api'
+const baseURL = (import.meta.env['VITE_API_BASE'] as string | undefined) ?? '/api'
 const MOCK_LATENCY_MS = 200
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
@@ -27,11 +26,7 @@ export type MockHandler = (req: MockReq) => Promise<unknown>
 
 const mockHandlers = new Map<string, MockHandler>()
 
-export function registerMock(
-  method: HttpMethod,
-  path: string,
-  handler: MockHandler,
-): void {
+export function registerMock(method: HttpMethod, path: string, handler: MockHandler): void {
   mockHandlers.set(`${method} ${path}`, handler)
 }
 
@@ -92,7 +87,18 @@ export async function request<T>(opts: RequestOpts<T>): Promise<T> {
     if (opts.body !== undefined) init.body = JSON.stringify(opts.body)
     const res = await fetch(url, init)
     if (!res.ok) {
-      throw new ApiError(`HTTP ${res.status}`, res.status, opts.path)
+      // 后端约定：错误体形如 { detail: string }（FastAPI 默认）。
+      // 读出 detail 当 ApiError.message，前端 toast / 字段错误能直接显示。
+      let message = `HTTP ${res.status}`
+      try {
+        const body = (await res.json()) as { detail?: unknown } | null
+        if (body && typeof body.detail === 'string' && body.detail.length > 0) {
+          message = body.detail
+        }
+      } catch {
+        /* keep HTTP fallback */
+      }
+      throw new ApiError(message, res.status, opts.path)
     }
     raw = res.status === 204 ? null : await res.json()
   }

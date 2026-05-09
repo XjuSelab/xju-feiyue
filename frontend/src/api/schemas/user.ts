@@ -4,8 +4,8 @@ export const UserSchema = z.object({
   id: z.string(),
   sid: z.string(),
   name: z.string(),
-  avatar: z.string().url().optional(),
-  bio: z.string().optional(),
+  avatar: z.string().url().nullish(),
+  bio: z.string().nullish(),
 })
 export type User = z.infer<typeof UserSchema>
 

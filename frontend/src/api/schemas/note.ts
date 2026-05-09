@@ -19,7 +19,7 @@ export const CategoryIdSchema = z.enum(CATEGORY_IDS)
 export const NoteAuthorSchema = z.object({
   id: z.string(),
   name: z.string(),
-  avatar: z.string().url().optional(),
+  avatar: z.string().url().nullish(),
 })
 export type NoteAuthor = z.infer<typeof NoteAuthorSchema>
 
@@ -27,7 +27,7 @@ export const NoteSchema = z.object({
   id: z.string(),
   title: z.string(),
   summary: z.string(),
-  cover: z.string().url().optional(),
+  cover: z.string().url().nullish(),
   category: CategoryIdSchema,
   tags: z.array(z.string()),
   author: NoteAuthorSchema,

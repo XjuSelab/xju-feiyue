@@ -8,9 +8,10 @@ from app.schemas.interaction import CommentIn, CommentOut, PaginatedComments
 router = APIRouter(tags=["interactions"])
 
 
-@router.post("/notes/{note_id}/like", status_code=status.HTTP_200_OK)
-async def like(note_id: str, user: User = Depends(get_current_user)) -> dict[str, bool]:
-    return {"ok": True}
+@router.post("/notes/{note_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+async def like(note_id: str, user: User = Depends(get_current_user)) -> Response:
+    # Idempotent — Phase 6 will perform the actual insert with ON CONFLICT.
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/notes/{note_id}/like", status_code=status.HTTP_204_NO_CONTENT)
