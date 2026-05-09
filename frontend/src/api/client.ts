@@ -1,15 +1,17 @@
 import type { ZodType } from 'zod'
 
 /**
- * 单一 fetcher：dev 走 mock dispatch 表，prod 走真 fetch。
+ * 单一 fetcher：mock dispatch（dev 默认）或真 fetch（设置了
+ * VITE_API_BASE 即切真后端，dev / prod 都生效）。
  * - 业务模块 (endpoints/*) 永远调用 `request({ schema })`
  *   schema.parse 强制输出在边界处通过 zod 校验
- * - 切真后端：把 baseURL 指向真服务、删 mock/handlers 即可，
- *   业务代码 0 改动
+ * - 切真后端：在 .env.local 写 VITE_API_BASE=http://localhost:8000
+ *   即可，业务代码 0 改动
  */
 
-const isDev = import.meta.env.DEV
-const baseURL = (import.meta.env['VITE_API_BASE'] as string | undefined) ?? '/api'
+const apiBase = import.meta.env['VITE_API_BASE'] as string | undefined
+const useMock = import.meta.env.DEV && !apiBase
+const baseURL = apiBase ?? '/api'
 const MOCK_LATENCY_MS = 200
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
@@ -60,7 +62,7 @@ export async function request<T>(opts: RequestOpts<T>): Promise<T> {
 
   let raw: unknown
 
-  if (isDev) {
+  if (useMock) {
     const handler = mockHandlers.get(`${opts.method} ${opts.path}`)
     if (!handler) {
       throw new ApiError(

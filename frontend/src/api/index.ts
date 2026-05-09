@@ -17,18 +17,13 @@ import {
 } from '@tanstack/react-query'
 import * as notesApi from './endpoints/notes'
 import * as aiApi from './endpoints/ai'
-import type {
-  Note,
-  ListNotesQuery,
-  PaginatedNotes,
-} from './schemas/note'
-import type {
-  AIComposeRequest,
-  AIComposeResponse,
-} from './schemas/ai'
+import type { Note, ListNotesQuery, PaginatedNotes } from './schemas/note'
+import type { AIComposeRequest, AIComposeResponse } from './schemas/ai'
 
-if (import.meta.env.DEV) {
-  // Side-effect import; handlers register on module load.
+if (import.meta.env.DEV && !import.meta.env['VITE_API_BASE']) {
+  // Side-effect import; handlers register on module load. Skipped when
+  // VITE_API_BASE is set so the bundle doesn't pull mock fixtures into the
+  // graph when wired to a real backend.
   await import('./mock/handlers')
 }
 
@@ -124,11 +119,7 @@ export function useNote(id: string): UseQueryResult<Note> {
   })
 }
 
-export function useAICompose(): UseMutationResult<
-  AIComposeResponse,
-  Error,
-  AIComposeRequest
-> {
+export function useAICompose(): UseMutationResult<AIComposeResponse, Error, AIComposeRequest> {
   return useMutation({
     mutationFn: (req: AIComposeRequest) => aiApi.compose(req),
   })
