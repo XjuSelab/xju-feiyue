@@ -31,7 +31,7 @@ export function NoteCard({
       to={`/note/${note.id}`}
       data-cat={note.category}
       className={cn(
-        'group block rounded-md border border-border bg-bg p-4 outline-none transition hover:bg-bg-subtle focus-visible:ring-1 focus-visible:ring-border-strong',
+        'group flex h-full flex-col rounded-md border border-border bg-bg p-4 outline-none transition hover:bg-bg-subtle focus-visible:ring-1 focus-visible:ring-border-strong',
         compact && 'w-72 shrink-0',
         className,
       )}
@@ -44,18 +44,18 @@ export function NoteCard({
       </div>
       <h3
         className={cn(
-          'mb-1 font-serif font-semibold leading-snug text-text',
-          compact ? 'text-base line-clamp-2' : 'text-lg line-clamp-2',
+          'mb-1 font-serif font-semibold leading-snug text-text line-clamp-2',
+          compact ? 'min-h-[2.75rem] text-base' : 'min-h-[3.1rem] text-lg',
         )}
       >
         {renderTitle ? renderTitle(note.title) : note.title}
       </h3>
       {!compact && (
-        <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-text-muted">
+        <p className="mb-3 line-clamp-2 min-h-[2.86rem] text-sm leading-relaxed text-text-muted">
           {renderSummary ? renderSummary(note.summary) : note.summary}
         </p>
       )}
-      <div className="flex items-center justify-between text-xs text-text-faint">
+      <div className="mt-auto flex items-center justify-between text-xs text-text-faint">
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-flex size-5 items-center justify-center rounded-full bg-bg-subtle text-[10px] font-medium text-text">
             {note.author.name.slice(0, 2).toUpperCase()}

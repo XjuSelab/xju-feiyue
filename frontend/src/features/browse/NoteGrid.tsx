@@ -43,13 +43,7 @@ export function NoteGrid() {
 
   if (r.isPending) return <LoadingSkeleton preset="card" count={4} />
   if (r.isError) {
-    return (
-      <ErrorState
-        title="加载笔记失败"
-        message={r.error.message}
-        onRetry={() => r.refetch()}
-      />
-    )
+    return <ErrorState title="加载笔记失败" message={r.error.message} onRetry={() => r.refetch()} />
   }
 
   const notes = r.data.pages.flatMap((p) => p.items)
@@ -71,9 +65,10 @@ export function NoteGrid() {
     <div className="space-y-4">
       <ul className="grid gap-3 md:grid-cols-2">
         {notes.map((note: Note) => (
-          <li key={note.id}>
+          <li key={note.id} className="flex flex-col">
             <NoteCard
               note={note}
+              className="h-auto flex-1"
               renderTitle={(t) => highlight(t, q)}
               renderSummary={(s) => highlight(s, q)}
             />
