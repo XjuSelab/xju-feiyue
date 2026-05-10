@@ -36,7 +36,7 @@ export function CodeBlock({ code, language, className, highlightedChildren }: Pr
       await navigator.clipboard.writeText(code)
       setCopied(true)
       if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setCopied(false), 1500)
+      timerRef.current = setTimeout(() => setCopied(false), 2500)
     } catch (err) {
       // 静默失败：clipboard 在 http context 可能无权限；R3+ 可加 toast
       console.warn('clipboard write failed', err)
