@@ -72,9 +72,10 @@ export function CodeBlock({ code, language, className, highlightedChildren }: Pr
         className={cn(
           'block',
           language ? `language-${language}` : undefined,
-          // pt-8 makes room for the absolute lang label + copy button without
-          // the first code line crashing into them.
-          language ? 'pt-8' : undefined,
+          // !pt-8 — prose-claude.css resets `.prose-claude pre code { padding: 0 }`,
+          // so we need the important prefix for our top padding to win and keep
+          // the first code line clear of the absolute lang label + copy button.
+          language ? '!pt-8' : undefined,
         )}
       >
         {highlightedChildren ?? code}
