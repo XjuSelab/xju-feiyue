@@ -17,12 +17,19 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 NOTES_DIR = REPO_ROOT / "content" / "notes"
 OUT = REPO_ROOT / "frontend" / "src" / "api" / "mock" / "notes.json"
 
-AUTHOR = {"id": "usr_winbeau", "name": "winbeau"}
+# Frontmatter `author` (display name) → mock author shape sent to the
+# frontend. Keep ids in lock-step with backend/scripts/seed.py USERS.
+AUTHOR_MAP: dict[str, dict] = {
+    "winbeau": {"id": "usr_winbeau", "name": "winbeau"},
+    "孙海洋":   {"id": "usr_sunhaiyang", "name": "孙海洋"},
+}
+DEFAULT_AUTHOR = AUTHOR_MAP["winbeau"]
 _FRONT = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
 
 def main() -> int:
     items = []
+    unknown: set[str] = set()
     for path in sorted(NOTES_DIR.glob("*.md")):
         m = _FRONT.match(path.read_text(encoding="utf-8"))
         if not m:
@@ -30,6 +37,10 @@ def main() -> int:
             continue
         front = yaml.safe_load(m.group(1)) or {}
         body = m.group(2).lstrip("\n")
+        author_name = str(front.get("author") or "").strip()
+        author = AUTHOR_MAP.get(author_name, DEFAULT_AUTHOR)
+        if author_name and author_name not in AUTHOR_MAP:
+            unknown.add(author_name)
         items.append({
             "id": str(front["id"]),
             "title": str(front["title"]),
@@ -37,12 +48,15 @@ def main() -> int:
             "content": body,
             "category": str(front.get("category", "tools")),
             "tags": list(front.get("tags") or []),
-            "author": AUTHOR,
+            "author": author,
             "createdAt": str(front.get("createdAt", "2026-05-09T00:00:00Z")),
             "likes": 0,
             "comments": 0,
             "readMinutes": int(front.get("readMinutes", 1)),
         })
+
+    if unknown:
+        print(f"  ! unknown authors → defaulted to {DEFAULT_AUTHOR['name']}: {sorted(unknown)}")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     total_chars = sum(len(n["content"]) for n in items)

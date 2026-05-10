@@ -1,0 +1,49 @@
+---
+id: note_course_sunhaiyang_009
+slug: xju-emb-linux
+title: 嵌入式 Linux
+summary: 无用水课，复习把书翻熟就行。
+category: course
+tags: [嵌入式, 编程, XJU, 新疆大学]
+author: 孙海洋
+createdAt: 2026-01-22T17:39:46+08:00
+readMinutes: 2
+upstream: https://github.com/SunSeaLucky/xju-course-wiki/tree/main/docs/emb-linux
+---
+
+## 课程评价 / 推荐资源
+
+### 课程评价
+
+无用水课，复习把书翻熟就行。
+
+### 推荐老师
+
+- 👍 薛花（人美年轻时尚，什么？课讲得咋样？忘了）
+
+## 学习笔记
+
+### 第一章
+1. 通用计算机和嵌入式计算机的区别
+1. 嵌入式技术未来的发展
+1. Android 和 iOS 的区别
+1. 设计一个简单的嵌入式系统？
+
+### 第二章
+1. ARM 中的 R 指的是什么
+1. RISC 和 CISC 的区别
+1. 立即数的有效问题<br>由于 ARM 指令对立即数的表示有限制，并不是所有的 32 位数都能直接作为立即数使用。只有能够通过规则（8 位 Y 和循环右移 X 位）表示的数才是合法的立即数。
+1. 地址表示方向，一是从右往左，二是从高往低
+
+### 第三章
+1. Makefile 的编写
+
+### 第四章
+1. 为什么使用交叉开发环境？P114
+1. BIOS 和 BootLoader 的区别？P123
+1. BootLoader 主要是为了启动内核，Linux 内核的主要功能是？P133
+
+### 第五章
+1. 驱动程序加载方法的流程图。P155
+
+### 第六章

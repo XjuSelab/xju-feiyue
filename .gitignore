@@ -1,0 +1,5 @@
+# Upstream xju-course-wiki source mirror — too heavy to track in our repo
+# (~36MB docs + .git). Reproducible via `python scripts/xju_pull.py`.
+# Only the index manifest is kept under git for traceability.
+scripts/xju_wiki_raw/*
+!scripts/xju_wiki_raw/_index.json

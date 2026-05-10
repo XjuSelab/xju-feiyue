@@ -144,6 +144,29 @@ def yaml_list(items: list[str]) -> str:
     return "[" + ", ".join(yaml_escape(t) for t in items) + "]"
 
 
+def build_frontmatter(meta: dict) -> str:
+    """Render a YAML frontmatter block from a meta dict.
+
+    Required keys: id, slug, title, summary, category, tags, author,
+    createdAt, readMinutes. Optional: notionUuid, upstream.
+    Order is fixed so diffs stay tidy across re-runs.
+    """
+    lines = ["---", f"id: {meta['id']}", f"slug: {meta['slug']}"]
+    lines.append(f"title: {yaml_escape(meta['title'])}")
+    lines.append(f"summary: {yaml_escape(meta['summary'])}")
+    lines.append(f"category: {meta['category']}")
+    lines.append(f"tags: {yaml_list(list(meta.get('tags') or []))}")
+    lines.append(f"author: {yaml_escape(meta['author'])}")
+    lines.append(f"createdAt: {meta['createdAt']}")
+    lines.append(f"readMinutes: {meta['readMinutes']}")
+    if meta.get("notionUuid"):
+        lines.append(f"notionUuid: {meta['notionUuid']}")
+    if meta.get("upstream"):
+        lines.append(f"upstream: {meta['upstream']}")
+    lines.append("---\n\n")
+    return "\n".join(lines)
+
+
 def main() -> int:
     index = json.loads((RAW_DIR / "_index.json").read_text(encoding="utf-8"))
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
@@ -164,24 +187,18 @@ def main() -> int:
             ).isoformat(timespec="seconds").replace("+00:00", "Z")
         else:
             created_iso = "2026-05-09T00:00:00Z"
-        nid = f"note_tools_winbeau_{i:03d}"
-        tags = derive_tags(title, slug)
-        summary = derive_summary(title, body)
-        read_min = derive_read_minutes(body)
-        front = (
-            "---\n"
-            f"id: {nid}\n"
-            f"slug: {slug}\n"
-            f"title: {yaml_escape(title)}\n"
-            f"summary: {yaml_escape(summary)}\n"
-            "category: tools\n"
-            f"tags: {yaml_list(tags)}\n"
-            "author: winbeau\n"
-            f"createdAt: {created_iso}\n"
-            f"readMinutes: {read_min}\n"
-            f"notionUuid: {uuid}\n"
-            "---\n\n"
-        )
+        front = build_frontmatter({
+            "id": f"note_tools_winbeau_{i:03d}",
+            "slug": slug,
+            "title": title,
+            "summary": derive_summary(title, body),
+            "category": "tools",
+            "tags": derive_tags(title, slug),
+            "author": "winbeau",
+            "createdAt": created_iso,
+            "readMinutes": derive_read_minutes(body),
+            "notionUuid": uuid,
+        })
         out_path = NOTES_DIR / f"{slug}.md"
         out_path.write_text(front + body.lstrip("\n"), encoding="utf-8")
         # Drop intermediate .md.body now that the canonical file exists.

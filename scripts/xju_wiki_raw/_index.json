@@ -1,0 +1,179 @@
+[
+  {
+    "slug": "algorithm",
+    "title": "算法设计与分析",
+    "nav_section": "理论课程",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "android-dev",
+    "title": "Android 开发",
+    "nav_section": "编程/数据/开发",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "assembly-language",
+    "title": "汇编语言程序设计",
+    "nav_section": "编程/数据/开发",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "circuits-analog-electronics",
+    "title": "电路与模电",
+    "nav_section": "硬件与信号",
+    "subpages": [
+      "intro/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "compile-theory",
+    "title": "编译原理",
+    "nav_section": "理论课程",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "computer-operating-system",
+    "title": "计算机操作系统",
+    "nav_section": "408 课程",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md",
+      "lab/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "database",
+    "title": "数据库（PostgreSQL）",
+    "nav_section": "编程/数据/开发",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md",
+      "note/my-main.md",
+      "experiment/main.md",
+      "experiment/code.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "discrete-math",
+    "title": "离散数学",
+    "nav_section": "理论基础课",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "emb-linux",
+    "title": "嵌入式 Linux",
+    "nav_section": "编程/数据/开发",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "linear-algebra",
+    "title": "线性代数",
+    "nav_section": "理论基础课",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "linux",
+    "title": "Linux",
+    "nav_section": "编程/数据/开发",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md",
+      "lab/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "mao-mind",
+    "title": "毛泽东思想和中国特色社会主义理论体系概论",
+    "nav_section": "通识必修课",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md",
+      "note/important.md",
+      "note/temp.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "principles-of-computer-composition",
+    "title": "计算机组成原理",
+    "nav_section": "408 课程",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "python",
+    "title": "Python",
+    "nav_section": "编程/数据/开发",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "signal-analysis",
+    "title": "信号与系统分析基础",
+    "nav_section": "硬件与信号",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "software-engineering",
+    "title": "软件工程",
+    "nav_section": "理论课程",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md",
+      "pre/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  },
+  {
+    "slug": "xi-mind",
+    "title": "习近平新时代中国特色社会主义思想概论",
+    "nav_section": "通识必修课",
+    "subpages": [
+      "intro/main.md",
+      "note/main.md"
+    ],
+    "last_commit": "2026-01-22T17:47:46+08:00"
+  }
+]

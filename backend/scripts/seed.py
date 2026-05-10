@@ -1,7 +1,8 @@
 """Seed the DB from content/notes/*.md.
 
-Each markdown file is YAML-frontmatter + body. The single demo author is
-`winbeau` (sid 20211010001 / password 123456). Safe to re-run — drops and
+Each markdown file is YAML-frontmatter + body. Authors are looked up by name
+in USERS — winbeau is the demo login account; 孙海洋 (XJU 学长, course wiki
+contributor) signs the imported xju-* notes. Safe to re-run — drops and
 recreates all tables before seeding.
 """
 from __future__ import annotations
@@ -25,11 +26,25 @@ from app.services.auth import hash_password  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTES_DIR = REPO_ROOT / "content" / "notes"
 
-DEMO_PASSWORD = "123456"
-DEMO_USER_ID = "usr_winbeau"
-DEMO_USER_NAME = "winbeau"
-DEMO_SID = "20211010001"
-DEMO_BIO = "工程速查 + 深度学习环境配置"
+USERS: list[dict] = [
+    {
+        "id": "usr_winbeau",
+        "sid": "20211010001",
+        "name": "winbeau",
+        "password": "123456",
+        "bio": "工程速查 + 深度学习环境配置",
+    },
+    {
+        "id": "usr_sunhaiyang",
+        "sid": "20180000001",
+        "name": "孙海洋",
+        "password": "123456",
+        "bio": "新疆大学课程笔记 · xju-course-wiki 维护者",
+    },
+]
+
+NAME_TO_USER_ID: dict[str, str] = {u["name"]: u["id"] for u in USERS}
+DEFAULT_USER_ID: str = USERS[0]["id"]
 
 
 _FRONT_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
@@ -64,21 +79,21 @@ async def main() -> None:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    pwd_hash = hash_password(DEMO_PASSWORD)
-
     async with AsyncSessionLocal() as session:
-        session.add(
-            User(
-                id=DEMO_USER_ID,
-                sid=DEMO_SID,
-                name=DEMO_USER_NAME,
-                avatar=None,
-                bio=DEMO_BIO,
-                password_hash=pwd_hash,
+        for u in USERS:
+            session.add(
+                User(
+                    id=u["id"],
+                    sid=u["sid"],
+                    name=u["name"],
+                    avatar=None,
+                    bio=u["bio"],
+                    password_hash=hash_password(u["password"]),
+                )
             )
-        )
         await session.flush()
 
+        unknown_authors: set[str] = set()
         for front, body in notes:
             created = front.get("createdAt", "2026-05-09T00:00:00Z")
             if isinstance(created, str):
@@ -87,6 +102,10 @@ async def main() -> None:
                 created_dt = created
             else:
                 raise ValueError(f"{front.get('slug')}: unrecognized createdAt {created!r}")
+            author_name = str(front.get("author") or "").strip()
+            author_id = NAME_TO_USER_ID.get(author_name, DEFAULT_USER_ID)
+            if author_name and author_name not in NAME_TO_USER_ID:
+                unknown_authors.add(author_name)
             session.add(
                 Note(
                     id=str(front["id"]),
@@ -96,15 +115,19 @@ async def main() -> None:
                     cover=None,
                     category=str(front.get("category", "tools")),
                     tags=list(front.get("tags") or []),
-                    author_id=DEMO_USER_ID,
+                    author_id=author_id,
                     created_at=created_dt,
                     read_minutes=int(front.get("readMinutes", 1)),
                 )
             )
         await session.commit()
 
-    print(f"seed done: 1 user / {len(notes)} notes")
-    print(f"demo: sid={DEMO_SID} / password={DEMO_PASSWORD}")
+    if unknown_authors:
+        print(f"  ! unknown authors → defaulted to {DEFAULT_USER_ID}: {sorted(unknown_authors)}")
+
+    print(f"seed done: {len(USERS)} users / {len(notes)} notes")
+    for u in USERS:
+        print(f"  user: name={u['name']:<10} sid={u['sid']} pw={u['password']}")
 
 
 if __name__ == "__main__":
