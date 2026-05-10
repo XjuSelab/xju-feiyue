@@ -7,14 +7,26 @@ import notesJson from '@/api/mock/notes.json'
 
 const NOTES = notesJson as readonly Note[]
 
-/** 从 mock 数据里挑 3 张高赞 + 跨类别的笔记做 hero 瀑布。 */
-const HERO_NOTE_IDS = ['note_recommend_002', 'note_course_001', 'note_kaggle_001'] as const
+/**
+ * Hero stack on the login page. Pick 3 notes with diverse vibes (long-form
+ * config / install guide / quick cheatsheet). Falls back to the first three
+ * notes if any of these get renamed/removed, so the brand panel never
+ * crashes when the seed data shifts.
+ */
+const HERO_NOTE_IDS = [
+  'note_tools_winbeau_031', // Docker 容器配置
+  'note_tools_winbeau_030', // CUDA 安装
+  'note_tools_winbeau_008', // WSL Git(SSH) 操作速查表
+] as const
 
-const HERO_NOTES: readonly Note[] = HERO_NOTE_IDS.map((id) => {
-  const found = NOTES.find((n) => n.id === id)
-  if (!found) throw new Error(`hero note missing: ${id}`)
-  return found
-})
+const HERO_NOTES: readonly Note[] = (() => {
+  const picked = HERO_NOTE_IDS.map((id) => NOTES.find((n) => n.id === id)).filter((n): n is Note =>
+    Boolean(n),
+  )
+  if (picked.length === HERO_NOTE_IDS.length) return picked
+  // Soft fallback: just take the first 3 so login keeps rendering.
+  return NOTES.slice(0, 3)
+})()
 
 const STACK_POSITIONS = [
   { x: '-72%', y: '0px', rot: '-4deg' },
