@@ -1,98 +1,690 @@
 [
   {
-    "id": "note_tools_winbeau_001",
-    "title": "Docker 容器配置",
-    "summary": "深度学习 Docker 容器化：GPU 透传 + Jupyter 隧道 + Zsh/Starship/Vim-Plug 美化 + 多端口映射全流程。",
-    "content": "深度学习项目放容器里跑，下面是我现在用的整套设置。\n\n## 1. 起容器（GPU + Jupyter 端口）\n\n只指定一张卡：\n\n```bash\ndocker run --gpus '\"device=0\"' \\\n  -it --name winbeau-dev \\\n  -v /home/winbeau/work:/workspace \\\n  -p 8890:8888 \\\n  nvcr.io/nvidia/pytorch:23.10-py3 bash\n```\n\n全部 GPU + 多端口（Jupyter / Gradio / API / TensorBoard）：\n\n```bash\ndocker run --gpus all \\\n  -it --name winbeau \\\n  -v /home/winbeau/Root:/root \\\n  -v /home/winbeau/Workspace:/workspace \\\n  -p 8890:8888 -p 7860:7860 -p 8000:8000 -p 6006:6006 \\\n  nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 bash\n```\n\n容器里起 Jupyter：\n\n```bash\njupyter lab --ip=0.0.0.0 --no-browser --allow-root --port=8888\n```\n\n宿主上做 SSH 隧道：\n\n```bash\nssh -L 8890:localhost:8888 target-server\n```\n\n浏览器开 `http://localhost:8890` 即可。\n\n## 2. shell 美化（Zsh + Starship）\n\n```bash\napt install -y zsh curl git\nchsh -s $(which zsh)\ncurl -sS https://starship.rs/install.sh | sh\necho 'eval \"$(starship init zsh)\"' >> ~/.zshrc\n```\n\n`~/.config/starship.toml` 我自己用的：用户名 + 目录截断 4 级 + git 状态符号\n（`+` 暂存 / `!` 已改 / `?` 未跟踪 / `✘` 删除）+ conda env 提示 + 成功失败 ❯。\n\n补全 + 高亮：\n\n```bash\ngit clone https://github.com/zsh-users/zsh-autosuggestions   ~/.zsh/plugins/zsh-autosuggestions\ngit clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.zsh/plugins/zsh-syntax-highlighting\n\ncat >> ~/.zshrc <<'EOF'\nsource ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh\nsource ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh\nEOF\n```\n\n## 3. Vim 进 Vim-Plug\n\n```bash\ncurl -fLo ~/.vim/autoload/plug.vim --create-dirs \\\n  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim\n```\n\n`.vimrc`（节选）：\n\n```vim\ncall plug#begin('~/.vim/plugged')\n  Plug 'NLKNguyen/papercolor-theme'\n  Plug 'vim-airline/vim-airline'\n  Plug 'Yggdroot/indentLine'\n  Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }\n  Plug 'jiangmiao/auto-pairs'\n  Plug 'vim-syntastic/syntastic'\n  Plug 'mattn/emmet-vim'\n  Plug 'tpope/vim-fugitive'\ncall plug#end()\n\nnnoremap <F3> :NERDTreeToggle<CR>\nnnoremap <F5> :!python %<CR>\n```\n\n进 Vim 第一次跑 `:PlugInstall`。\n",
+    "id": "note_tools_winbeau_010",
+    "title": "anyrouter-Claude",
+    "summary": "anyrouter-Claude —— 工程速查 / 实操记录。",
+    "content": "",
     "category": "tools",
-    "tags": ["Docker", "容器", "深度学习"],
+    "tags": ["Anthropic", "API", "Claude", "工具"],
     "author": {
       "id": "usr_winbeau",
       "name": "winbeau"
     },
-    "createdAt": "2026-05-08T10:00:00Z",
+    "createdAt": "2026-03-02 06:44:52+00:00",
     "likes": 0,
     "comments": 0,
-    "readMinutes": 8
+    "readMinutes": 1
   },
   {
-    "id": "note_tools_winbeau_002",
+    "id": "note_tools_winbeau_033",
+    "title": "Claude Code 下载",
+    "summary": "适用于 macOS 和 Ubuntu，自动处理依赖和环境配置。",
+    "content": "**Claude Code** 是 Anthropic 官方推出的命令行工具，支持在终端中直接与 Claude 交互进行代码开发。\n\n\n#### 1. 安装 (Installation)\n\n\n#### 方法一：自动安装脚本 (推荐)\n\n适用于 macOS 和 Ubuntu，自动处理依赖和环境配置。\n\n\n```bash\ncurl -fsSL [https://claude.ai/install.sh](https://claude.ai/install.sh) | bash\n```\n\n> 安装完成后，运行 `claude` 启动并进行首次授权。\n\n\n#### 方法二：通过 NPM 安装\n\n需 Node.js 18+ 环境。\n\n\n```bash\nnpm install -g @anthropic-ai/claude-code\n```\n\n\n#### 2. 必备工具\n\n建议安装以下工具以获得最佳体验（提升文件搜索与版本控制能力）。\n\n\n```bash\nsudo apt update\nsudo apt install -y git ripgrep\n```\n\n\n#### 3. 环境配置\n\n将以下环境变量添加到你的 Shell 配置文件 (`~/.zshrc` 或 `~/.bashrc`) 中，以配置 API Key 和自定义 Base URL。\n\n\n```bash\n# Claude Code Configuration\nexport ANTHROPIC_AUTH_TOKEN=\"sk-9yQxN4LkDR1ZFUpEIKHb0XJQKUjwupucBRMWmugJocUtJ4Vz\"\nexport ANTHROPIC_BASE_URL=\"[https://anyrouter.top](https://anyrouter.top)\"\nexport MORPH_API_KEY=\"sk-IubCKmeMJnv7eSbf1DwacEPcA40Piq0HZ_h0X_WYrSJdPBcC\"\nexport TWENTYFIRST_API_KEY=\"59d90a411938b3693e74218e5ffd2ab20a1c74c553577344fa9f297bc7f9e9a4\"\n```\n\n> 💡 **提示**：修改配置文件后，记得运行 `source ~/.zshrc` (或 `source ~/.bashrc`) 使其生效。\n\n\n#### 4. 常用命令\n\n\n|  |  |\n| --- | --- |\n| 命令 | 说明 |\n| :--- | :--- |\n| `claude` | 启动交互式会话 |\n| `claude doctor` | 检查环境与权限 (排错推荐) |\n| `claude update` | 更新到最新版本 |\n\n\n#### 5. 常见问题\n\n- **权限报错 (EACCES)**: NPM 全局安装失败时，建议使用 `nvm` 管理 Node 版本或改用官方安装脚本。\n- **Command not found**: 检查 `~/.npm-global/bin` 是否已加入 PATH，或尝试重启终端。\n",
+    "category": "tools",
+    "tags": ["Claude", "工具"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-05 15:51:15+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 4
+  },
+  {
+    "id": "note_tools_winbeau_030",
     "title": "CUDA 安装",
-    "summary": "RTX 50 系上 CUDA + cuDNN 安装全过程：驱动、官方源、版本切换 (symlink) + 环境变量两套方案。",
-    "content": "RTX 50 系新卡装 CUDA 一不留神就版本错位，按下面顺序来不会翻车。\n\n## 1. 驱动先装对\n\n```bash\nsudo apt install -y nvidia-driver-550   # 5090 / 4090 至少 550\nsudo reboot\nnvidia-smi                              # 确认驱动加载\n```\n\n## 2. NVIDIA 官方源\n\n```bash\nsudo apt install -y gnupg\nwget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb\nsudo dpkg -i cuda-keyring_1.1-1_all.deb\nsudo apt update\n```\n\n## 3. 指定版本 CUDA + cuDNN\n\nCUDA 11.6 + cuDNN 8.4：\n\n```bash\nwget https://developer.download.nvidia.com/compute/cuda/11.6.0/local_installers/cuda_11.6.0_510.39.01_linux.run\nsudo sh cuda_11.6.0_510.39.01_linux.run\n\nwget https://developer.download.nvidia.com/compute/redist/cudnn/v8.4.1/local_installers/11.6/cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive.tar.xz\ntar -xJvf cudnn-*.tar.xz\ncd cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive\nsudo mv include/* /usr/local/cuda-11.6/include/\nsudo mv lib/libcudnn*  /usr/local/cuda-11.6/lib64/\n```\n\n## 4A. 多版本切换：symlink 法（系统级）\n\n```bash\nsudo rm -f /usr/local/cuda\nsudo ln -s /usr/local/cuda-11.6 /usr/local/cuda\nnvcc -V\n```\n\n## 4B. 多版本切换：环境变量法（per-shell）\n\n```bash\nexport CUDA_HOME=/usr/local/cuda-11.6\nexport PATH=$CUDA_HOME/bin:$PATH\nexport LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH\n```\n\n写在 conda env 的 activate 脚本里最优雅，不会污染系统其他用户。\n",
+    "summary": "安装 CUDA 11.6：",
+    "content": "### 1.可能遇到 驱动失败\n\n\n```bash\nsudo apt update\nsudo apt install -y nvidia-driver-550 # 5090 要求 550版本以上\nsudo reboot\n```\n\n\n### 2.安装官方库\n\n\n```bash\nsudo apt update\nsudo apt install -y gnupg\nwget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb\nsudo dpkg -i cuda-keyring_1.1-1_all.deb\nsudo apt update\n```\n\n\n### 3.安装指定cuda版本\n\n安装 CUDA 11.6：\n\n\n```bash\nwget https://developer.download.nvidia.com/compute/cuda/11.6.0/local_installers/cuda_11.6.0_510.39.01_linux.run\nsudo sh cuda_11.6.0_510.39.01_linux.run\n```\n\n\n```bash\nwget https://developer.download.nvidia.com/compute/redist/cudnn/v8.4.1/local_installers/11.6/cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive.tar.xz\ntar -xJvf cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive.tar.xz\ncd cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive\nsudo mv include/* /usr/local/cuda-11.6/include/\nsudo mv lib/libcudnn* /usr/local/cuda-11.6/lib64/\n```\n\n或者安装 CUDA 11.8：\n\n\n```bash\nsudo apt install -y cuda-toolkit-11-8\n```\n\n> 💡 这不会冲突，它们会分别安装在 `/usr/local/cuda-11.x` 下。\n\n\n### 4.软链接切换（系统层面）\n\nCUDA 默认路径是 `/usr/local/cuda`，PyTorch、nvcc 默认找这个目录。\n\n你只需修改链接：\n\n切换到 **11.6**：\n\n\n```bash\nsudo rm -f /usr/local/cuda\nsudo ln -s /usr/local/cuda-11.6 /usr/local/cuda\n```\n\n切换到 **11.8**：\n\n\n```bash\nsudo rm -f /usr/local/cuda\nsudo ln -s /usr/local/cuda-11.8 /usr/local/cuda\n```\n\n检查结果：\n\n\n```bash\nls -l /usr/local | grep cuda\nnvcc -V\n```\n\n\n### 5.或者写在配置脚本里切换\n\n\n```bash\nexport CUDA_HOME=/usr/local/cuda-11.6\nexport PATH=$CUDA_HOME/bin:$PATH\nexport LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH\n```\n",
     "category": "tools",
     "tags": ["CUDA", "GPU", "深度学习"],
     "author": {
       "id": "usr_winbeau",
       "name": "winbeau"
     },
-    "createdAt": "2026-05-05T14:00:00Z",
+    "createdAt": "2026-03-02 06:45:06+00:00",
     "likes": 0,
     "comments": 0,
     "readMinutes": 5
+  },
+  {
+    "id": "note_tools_winbeau_001",
+    "title": "dl-jupyter",
+    "summary": "GitHub - winbeau/dl-jupyter: 本仓库包含一个可完全复现的深度学习开发环境，包括 Conda 环境（pyl）、JupyterLab…",
+    "content": "[GitHub - winbeau/dl-jupyter: 本仓库包含一个可完全复现的深度学习开发环境，包括 Conda 环境（pyl）、JupyterLab 配置、内核以及常用python包。 旨在方便在新 Ubuntu 机器上快速配置，使协作者能够以最少的操作建立开发环境。](https://github.com/winbeau/dl-jupyter)\n",
+    "category": "tools",
+    "tags": ["Jupyter", "深度学习"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:51+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_031",
+    "title": "Docker 容器配置",
+    "summary": "该文档记录了如何配置一个适合深度学习开发的 Docker 容器环境，包括 Jupyter 端口穿透、Zsh + Starship 终端美化，以及 Vim 配…",
+    "content": "该文档记录了如何配置一个适合深度学习开发的 Docker 容器环境，包括 Jupyter 端口穿透、Zsh + Starship 终端美化，以及 Vim 配置的现代化迁移。\n\n\n### 1. 启动容器与端口穿透\n\n\n#### 1.1 创建带 Jupyter 穿透的 Docker 容器\n\n\n```bash\ndocker run --gpus '\"device=0\"' \\\n    -it --name winbeau-dev \\\n    -v /home/jiayu/winbeau_zhao:/workspace \\\n    -p 8890:8888 \\\n    [nvcr.io/nvidia/pytorch:23.10-py3](http://nvcr.io/nvidia/pytorch:23.10-py3) bash\n```\n\n\n```bash\ndocker run --gpus all \\\n    -it --name winbeau \\\n    -v /home/jiayu/winbeau_zhao/Root:/root \\\n    -v /home/jiayu/winbeau_zhao/Workspace:/workspace \\\n    -p 8890:8888 \\\n    -p 7860:7860 \\\n    -p 8000:8000 \\\n    -p 6006:6006 \\\n    nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 bash\n```\n\n\n#### 1.2 在容器内启动 Jupyter\n\n\n```bash\njupyter lab --ip=0.0.0.0 --no-browser --allow-root --port=8888\n```\n\n\n#### 1.3 在本地终端建立 SSH 隧道\n\n\n```bash\nssh -L 8890:[localhost:8890](http://localhost:8890) target-server\n```\n\n\n```bash\nssh \\\n  -L 8890:localhost:8888 \\\n  -L 7860:localhost:7860 \\\n  -L 8000:localhost:8000 \\\n  -L 6006:localhost:6006 \\\n  target-server\n```\n\n\n#### 1.4 浏览器访问\n\n\n```\n[http://localhost:8890](http://localhost:8890)\n```\n\n\n---\n\n\n### 2. Shell 环境配置 (Zsh + Starship)\n\n\n#### 2.1 安装 Zsh 和 Starship\n\n**① 安装 Zsh (容器内执行)**\n\n\n```bash\napt update\napt install -y zsh curl git\n```\n\n**② 安装 Starship**\n\n\n```bash\ncurl -sS [https://starship.rs/install.sh](https://starship.rs/install.sh) | sh\n```\n\n**③ 在 Zsh 中启用 Starship**\n\n\n```bash\necho 'eval \"$(starship init zsh)\"' >> ~/.zshrc\n```\n\n**④ 切换到 Zsh**\n\n\n```bash\nzsh\n```\n\n\n#### 2.2 Starship 初始化配置\n\n**① 确认安装状态**\n\n\n```bash\nstarship --version\n```\n\n若提示找不到，请重新执行安装命令：\n\n\n```bash\ncurl -sS [https://starship.rs/install.sh](https://starship.rs/install.sh) | sh\n```\n\n**② 创建配置目录**\n\n\n```bash\nmkdir -p ~/.config\n```\n\n**③ 写入配置文件**\n\n\n```bash\nnano ~/.config/starship.toml\n```\n\n将以下配置内容复制进去：\n\n\n```toml\n# ~/.config/starship.toml\n\n# 1. 配置用户名 (User)\n[username]\nstyle_user = \"yellow bold\"\nstyle_root = \"red bold\"\nformat = \"[$user]($style)\"\nshow_always = true\n\n# 2. 配置主机名 (Hostname)\n[hostname]\nssh_only = false\nformat = \"@[$hostname]($style) \"\ntrim_at = \".\"\nstyle = \"cyan\"\n\n# =======================\n# 2. 路径 (视觉焦点)\n# =======================\n[directory]\nstyle = \"yellow\"\ntruncation_length = 4\ntruncation_symbol = \"…/\"\nformat = \"[$path]($style)[$read_only]($read_only_style) \"\n\n# =======================\n# 3. Git 状态 (优雅点缀)\n# =======================\n[git_branch]\nsymbol = \"\"\nstyle = \"purple bold\"\nformat = \"[$symbol$branch]($style)\"\n\n[git_status]\ndisabled = false\nformat = ' ([$all_status$ahead_behind]($style) )'\nstyle = \"red bold\"\nstaged = \"[+](green) \"\nmodified = \"[!](red) \"\nuntracked = \"[?](yellow) \"\ndeleted = \"[✘](red) \"\nrenamed = \"[»](yellow) \"\nconflicted = \"[=](red bold) \"\nstashed = \"[$](cyan) \"\nahead = \"⇡\"\nbehind = \"⇣\"\ndiverged = \"⇕\"\nup_to_date = \"\"\n\n# =======================\n# 4. Conda 环境 (重写标识)\n# =======================\n[conda]\ndisabled = true\nignore_base = false\nstyle = \"#78E08F bold\"\nsymbol = \"\"\nformat = \"[\\\\($symbol$environment\\\\)]($style) \"\n\n# =======================\n# 5. 提示符 (灵动指针)\n# =======================\n[character]\nsuccess_symbol = \"[❯](white bold)\"\nerror_symbol = \"[❯](red bold)\"\nvimcmd_symbol = \"[❮](green bold)\"\n```\n\n\n#### 2.3 配置 Zsh 插件与 .zshrc\n\n**① 创建插件目录**\n\n\n```bash\nmkdir -p ~/.zsh/plugins\n```\n\n**② 下载插件**\n\n\n```bash\n# 1. zsh-autosuggestions（自动补全）\ngit clone [https://github.com/zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) ~/.zsh/plugins/zsh-autosuggestions\n\n# 2. zsh-syntax-highlighting（语法高亮）\ngit clone [https://github.com/zsh-users/zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) ~/.zsh/plugins/zsh-syntax-highlighting\n```\n\n**③ 更新 .zshrc 配置文件**\n\n打开文件：\n\n\n```bash\nnano ~/.zshrc\n```\n\n写入以下内容：\n\n\n```bash\n# ==============================================\n# 1. 初始化 Starship\n# ==============================================\neval \"$(starship init zsh)\"\n\n# ==============================================\n# 2. 基础配置\n# ==============================================\n# 开启颜色\nexport CLICOLOR=1\nexport LSCOLORS=ExFxBxDxCxegedabagacad\nalias ls='ls --color=auto'  # 让 ls 自动开启颜色\nalias ll='ls -lh --color=auto'\nalias grep='grep --color=auto'\nzstyle ':completion:*' list-colors \"${(s.:.)LS_COLORS}\"\n\n# 历史记录配置 (按上下键查找历史)\nHISTFILE=\"$HOME/.zsh_history\"\nHISTSIZE=10000\nSAVEHIST=10000\nsetopt EXTENDED_HISTORY\nsetopt SHARE_HISTORY\nsetopt HIST_EXPIRE_DUPS_FIRST\nsetopt HIST_IGNORE_DUPS\nsetopt HIST_IGNORE_ALL_DUPS\nsetopt HIST_FIND_NO_DUPS\nsetopt HIST_IGNORE_SPACE\nsetopt HIST_SAVE_NO_DUPS\nsetopt HIST_REDUCE_BLANKS\n\n# 补全系统初始\nautoload -Uz compinit\ncompinit\n\n# ==============================================\n# end. 加载插件 (必须放在文件最后)\n# ==============================================\n# 加载自动建议\nsource ~/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh\n\n# 加载语法高亮 (这个必须是最后一行)\nsource ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh\n```\n\n**④ 重新加载配置**\n\n\n```bash\nsource ~/.zshrc\n```\n\n\n---\n\n\n### 3. Vim 配置迁移 (Vim-Plug)\n\n使用 Vim-Plug 替代 Vundle，可以实现并发下载、按需加载和更简单的配置管理。迁移后操作习惯保持不变。\n\n\n#### 3.1 安装 Vim-Plug\n\n\n```bash\n# 下载 Vim-Plug 到 autoload 目录\ncurl -fLo ~/.vim/autoload/plug.vim --create-dirs \\\n    [https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim`](https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim`)\n```\n\n\n#### 3.2 更新 .vimrc\n\n将以下内容覆盖你的 `~/.vimrc`：\n\n\n```\n\" ====================================================================\n\" 1. Vim-Plug 插件管理 (替代 Vundle)\n\" ====================================================================\nset nocompatible\nfiletype off\n\n\" 指定插件安装目录 (自动管理，无需手动 clone)\ncall plug#begin('~/.vim/plugged')\n\n\" --- 界面与外观 ---\nPlug 'NLKNguyen/papercolor-theme'           \" Material 风格主题\nPlug 'vim-airline/vim-airline'              \" 状态栏\nPlug 'vim-airline/vim-airline-themes'       \" 状态栏主题\nPlug 'Yggdroot/indentLine'                  \" 缩进线\n\n\" --- 核心功能 (无损保留) ---\nPlug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }  \" 懒加载：按 F3 才加载，启动更快！\nPlug 'jiangmiao/auto-pairs'                 \" 括号自动补全\nPlug 'vim-syntastic/syntastic'              \" 语法检查\nPlug 'mattn/emmet-vim'                      \" HTML/CSS 神器\nPlug 'posva/vim-vue'                        \" Vue 高亮\nPlug 'tpope/vim-fugitive'                   \" Git 集成\n\ncall plug#end()\nfiletype plugin indent on\n\n\" ====================================================================\n\" 2. 基础设置 (保留你的高性能习惯)\n\" ====================================================================\nset encoding=utf-8\nset fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030\nset number                      \" 显示行号\nset history=1000                \" 历史记录\nset autoread                    \" 外部修改自动载入\nset autowrite                   \" 自动保存\nset mouse=a                     \" 启用鼠标\nset backspace=2                 \" 优化删除键\nset whichwrap+=<,>,h,l          \" 允许跨行\nset scrolloff=5                 \" 垂直滚动保留视野\nset laststatus=2                \" 总是显示状态栏\nset lazyredraw                  \" 提升宏运行速度\nset ttyfast                     \" 提升终端重绘速度\n\n\" --- 缩进设置 ---\nset autoindent\nset smartindent\nset tabstop=4\nset softtabstop=4\nset shiftwidth=4\nset expandtab                   \" Tab转空格\n\n\" --- 搜索设置 ---\nset hlsearch\nset incsearch\nset ignorecase\n\n\" ====================================================================\n\" 3. 补全体验 (完全保留原版逻辑)\n\" ====================================================================\n\" 核心：保留 wildmenu (命令行/路径补全)\nset wildmenu\nset wildmode=full\nset completeopt=longest,menu    \" 经典的列表补全模式\n\n\" 加载自定义字典 (只要你把 dict 目录拷过来，这里立刻生效)\nif filereadable(expand(\"~/.vim/dict/php_funclist.dict\"))\n    au FileType php setlocal dict+=~/.vim/dict/php_funclist.dict\nendif\nif filereadable(expand(\"~/.vim/dict/css.dict\"))\n    au FileType css setlocal dict+=~/.vim/dict/css.dict\nendif\nif filereadable(expand(\"~/.vim/dict/javascript.dict\"))\n    au FileType javascript setlocal dict+=~/.vim/dict/javascript.dict\nendif\n\" Vue 文件也用 HTML 的方式处理\nautocmd BufRead,BufNewFile *.vue set filetype=html\n\n\" ====================================================================\n\" 4. 界面美化 (Material + Airline)\n\" ====================================================================\nsyntax on\nset background=dark\nset t_Co=256\ntry\n    colorscheme PaperColor\ncatch\n    colorscheme desert\nendtry\n\n\" 高亮设置\nset cul\nset cuc\n\n\" Airline 设置\nlet g:airline_theme='papercolor'\nlet g:airline_powerline_fonts = 0\nlet g:airline#extensions#tabline#enabled = 1\n\n\" ====================================================================\n\" 5. 快捷键映射 (完全保留)\n\" ====================================================================\nlet mapleader = \",\"\n\n\" F3: 文件树\nmap <F3> :NERDTreeToggle<CR>\nimap <F3> <ESC> :NERDTreeToggle<CR>\n\n\" F5: 编译运行 (已适配 Python3)\nmap <F5> :call CompileRunGcc()<CR>\nfunc! CompileRunGcc()\n    exec \"w\"\n    if &filetype == 'c'\n        exec \"!g++ % -o %<\"\n        exec \"!time ./%<\"\n    elseif &filetype == 'cpp'\n        exec \"!g++ % -o %<\"\n        exec \"!time ./%<\"\n    elseif &filetype == 'java'\n        exec \"!javac %\"\n        exec \"!time java %<\"\n    elseif &filetype == 'python'\n        exec \"!time python3 %\"\n    elseif &filetype == 'sh'\n        :!time bash %\n    elseif &filetype == 'html'\n        exec \"!firefox % &\"\n    elseif &filetype == 'go'\n        exec \"!time go run %\"\n    elseif &filetype == 'vue'\n        exec \"!npm run serve\"\n    endif\nendfunc\n\n\" F6: 格式化\nmap <F6> :call FormartSrc()<CR>\n\" Ctrl+F: 括号内格式化\nnnoremap <C-F> =%=<Up>==`.\ninoremap <silent> <C-F> <Esc>:<C-u>normal! =%=k==<CR>gi\n\" F2: 去空行\nnnoremap <F2> :g/^\\s*$/d<CR>\n\" Ctrl+S: 保存\nnmap <C-S> :w<CR>\nimap <C-S> <Esc>:w<CR>\nvmap <C-S> <C-C>:w<CR>\n\" Ctrl+A: 全选\nmap <C-A> ggVG$\"+y\n\n\" ====================================================================\n\" 6. 插件特定配置\n\" ====================================================================\n\" Syntastic (性能优化：只在保存时检查，不卡顿)\nlet g:syntastic_check_on_open = 0\nlet g:syntastic_check_on_wq = 0\nlet g:syntastic_mode_map = { 'mode': 'passive' }\nautocmd BufWritePost * SyntasticCheck\n\n\" Python 补全修正\nlet g:pydiction_location = '~/.vim/after/complete-dict'\n\n\" ====================================================================\n\" 7. 自动文件头 (SetTitle)\n\" ====================================================================\nautocmd BufNewFile *.cpp,*.[ch],*.sh,*.rb,*.java,*.py exec \":call SetTitle()\"\nfunc SetTitle()\n    if &filetype == 'sh'\n        call setline(1,\"#!/bin/bash\")\n        call append(line(\".\"), \"\")\n    elseif &filetype == 'python'\n        call setline(1,\"#!/usr/bin/env python3\")\n        call append(line(\".\"),\"# -*- coding: utf-8 -*-\")\n        call append(line(\".\")+1, \"\")\n    elseif &filetype == 'vue'\n        call setline(1,\"<template>\")\n        call append(line(\".\"),\"  <div></div>\")\n        call append(line(\".\")+1,\"</template>\")\n        call append(line(\".\")+2,\"<script>\")\n        call append(line(\".\")+3,\"export default {\")\n        call append(line(\".\")+4,\"}\")\n        call append(line(\".\")+5,\"</script>\")\n        call append(line(\".\")+6,\"<style scoped>\")\n        call append(line(\".\")+7,\"</style>\")\n    else\n        call setline(1, \"/*************************************************************************\")\n        call append(line(\".\"), \"    > File Name: \".expand(\"%\"))\n        call append(line(\".\")+1, \"    > Author: winbeau\")\n        call append(line(\".\")+2, \"    > Created Time: \".strftime(\"%c\"))\n        call append(line(\".\")+3, \" ************************************************************************/\")\n        call append(line(\".\")+4, \"\")\n    endif\n    autocmd BufNewFile * normal G\nendfunc\n```\n\n\n#### 3.3 应用更改\n\n1. 保存退出 Vim。\n1. 再次打开 Vim。\n1. 输入命令安装所有插件：\n\n```\n:PlugInstall\n```\n",
+    "category": "tools",
+    "tags": ["Docker", "容器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-05-01 16:29:58+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 20
+  },
+  {
+    "id": "note_tools_winbeau_019",
+    "title": "Docker 出现显卡丢失",
+    "summary": "之前环境配置（Zsh、Starship 等）丢失的原因是运行了基础镜像（nvidia/cuda:...），而非包含配置的构建后镜像。只要利用现有的 Dock…",
+    "content": "## 问题分析\n\n之前环境配置（Zsh、Starship 等）丢失的原因是运行了**基础镜像**（`nvidia/cuda:...`），而非包含配置的**构建后镜像**。只要利用现有的 `Dockerfile` 重新构建并运行，即可完全恢复环境。\n\n\n## 操作步骤\n\n\n#### 第一步：构建镜像 (Build)\n\n\n#### 提交镜像也可以\n\n\n```bash\ndocker commit -m \"update environment or files\" -a \"intern\" 1a63591b490e winbeau-dev:v2\n\n```\n\n在存放 `Dockerfile` 的目录下（即 `~/winbeau_zhao`），执行以下命令。这会将所有配置打包进一个新的镜像中。\n\n\n```bash\n# -t 指定镜像名称为 winbeau-image\n# 注意命令最后有一个点 \".\" 代表当前目录\ndocker build -t winbeau-image .\n```\n\n*等待构建完成，直到出现 **`Successfully tagged winbeau-image:latest`**。*\n\n\n#### 第二步：清理旧容器\n\n删除可能存在的同名旧容器，释放名称占用：\n\n\n```bash\ndocker rm -f winbeau\n```\n\n\n#### 第三步：启动新容器 (Run)\n\n使用刚构建的 `winbeau-image` 启动容器。请直接复制以下命令（已包含 GPU、端口映射及正确的挂载路径）：\n\n\n```bash\ndocker run --gpus all \\\n    -it --name winbeau \\\n    --shm-size=32g \\\n    -v /home/intern/winbeau_zhao/root:/root \\\n    -v /home/intern/winbeau_zhao/workspace:/workspace \\\n    -p 8889:8888 \\\n    winbeau-dev\n```\n\n\n```bash\ndocker run --gpus all \\\n    -it --name t2v-eval \\\n    --network host \\\n    --shm-size=32g \\\n    -v /home/intern/winbeau_zhao/tools:/tools \\\n    -v /home/intern/winbeau_zhao/localroot:/root \\\n    -v /home/intern/winbeau_zhao/localworkspace:/workspace \\\n    winbeau-dev:v4\n```\n\n\n---\n\n\n#### 🚀 快速修复指令\n\n在终端中执行以下命令来下载 Zsh 插件：\n\n\n```bash\n# 创建插件目录\nmkdir -p /root/.zsh/plugins\n\n# 下载自动建议插件\ngit clone https://github.com/zsh-users/zsh-autosuggestions /root/.zsh/plugins/zsh-autosuggestions\n\n# 下载语法高亮插件\ngit clone https://github.com/zsh-users/zsh-syntax-highlighting /root/.zsh/plugins/zsh-syntax-highlighting\n\n# 重新加载配置\nsource /root/.zshrc\n```\n\n\n## ⚠️ 注意事项：挂载覆盖问题\n\n启动后如果发现 **Zsh 配置未生效** 或报错（如 `plugin not found`），通常是因为 Docker 的挂载机制：\n\n- **原因**：宿主机的挂载目录（`/home/intern/winbeau_zhao/Root`）覆盖了容器内的 `/root` 目录，导致镜像构建时下载在容器 `/root` 下的配置文件被遮盖。\n- **解决**：如果出现报错，请在容器内运行以下命令重新下载缺失插件：\n\n```bash\nmkdir -p /root/.zsh/plugins && \\\ngit clone [https://github.com/zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) /root/.zsh/plugins/zsh-autosuggestions && \\\ngit clone [https://github.com/zsh-users/zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) /root/.zsh/plugins/zsh-syntax-highlighting\n```\n",
+    "category": "tools",
+    "tags": ["Docker", "容器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-05-05 20:31:09+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 7
+  },
+  {
+    "id": "note_tools_winbeau_044",
+    "title": "docker 安装-普适",
+    "summary": "这份文档为你总结了在 Ubuntu（特别是树莓派等 ARM 架构设备）上从零安装 Docker、配置无 sudo 访问以及设置双层代理的完整流程。你可以直接…",
+    "content": "这份文档为你总结了在 Ubuntu（特别是树莓派等 ARM 架构设备）上从零安装 Docker、配置无 `sudo` 访问以及设置双层代理的完整流程。你可以直接收藏，下次换新机时直接复制粘贴。\n\n\n---\n\n\n### 🛠️ 第一阶段：安装 Docker Engine\n\n清理旧版本并从官方源安装，确保版本最新且安全。\n\n\n#### 1. 清理旧版\n\n\n```bash\nsudo apt-get remove docker docker-engine docker.io containerd runc\n```\n\n\n#### 2. 安装基础依赖\n\n\n```bash\nsudo apt-get update\nsudo apt-get install ca-certificates curl gnupg lsb-release\n```\n\n\n#### 3. 添加 GPG 密钥与仓库（避坑版）\n\n\n```bash\n# 创建密钥目录\nsudo mkdir -p /etc/apt/keyrings\n\n# 下载密钥\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg\n\n# 写入软件源（注意 [arch=...] 别被翻译成\"座机\"）\necho \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\n```\n\n\n#### 4. 正式安装\n\n\n```bash\nsudo apt-get update\nsudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin\n```\n\n\n---\n\n\n### 🔐 第二阶段：配置非 Root 用户权限\n\n解决每次都要敲 `sudo` 的烦恼。\n\n\n#### 1. 加入 Docker 组\n\n\n```bash\nsudo usermod -aG docker $USER\n```\n\n\n#### 2. 即时生效（无需注销）\n\n\n```bash\nnewgrp docker\n```\n\n> 💡\n> 如果某些 IDE（如 VS Code）还是提示没权限，请彻底重启系统。\n>\n\n\n---\n\n\n### 🌐 第三阶段：双层代理配置（核心）\n\n这是解决\"下载镜像慢\"和\"容器内没网\"的关键。\n\n\n#### 第一层：Daemon 代理（解决 `docker pull` 慢）\n\n作用于 Docker 后台服务，专门负责下载镜像。\n\n**创建目录：**\n\n\n```bash\nsudo mkdir -p /etc/systemd/system/docker.service.d\n```\n\n**新建配置文件：**\n\n\n```bash\nsudo nano /etc/systemd/system/docker.service.d/http-proxy.conf\n```\n\n**写入内容：**\n\n\n```\n[Service]\nEnvironment=\"HTTP_PROXY=http://127.0.0.1:10808\"\nEnvironment=\"HTTPS_PROXY=http://127.0.0.1:10808\"\nEnvironment=\"NO_PROXY=localhost,127.0.0.1\"\n```\n\n**重载配置：**\n\n\n```bash\nsudo systemctl daemon-reload\nsudo systemctl restart docker\n```\n\n\n#### 第二层：Client 代理（解决容器内部连网）\n\n作用于容器内部，比如你在容器里运行 `pip install` 或 `apt update`。\n\n**新建配置文件：**\n\n\n```bash\nnano ~/.docker/config.json\n```\n\n**写入内容：**\n\n\n```json\n{\n  \"proxies\": {\n    \"default\": {\n      \"httpProxy\": \"http://127.0.0.1:10808\",\n      \"httpsProxy\": \"http://127.0.0.1:10808\",\n      \"noProxy\": \"localhost,127.0.0.1\"\n    }\n  }\n}\n```\n\n\n---\n\n\n### ✅ 第四阶段：验证与常用命令\n\n\n| **任务** | **命令** |\n| --- | --- |\n| 验证安装 | `docker version` |\n| 验证权限 | `docker run hello-world`（不带 sudo） |\n| 验证代理 | `docker info \\| grep Proxy` |\n| 查看容器 | `docker ps -a` |\n| 开机自启 | `sudo systemctl enable docker` |\n\n\n---\n\n\n### 💡 避坑小贴士\n\n> 1️⃣\n> **IP 地址**：这里的 `192.168.137.1` 通常是 Windows 主机的虚拟网卡 IP（开启网络共享后的默认 IP）。如果换了环境，记得用 `ipconfig` 或 `hostname -I` 确认。\n>\n\n> 2️⃣\n> **代理软件设置**：记得在你的代理客户端（如 Clash、V2Ray）中开启 **\"Allow LAN\"（允许来自局域网的连接）**，否则树莓派访问不到主机的端口。\n>\n\n> 3️⃣\n> **NO_PROXY**：如果你自己搭建了私有仓库（Registry），一定要把私有仓库的 IP 加入 `NO_PROXY`。\n>\n",
+    "category": "tools",
+    "tags": ["Docker", "容器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-22 13:54:13+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 9
   },
   {
     "id": "note_tools_winbeau_003",
-    "title": "Nginx",
-    "summary": "从 0 配置 Nginx 部署前端：站点配置、API 代理、SSL、Gzip、缓存控制完整记录。",
-    "content": "前端打完包之后用 Nginx 当反向代理，下面是从 0 上线的步骤。\n\n## 0. /etc/nginx/nginx.conf 总开关\n\n```nginx\nuser www-data;\nworker_processes auto;\nevents { worker_connections 1024; }\n\nhttp {\n  sendfile on;\n  keepalive_timeout 65;\n  ssl_protocols TLSv1.2 TLSv1.3;\n  gzip on;\n  gzip_types text/plain text/css application/json application/javascript;\n  access_log /var/log/nginx/access.log;\n  error_log  /var/log/nginx/error.log;\n  include /etc/nginx/sites-enabled/*;\n}\n```\n\n## 1. 部署前端 dist\n\n```bash\ncp -r ~/repo/frontend/dist /var/www/labnotes\n```\n\n## 2. 站点配置 /etc/nginx/sites-available/labnotes\n\n```nginx\nserver {\n  listen 80;\n  server_name labnotes.example.com;\n\n  root /var/www/labnotes;\n  index index.html;\n\n  location / {\n    try_files $uri $uri/ /index.html;     # SPA fallback\n  }\n\n  location /api/ {\n    proxy_pass http://127.0.0.1:8000/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n  }\n\n  location ~* \\.html$ {\n    add_header Cache-Control \"no-store\";  # 强制刷新 index.html\n  }\n\n  location ~* \\.(js|css|png|jpg|svg|woff2)$ {\n    expires 30d;\n    add_header Cache-Control \"public, immutable\";\n  }\n}\n```\n\n## 3. 启用 + 重启\n\n```bash\nsudo ln -sf /etc/nginx/sites-available/labnotes /etc/nginx/sites-enabled/\nsudo nginx -t\nsudo systemctl reload nginx\n```\n\n`reload` 而不是 `restart` —— reload 复用现有连接，新配置生效不掉线。\n",
+    "title": "ESP32S3 板开发流程",
+    "summary": "只有“绑定（bind）”后的设备，才能被 WSL 共享。",
+    "content": "### 一、插线\n\n\n### 二、打开 Power Shell\n\n只有“绑定（bind）”后的设备，才能被 WSL 共享。\n\n运行：\n\n\n```powershell\nusbipd bind --busid 1-1 # 绑定\nusbipd attach --wsl --busid 1-1 # 挂载(若WSL未启动 先启动WSL)\n```\n\n（把 `1-3` 换成你刚才看到的 BUSID）\n\n>\n> #### 解绑错误设备\n>\n> 在 **Windows PowerShell（管理员）** 执行：\n>\n>\n> ```powershell\n> usbipd unbind --busid 1-1\n> ```\n>\n> （把 `1-3` 替换成你绑定错的 BUSID）\n>\n\n\n### 三、打开 WSL Ubuntu\n\n\n```bash\nlsusb\nls /dev/ttyACM0\n```\n\n\n### 四、进入项目目录\n\n\n```bash\npio run # 编译\npio run -t clean\npio run -t upload # 编译烧录\n```\n\n\n### 配置文件在\n\n\n```bash\nvim .pio/libdeps/esp32s3_devkit/TFT_eSPI/User_Setup.h   \n```\n",
     "category": "tools",
-    "tags": ["Nginx", "服务器", "部署", "SSL"],
+    "tags": ["ESP32", "嵌入式"],
     "author": {
       "id": "usr_winbeau",
       "name": "winbeau"
     },
-    "createdAt": "2026-05-02T09:30:00Z",
+    "createdAt": "2026-03-02 06:45:07+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 2
+  },
+  {
+    "id": "note_tools_winbeau_024",
+    "title": "flash-attn 2.8.3安装失败",
+    "summary": "flash-attn 2.8.3安装失败 —— 工程速查 / 实操记录。",
+    "content": "```bash\nuv pip install flash-attn --no-build-isolation --find-links https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.5cxx11abiFALSE-cp310-cp310-linux_x86_64.whl\n```\n",
+    "category": "tools",
+    "tags": ["PyTorch", "GPU", "故障排查"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:45:08+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_015",
+    "title": "frp 内网穿透",
+    "summary": "本文档详细说明如何利用 FRP (Fast Reverse Proxy) 将内网 GPU 服务器的服务暴露到公网，实现“公网访问内网服务”的需求。",
+    "content": "## FRP 内网穿透部署指南\n\n本文档详细说明如何利用 **FRP (Fast Reverse Proxy)** 将内网 GPU 服务器的服务暴露到公网，实现“公网访问内网服务”的需求。\n\n\n---\n\n\n### 1. 架构与准备\n\n\n#### 架构原理\n\n- **公网服务器 (Server / frps)**: 具有固定公网 IP，负责监听连接并转发流量。\n- **内网服务器 (Client / frpc)**: 运行实际业务（如 Deep Learning 后端、SSH 等），无公网 IP，位于 NAT 之后。\n\n#### 准备工作\n\n- **公网服务器**: 确认公网 IP (例如 `1.2.3.4`)，并配置防火墙放行相关端口 (7000, 9090 等)。\n- **内网服务器**: 确认本地服务端口 (例如 Docker 容器映射的 `8890` 端口)。\n- **软件下载**: [FRP Github Releases](https://github.com/fatedier/frp/releases) (通常为 `frp_x.x.x_linux_amd64.tar.gz`)。\n\n---\n\n\n### 2. 公网服务端配置 (frps)\n\n在 **公网 CPU 服务器** 上进行以下操作。\n\n\n#### 2.0 防火墙开放端口\n\n> - 开放 FRP 监听端口 7000\n> - 开放 FRP 隧道转发端口 8000 (或xxxx)\n\n\n#### 2.1 配置文件 `frps.toml`\n\n解压 FRP 后，修改 `frps.toml` 文件。只需保留最基础的配置：\n\n\n```toml\n# ====================================\n# 公网服务器配置 (frps.toml)\n# ====================================\n\n# 1. FRP 服务端监听端口 (私网服务器通过这个端口连上来)\nbindPort = 7000\n\n# 2. 身份验证 (必须和客户端一样)\nauth.method = \"token\"\nauth.token = \"@Geralt123\"\n\n# 3. (可选) 如果你以后想看仪表盘，可以加 dashboardPort，暂时不需要\n```\n\n\n#### 2.2 配置 Systemd 自启动 (推荐)\n\n使用 systemd 管理服务可确保开机自启和崩溃重启。\n\n1. **创建服务文件**:\n\n```bash\nsudo vim /etc/systemd/system/frps.service\n```\n\n1. **写入内容** (注意修改 `ExecStart` 路径):\n\n```\n[Unit]\nDescription=Frp Server Service\nAfter = [network.target](http://network.target)\n\n[Service]\nType=simple\n# 如需以特定用户运行，取消注释下行\n# User=ubuntu\n\n# 【重要】修改为 frps 的绝对路径\nExecStart=/home/ubuntu/frp/frps -c /home/ubuntu/frp/frps.toml\n\nRestart=on-failure\nRestartSec=5s\n\n[Install]\nWantedBy=[multi-user.target](http://multi-user.target)\n```\n\n1. **启动服务**:\n\n```bash\nsudo systemctl daemon-reload\nsudo systemctl enable frps  # 设置开机自启\nsudo systemctl start frps   # 立即启动\n```\n\n\n---\n\n\n### 3. 内网客户端配置 (frpc)\n\n在 **内网 GPU 服务器 (huaweiT4)** 上进行以下操作。\n\n\n#### 3.1 配置文件 `frpc.toml`\n\n修改 `frpc.toml`，配置连接信息和端口映射。\n\n> **注意**: 确保 `auth.token` 与服务端一致。`localPort` 应填写实际服务的端口 (如 Docker 映射出的 8890)。\n\n\n```toml\n# ====================================\n# 私网服务器配置 (frpc.toml)\n# ====================================\n\nserverAddr = \"82.157.209.193\"\nserverPort = 7000\n\nauth.method = \"token\"\nauth.token = \"@Geralt123\"\n\n[[proxies]]\nname = \"fastapi-backend\"  # 名字改一下，清楚一点\ntype = \"tcp\"\nlocalIP = \"127.0.0.1\"\n\n# 【改动1】localPort 改为 8000 (FastAPI 标准端口)\nlocalPort = 8000        \n\n# 【改动2】remotePort 改为 8000 (保持一致，方便记忆)\nremotePort = 8000\n```\n\n\n#### 3.2 配置 Systemd 自启动\n\n1. **创建服务文件**:\n\n```bash\nsudo vim /etc/systemd/system/frpc.service\n```\n\n1. **写入内容**:\n\n```\n[Unit]\nDescription=Frp Client Service\n# 客户端需等待网络完全就绪\nAfter = [network.target](http://network.target) [network-online.target](http://network-online.target)\nWants = [network-online.target](http://network-online.target)\n\n[Service]\nType=simple\nUser=winbeau  # 建议使用当前用户运行\n\n# 【重要】修改为 frpc 的绝对路径\nExecStart=/home/jiayu/winbeau_zhao/frp/frpc -c /home/jiayu/winbeau_zhao/frp/frpc.toml\n\nRestart=on-failure\nRestartSec=5s\n\n[Install]\nWantedBy=[multi-user.target](http://multi-user.target)\n```\n\n1. **启动服务**:\n\n```bash\nsudo systemctl daemon-reload\nsudo systemctl enable frpc\nsudo systemctl start frpc\n```\n\n\n---\n\n\n### 4. 验证与排查\n\n\n#### 常用管理命令\n\n- **查看状态**: `sudo systemctl status frps` (服务端) / `frpc` (客户端)\n- **查看日志**: `journalctl -u frps -f` / `frpc`\n- **重启服务**: `sudo systemctl restart frps` / `frpc`\n\n#### 常见问题 (Troubleshooting)\n\n\n#### 1. 报错 `status=1/FAILURE` 或 Parse Error\n\n**原因**: 配置文件中包含不可见的特殊字符或不被支持的中文注释（尤其是在复制粘贴时）。\n\n**解决**:\n\n- 手动运行排查: `/path/to/frpc -c /path/to/frpc.toml` 查看具体报错。\n- **重建纯净配置**: 删除原文件，手动输入或复制无注释的纯净配置。\n\n#### 2. 报错 `connect to server error`\n\n**原因**: 网络不通或端口被防火墙拦截。\n\n**解决**:\n\n- 检查 `serverAddr` 是否正确。\n- 检查公网服务器的安全组/防火墙是否放行了 `7000` (bindPort) 和 `9090` (remotePort)。\n\n#### 3. 验证穿透是否成功\n\n在浏览器或终端访问: [`http://公网IP:9090`](http://公网IP:9090)。如果能正常访问内网服务，说明配置成功。\n",
+    "category": "tools",
+    "tags": ["frp", "内网穿透"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:50+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 12
+  },
+  {
+    "id": "note_tools_winbeau_032",
+    "title": "Git(docker tokens - https)",
+    "summary": "该文档旨在解决 Docker 环境下 Git HTTPS 推送代码时需反复输入密码的问题，提供 Token 生成及持久化存储的最佳实践。",
+    "content": ">\n> #### Git 提交规范\n>\n>\n> |  |  |  |\n> | --- | --- | --- |\n> | **类型 (type)** | **中文含义** | **适用场景** |\n> | **feat** | 新功能 | 开发了新需求、新接口、新页面 |\n> | **fix** | 修复 | 修复 Bug |\n> | **docs** | 文档 | 仅修改了文档（README, 注释等） |\n> | **style** | 格式 | 代码风格调整（空格、分号、缩进），不影响运行逻辑 |\n> | **refactor** | 重构 | 代码重构（既不修复 Bug 也不添加新功能，优化逻辑） |\n> | **perf** | 性能 | 提升性能的代码更改 |\n> | **test** | 测试 | 添加或修改测试用例 |\n> | **chore** | 杂项 | 构建过程或辅助工具的变动（如 build, ci, 依赖库升级） |\n> | **revert** | 回滚 | 撤销之前的提交 |\n>\n\n该文档旨在解决 Docker 环境下 Git HTTPS 推送代码时需反复输入密码的问题，提供 Token 生成及持久化存储的最佳实践。\n\n\n#### 1. 生成 GitHub Access Token\n\n在使用 HTTPS 协议操作私有仓库时，需使用 Personal Access Token (PAT) 代替密码。\n\n1. **访问生成页**：点击 [Generate new token (classic)](https://github.com/settings/tokens) 直达 GitHub 设置页。\n1. **创建 Token**：\n    - 点击 **Generate new token** -> **Generate new token (classic)**。\n    - **Note**: 备注用途 (如 `Docker Dev`)。\n    - **Expiration**: 建议设为 **No expiration** (永不过期) 以避免频繁更换。\n    - **Scopes**: 勾选 **`repo`** (授予完全的仓库读写权限)。\n1. **保存 Token**: 生成后请立即复制 (以 `ghp_` 开头)，刷新页面后将无法查看。\n\n#### 2. 配置免密 (Credential Helper)\n\n通过配置 Git 的凭证助手，可实现 Token 的自动存储与读取。\n\n\n#### 方案 A：常规存储 (容器销毁即失)\n\n适用于临时环境，Token 保存在容器内的 `~/.git-credentials`。\n\n\n```bash\ngit config --global credential.helper store\n```\n\n\n#### 方案 B：持久化存储 (推荐 🚀)\n\n适用于挂载了数据卷 (Volume) 的 Docker 环境。将凭证文件存在挂载目录 (如 `/workspace`)，**即使删除/重建容器，登录状态依然保留**。\n\n\n```bash\n# 指定凭证文件路径为挂载目录下的文件\ngit config --global credential.helper 'store --file /workspace/.git-credentials'\n```\n\n\n#### 3. 激活配置\n\n配置完成后，需手动执行一次推送以触发保存机制：\n\n\n```bash\ngit push\n# Username: <你的GitHub用户名>\n# Password: <粘贴刚才生成的 Token>\n```\n\n**成功推送一次后，Git 会自动在指定位置生成凭证文件，后续操作完全免密。**\n",
+    "category": "tools",
+    "tags": ["Docker", "容器", "Git", "工具"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:45:05+00:00",
     "likes": 0,
     "comments": 0,
     "readMinutes": 5
   },
   {
-    "id": "note_tools_winbeau_004",
-    "title": "WSL Git(SSH) 操作速查表",
-    "summary": "WSL 下用 SSH 走代理操作 GitHub 的速查表：SSH config、ProxyCommand、HTTPS fallback。",
-    "content": "## SSH 走代理连 GitHub（WSL 下最稳）\n\n`~/.ssh/config`：\n\n```\nHost github.com\n  HostName github.com\n  User git\n  Port 22\n  IdentityFile ~/.ssh/id_ed25519\n  ProxyCommand nc -X connect -x 127.0.0.1:9098 %h %p\n```\n\n`http_proxy / https_proxy` 只影响 HTTPS 协议；走 SSH 必须显式 `ProxyCommand`，\n否则 22 端口经常被运营商 / 公司防火墙断掉。\n\n## 第一次 init 一个仓库\n\n```bash\ncd ~/project\ngit init\ngit branch -M main\ngit config --global user.name  \"winbeau\"\ngit config --global user.email \"your@email\"\ngit remote add origin git@github.com:you/repo.git\ngit add .\ngit commit -m \"initial commit\"\ngit push -u origin main\n```\n\n## 日常工作流\n\n```bash\ngit checkout -b dev               # 新分支\n# 改代码\ngit add . && git commit -m \"feat: ...\"\ngit checkout main && git merge dev\ngit push\n```\n\n临时打断：\n\n```bash\ngit stash                         # 暂存\ngit checkout other-branch\n# 切回来\ngit stash pop\n```\n\n## SSH 全断时的 HTTPS fallback\n\n```bash\ngit remote set-url origin https://github.com/you/repo.git\ngit config --global credential.helper store     # 之后只输一次\n```\n\n只在 SSH 真的连不上时用。日常还是 SSH 干净。\n",
+    "id": "note_tools_winbeau_020",
+    "title": "google studio",
+    "summary": "google studio —— 工程速查 / 实操记录。",
+    "content": "",
     "category": "tools",
-    "tags": ["Git", "SSH", "WSL", "速查表"],
+    "tags": ["Google", "AI 工具"],
     "author": {
       "id": "usr_winbeau",
       "name": "winbeau"
     },
-    "createdAt": "2026-04-28T20:00:00Z",
+    "createdAt": "2026-03-02 06:44:52+00:00",
     "likes": 0,
     "comments": 0,
-    "readMinutes": 3
+    "readMinutes": 1
   },
   {
-    "id": "note_tools_winbeau_005",
-    "title": "Vim 配置文件 (.vimrc) 详细分析",
-    "summary": ".vimrc 11 段配置实战：缩进、语法、状态栏、补全、快捷键 + 文件类型联动逐段拆解。",
-    "content": "我自己的 .vimrc 攒了 5 年，下面把它拆成 11 段说每一段做什么。\n\n## 1. 缩进\n\n```vim\nset sw=4 ts=4 sts=4 expandtab\nset autoindent smartindent\n```\n\n`expandtab` 是关键 —— Python / YAML 这类对 tab 敏感的文件，没它一不小心就缩进错。\n\n## 2. 文件类型字典 + 语法检查\n\n```vim\nau FileType php    set dictionary+=~/.vim/dict/php.dict\nau FileType python set dictionary+=~/.vim/dict/python.dict\nlet g:syntastic_python_checker = 'pylint'\n```\n\n## 3. Go 路径\n\n```vim\nlet g:go_path = '/usr/local/go'\n```\n\n## 4. 显示\n\n```vim\nsyntax on\nset cursorline cursorcolumn       \" 高亮当前行 / 列\ncolorscheme ron\nset guifont=Consolas:h11:cANSI\nset antialias\n```\n\n## 5. 状态栏\n\n```vim\nset ruler showcmd laststatus=2\nset statusline=%F%m%r%h%w\\ [FORMAT=%{&ff}]\\ [TYPE=%Y]\\ [POS=%l,%v][%p%%]\\ %{strftime(\"%d/%m/%y\\ -\\ %H:%M\")}\n```\n\n## 6. 编码\n\n```vim\nset encoding=utf-8 termencoding=utf-8 fileencoding=utf-8\nif v:version >= 603\n  set helplang=cn\nendif\n```\n\n## 7. 高级缩进 + tabstop 一致\n\n```vim\nset autoindent cindent\nset tabstop=4 softtabstop=4 shiftwidth=4\n```\n\n## 8. 搜索 + history\n\n```vim\nset number history=1000\nset hlsearch incsearch\nset langmenu=zh_CN.UTF-8\nlanguage messages zh_CN.utf-8\n```\n\n## 9. filetype + 补全\n\n```vim\nset cmdheight=2\nfiletype on\nfiletype plugin on\nfiletype indent on\nset iskeyword+=_,$,@,%,#,-\n```\n\n## 10. 文件类型关联\n\n```vim\nau BufRead,BufNewFile *.md set filetype=markdown\nau BufRead,BufNewFile *.go set filetype=go\nau BufRead,BufNewFile *.js set filetype=javascript\n```\n\n## 11. 快捷键\n\n```vim\nnnoremap md :!pandoc %:p -o %:p:r.html<CR>\nnnoremap fi :!firefox %:p:r.html<CR>\nnnoremap tt :%s/\\t/    /g<CR>\n```\n\n`md` 把当前 markdown 转 HTML，`fi` 在 Firefox 里打开它 —— 写笔记时一键预览。\n",
+    "id": "note_tools_winbeau_013",
+    "title": "惠普打印机电脑稳定链接",
+    "summary": "本文档旨在解决打印机因 IP 变动导致的连接不稳定问题，包含固定打印机 IP 与 Windows 端口绑定 两个核心步骤。",
+    "content": "## 惠普打印机稳定连接配置指南\n\n本文档旨在解决打印机因 IP 变动导致的连接不稳定问题，包含**固定打印机 IP** 与 **Windows 端口绑定** 两个核心步骤。\n\n\n### 第一步：固定打印机 IP (Web 后台)\n\n\n#### ⚠️ 关键警告\n\n- **禁止使用 ****`.255`**** 结尾的地址**（如 `192.168.5.255`）：这是广播地址，会导致网络故障。\n- **建议 IP**：选择 `254` 以下且不易冲突的大号数字，例如 **`192.168.5.250`**。\n\n#### 配置步骤\n\n1. 进入打印机网页后台，勾选 **Manual IP** (手动 IP)。\n1. **自动填充 (推荐)**：点击 **\"Suggest a Manual IP Address\"** 按钮，系统会自动获取正确的子网掩码和网关。\n1. **手动填写 (参考)**：\n    - **IP Address**: `192.168.5.250`\n    - **Subnet Mask**: `255.255.255.0`\n    - **Default Gateway**: `192.168.5.1` (需根据实际路由器地址填写)\n1. 点击 **Apply** 保存。\n    - *注：保存后网页会断开，需使用新 IP (192.168.5.250) 重新访问。*\n\n![image.png](attachment:19cb6fe7-6ad9-495a-b45b-5cb25d6b4a81:image.png)\n\n\n---\n\n\n### 第二步：绑定 Windows TCP/IP 端口\n\n此步骤在电脑系统设置中进行，确保电脑通过固定的 IP 连接打印机。\n\n\n#### 1. 打开设置入口\n\n- **控制面板** > **查看设备和打印机** (Windows 11 可直接搜索“打印机和扫描仪”)。\n- 找到 **HP DeskJet 4900** 图标。\n\n#### 2. 进入属性设置\n\n- **在设置**中找到**”打印机和扫描仪”**。\n\n![image.png](attachment:5688a9bd-0e97-45ef-9563-6bc51fea7f2c:image.png)\n\n- 选择 **“HP DeskJet 4900 series”(若没有找到则先添加设备)**\n\n![image.png](attachment:7dc2e5ab-6486-483e-88b2-6867e9a95f3c:image.png)\n\n\n#### 3. 添加标准 TCP/IP 端口\n\n1. 切换到 **“端口” (Ports)** 选项卡。(下图中已经修改完成)\n\n![image.png](attachment:3418095a-b8bd-4d50-b606-8c2c62b46271:image.png)\n\n1. 点击 **“添加端口...” (Add Port)** > 选择 **“Standard TCP/IP Port”** > **“新端口...” (New Port)**。\n1. 在向导中填入第一步设置的 IP 地址（如 `192.168.5.250`）。\n1. 一路点击“下一步”直到完成。\n\n#### 4. 确认应用\n\n回到端口列表，确认已勾选新创建的 IP 端口，点击 **“应用”** 和 **“确定”**。\n\n\n---\n\n**验证**：打印测试页。如正常出纸，说明连接已锁定，后续不再受网络波动影响。\n",
     "category": "tools",
-    "tags": ["Vim", "编辑器", "配置"],
+    "tags": ["硬件", "故障排查"],
     "author": {
       "id": "usr_winbeau",
       "name": "winbeau"
     },
-    "createdAt": "2026-04-22T16:00:00Z",
+    "createdAt": "2026-03-02 06:45:00+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 5
+  },
+  {
+    "id": "note_tools_winbeau_027",
+    "title": "L40 - TinyStories",
+    "summary": "L40 - TinyStories —— 工程速查 / 实操记录。",
+    "content": "#### 尝试\n\n\n```bash\npython scripts/train.py \\\n  --train_data data/TinyStories/train_tokens.npy \\\n  --val_data data/TinyStories/valid_tokens.npy \\\n  --device cuda:2 \\\n  --vocab_size 16384 \\\n  --num_layers 12 \\\n  --num_heads 12 \\\n  --d_model 768 \\\n  --context_len 1024 \\\n  --batch_size 32 \\\n  --grad_accum 8 \\\n  --total_steps 15000 \\\n  --eval_every 500 \\\n  --ckpt_every 3000 \\\n  --warmup_iters 1000 \\\n  --lr_max 6e-4 \\\n  --device cuda:2\n```\n\n\n#### 41GB 榨干\n\n\n```bash\nCUDA_VISIBLE_DEVICES=2 python scripts/train.py \\\n    --train_data data/TinyStories/train_tokens.npy \\\n    --val_data data/TinyStories/valid_tokens.npy \\\n    --device cuda \\\n    --vocab_size 16384 \\\n    --num_layers 12 \\\n    --num_heads 12 \\\n    --d_model 768 \\\n    --context_len 1024 \\\n    --batch_size 16 \\\n    --total_steps 30000 \\\n    --eval_every 500 \\\n    --ckpt_every 3000 \\\n    --warmup_iters 1000 \\\n    --lr_max 6e-4\n```\n\n\n#### 长上下文\n\n\n```bash\nCUDA_VISIBLE_DEVICES=2 python scripts/train.py \\\n  --train_data data/TinyStories/train_tokens.npy \\\n  --val_data data/TinyStories/valid_tokens.npy \\\n  --device cuda \\\n  --vocab_size 16384 \\\n  --num_layers 12 \\\n  --num_heads 12 \\\n  --d_model 768 \\\n  --context_len 1536 \\\n  --batch_size 8 \\\n  --grad_accum_steps 4 \\\n  --total_steps 30000 \\\n  --eval_every 500 \\\n  --ckpt_every 3000 \\\n  --warmup_iters 1000 \\\n  --lr_max 6e-4 \\\n\n```\n",
+    "category": "tools",
+    "tags": ["LLM", "训练", "GPU"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:45:00+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 4
+  },
+  {
+    "id": "note_tools_winbeau_009",
+    "title": "MatLab",
+    "summary": "MatLab —— 工程速查 / 实操记录。",
+    "content": "### 常用颜色\n\n**灰色****`[0.48, 0.49, 0.52]`**\n\n**天蓝 ****`[0.34, 0.66, 0.96]`**\n\n\n---\n\n\n### 绘图函数库\n\n\n> *（此节为 Notion 内嵌数据库 / 视图 — 详见 Notion 原页）*\n\n\n### 待汇总\n",
+    "category": "tools",
+    "tags": ["MatLab", "科学计算"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:49+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_014",
+    "title": "NeoVim 下载及配置",
+    "summary": "LazyVim 是基于 Neovim 的现代化配置框架，提供开箱即用的开发体验。本指南适用于 Ubuntu 服务器环境。",
+    "content": "LazyVim 是基于 Neovim 的现代化配置框架，提供开箱即用的开发体验。本指南适用于 Ubuntu 服务器环境。\n\n\n#### 1. 安装 Neovim (v0.9.0+)\n\nUbuntu 默认源版本较旧，推荐使用 AppImage 安装最新版。\n\n\n```bash\n# 下载并安装 AppImage\ncurl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.appimage\nchmod u+x nvim-linux-x86_64.appimage\nsudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim\n\n# 验证版本 (需 >= 0.9.0)\nnvim --version\n```\n\n>\n> #### docker 安装\n>\n>\n> ```bash\n> curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz\ntar xzf nvim-linux-x86_64.tar.gz\nmv nvim-linux-x86_64 /opt/nvim\nln -s /opt/nvim/bin/nvim /usr/local/bin/nvim\n> ```\n>\n\n\n#### 2. 环境依赖\n\n安装 LazyVim 核心插件所需的底层工具（GCC, Ripgrep, fd 等）。\n\n\n```bash\napt update\napt install -y build-essential git unzip curl ripgrep\n\n# 安装 fd (fdfind) 并建立软链接\napt install -y fd-find\nln -sf $(which fdfind) /usr/local/bin/fd\n```\n\n\n#### 3. 部署 LazyVim\n\n备份旧配置并克隆 LazyVim 模板。\n\n\n```bash\n# 备份旧配置\nmv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null\nmv ~/.local/share/nvim ~/.local/share/nvim.bak 2>/dev/null\nmv ~/.local/state/nvim ~/.local/state/nvim.bak 2>/dev/null\nmv ~/.cache/nvim ~/.cache/nvim.bak 2>/dev/null\n\n# 克隆配置\ngit clone [https://github.com/LazyVim/starter](https://github.com/LazyVim/starter) ~/.config/nvim\n\n# 首次启动 (会自动下载插件，国内环境可能需配置代理)\nnvim\n```\n\n\n#### 4. 语言支持 (Python)\n\nLazyVim 模块化管理语言支持。\n\n1. 进入 Neovim，输入 `:LazyExtras`。\n1. 选中 **lang.python**，按 `x` 启用。\n1. 按 `q` 退出并重启 Neovim，自动安装 LSP (Pyright), Linter (Ruff), Formatter (Black)。\n\n#### 5. 个性化配置\n\n配置文件路径：`~/.config/nvim/lua/`\n\n\n#### 5.1 主题设置 (PaperColor)\n\n创建/编辑 `nvim ~/.config/nvim/lua/plugins/theme.lua`：\n\n\n```lua\nreturn {\n  -- 1. 安装主题插件\n  {\n    -- 如果你指的是经典的 PaperColor 主题，GitHub 地址是这个：\n    \"nlknguyen/papercolor-theme\",\n    -- 如果你的主题是别的（比如是个本地文件或者其他 GitHub 仓库），\n    -- 请把上面这就话换成对应的 \"用户名/仓库名\"\n\n    priority = 1000, -- 极其重要：确保主题在其他插件之前加载\n  },\n\n  -- 2. 配置 LazyVim 使用该主题\n  {\n    \"LazyVim/LazyVim\",\n    opts = {\n      -- 这里填写主题的启动命令名\n      -- 通常 PaperColor 的命令就是 \"PaperColor\"\n      -- 如果你不确定，可以在旧 Vim 里输入 :colorscheme 看看当前叫什么\n      colorscheme = \"PaperColor\",\n    },\n  },\n}\n```\n\n编辑 `nvim ~/.config/nvim/lua/config/options.lua` 适配浅色背景：\n\n\n```lua\nvim.opt.background = \"dark\"\n```\n\n\n#### 5.2 绝对行号\n\n编辑 `nvim ~/.config/nvim/lua/config/options.lua`：\n\n\n```lua\nvim.opt.relativenumber = false -- 关闭相对行号\n```\n\n\n#### 5.3 缩进自适应\n\n编辑 `nvim ~/.config/nvim/lua/config/autocmds.lua`，根据文件类型自动调整缩进（前端2空格，后端4空格）：\n\n\n```lua\n-- 定义一个辅助函数，用于设置当前 Buffer 的缩进\nlocal function set_indent(size)\n  vim.opt_local.shiftwidth = size   -- 自动缩进的宽度\n  vim.opt_local.tabstop = size      -- 按下 Tab 键时显示的宽度\n  vim.opt_local.softtabstop = size  -- 编辑模式下按退格键删除的宽度\n  vim.opt_local.expandtab = true    -- 将 Tab 转换为空格 (行业标准)\nend\n\n-- 第一组：公认使用 2 空格缩进的语言 (前端/配置类)\nvim.api.nvim_create_autocmd(\"FileType\", {\n  pattern = {\n    \"html\",\n    \"css\",\n    \"scss\",\n    \"javascript\",\n    \"typescript\",\n    \"javascriptreact\", -- .jsx\n    \"typescriptreact\", -- .tsx\n    \"vue\",\n    \"json\",\n    \"jsonc\",\n    \"yaml\",\n    \"lua\", -- Neovim 社区通常偏好 2 空格\n  },\n  callback = function()\n    set_indent(2)\n  end,\n})\n\n-- 第二组：公认使用 4 空格缩进的语言 (后端/系统类)\nvim.api.nvim_create_autocmd(\"FileType\", {\n  pattern = {\n    \"python\", -- PEP 8 强制要求 4 空格\n    \"java\",   -- Oracle 标准通常是 4\n    \"c\",\n    \"cpp\",    -- C++ 标准不一，但 4 比较通用 (Google Style 用 2，看你喜好)\n    \"rust\",\n    \"go\",     -- Go 比较特殊，它强制用 Tab，这里先按 4 处理显示宽度\n  },\n  callback = function()\n    set_indent(4)\n    -- Go 语言特殊处理：Go 官方强制使用 Tab 字符，而不是空格\n    if vim.bo.filetype == \"go\" then\n      vim.opt_local.expandtab = false\n    end\n  end,\n})\n```\n\n\n#### 6. 常见问题\n\n- **图标乱码**：客户端终端需安装 **Nerd Font** (如 JetBrainsMono Nerd Font) 并设置为终端字体。\n- **剪贴板**：SSH 环境建议安装 `sudo apt install xclip` 以支持系统剪贴板互通。\n- **Tmux 颜色**：确保 `.tmux.conf` 开启 True Color (`set-option -sa terminal-overrides \",xterm*:Tc\"`)。\n\n#### 7. 常用快捷键 (Leader = Space)\n\n\n|  |  |  |\n| --- | --- | --- |\n| 功能 | 快捷键 | 对应 VSCode |\n| **文件搜索** | `<Space> + <Space>` | Ctrl+P |\n| **全局搜索** | `<Space> + s + g` | Ctrl+Shift+F |\n| **文件资源管理器** | `<Space> + e` | Ctrl+Shift+E |\n| **关闭当前页** | `<Space> + b + d` | Ctrl+W |\n| **插件管理** | `<Space> + l` | - |\n| **浮动终端** | `<Space> + f + t` | Ctrl+` |\n",
+    "category": "tools",
+    "tags": ["Vim", "编辑器", "NeoVim"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:45:07+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 14
+  },
+  {
+    "id": "note_tools_winbeau_002",
+    "title": "Nginx",
+    "summary": "将以下干净的 server 块贴进去",
+    "content": "## 历史\n\n\n## Nginx基础\n\n\n## Nginx 配置步骤\n\n\n#### 0-规范化/etc/nginx/nginx.conf\n\n\n```md\nuser www-data; # 建议改为 www-data，配合后面提到的目录权限修改\nworker_processes auto;\npid /run/nginx.pid;\ninclude /etc/nginx/modules-enabled/*.conf;\n\nevents {\n    worker_connections 768;\n}\n\nhttp {\n    ##\n    # 基础设置\n    ##\n    sendfile on;\n    tcp_nopush on;\n    tcp_nodelay on;\n    keepalive_timeout 65;\n    types_hash_max_size 2048;\n\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n\n    ##\n    # SSL 设置\n    ##\n    ssl_protocols TLSv1.2 TLSv1.3; # 弃用过时的 TLS 1.0/1.1\n    ssl_prefer_server_ciphers on;\n\n    ##\n    # 日志设置\n    ##\n    access_log /var/log/nginx/access.log;\n    error_log /var/log/nginx/error.log;\n\n    ##\n    # Gzip 压缩 (建议开启，提升前端加载速度)\n    ##\n    gzip on;\n    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;\n\n    ##\n    # 虚拟主机配置 (核心！)\n    ##\n    include /etc/nginx/conf.d/*.conf;\n    include /etc/nginx/sites-enabled/*;\n}\n```\n\n\n#### 1-部署前端目录 /var/www/xx，修改权限www-data\n\n\n```md\ncp -r xx/fontend/dist /var/www/xx\n```\n\n\n#### 2-配置 /etc/nginx/sites-available/xx\n\n将以下干净的 `server` 块贴进去\n\n\n```toml\nserver {\n    listen 80;\n    server_name 82.157.209.193;\n\n    # 前端\n    location /paper-insight {\n        alias /var/www/paper-insight/;\n        index index.html;\n        try_files $uri $uri/ /paper-insight/index.html;\n    }\n\n    # API\n    location /paper-insight/api/ {\n        proxy_pass http://127.0.0.1:8000/; \n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    }\n\n    # 后端静态资源\n    location /paper-insight/static/ {\n        proxy_pass http://127.0.0.1:8000/static/;\n    }\n}\n```\n\n> 强制 刷新缓存\n\n\n```bash\nlocation /paper-insight/ {\n    alias /var/www/paper-insight/;\n    index index.html;\n    \n    # 针对 HTML 文件设置不缓存，确保每次都拉取最新的 JS 引用\n    location ~* \\.html$ {\n        add_header Cache-Control \"no-cache, no-store, must-revalidate\";\n    }\n\n    try_files $uri $uri/ /paper-insight/index.html;\n}\n```\n\n\n#### 3-软连接 /etc/nginx/sites-enable/xx\n\n1. 移除旧的软链接\n    原来的 `default` 只是一个指向 `sites-available/default` 的软链接。我们把它删掉（这不会删除原始文件，只是取消激活）：\n\n\n```bash\nsudo rm /etc/nginx/sites-enabled/default\n```\n\n1.  激活新的规范配置\n    创建指向你新配置文件的软链接：\n\n\n```bash\nsudo ln -s /etc/nginx/sites-available/xx /etc/nginx/sites-enabled/\n```\n\n\n#### 4-重启服务\n\n检查与重载\n\n\n```bash\nsudo nginx -t          # 确保没有重复定义的 server_name\nsudo systemctl reload nginx\n```\n",
+    "category": "tools",
+    "tags": ["Nginx", "服务器", "部署"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:57+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 8
+  },
+  {
+    "id": "note_tools_winbeau_026",
+    "title": "node-pnpm 安装",
+    "summary": "👉 强烈推荐用 nvm（Node Version Manager），以后切换 Node 版本非常方便，不会把系统搞乱。",
+    "content": "## pnpm 管理host、port\n\n\n```bash\npnpm exec vite --host 0.0.0.0 --port 8888\n```\n\n\n### 一、先装 Node.js（推荐用 nvm，最稳妥）\n\n👉 **强烈推荐用 nvm**（Node Version Manager），以后切换 Node 版本非常方便，不会把系统搞乱。\n\n\n#### 1️⃣ 安装 nvm\n\n在终端里直接执行：\n\n\n```bash\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash\n```\n\n装完后 **一定要重新加载环境**（或者关掉终端重开）：\n\n\n```bash\nsource ~/.zshrc\n```\n\n检查是否成功：\n\n\n```bash\nnvm --version\n```\n\n能看到版本号就 OK。\n\n\n---\n\n\n#### 2️⃣ 用 nvm 安装 Node.js（LTS 版本）\n\n推荐装 **LTS（长期支持版）**：\n\n\n```bash\nnvm install --lts\n```\n\n设置为默认版本：\n\n\n```bash\nnvm alias default 'lts/*'\n\n```\n\n验证：\n\n\n```bash\nnode -v\nnpm -v\n```\n\n如果都能输出版本号，说明 Node + npm 已经装好了 ✅\n\n\n---\n\n\n### 二、安装 pnpm（官方推荐方式）\n\n现在 Node 已经有了，装 pnpm 很简单。\n\n\n#### 方式一（推荐）：用 corepack（Node 自带）\n\nNode 16.13+ 自带 `corepack`，**这是官方最推荐方式**。\n\n\n```bash\ncorepack enable\ncorepack prepare pnpm@latest --activate\n```\n\n验证：\n\n\n```bash\npnpm -v\n```\n\n看到版本号就成功 🎉\n\n\n### 三、最终检查清单（很重要）\n\n你现在执行下面这些都应该 **不报错**：\n\n\n```bash\nnode -v\nnpm -v\npnpm -v\n\n```\n\n\n---\n\n\n### 四、常见坑位提醒 ⚠️\n\n- ❌ **不要用 ****`apt install nodejs`**\n    Ubuntu 仓库里的 Node 版本通常很老，容易踩坑\n\n- ✅ 用 `nvm + corepack` 是目前最干净、最主流的方案\n- 如果你以后装前端框架（Vite / Next.js / Vue / React），这套环境都完全没问题\n\n---\n\n如果你愿意，我也可以帮你：\n\n- 检查你现在 Ubuntu 的版本\n- 给你配 **pnpm + monorepo**\n- 或者直接帮你初始化一个 `pnpm + vite / next` 项目\n你现在是准备用 pnpm 干啥？😄\n",
+    "category": "tools",
+    "tags": ["pnpm", "Node.js", "前端"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:58+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 4
+  },
+  {
+    "id": "note_tools_winbeau_012",
+    "title": "树莓派",
+    "summary": "本文档记录了在树莓派 (Ubuntu Server/Raspberry Pi OS) 上进行终端字体调整、Emoji 支持及中文环境配置的步骤。",
+    "content": "本文档记录了在树莓派 (Ubuntu Server/Raspberry Pi OS) 上进行终端字体调整、Emoji 支持及中文环境配置的步骤。\n\n\n### 1. 终端字体大小调整\n\n适用于 Ubuntu Server (无 GUI) 连接显示器时字体过小的情况。\n\n\n#### 配置步骤\n\n运行以下命令进入交互式配置界面：\n\n\n```bash\nsudo dpkg-reconfigure console-setup\n```\n\n**推荐配置选项：**\n\n1. **Encoding**: `UTF-8`\n1. **Character set**: `Guess optimal character set`\n1. **Font**: `TerminusBold` (清晰度较高) 或 `VGA`\n1. **Font size**:\n    - 一般屏幕推荐 `8x16`\n    - 高分屏 (如 27寸 2K) 推荐 **`16x32`** 或 `14x28`\n配置完成后重启生效：\n\n\n```bash\nsudo reboot\n```\n\n\n---\n\n\n### 2. Emoji 字体支持\n\n安装以下字体库以确保在 CLI、终端及部分 GUI 应用中正常显示彩色 Emoji (如 🔵🟩🟦)。\n\n\n#### 安装命令\n\n适用于 Raspberry Pi OS / Ubuntu / Debian / WSL：\n\n\n```bash\nsudo apt update\n# 安装 Google Noto Color Emoji 和 Symbola 兼容库\nsudo apt install -y fonts-noto-color-emoji fonts-symbola\n```\n\n\n#### 验证\n\n\n```bash\necho \"test emoji: 😀🚀✨🔥❤️🟩🟥🟦中国🇨🇳\"\n```\n\n\n---\n\n\n### 3. 中文环境与 UTF-8 编码配置\n\n解决中文显示为乱码、问号或方块的问题。核心在于**安装中文语言包**并**正确配置 UTF-8 编码**。\n\n\n#### 3.1 安装中文语言包\n\n\n```bash\nsudo apt install -y language-pack-zh-hans\n```\n\n\n#### 3.2 配置 Locale\n\n编辑 `/etc/default/locale` 文件：\n\n\n```bash\nsudo nano /etc/default/locale\n```\n\n确保文件内容如下（强制指定 UTF-8）：\n\n\n```\nLANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8\nLC_CTYPE=en_US.UTF-8\nLC_NUMERIC=en_US.UTF-8\nLC_TIME=en_US.UTF-8\nLC_COLLATE=en_US.UTF-8\nLC_MONETARY=en_US.UTF-8\nLC_PAPER=en_US.UTF-8\nLC_NAME=en_US.UTF-8\nLC_ADDRESS=en_US.UTF-8\nLC_TELEPHONE=en_US.UTF-8\nLC_MEASUREMENT=en_US.UTF-8\nLC_IDENTIFICATION=en_US.UTF-8\n```\n\n\n#### 3.3 生成并更新 Locale\n\n\n```bash\n# 生成语言环境\nsudo locale-gen en_US.UTF-8\nsudo locale-gen zh_CN.UTF-8\n\n# 更新环境变量\nsudo update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8\n```\n\n\n#### 3.4 重启验证\n\n重启系统：\n\n\n```bash\nsudo reboot\n```\n\n验证当前 Locale：\n\n\n```bash\nlocale\n# 输出应包含 LANG=en_US.UTF-8 或 zh_CN.UTF-8 (取决于你的首选设置)\n```\n",
+    "category": "tools",
+    "tags": ["树莓派", "硬件"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:51+00:00",
     "likes": 0,
     "comments": 0,
     "readMinutes": 6
   },
   {
-    "id": "note_tools_winbeau_006",
+    "id": "note_tools_winbeau_040",
+    "title": "Raspberry Pi5 + AI HAT(Hailo8)",
+    "summary": "在边缘计算设备上部署大算力 AI 加速卡时，硬件通讯、环境依赖和 API 变动往往是最耗时的环节。本文记录了在 树莓派 5 上挂载 Hailo-8 (PCI…",
+    "content": "在边缘计算设备上部署大算力 AI 加速卡时，硬件通讯、环境依赖和 API 变动往往是最耗时的环节。本文记录了在 **树莓派 5** 上挂载 **Hailo-8 (PCIe Gen3 x4)** AI 算力卡，并使用最新的 **HailoRT 4.23.0** 驱动成功运行 YOLOv8 目标检测的全流程经验。\n\n\n---\n\n\n### 1. 硬件与底层环境\n\n\n|  |  |\n| --- | --- |\n| **主控平台** | Raspberry Pi 5 (Ubuntu 24.04 LTS) |\n| **AI 加速卡** | Hailo-8 M.2 PCIe 模块（算力：26 TOPS，典型功耗：3-5W） |\n| **软件栈** | Python 3.12、`uv` 包管理器、HailoRT 4.23.0 |\n\n\n---\n\n\n### 2. 环境配置与包管理\"坑点\"\n\n在较新的 Ubuntu 系统中（PEP 668），系统禁止通过 `pip` 直接安装全局包。推荐使用 `uv` 进行虚拟环境管理，但需要注意以下依赖陷阱：\n\n\n#### 坑点 1：包名与导入名不一致\n\nHailo 官方提供的 Python 驱动轮子（如 `hailort-4.23.0-cp312-cp312-linux_aarch64.whl`），其**元数据包名**为 `hailort`，但在 Python 代码中的**导入名**为 `hailo_platform`。\n\n> ⚠️\n> 如果在 `pyproject.toml` 中使用 `uv` 管理依赖，必须写明正确的包名，且强烈建议锁定 Python 版本，否则 `uv sync` 会因无法解析全平台依赖而报错。\n>\n\n\n```toml\n[project]\nname = \"hailo-demo\"\nversion = \"0.1.0\"\nrequires-python = \"==3.12.*\" # 强制锁定版本，避免跨平台解析失败\n\ndependencies = [\n    \"numpy\",\n    \"pillow\",\n    \"opencv-python\",\n    \"hailort @ file:whls/hailort-4.23.0-cp312-cp312-linux_aarch64.whl\", # 使用相对路径和真实包名\n]\n```\n\n\n---\n\n\n### 3. HailoRT 4.23.0 API 核心演进\n\n相比早期的 4.1x 版本，4.23.0 在 API 层级上做了大量重构，许多旧代码会直接报错。\n\n1. **废弃底层物理句柄**：不再推荐使用 `Device.create_pcie` 或 `PcieDevice`。全面拥抱 `VDevice`（虚拟设备），它会自动处理设备的扫描、多通道调度和资源分配。\n1. **强制激活网络组**：调用 `target.configure(hef)` 只是加载配置。在进行任何数据传输前，必须使用上下文管理器 `with network_group.activate():` 显式激活网络，以唤醒硬件的 NN 计算集群并锁定 DMA 通道。\n1. **推理输入格式要求**：`vstreams.infer()` 方法**不再接受单纯的 NumPy 数组**，必须传入一个字典：`{ \"输入层名称\": numpy_array_data }`。\n\n---\n\n\n### 4. 硬件 NMS 引擎与输出解析\n\nHailo-8 内部集成了非极大值抑制（NMS）硬件引擎，这意味着网络输出的不再是繁杂的特征图，而是直接过滤好的检测框，极大地释放了 CPU 算力。\n\n\n#### COCO 数据集分离输出特性\n\n在某些编译好的 YOLOv8 模型中（如 Model Zoo 提供的 `yolov8s.hef`），硬件 NMS 会将 80 个类别的结果**完全分拆为 80 个独立的张量**（以此消除分类器内存锁竞争，实现 140+ FPS 的超高吞吐）。\n\n- 返回结果中包含 **80 个张量**\n- 每个张量的维度为 `(N, 5)`，即 `N` 个目标，包含 `[ymin, xmin, ymax, xmax, score]`\n- 张量在列表中的**索引（Index）即代表该目标的类别 ID**（Class ID）\n\n---\n\n\n### 5. 完整实战代码（Robust 版本）\n\n以下代码集成了图像预处理、硬件调度配置、防崩溃张量提取以及 OpenCV 结果绘制，可直接保存为 `main.py` 运行：\n\n\n```python\nimport numpy as np\nimport cv2\nimport os\nfrom PIL import Image\nfrom hailo_platform import VDevice, HEF, InferVStreams, InputVStreamParams, OutputVStreamParams, FormatType\n\nHEF_PATH = \"yolov8s.hef\"\nIMAGE_PATH = \"test.jpg\"\nOUTPUT_PATH = \"result_detected.jpg\"\n\nCOCO_CLASSES = [\n    \"person\", \"bicycle\", \"car\", \"motorcycle\", \"airplane\", \"bus\", \"train\", \"truck\", \"boat\",\n    \"traffic light\", \"fire hydrant\", \"stop sign\", \"parking meter\", \"bench\", \"bird\", \"cat\",\n    \"dog\", \"horse\", \"sheep\", \"cow\", \"elephant\", \"bear\", \"zebra\", \"giraffe\", \"backpack\",\n    \"umbrella\", \"handbag\", \"tie\", \"suitcase\", \"frisbee\", \"skis\", \"snowboard\", \"sports ball\",\n    \"kite\", \"baseball bat\", \"baseball glove\", \"skateboard\", \"surfboard\", \"tennis racket\",\n    \"bottle\", \"wine glass\", \"cup\", \"fork\", \"knife\", \"spoon\", \"bowl\", \"banana\", \"apple\",\n    \"sandwich\", \"orange\", \"broccoli\", \"carrot\", \"hot dog\", \"pizza\", \"donut\", \"cake\",\n    \"chair\", \"couch\", \"potted plant\", \"bed\", \"dining table\", \"toilet\", \"tv\", \"laptop\",\n    \"mouse\", \"remote\", \"keyboard\", \"cell phone\", \"microwave\", \"oven\", \"toaster\", \"sink\",\n    \"refrigerator\", \"book\", \"clock\", \"vase\", \"scissors\", \"teddy bear\", \"hair drier\", \"toothbrush\"\n]\n\n\ndef extract_tensors(data):\n    \"\"\"万能张量提取器：递归扒出所有嵌套结构中的 NumPy 数组\"\"\"\n    tensors = []\n    if isinstance(data, dict):\n        for v in data.values():\n            tensors.extend(extract_tensors(v))\n    elif isinstance(data, (list, tuple)):\n        for v in data:\n            tensors.extend(extract_tensors(v))\n    elif isinstance(data, np.ndarray):\n        tensors.append(data)\n    return tensors\n\n\ndef run_hailo_inference():\n    if not os.path.exists(HEF_PATH):\n        raise FileNotFoundError(f\"找不到模型文件 {HEF_PATH}\")\n\n    hef = HEF(HEF_PATH)\n    input_vstream_info = hef.get_input_vstream_infos()[0]\n    input_name = input_vstream_info.name\n    height, width, _ = input_vstream_info.shape\n\n    print(f\"📦 模型加载成功，输入层: {input_name} ({width}x{height})\")\n\n    # 预处理：缩放并转为 uint8 格式以最大化 PCIe 传输带宽\n    raw_img = Image.open(IMAGE_PATH).convert('RGB')\n    resized_img = raw_img.resize((width, height), Image.BILINEAR)\n    input_data = np.expand_dims(np.array(resized_img, dtype=np.uint8), axis=0)\n\n    # 核心：必须以字典形式包裹输入数据\n    input_dict = {input_name: input_data}\n\n    with VDevice() as target:\n        network_group = target.configure(hef)[0]\n        # 激活网络组，唤醒硬件集群\n        with network_group.activate():\n            input_params = InputVStreamParams.make_from_network_group(network_group, FormatType.UINT8)\n            output_params = OutputVStreamParams.make_from_network_group(network_group, FormatType.UINT8)\n\n            with InferVStreams(network_group, input_params, output_params) as vstreams:\n                print(f\"🚀 正在利用 26 TOPS 算力进行推理...\")\n                results = vstreams.infer(input_dict)\n                return results\n\n\ndef visualize_results(results, original_image_path):\n    img = cv2.imread(original_image_path)\n    h_orig, w_orig = img.shape[:2]\n\n    tensors = extract_tensors(results)\n\n    # 匹配硬件 NMS 的 80 类别分离输出格式\n    if len(tensors) >= 80 and all(len(t.shape) == 2 and t.shape[1] == 5 for t in tensors[:80]):\n        print(f\"🎯 识别到按类别分离的 NMS 输出结构\")\n        count = 0\n\n        for class_id in range(80):\n            data = tensors[class_id]\n            if data.shape[0] > 0:\n                for detection in data:\n                    ymin, xmin, ymax, xmax, score = detection\n\n                    if score > 0.45:  # 过滤低置信度结果\n                        count += 1\n                        left, top = int(xmin * w_orig), int(ymin * h_orig)\n                        right, bottom = int(xmax * w_orig), int(ymax * h_orig)\n\n                        cv2.rectangle(img, (left, top), (right, bottom), (0, 255, 0), 2)\n                        label = f\"{COCO_CLASSES[class_id]} {score:.2f}\"\n                        cv2.putText(img, label, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)\n\n                        print(f\"  └─ 检出: {COCO_CLASSES[class_id]} (置信度: {score:.2f})\")\n\n        if count > 0:\n            cv2.imwrite(OUTPUT_PATH, img)\n            print(f\"🎉 结果已保存至: {OUTPUT_PATH}\")\n    else:\n        print(\"❌ 无法匹配当前张量结构，请检查模型输出日志。\")\n\n\nif __name__ == \"__main__\":\n    try:\n        results = run_hailo_inference()\n        if results is not None:\n            visualize_results(results, IMAGE_PATH)\n    except Exception as e:\n        print(f\"❌ 运行失败: {e}\")\n```\n\n\n---\n\n\n### 6. 进阶调试建议\n\n> 🔍\n> **硬件监控**：在运行推理脚本时，建议开启新终端执行 `hailortcli monitor`。可以实时观测到执行 `infer` 时的瞬时功耗变化（通常在 4.7W 左右）以及芯片温度，确保散热状态良好。\n>\n\n> ⚡\n> **性能榨取**：当前的单图同步推理尚未完全榨干 26 TOPS 算力。如果接入视频流，可以利用 `AsyncInferJob`（异步流 API）构建流水线，或者将图像预处理/裁剪逻辑交由芯片内部的硬件插值引擎完成，进一步降低 CPU 负载。\n>\n",
+    "category": "tools",
+    "tags": ["Hailo8", "AI 硬件", "树莓派", "硬件"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-20 16:12:18+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 20
+  },
+  {
+    "id": "note_tools_winbeau_043",
+    "title": "Raspberry Pi5 + Windows 宿主机 + AlphaDog 热点网络共享配置",
+    "summary": "本项目架构中，树莓派 5 作为边缘计算节点，同时连接两个网络：",
+    "content": "## 树莓派 5 (Ubuntu 24) 与 Windows 宿主机有线直连与网络共享配置指南\n\n\n### 📑 场景与目标\n\n本项目架构中，树莓派 5 作为边缘计算节点，同时连接两个网络：\n\n1. **无线网络 (****`wlan0`****)**：连接机器狗的自带 WiFi（网段 `10.10.10.x`），用于下发控制指令和读取底层传感器数据。\n1. **有线网络 (****`eth0`****)**：通过网线物理直连 Windows 主机。\n    - **目标 1**：配置固定静态 IP，供 Windows 上的 PyQt 项目稳定连接并获取节点数据。\n    - **目标 2**：通过 Windows 主机的网络共享功能，使树莓派能够访问外部互联网（包括通过 Windows 代理访问 GitHub/Google 等开发资源）。\n\n---\n\n\n### 🛠️ Step 1: Windows 端网络共享配置 (ICS)\n\n首先需要让 Windows 将其连接外网的网卡（如 WiFi）网络共享给有线网口。\n\n1. 打开 Windows **\"控制面板\"** → **\"网络和共享中心\"** → **\"更改适配器设置\"**\n1. 找到当前正在连接互联网的网卡（如 `WLAN`）\n1. 右键该网卡 → **\"属性\"** → **\"共享\"** 选项卡\n1. 勾选 **\"允许其他网络用户通过此计算机的 Internet 连接来连接\"**\n1. 在下拉菜单中选择连接树莓派的 **\"以太网\"** 适配器，点击\"确定\"\n1. 打开 `cmd`，输入 `ipconfig`，确认\"以太网\"适配器已被 Windows 自动分配了网关 IP（通常是 **`192.168.137.1`**）\n\n---\n\n\n### 💻 Step 2: 树莓派端静态 IP 配置\n\nUbuntu 24 默认使用 `NetworkManager`，我们需要为 `eth0` 接口强制绑定 `192.168.137.x` 网段的静态 IP，并将网关指向 Windows 主机。\n\n在树莓派终端中执行以下一键配置命令：\n\n\n```bash\n# 1. 创建名为 eth0-win 的新连接，绑定静态 IP (192.168.137.2)，设置网关和 DNS\nsudo nmcli con add type ethernet ifname eth0 con-name eth0-win \\\n  ipv4.method manual \\\n  ipv4.addresses 192.168.137.2/24 \\\n  ipv4.gateway 192.168.137.1 \\\n  ipv4.dns \"114.114.114.114 223.5.5.5\"\n\n# 2. 启用该网络配置\n# 注意：执行此步时，当前的 SSH 可能会瞬间断开重连，属正常现象\nsudo nmcli con up eth0-win\n```\n\n> ✅\n> **验证配置：** 运行 `ip a` 命令，确认 `eth0` 接口下已出现 `inet 192.168.137.2/24`。\n>\n\n\n---\n\n\n### 🔗 Step 3: 连通性测试\n\n在两端分别进行 Ping 测试，确保局域网和外网均已打通。\n\n**测试上位机连接（Windows ****`cmd`****）：**\n\n\n```\nping 192.168.137.2\n```\n\n> 💡\n> 通了即代表 PyQt 项目可以通过此 IP 稳定连接树莓派。\n>\n\n**测试外网连接（树莓派终端）：**\n\n\n```bash\nping baidu.com\n```\n\n> 💡\n> 通了即代表树莓派已成功通过 Windows 借道上网。\n>\n\n\n---\n\n\n### 🌍 Step 4: 局域网代理配置（科学上网环境）\n\n如果需要让树莓派的 `apt`、`pip`、`git` 等工具走 Windows 的代理通道：\n\n1. 在 Windows 代理软件（如 v2rayN / Clash）中，开启 **\"允许局域网连接\"（Allow LAN）**，并确认代理端口（如 HTTP 端口 `10808`）\n1. 在树莓派终端，临时设置环境变量（指向 Windows 的网关 IP）：\n\n```bash\nexport http_proxy=http://192.168.137.1:10808\nexport https_proxy=http://192.168.137.1:10808\n```\n\n1. 正确测试代理连通性的方法：\n\n```bash\ncurl -I https://www.google.com\n```\n\n> ✅\n> 返回 **`HTTP/2 200`** 等正常 header 即代表代理配置成功。\n>\n\n> 💡\n> **进阶提示：** 若需永久生效，可将 `export` 命令写入树莓派的 `~/.bashrc` 或 `~/.zshrc` 文件末尾，并执行 `source ~/.bashrc`。\n>\n\n\n---\n\n\n### ⚠️ 踩坑与排错记录 (Troubleshooting)\n\n> 🔴\n> **坑点 1：nmcli manual 模式报错**\n>\n> **现象**：尝试先创建 `manual` 连接再修改 IP 时，报错 `Error: Failed to add 'eth0-win' connection: ipv4.method: method 'manual' requires at least an address or a route`。\n>\n> **原因**：`nmcli` 的严格校验机制要求在使用 `manual`（手动）模式时，必须在创建命令的同一行就提供 IP 地址。\n>\n> **解法**：如 Step 2 所示，将 `add` 和 `ipv4.addresses` 等参数合并为一条命令执行。\n>\n\n> 🔴\n> **坑点 2：局域网能通，但树莓派连不上外网**\n>\n> **现象**：Windows 能 Ping 通树莓派，但树莓派 `ping baidu.com` 提示超时或无法解析。\n>\n> **原因**：Windows ICS（网络共享服务）偶发的路由假死（微软老毛病）。\n>\n> **解法**：在 Windows 网络适配器设置中，找到共享网络的 WiFi 网卡，**取消勾选**\"允许其他网络用户...\"，点击确定；再次进入属性，**重新勾选**并重新选择以太网，点击确定即可恢复。\n>\n\n> 🔴\n> **坑点 3：设置了 Proxy 后，Ping Google 依然 100% 丢包**\n>\n> **现象**：已经配置了 `http_proxy`，但执行 `ping google.com` 依然超时。\n>\n> **原因**：`ping` 命令使用的是 **ICMP 协议**，而系统环境变量中的 HTTP/HTTPS 代理对 ICMP 协议无效，探测包会直接裸连公网并被墙拦截。\n>\n> **解法**：永远使用 `curl`（如 `curl -I https://www.google.com`）来测试代理网络连通性，而不要使用 `ping`。\n>\n\n\n![bd7c023f8ff2356f92c664de0a45e093.jpg](attachment:9d2a9cf7-6152-4588-a7dd-2c7bdbe804da:bd7c023f8ff2356f92c664de0a45e093.jpg)\n",
+    "category": "tools",
+    "tags": ["树莓派", "硬件", "AlphaDog", "网络"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-02 05:36:10+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 10
+  },
+  {
+    "id": "note_tools_winbeau_039",
+    "title": "Raspberry Pi5 + Hailo8 环境驱动配置",
+    "summary": "要在树莓派 5 上彻底释放 Hailo-8 M.2 算力卡的 26 TOPS 性能，必须打通从物理层 PCIe 通道、Linux 内核驱动到 C++ 运行时…",
+    "content": "## 树莓派 5 + Hailo-8 底层环境搭建与 C++ 驱动配置全指南 (v4.23.0)\n\n要在树莓派 5 上彻底释放 Hailo-8 M.2 算力卡的 26 TOPS 性能，必须打通从物理层 PCIe 通道、Linux 内核驱动到 C++ 运行时的全部链路。本文将记录从零开始搭建 Hailo 底层开发环境的完整流程。\n\n\n### 0. 核心物料清单\n\n- **硬件**：Raspberry Pi 5、M.2 PCIe 扩展板（如 Pimoroni NVMe Base 或官方 PCIe HAT）、Hailo-8 M.2 算力卡。\n- **系统**：Ubuntu 24.04 LTS (aarch64) 或最新版 Raspberry Pi OS (64-bit)。\n- **权限**：必须具备 `root` (sudo) 权限。\n\n---\n\n\n### 第一阶段：解锁物理层 (树莓派 PCIe Gen3 配置)\n\n树莓派 5 的 PCIe 接口默认运行在 Gen2 速度（5 GT/s）。为了满足 Hailo-8 高达 32 Gbps 的双向吞吐量，必须强制开启 PCIe Gen3。\n\n**1. 编辑系统引导配置文件：**\n\n\n```bash\nsudo nano /boot/firmware/config.txt\n```\n\n**2. 在文件末尾添加以下两行代码：**\n\n\n```\n# 启用外部 PCIe 接口\ndtparam=pciex1\n# 强制开启 PCIe Gen3 速度以匹配 Hailo-8 带宽要求\ndtparam=pciex1_gen=3\n```\n\n**3. 保存并重启：**\n\n\n```bash\nsudo reboot\n```\n\n**4. 验证硬件连接：**\n\n重启后，通过 `lspci` 命令确认主板是否成功识别到物理芯片：\n\n\n```bash\nlspci | grep Hailo\n```\n\n> 预期输出：`0000:01:00.0 Co-processor: Hailo Technologies Ltd. Hailo-8 AI Processor (rev 01)`\n\n\n---\n\n\n### 第二阶段：获取 HailoRT 核心安装包\n\nHailo 的驱动和运行时（HailoRT）属于商业专有软件，需要从官方开发者社区下载。\n\n**1. 访问下载中心**\n\n前往 [Hailo Developer Zone](https://hailo.ai/developer-zone/)（需要注册账号）。\n\n导航至 **Software Downloads -> HailoRT -> v4.23.0**。\n\n**2. 下载必备的 Linux ARM64 软件包**\n\n你需要将以下三个核心文件下载并传输到树莓派中（推荐存放在 `~/hailo_packages` 目录下）：\n\n- **内核驱动**：`hailo-pcie-driver_4.23.0_all.deb` (负责 Linux Kernel 与 PCIe 硬件的通讯)\n- **C++ 核心库与 CLI**：`hailort_4.23.0_arm64.deb` (提供底层 API 和核心命令行工具)\n- **Python 封装库**：`hailort-4.23.0-cp312-cp312-linux_aarch64.whl` (上层应用开发使用)\n\n---\n\n\n### 第三阶段：编译并加载底层内核驱动 (Kernel Space)\n\n内核驱动通过 DKMS (Dynamic Kernel Module Support) 进行源码编译安装，这意味着每次系统内核升级，它都会自动重新编译以保持兼容。\n\n**1. 安装必要的系统编译依赖：**\n\n\n```bash\nsudo apt update\nsudo apt install -y build-essential dkms linux-headers-$(uname -r)\n```\n\n**2. 安装 Hailo PCIe 驱动：**\n\n\n```bash\ncd ~/hailo_packages\nsudo dpkg -i hailort-pcie-driver_4.23.0_all.deb\n```\n\n**3. 验证驱动加载状态：**\n\n安装完成后，系统会在 `/dev` 下生成设备节点。\n\n\n```bash\nls -l /dev/hailo0\n```\n\n> 预期输出：看到字符设备 `crw-rw-rw- 1 root root ... /dev/hailo0` 说明内核态驱动已成功挂载。\n\n> ⚠️\n> 如果未出现，请执行 `sudo modprobe hailo_pci` 强制加载或重启系统。\n>\n\n\n---\n\n\n### 第四阶段：部署 C++ Runtime 与系统级 CLI (User Space)\n\n内核驱动只负责搬运数据，真正解析 HEF 模型、调度多路网络组的逻辑由 C++ 层（HailoRT）完成。\n\n**1. 安装 C++ 核心库：**\n\n\n```bash\nsudo dpkg -i hailort_4.23.0_arm64.deb\n```\n\n此包会将 `libhailort.so` 动态链接库安装到系统路径，并将极其强大的 `hailortcli` 工具添加到环境变量中。\n\n**2. 激活 Udev 规则 (关键防坑点)：**\n\n安装包会自动配置 udev 规则，允许非 root 用户访问 `/dev/hailo0`。为了使规则立即生效而无需重启：\n\n\n```bash\nsudo udevadm control --reload-rules\nsudo udevadm trigger\n```\n\n\n---\n\n\n### 第五阶段：极限压力测试与硬件验血\n\n在进入任何代码编写之前，必须使用 `hailortcli` 从 C++ 层验证硬件的健康状况和真实性能。\n\n**1. 查询固件与架构信息：**\n\n\n```bash\nhailortcli fw-control identify\n```\n\n> 在这里你可以看到硬件版本 (Hailo-8) 以及固件是否已正确刷入为 4.23.0。\n\n**2. 传感器状态监控：**\n\n开一个新终端，实时监控芯片结温 (Junction Temperature) 和实时功耗：\n\n\n```bash\nhailortcli monitor\n```\n\n**3. 官方极限 Benchmark (算力榨取)：**\n\n准备一个编译好的模型（如 `yolov8s.hef`），使用纯 C++ 链路进行最高效率的 FPS 跑分。\n\n\n```bash\n# 获取测试模型\nwget https://hailo-model-zoo.s3.eu-west-2.amazonaws.com/ModelZoo/Compiled/v2.11.0/hailo8/yolov8s.hef\n\n# 启动纯底层硬件基准测试\nhailortcli benchmark yolov8s.hef\n```\n\n> 观察 `monitor` 面板，功耗会瞬间拉升至 4W+。终端将输出纯硬件解码的极限 FPS（对于 YOLOv8s 通常在 100+ FPS 以上），这证明底层 DMA 通道和 NN Core 计算集群已完美就绪。\n\n\n---\n\n\n### 第六阶段：桥接到高层应用开发 (Python)\n\n底层基建牢固后，即可利用 `uv` 将 Python 开发环境与系统底层的 C++ 动态库对齐。\n\n\n```bash\n# 创建算法工程\nmkdir ~/hailo-vision && cd ~/hailo-vision\nuv venv --python 3.12\nsource .venv/bin/activate\n\n# 安装之前下载的 Python Wheel 包\nuv pip install ~/hailo_packages/hailort-4.23.0-cp312-cp312-linux_aarch64.whl\n```\n\n至此，树莓派 5 的硬件层、Linux 内核态（DKMS PCIe Driver）、用户态（C++ libhailort）以及应用态（Python hailo_platform）已全部贯通。系统完全准备好迎接复杂的高频视频流检测或是大吞吐量的 AI 部署任务。\n",
+    "category": "tools",
+    "tags": ["Hailo8", "AI 硬件", "树莓派", "硬件"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-10 09:43:54+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 12
+  },
+  {
+    "id": "note_tools_winbeau_041",
+    "title": "Raspberry Pi5 + Haili8 + USB Camera",
+    "summary": "本文档记录了使用 Windows Terminal (SSH) 结合 MobaXterm (本地 X Server)，打通从 USB 摄像头拉流到 Hail…",
+    "content": "## 树莓派 5 + Hailo-8 边缘视觉部署：USB 摄像头拉流与 Windows X11 远程可视化避坑指南\n\n> 💡\n> 在边缘计算设备（如树莓派 5）上部署 AI 视觉项目时，由于通常采用无头（Headless）模式，如何在 Windows 开发机上实时预览带 AI 渲染框的视频流是一大痛点。\n>\n\n本文档记录了使用 **Windows Terminal (SSH)** 结合 **MobaXterm (本地 X Server)**，打通从 USB 摄像头拉流到 Hailo-8 硬件推理，再到跨端 GUI 显示的完整工程链路。\n\n\n---\n\n\n### 🛠️ 第一阶段：解锁 USB 摄像头底层权限\n\n在 Linux 系统中插入 UVC 免驱摄像头（如 LB-3M-B2.0）后，系统会分配 `/dev/video*` 设备节点。如果直接使用 OpenCV 读取报错 `Permission denied`，是因为当前用户没有读取视频设备的权限。\n\n**解决方案：**\n\n\n#### 1. 临时放权（适合快速测试）\n\n直接开放设备读写权限（重启后失效）：\n\n\n```bash\nsudo chmod 666 /dev/video*\n```\n\n\n#### 2. 永久放权（推荐正式环境使用）\n\n将当前用户加入 `video` 组：\n\n\n```bash\nsudo usermod -aG video $USER\n```\n\n> ⚠️\n> 加入用户组后，需要断开 SSH 重新登录，或使用 **`newgrp video`** 刷新会话才能生效。\n>\n\n\n---\n\n\n### 🌉 第二阶段：打通跨端 X11 显示隧道\n\n我们的目标是：**在 Windows Terminal 里敲命令，在 Windows 桌面上弹视频窗口。**\n\n\n#### 1. 配置 MobaXterm 作为静默 X Server\n\nMobaXterm 内置了 X Server。我们需要让它允许接受来自外部的图形绘制请求：\n\n- 打开 MobaXterm -> 点击上方工具栏 **Settings** -> **Configuration** -> 选择 **X11** 选项卡。\n- 将 **X11 remote access** 设置为 **`full`**（或 anyhost）。\n- 确保主界面右上角的 **X Server** 按钮为绿色（运行状态）。\n\n#### 2. Windows Terminal 建立受信任的 SSH 连接\n\n在 Windows Terminal 中，必须使用 `-Y` 参数（建立受信任的 X11 转发，比 `-X` 兼容性更好）连接树莓派：\n\n\n```bash\nssh -Y -R 10808:127.0.0.1:10808 username@<树莓派IP>\n```\n\n\n#### 3. 手动锚定 DISPLAY 环境变量\n\nSSH 连入后，需要明确告诉树莓派将画面发往哪里。在终端输入以下命令（将其中的 IP 替换为你 **Windows 电脑的局域网 IP**）：\n\n\n```bash\nexport DISPLAY=192.168.x.x:0.0\n```\n\n> ✅\n> **验证方法：** 运行 **`xeyes`**，如果 Windows 桌面上出现眼睛动画，说明隧道已通。\n>\n\n\n---\n\n\n### 🚧 第三阶段：OpenCV 与 Qt 环境\"防挂死\"指南\n\n在 Ubuntu 24.04 等较新系统中，即便 X11 隧道通了，运行 `cv2.imshow` 也极容易遇到**窗口不弹出且程序静默挂起**，或者疯狂输出 `QFontDatabase` 字体报错的问题。\n\n\n#### 1. 补齐系统 GUI 依赖\n\n\n```bash\nsudo apt update\nsudo apt install -y libxcb-cursor0 libgl1-mesa-glx libglib2.0-0 fonts-dejavu-core\n```\n\n\n#### 2. 禁用 X11 共享内存（最关键的救命稻草）\n\nX11 协议在跨网络转发时，如果尝试使用 MIT-SHM（共享内存）加速，会导致界面死锁。必须在运行 Python 脚本前，或在代码顶部强制禁用它：\n\n\n```bash\nexport QT_X11_NO_MITSHM=1\n```\n\n*(可选) 屏蔽烦人的 Qt 字体调试信息：*\n\n\n```bash\nexport QT_LOGGING_RULES=\"qt.qpa.fonts=false;*.debug=false\"\n```\n\n\n---\n\n\n### 🚀 第四阶段：终极合体 —— Hailo-8 YOLOv8 实时推理\n\n环境彻底打通后，即可运行以下 `live_demo.py` 脚本。\n\n该脚本整合了：\n\n- **摄像头低负载拉流**\n- **HailoRT 字典格式输入**\n- **硬件 NMS 80 类别拆分解析**\n- **X11 实时渲染**\n\n#### `live_demo.py` 完整源码\n\n\n```python\nimport numpy as np\nimport cv2\nimport os\nimport time\nfrom hailo_platform import VDevice, HEF, InferVStreams, InputVStreamParams, OutputVStreamParams, FormatType\n\n# === 1. 核心环境注入 ===\n# 极其重要：禁用 X11 共享内存，防止远程 SSH 转发时窗口挂死\nos.environ[\"QT_X11_NO_MITSHM\"] = \"1\"\n# 屏蔽 Qt 字体报错日志\nos.environ[\"QT_LOGGING_RULES\"] = \"qt.qpa.fonts=false;*.debug=false\"\n\n# === 2. 基础配置 ===\nHEF_PATH = \"yolov8s.hef\"\nCAMERA_ID = 0  # USB 摄像头挂载点 /dev/video0\n\n# COCO 80 类别标签 (YOLOv8 默认)\nCOCO_CLASSES = [\n    \"person\", \"bicycle\", \"car\", \"motorcycle\", \"airplane\", \"bus\", \"train\", \"truck\", \"boat\",\n    \"traffic light\", \"fire hydrant\", \"stop sign\", \"parking meter\", \"bench\", \"bird\", \"cat\",\n    \"dog\", \"horse\", \"sheep\", \"cow\", \"elephant\", \"bear\", \"zebra\", \"giraffe\", \"backpack\",\n    \"umbrella\", \"handbag\", \"tie\", \"suitcase\", \"frisbee\", \"skis\", \"snowboard\", \"sports ball\",\n    \"kite\", \"baseball bat\", \"baseball glove\", \"skateboard\", \"surfboard\", \"tennis racket\",\n    \"bottle\", \"wine glass\", \"cup\", \"fork\", \"knife\", \"spoon\", \"bowl\", \"banana\", \"apple\",\n    \"sandwich\", \"orange\", \"broccoli\", \"carrot\", \"hot dog\", \"pizza\", \"donut\", \"cake\",\n    \"chair\", \"couch\", \"potted plant\", \"bed\", \"dining table\", \"toilet\", \"tv\", \"laptop\",\n    \"mouse\", \"remote\", \"keyboard\", \"cell phone\", \"microwave\", \"oven\", \"toaster\", \"sink\",\n    \"refrigerator\", \"book\", \"clock\", \"vase\", \"scissors\", \"teddy bear\", \"hair drier\", \"toothbrush\"\n]\n\ndef extract_tensors(data):\n    \"\"\"递归提取 HailoRT 返回的各类嵌套 NumPy 张量\"\"\"\n    tensors = []\n    if isinstance(data, dict):\n        for v in data.values(): tensors.extend(extract_tensors(v))\n    elif isinstance(data, (list, tuple)):\n        for v in data: tensors.extend(extract_tensors(v))\n    elif isinstance(data, np.ndarray):\n        tensors.append(data)\n    return tensors\n\ndef run_live_demo():\n    if not os.path.exists(HEF_PATH):\n        print(f\"❌ 找不到模型文件: {HEF_PATH}\")\n        return\n\n    # 初始化 Hailo 模型\n    hef = HEF(HEF_PATH)\n    input_info = hef.get_input_vstream_infos()[0]\n    input_name = input_info.name\n    net_h, net_w, _ = input_info.shape\n    print(f\"📦 Hailo-8 模型就绪 | 输入尺寸要求: {net_w}x{net_h}\")\n\n    # 初始化摄像头\n    cap = cv2.VideoCapture(CAMERA_ID)\n    if not cap.isOpened():\n        print(\"❌ 无法打开摄像头，请检查权限或设备连接。\")\n        return\n    \n    # 强制限制摄像头采集分辨率，减轻树莓派 CPU 预处理负担与网络转发带宽\n    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)\n    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)\n    cam_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))\n    cam_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))\n    print(f\"📷 摄像头捕获中: {cam_w}x{cam_h}\")\n\n    # 开启虚拟设备与硬件推理引擎\n    with VDevice() as target:\n        network_group = target.configure(hef)[0]\n        with network_group.activate():\n            input_params = InputVStreamParams.make_from_network_group(network_group, FormatType.UINT8)\n            output_params = OutputVStreamParams.make_from_network_group(network_group, FormatType.UINT8)\n\n            with InferVStreams(network_group, input_params, output_params) as vstreams:\n                print(\"🚀 26 TOPS 算力已上线！画面将通过 X11 发送至本地桌面...\")\n                print(\"💡 提示: 选中弹出的视频窗口，按下键盘上的 'q' 键即可退出。\")\n\n                fps_start = time.time()\n                frame_count = 0\n                avg_fps = 0\n\n                while True:\n                    ret, frame = cap.read()\n                    if not ret: break\n\n                    # 预处理：缩放并转换颜色空间\n                    resized = cv2.resize(frame, (net_w, net_h))\n                    rgb_frame = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)\n                    \n                    # 必须以字典形式包裹输入数据 (HailoRT 4.23.0 规范)\n                    input_data = {input_name: np.expand_dims(rgb_frame, axis=0)}\n\n                    # 核心推理调用\n                    results = vstreams.infer(input_data)\n                    \n                    # 结果解析\n                    tensors = extract_tensors(results)\n                    \n                    # 解析硬件 NMS 引擎输出的 80 类别拆分格式\n                    if len(tensors) >= 80:\n                        for class_id in range(80):\n                            data = tensors[class_id] # 维度: (N, 5) -> [ymin, xmin, ymax, xmax, score]\n                            if data.shape[0] > 0:\n                                for ymin, xmin, ymax, xmax, score in data:\n                                    if score > 0.45:\n                                        # 将归一化坐标还原至原始帧尺寸\n                                        x1, y1 = int(xmin * cam_w), int(ymin * cam_h)\n                                        x2, y2 = int(xmax * cam_w), int(ymax * cam_h)\n                                        \n                                        # 绘制边界框与标签\n                                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)\n                                        label = f\"{COCO_CLASSES[class_id]} {score:.2f}\"\n                                        cv2.putText(frame, label, (x1, y1 - 10), \n                                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)\n\n                    # 计算并绘制 FPS\n                    frame_count += 1\n                    if frame_count % 10 == 0:\n                        now = time.time()\n                        avg_fps = 10 / (now - fps_start)\n                        fps_start = now\n                    cv2.putText(frame, f\"AI FPS: {avg_fps:.1f}\", (20, 40), \n                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)\n\n                    # 渲染窗口\n                    cv2.imshow(\"Hailo-8 Real-time Detection\", frame)\n\n                    if cv2.waitKey(1) & 0xFF == ord('q'):\n                        break\n\n    # 释放硬件资源\n    cap.release()\n    cv2.destroyAllWindows()\n    print(\"\\n✅ 推理任务圆满结束。\")\n\nif __name__ == \"__main__\":\n    run_live_demo()\n```\n\n\n---\n\n\n### ✅ 验证步骤\n\n确保 Windows 端的 MobaXterm 正在运行，在终端执行：\n\n\n```bash\nuv run python live_demo.py\n```\n\n> 🎉\n> 若一切顺利，你将在 Windows 屏幕上看到低延迟、高帧率的实时目标检测画面。\n>\n\n\n---\n\n完成这套流程，边缘侧从环境配置到硬件加速的底层通路就算彻底被打通了！有问题随时复查这些配置点。\n",
+    "category": "tools",
+    "tags": ["Hailo8", "AI 硬件", "树莓派", "硬件"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-22 12:58:34+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 20
+  },
+  {
+    "id": "note_tools_winbeau_042",
+    "title": "Raspberry Pi5 + 激光雷达",
+    "summary": "1.0",
+    "content": "1. 通信的事：\n    1. 怎么连热点 - 接屏幕大法，直接连接，设置连接权重：AlphaDog > Phone > xjuD2L\n1.  docker + 树莓派跑通激光雷达\n    - [x] docker 挂载设计\n        1. 硬件挂载 - 找到激光雷达的/dev/xxx\n        1. 网络挂载 - `--net=host`\n        1. 内存共享 `--ipc=host`\n        1. 底层操控 `--privileged`\n        1. 统一工作目录挂载 /alphadog\n        1. 开发模式设置 `ROS_MASTER` 为本机\n\n```bash\ndocker run -it \\\n  --name alphadog-dev \\\n  --net=host \\\n  --ipc=host \\\n  --privileged \\\n  --device=/dev/ttyUSB0:/dev/ttyUSB0 \\\n  -e ROS_MASTER_URI=http://localhost:11311 \\\n  -e ROS_HOSTNAME=localhost \\\n  -e ROS_IP=127.0.0.1 \\\n  -e DISPLAY=$DISPLAY \\\n  -v $HOME/.Xauthority:/root/.Xauthority:rw \\\n  -v /alphadog:/root \\\n  -w /root \\\n  alphadog-noetic:ready \\\n  bash\n```\n\n    - [ ] 跑通雷达，并且 Windows 同步画面（X11转发）\n        1. Win端：使用MobaXterm做 Win 的X11接收\n        1. 树莓派：上设置DISPLAY转发目标环境变量 `export DISPLAY=10.122.90.130:0.0`\n        1. 树莓派：如上创建docker转发挂载\n        1. 树莓派：安装RViz（雷达可视化）\n\n```bash\n# 1. 再次确认安装 RViz（确保网络畅通，等待它跑完）\napt update && apt install -y ros-noetic-rviz\n\n# 2. 刷新 ROS 的软件包索引（非常重要，让系统知道 RViz 装好了）\nrospack profile\n\n# 3. 重新加载基础环境和你的工作空间环境\nsource /opt/ros/noetic/setup.bash\nsource /root/rplidar_ws/devel/setup.bash\n```\n\n        1. 树莓派：启动激光雷达\n\n```bash\nroslaunch rplidar_ros view_rplidar_a1.launch\n```\n\n        1. Win端：呈现雷达点云\n\n![屏幕截图 2026-03-29 165056.png](attachment:cc9ac7c8-067d-4be5-bdc5-e1fadcbd4bff:屏幕截图_2026-03-29_165056.png)\n\n    - [ ]\n1.\n\n```bash\n# 任务目标\n请帮我用 Python 编写一个基于 PyQt5 的 ROS 上位机（地面站）可视化项目。我需要它能通过 WebSockets 实时接收并渲染 2D SLAM 地图和雷达扫描点云。\n\n# 系统架构与网络情况\n- **边缘端（ROS Master）**：树莓派 5，IP 地址为 `10.122.90.153`。运行 ROS 1 Noetic。目前正在运行 Hector SLAM（纯激光 2D 建图），并通过 `rosbridge_server` 在 `9090` 端口对外暴露了 WebSocket 服务。\n- **客户端（上位机）**：Windows 11 系统下的 WSL2 (Ubuntu 22.04)，IP 地址为 `10.122.90.130`（与树莓派在同一局域网）。通过 WSLg 原生支持 GUI 显示。\n\n# 客户端环境限制（极度重要）\n- 客户端使用的是 Python 3.10 的虚拟环境（由 `uv` 管理）。\n- **客户端没有安装任何原生的 ROS 环境**，不能使用 `rospy` 或原生的 `nav_msgs`。\n- 仅通过第三方库与树莓派通信。目前已安装：`roslibpy` (用于 WebSocket 通信)、`PyQt5`、`numpy`。\n\n# 需求细节\n1. **连接管理**：使用 `roslibpy.Ros(host='10.122.90.153', port=9090)` 连接树莓派。\n2. **地图订阅与渲染 (/map)**：\n   - 订阅 `/map` 话题，数据格式对应 ROS 的 `nav_msgs/OccupancyGrid`（接收到的是 JSON/Dict 格式）。\n   - 将接收到的 1 维 `data` 数组，根据 `width` 和 `height` 用 `numpy` 重塑为 2D 矩阵。\n   - 数据映射：`-1` (未知) 映射为灰色，`0` (空闲) 映射为白色，`100` (障碍物) 映射为黑色。\n   - **注意**：ROS 地图原点在左下角，而 QImage 原点在左上角，需要沿 Y 轴翻转。\n3. **激光覆盖渲染 (/scan) [可选进阶功能]**：\n   - 订阅 `/scan` 话题，对应 `sensor_msgs/LaserScan`。\n   - 解析 `ranges`、`angle_min`、`angle_increment`，将其转换为相对于雷达原点的 (X, Y) 像素坐标，并在刚刚渲染的地图上用红色画点叠加显示。\n4. **多线程安全（核心痛点）**：\n   - `roslibpy` 的 `subscribe` 回调函数是在后台独立线程中触发的。\n   - **严禁**在回调函数中直接操作 PyQt 的 UI 组件。\n   - 必须设计 `pyqtSignal` 信号槽机制，将 numpy 处理好的图像数据（或合并好的 QPixmap）发射给 GUI 主线程进行 `setPixmap` 更新。\n\n# 包管理要求\n- 使用uv 管理项目，所有安装python包不要用pip install，全部用uv add代替\n- 执行python脚本不要直接python xxx.py，一律用 uv run\n\n# 代码设计要求\n- 严禁一切fallback，务必做好条件控制\n- 每一个函数、每一份文件要写最严格的pytest，确保项目代码与逻辑相符、不会出现执行问题\n```\n",
+    "category": "tools",
+    "tags": ["树莓派", "硬件", "激光雷达", "传感器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-29 10:10:00+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 9
+  },
+  {
+    "id": "note_tools_winbeau_023",
+    "title": "Self-Forcing Code Handover",
+    "summary": "一键复制脚本已经写好了(docker_cp.sh) 不传参数也可以，默认名字是",
+    "content": "> 🌟\n> **直接复制docker最简单省事！**\n>\n> 测试了一键复制脚本，Claude Code、git、alias命令、zsh 提示信息等等都完好无损可以直接用\n>\n> **QA**\n>\n> 1. docker 挂载在哪里？\n>     /root/ → ~/winbeau_zhao/Root/ | uv 管理的 torch 等等依赖都存在 /root/ 目录\n>\n>     /workspace/ → ~/winbeau_zhao/Workspace/ | 论文项目在 /workspace/ 目录\n>\n> 1. 新 docker 的 /root/ 目录挂载到 ~/winbeau_zhao/Root/，如果在 docker 内进行一些全局操作会不会造成一些不好的影响？\n>     /root/ 里只有 uv packages cache、 zsh + starship 配置、NeoVim 配置、**.git-credentials 保存了 http的 GitHub 令牌**，除了 `cd /root && rm *` 99%不会有事\n>\n> 1. 新 docker 里有什么？\n>     1. Claude Code (Opus 4.5 还有额度$253，anyrouter.top 免费领的)\n>     1. zsh + starship 可以很好的显示 git 提交情况还有当前分支、当前的 uv 包环境\n\n\n## 1. docker 复制\n\n一键复制脚本已经写好了(docker_cp.sh) 不传参数也可以，默认名字是\n\n\n```bash\ncd ~/winbeau_zhao\n./docker_cp.sh <docker-name>\n```\n\n\n## 2. git 仓库\n\n创建了新分支 senior，在senior分支任意修改即可，对main分支不会有影响\n\n\n```bash\ncd /workspace/Self-Forcing-fork\n\n# 设置仅在这个项目生效的邮箱和名字\ngit config --local user.name \"Senior_Name\"\ngit config --local user.email \"senior@example.com\"\n# 这会让 Git 在处理这个项目时使用独立的凭据存储（如果需要）\ngit config --local credential.helper store\n```\n",
+    "category": "tools",
+    "tags": ["AI 训练", "工程"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:45:03+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 3
+  },
+  {
+    "id": "note_tools_winbeau_028",
+    "title": "服务器配置",
+    "summary": "安装内核头文件(可不选)",
+    "content": "### 防止超时断连\n\n\n```python\nsudo vim /etc/ssh/sshd_config\n# ClientAliveInterval 60 每60s查一次\n# ClientAliveCountMax 99999 改为99999 近似无限次\nsudo systemctl restart sshd\n```\n\n\n### 驱动失效重装\n\n安装内核头文件(可不选)\n\n\n```bash\nsudo apt update\nsudo apt install -y dkms build-essential linux-headers-$(uname -r)\n```\n\n安装**开源版本**（5090后只支持开源版本 MIT）\n\n\n```bash\nwget https://us.download.nvidia.com/XFree86/Linux-x86_64/580.95.05/NVIDIA-Linux-x86_64-580.95.05.run\nsudo bash NVIDIA-Linux-x86_64-580.95.05.run --dkms --disable-nouveau\n```\n\n\n### 服务器清理\n\n\n```bash\nsudo du -h --max-depth=1 / | sort -hr | head -n 20\n```\n",
+    "category": "tools",
+    "tags": ["服务器", "Linux"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:50+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 2
+  },
+  {
+    "id": "note_tools_winbeau_022",
+    "title": "Spring-Boot 服务器部署",
+    "summary": "本文档介绍如何使用 Systemd 将 Spring Boot 后端应用配置为 Linux 系统服务，实现开机自启、后台运行及环境变量管理。",
+    "content": "本文档介绍如何使用 Systemd 将 Spring Boot 后端应用配置为 Linux 系统服务，实现开机自启、后台运行及环境变量管理。\n\n\n#### 1. 创建 Systemd 服务文件\n\n使用 `nano` 编辑服务配置文件（无需额外创建 env 文件，直接在配置中定义环境变量）：\n\n\n```bash\nsudo nano /etc/systemd/system/knohub-backend.service\n```\n\n**配置文件内容：**\n\n\n```\n[Unit]\nDescription=KnoHub Spring Boot Backend (mvn spring-boot:run)\n# 确保在网络和 Docker 启动后再启动\nAfter=[network.target](http://network.target) docker.service\nRequires=docker.service\n\n[Service]\nUser=winbeau\nWorkingDirectory=/home/winbeau/KnoHub/backend\n\n# ===== 数据库环境变量配置 =====\n# 使用 Environment 指令直接定义变量\nEnvironment=\"DB_URL=jdbc:postgresql://[localhost:5432/knohub](http://localhost:5432/knohub)\"\nEnvironment=\"DB_USERNAME=postgres\"\nEnvironment=\"DB_PASSWORD=@Geralt123\"\nEnvironment=\"DB_DRIVER=org.postgresql.Driver\"\nEnvironment=\"DB_DIALECT=org.hibernate.dialect.PostgreSQLDialect\"\n\n# ===== 启动命令 =====\n# 这里直接使用 mvn spring-boot:run 运行\nExecStart=/usr/bin/mvn spring-boot:run\n\n# 退出信号与重启策略\nSuccessExitStatus=143\nRestart=always\nRestartSec=5\n\n[Install]\nWantedBy=[multi-user.target](http://multi-user.target)\n```\n\n\n#### 2. 启动服务\n\n保存文件后，按照以下步骤加载并启动服务：\n\n\n```bash\n# 1. 重载 Systemd 守护进程以读取新文件\nsudo systemctl daemon-reload\n\n# 2. 设置开机自启\nsudo systemctl enable knohub-backend\n\n# 3. 立即启动服务\nsudo systemctl start knohub-backend\n```\n\n\n#### 3. 验证状态\n\n检查服务运行状态及日志：\n\n\n```bash\nsudo systemctl status knohub-backend\n```\n\n\n---\n\n**配置说明：**\n\n- **Environment**: 直接在 `[Service]` 块中使用 `Environment=\"KEY=VALUE\"` 格式定义，无需外部文件。\n- **User**: 指定运行服务的用户（这里是 `winbeau`），避免使用 root 运行应用。\n- **Restart**: 设置为 `always` 确保服务崩溃或被杀掉后自动重启。\n",
+    "category": "tools",
+    "tags": ["Spring-Boot", "Java", "后端"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:52+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 5
+  },
+  {
+    "id": "note_tools_winbeau_005",
     "title": "SQL [PostgreSQL]",
-    "summary": "PostgreSQL 常用操作速查：DDL/DML 区分、CREATE/ALTER/DROP、SELECT/INSERT/UPDATE/DELETE 模板。",
-    "content": "日常碰得最多的几条，按 DDL / DML 分类速查。\n\n## DDL（动结构）\n\n| 语义 | 模板 |\n|---|---|\n| 建库 | `CREATE DATABASE labnotes;` |\n| 删库 | `DROP DATABASE labnotes;` |\n| 建表 | `CREATE TABLE notes (id SERIAL PRIMARY KEY, title TEXT NOT NULL);` |\n| 删表 | `DROP TABLE notes;` |\n| 改表 | `ALTER TABLE notes ADD COLUMN tags TEXT[];` |\n\n## DML（动数据）\n\n| 语义 | 模板 |\n|---|---|\n| 查 | `SELECT * FROM notes WHERE category='tools' LIMIT 10;` |\n| 增 | `INSERT INTO notes (title, body) VALUES ('foo', 'bar');` |\n| 改 | `UPDATE notes SET title='new' WHERE id=42;` |\n| 删 | `DELETE FROM notes WHERE created_at < NOW() - INTERVAL '90 days';` |\n\n## 索引 + 性能\n\n```sql\nCREATE INDEX idx_notes_category    ON notes(category);\nCREATE INDEX idx_notes_created_desc ON notes(created_at DESC);\n```\n\nPostgreSQL 不会自动给外键加索引（不像 MySQL InnoDB），多表 join 前手动检查。\n\n## 备份\n\n```bash\npg_dump -Fc labnotes > labnotes.dump\npg_restore -d labnotes_new labnotes.dump\n```\n\n`-Fc` 是 custom 格式，比 plain SQL 体积小 + 支持并行 restore。\n",
+    "summary": "SQL [PostgreSQL] —— 工程速查 / 实操记录。",
+    "content": ">\n> #### 删改操作\n>\n> **`DELETE`** / **`UPDATE`**** 操作数据 | 不改变数据结构**\n>\n> **`DROP`** / **`ALTER`** **操作结构**\n>\n\n\n> *（此节为 Notion 内嵌数据库 / 视图 — 详见 Notion 原页）*\n\n\n> *（此节为 Notion 内嵌数据库 / 视图 — 详见 Notion 原页）*\n",
     "category": "tools",
     "tags": ["SQL", "PostgreSQL", "数据库"],
     "author": {
       "id": "usr_winbeau",
       "name": "winbeau"
     },
-    "createdAt": "2026-04-15T11:00:00Z",
+    "createdAt": "2026-03-02 06:45:06+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_017",
+    "title": "SSH 连接 Docker 中的 Jupyter",
+    "summary": "SSH 连接 Docker 中的 Jupyter —— 工程速查 / 实操记录。",
+    "content": "## WSL 连接 宿主机 Docker Jupyter\n\n\n## 8888端口被占用\n",
+    "category": "tools",
+    "tags": ["SSH", "网络", "Docker", "容器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:59+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_011",
+    "title": "systemctl 重启",
+    "summary": "systemctl 重启 —— 工程速查 / 实操记录。",
+    "content": "",
+    "category": "tools",
+    "tags": ["Linux", "systemctl"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:59+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_037",
+    "title": "Tailscale 安装",
+    "summary": "在拥有 sudo 权限的 Linux 服务器上，执行官方一键安装脚本：",
+    "content": "> 📡\n> 这份文档总结了我们在香港纯 CPU 服务器上部署和优化 Tailscale 的全过程。它涵盖了从基础安装到解决系统资源瓶颈，再到实现\"全速直连\"的核心配置。\n>\n\n\n---\n\n\n## Tailscale 香港服务器极速部署与优化指南 (2026版)\n\n\n### 一、基础安装与环境准备\n\n在拥有 `sudo` 权限的 Linux 服务器上，执行官方一键安装脚本：\n\n\n```bash\ncurl -fsSL https://tailscale.com/install.sh | sh\n```\n\n\n---\n\n\n### 二、系统资源调优 (解决 \"Too many open files\")\n\n针对资源受限或负载较高的服务器（如本次遇到的 `container` 与 `python` 占用过高问题），必须提升内核句柄上限，否则会由于无法打开配置文件导致 `sudo` 或 `systemctl` 失效。\n\n\n#### 1. 永久提升系统限制\n\n编辑 `/etc/sysctl.conf`，在末尾添加：\n\n\n```\nfs.file-max = 500000\nfs.inotify.max_user_instances = 1024\nfs.inotify.max_user_watches = 524288\n```\n\n执行 `sudo sysctl -p` 立即生效。\n\n\n#### 2. 提升用户级限制\n\n编辑 `/etc/security/limits.conf`，添加：\n\n\n```\n* soft nofile 65535\n* hard nofile 65535\nroot soft nofile 65535\nroot hard nofile 65535\n```\n\n\n---\n\n\n### 三、网络性能优化 (实现\"无损\"连接)\n\n针对香港到内地的跨境链路，开启 **BBR 加速** 和 **IP 转发** 是跑满带宽的关键。\n\n\n#### 1. 开启 BBR 与 IP 转发\n\n\n```bash\necho \"net.core.default_qdisc=fq\" | sudo tee -a /etc/sysctl.conf\necho \"net.ipv4.tcp_congestion_control=bbr\" | sudo tee -a /etc/sysctl.conf\necho \"net.ipv4.ip_forward = 1\" | sudo tee -a /etc/sysctl.conf\necho \"net.ipv6.conf.all.forwarding = 1\" | sudo tee -a /etc/sysctl.conf\nsudo sysctl -p\n```\n\n\n#### 2. 固定 Tailscale 监听端口 (强制 P2P 直连)\n\n为了穿透机房防火墙，建议固定使用 UDP 41641 端口。\n\n编辑 `/etc/default/tailscaled`：\n\n\n```\nFLAGS=\"--port=41641\"\n```\n\n重启服务：\n\n\n```bash\nsudo systemctl restart tailscaled\n```\n\n\n---\n\n\n### 四、核心功能部署\n\n执行以下命令上线，并开启 **出口节点 (Exit Node)** 和 **Tailscale SSH** 功能：\n\n\n```bash\nsudo tailscale up --advertise-exit-node --ssh --reset\n```\n\n\n#### 关键步骤\n\n1. **管理后台授权**：登录 [Tailscale Admin Console](https://login.tailscale.com/admin/machines)，找到该机器，在 **Edit route settings** 中勾选 **Exit Node**。\n1. **取消 SSH 二次验证 (可选)**：在后台 **ACL** 设置中，将 `ssh` 策略的 `action` 从 `check` 改为 `accept`，即可实现免网页点击秒连。\n\n---\n\n\n### 五、共享与连接策略\n\n\n#### 1. 共享给他人\n\n- 在后台点击 **Share**，生成邀请链接。\n- 勾选 `Allow use as an exit node` 和 `Allow Tailscale SSH access`。\n- **对方要求**：必须安装并登录 Tailscale 客户端，然后点击分享链接接受。\n\n#### 2. 客户端连接测试\n\n在本地终端执行，确认是否为 **direct** (直连)：\n\n\n```bash\ntailscale ping [服务器内网IP]\n# 预期输出：via [公网IP]:41641, direct\n```\n\n\n#### 3. SSH 连接方式\n\n- **Tailscale SSH (推荐)**：`tailscale ssh root@[内网IP]`\n- **Mosh 加速 (对抗延迟抖动)**：`mosh root@[内网IP]`（需在服务器安装 `apt install mosh`）\n\n---\n\n\n### 六、常用维护命令卡片\n\n\n| **命令** | **用途** |\n| --- | --- |\n| `tailscale status` | 查看当前所有节点连接状态 |\n| `tailscale ip -4` | 获取本机内网 IP |\n| `tailscale netcheck` | 检查当前网络是否支持 UDP 直连 |\n| `lsof -n \\| awk '{print $1}' \\| sort \\| uniq -c \\| sort -rn \\| head` | 诊断文件句柄占用大户 |\n| `journalctl -u tailscaled -f` | 查看 Tailscale 实时运行日志 |\n\n\n---\n\n> 💡\n> **文档说明**：本方案已在香港 CPU 服务器验证通过。若未来遇到连接变慢，优先检查 UDP 41641 端口在服务商防火墙（安全组）中是否保持开启。\n>\n",
+    "category": "tools",
+    "tags": ["Tailscale", "VPN", "网络"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-20 16:01:45+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 9
+  },
+  {
+    "id": "note_tools_winbeau_035",
+    "title": "Tailscale-服务器建立局域网",
+    "summary": "服务器端需要开 两个终端：",
+    "content": "服务器端需要开 **两个终端**：\n\n**终端 1：启动 tailscaled**\n\n\n```bash\ncd ~/tailscale_1.66.4_amd64\nmkdir -p $HOME/.tailscale\n./tailscaled \\\n  --tun=userspace-networking \\\n  --socks5-server=localhost:1055 \\\n  --state=$HOME/.tailscale/tailscaled.state \\\n  --socket=$HOME/.tailscale/tailscaled.sock\n```\n\n**终端 2：启动端口转发**\n\n\n```bash\ncd ~/tailscale_1.66.4_amd64\n./tailscale --socket=$HOME/.tailscale/tailscaled.sock serve --tcp 2222 127.0.0.1:22\n```\n\n> 🔥\n> **获取服务器实际监听的 SSH 端口**\n>\n> 服务器 SSH 不一定跑在默认的 22 端口，用以下两条命令快速确认：\n>\n>\n> ```bash\n> echo $SSH_CONNECTION\n# 输出格式：客户端IP 客户端端口 服务器IP 服务器端口\n# 最后一个数字就是当前 SSH 会话实际连入的服务端端口\n> ```\n>\n>\n> ```bash\n> ss -tln\n# 确认该端口确实在监听\n> ```\n>\n> 例如 `$SSH_CONNECTION` 末尾是 **51702**，则 Tailscale 转发应写：\n>\n>\n> ```bash\n> ./tailscale ... serve --tcp 2222 127.0.0.1:51702\n> ```\n>\n> 而不是 `127.0.0.1:22`。\n>\n\n本地端连接命令：\n\n\n```bash\nssh intern@100.125.120.21 -p 2222\n```\n\n要点：\n\n- 服务器端这 **两个终端都不能关**\n- 关掉终端 1，Tailscale 断开\n- 关掉终端 2，2222 到 22 的转发失效\n\n---\n",
+    "category": "tools",
+    "tags": ["Tailscale", "VPN", "网络"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-20 16:01:45+00:00",
     "likes": 0,
     "comments": 0,
     "readMinutes": 3
+  },
+  {
+    "id": "note_tools_winbeau_036",
+    "title": "tmp",
+    "summary": "在 Ragged-Cache Attention 支持变长 head-level KV cache 的统一计算后，最后一步是依据不同 attention h…",
+    "content": "在 Ragged-Cache Attention 支持变长 head-level KV cache 的统一计算后，最后一步是依据不同 attention head 的历史关注模式与时序行为，为其设计 head-specific 的 KV cache 策略。由于邻近历史帧对视频块之间的连贯性、平滑过渡与局部时序一致性至关重要，我们对所有 head 统一固定保留最近 ⁍ 帧作为共享的 recent 窗口，并将更早历史中补充进入该窗口的压缩支持部分记为 middle。因此，对第 ⁍ 个 head 在时刻 ⁍ （时间索引按 ⁍ 编号）的候选历史集合，定义为\n\n\n$$\n\\mathcal{U}_h(t) = \\big\\{ n_{\\mathcal{S}}^{(h)},\\; n_{\\mathcal{S}}^{(h)}+1,\\; \\dots,\\; t - n_{\\mathcal{R}} \\big\\},\n$$\n\n即位于当前 head 的 sink 与共享 recent 之间的候选中间历史；不同 head 的策略差异主要体现在如何从 ⁍ 中构造 middle 集合 ⁍ 。\n\n**Anchor Heads.** Anchor Head 对长跨度历史保持稳定而持续的高响应，因此需要跨时间均匀分布的稀疏支撑。为此，我们采用 stride 压缩策略。给定步长 ⁍ ，定义全局固定采样栅格\n\n\n$$\n\\mathcal{A}_{\\Delta} = \\big\\{ \\tau \\mid \\tau \\bmod \\Delta = 0 \\big\\},\n$$\n\n则\n\n\n$$\n\\mathcal{M}_{\\text{anchor}}(t) = \\operatorname{TopLast}_{cap}\\!\\big( \\mathcal{U}_h(t) \\cap \\mathcal{A}_{\\Delta} \\big).\n$$\n\n因此，stride 在整个时间轴上采用与当前 ⁍ 无关的固定采样模式；主配置中取 ⁍ 。\n\n**Wave Heads.** Wave Head 的注意力沿时间呈现明显的周期起伏，因此只需保留与当前时刻相位对齐的少量历史峰值帧。为此，我们采用 cyclic 压缩策略。给定周期 ⁍ ，按相位划分\n\n\n$$\n\\mathcal{B}_h^{(q)}(t) = \\big\\{ \\tau \\in \\mathcal{U}_h(t) \\mid \\tau \\bmod T = q \\big\\}, \\qquad q \\in \\{0, \\dots, T-1\\},\n$$\n\n并仅保留当前相位对应 bucket 中最近的 ⁍ 个锚点：\n\n\n$$\n\\mathcal{M}_{\\text{wave}}(t) = \\operatorname{TopLast}_{cap}\\!\\big( \\mathcal{B}_h^{(t \\bmod T)}(t) \\big).\n$$\n\n因此，cyclic 的采样模式会随当前时刻的相位而变化；主配置中取 ⁍ 。\n\n**Veil Heads.** Veil Head 对远程历史中的细粒度信息依赖较弱，更需要压缩后的粗粒度上下文概要。为此，我们采用 merge 压缩策略，将 ⁍ 划分为若干连续时间块，并将每个时间块压缩为一个代表性历史单元。设 merge block 的 patch 大小为 ⁍ ，其时间跨度为\n\n\n$$\nL_{\\mathrm{blk}} = s^2.\n$$\n\n于是\n\n\n$$\n\\mathcal{G}_j(t) = \\big\\{ \\tau_j,\\; \\tau_j + 1,\\; \\dots,\\; \\tau_j + L_{\\mathrm{blk}} - 1 \\big\\}, \\qquad \\bar{\\mathcal{G}}_j(t) = \\phi_{\\mathrm{merge}}\\!\\big( \\mathcal{G}_j(t) \\big),\n$$\n\n并定义\n\n\n$$\n\\mathcal{M}_{\\text{veil}}(t) = \\operatorname{TopLast}_{cap}\\!\\big( \\{\\bar{\\mathcal{G}}_j(t)\\}_j \\big).\n$$\n\n因此，merge 保留的不是原始逐帧中间历史，而是压缩后的块级上下文概要；主配置中取 ⁍ 。\n\n综上，我们将不同 head 的历史需求分别落实为 Anchor: stride、Wave: cyclic 和 Veil: merge 三种 middle 压缩方式。整体上，所有 head 统一采用 recent4；sink 原本也希望统一，但实验表明，若对 Wave Head 同样保留 sink3，会明显破坏生成稳定性，因此最终采用 Wave: sink1，而 Anchor/Veil: sink3。此外，我们在 attention 计算前对保留历史统一施加 Dynamic RoPE，以缓解长视频自回归生成超出训练时间窗口后的时序位置失真。\n",
+    "category": "tools",
+    "tags": ["速记"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-04 08:34:42+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 7
+  },
+  {
+    "id": "note_tools_winbeau_034",
+    "title": "Token & Password",
+    "summary": "bba0c-f0005 04869-a5236 15138-b7b7a db2e8-abda5 b3839-57893 85414-a73f8",
+    "content": "### Github-2FA恢复码\n\nbba0c-f0005\n04869-a5236\n15138-b7b7a\ndb2e8-abda5\nb3839-57893\n85414-a73f8\n700ae-3a24d\n395b3-332d9\ne2aa6-e77a3\nb2017-d2273\na33aa-9a423\na668c-1d1f5\n2f5e1-9a78a\n97184-89623\nc47ce-016dd\n4fd2c-b2eab\n\n\n### Overleaf-token\n\n\n```md\nolp_6m36OaqxbgybRpQQ3VyMptTUdihXec4eRLVT\n```\n\n\n### Overleaf-password\n\n\n```md\nNJR-haqAR3y!XJb\n```\n",
+    "category": "tools",
+    "tags": ["认证", "安全"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-20 16:01:45+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_038",
+    "title": "Ubuntu 添加公钥",
+    "summary": "Ubuntu 添加公钥 —— 工程速查 / 实操记录。",
+    "content": "",
+    "category": "tools",
+    "tags": ["Ubuntu", "Linux"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-20 16:01:45+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_016",
+    "title": "uv 安装",
+    "summary": "uv 安装 —— 工程速查 / 实操记录。",
+    "content": "## Windows上 uv 安装（PowerShell）\n\n\n```bash\npowershell -ExecutionPolicy ByPass -c \"Invoke-RestMethod https://astral.sh/uv/install.ps1 | iex\"\n```\n\n\n## 🚀 uv 安装与配置指南\n\n> `uv` 是一个极速的 Python 包管理器，采用 Rust 编写。它旨在替代 `pip`、`pip-tools` 甚至 `poetry`，提供统一且飞快的开发体验。\n\n\n## 1. 安装与配置\n\n\n## 2. 核心功能速查 (从入门到精通)\n\n\n## 3. 实战案例：解决依赖冲突 (Security Policy)\n\n\n## 4. 深度解析：uv 核心机制\n",
+    "category": "tools",
+    "tags": ["uv", "Python", "工具"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-04-13 10:21:06+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_007",
+    "title": "Vim 配置文件 (.vimrc) 详细分析",
+    "summary": "这个配置文件非常完整，包含了：",
+    "content": "### Vim 升级\n\n\n### 第一部分：基础编辑设置\n\n\n```\nset sw=4\nset ts=4\nset et\nset smarttab\nset smartindent\nset lbr\nset fo+=mB\nset sm\nset selection=inclusive\nset wildmenu\nset mousemodel=popup\n\n```\n\n**详细说明：**\n\n- `set sw=4`：设置自动缩进的宽度为4个空格\n- `set ts=4`：设置Tab键的宽度为4个空格\n- `set et`：使用空格替代Tab字符（expandtab的缩写）\n- `set smarttab`：智能Tab处理，在行首使用shiftwidth的值\n- `set smartindent`：智能自动缩进\n- `set lbr`：在单词边界处换行（linebreak）\n- `set fo+=mB`：格式化选项，mB表示多字节字符的处理\n- `set sm`：显示匹配的括号（showmatch）\n- `set selection=inclusive`：选择模式为包含性选择\n- `set wildmenu`：命令行补全时显示菜单\n- `set mousemodel=popup`：右键点击显示弹出菜单\n\n### 第二部分：文件类型字典配置\n\n\n```\nau FileType php setlocal dict+=~/.vim/dict/php_funclist.dict\nau FileType css setlocal dict+=~/.vim/dict/css.dict\nau FileType c setlocal dict+=~/.vim/dict/c.dict\nau FileType cpp setlocal dict+=~/.vim/dict/cpp.dict\nau FileType scale setlocal dict+=~/.vim/dict/scale.dict\nau FileType javascript setlocal dict+=~/.vim/dict/javascript.dict\nau FileType html setlocal dict+=~/.vim/dict/javascript.dict\nau FileType html setlocal dict+=~/.vim/dict/css.dict\n\n```\n\n**详细说明：**\n\n- 这些是自动命令（autocmd），为不同文件类型设置字典文件\n- `au FileType`：当检测到特定文件类型时执行\n- `setlocal dict+=`：为当前缓冲区添加字典文件路径\n- 字典文件用于代码补全，包含各语言的函数列表和关键词\n\n### 第三部分：Syntastic和Go语言配置\n\n\n```\nexecute pathogen#infect()\nlet g:syntastic_python_checkers=['pylint']\nlet g:syntastic_php_checkers=['php', 'phpcs', 'phpmd']\nlet g:fencview_autodetect=0\nset rtp+=$GOROOT/misc/vim\n\n```\n\n**详细说明：**\n\n- `execute pathogen#infect()`：加载Pathogen插件管理器\n- `let g:syntastic_python_checkers=['pylint']`：设置Python语法检查器为pylint\n- `let g:syntastic_php_checkers=['php', 'phpcs', 'phpmd']`：设置PHP语法检查器\n- `let g:fencview_autodetect=0`：禁用文件编码自动检测\n- `set rtp+=$GOROOT/misc/vim`：添加Go语言的Vim支持路径\n\n### 第四部分：显示相关设置\n\n\n```\nsyntax on\nset cul \"高亮光标所在行\nset cuc\nset shortmess=atI   \" 启动的时候不显示那个援助乌干达儿童的提示\nset go=             \" 不要图形按钮\ncolor ron     \" 设置背景主题\nset guifont=Consolas:h11:antialias=1   \" 设置字体\nautocmd InsertEnter * se cul    \" 用浅色高亮当前行\n\n```\n\n**详细说明：**\n\n- `syntax on`：启用语法高亮\n- `set cul`：高亮显示光标所在行（cursorline）\n- `set cuc`：高亮显示光标所在列（cursorcolumn）\n- `set shortmess=atI`：简化启动消息，不显示乌干达儿童捐助信息\n- `set go=`：移除GUI选项，隐藏工具栏等\n- `color ron`：设置配色方案为ron\n- `set guifont=Consolas:h11:antialias=1`：设置GUI字体为Consolas，大小11，开启反锯齿\n- `autocmd InsertEnter * se cul`：进入插入模式时高亮当前行\n\n### 第五部分：状态栏和基础显示设置\n\n\n```\nset ruler           \" 显示标尺\nset showcmd         \" 输入的命令显示出来，看的清楚些\nset scrolloff=3     \" 光标移动到buffer的顶部和底部时保持3行距离\nset statusline=%F%m%r%h%w\\ [FORMAT=%{&ff}]\\ [TYPE=%Y]\\ [POS=%l,%v][%p%%]\\ %{strftime(\\\"%d/%m/%y\\ -\\ %H:%M\\\")}\nset laststatus=2    \" 启动显示状态行(1),总是显示状态行(2)\n\n```\n\n**详细说明：**\n\n- `set ruler`：在右下角显示光标位置\n- `set showcmd`：在状态行显示正在输入的命令\n- `set scrolloff=3`：滚动时在顶部和底部保持3行可见\n- `set statusline=...`：自定义状态行显示内容，包括文件名、格式、类型、位置、时间等\n- `set laststatus=2`：总是显示状态行\n\n### 第六部分：编码和帮助设置\n\n\n```\nset nocompatible  \"去掉讨厌的有关vi一致性模式，避免以前版本的一些bug和局限\nif version >= 603\n        set helplang=cn\n        set encoding=utf-8\nendif\n\n```\n\n**详细说明：**\n\n- `set nocompatible`：关闭Vi兼容模式，启用Vim增强功能\n- `if version >= 603`：检查Vim版本\n- `set helplang=cn`：设置帮助语言为中文\n- `set encoding=utf-8`：设置内部编码为UTF-8\n\n### 第七部分：缩进和Tab设置\n\n\n```\nset autoindent\nset cindent\nset tabstop=4\nset softtabstop=4\nset shiftwidth=4\nset expandtab\nset smarttab\n\n```\n\n**详细说明：**\n\n- `set autoindent`：自动缩进\n- `set cindent`：C语言风格的智能缩进\n- `set tabstop=4`：Tab键显示宽度为4\n- `set softtabstop=4`：软制表符宽度为4\n- `set shiftwidth=4`：自动缩进和>>、<<命令的缩进宽度\n- `set expandtab`：用空格替换Tab\n- `set smarttab`：行首的制表符按shiftwidth处理\n\n### 第八部分：行号和搜索设置\n\n\n```\nset number\nset history=1000\nset hlsearch\nset incsearch\nset langmenu=zh_CN.UTF-8\nset helplang=cn\n\n```\n\n**详细说明：**\n\n- `set number`：显示行号\n- `set history=1000`：命令历史记录保存1000条\n- `set hlsearch`：高亮搜索结果\n- `set incsearch`：增量搜索，边输入边搜索\n- `set langmenu=zh_CN.UTF-8`：菜单语言设为中文UTF-8\n- `set helplang=cn`：帮助语言设为中文\n\n### 第九部分：文件类型和补全设置\n\n\n```\nset cmdheight=2\nfiletype on\nfiletype plugin on\nfiletype indent on\nset viminfo+=!\nset iskeyword+=_,$,@,%,#,-\n\n```\n\n**详细说明：**\n\n- `set cmdheight=2`：命令行高度为2行\n- `filetype on`：启用文件类型检测\n- `filetype plugin on`：启用文件类型插件\n- `filetype indent on`：启用文件类型缩进\n- `set viminfo+=!`：保存全局变量到viminfo文件\n- `set iskeyword+=_,$,@,%,#,-`：将这些字符视为关键字的一部分\n\n### 第十部分：文件类型关联\n\n\n```\nau BufRead,BufNewFile *.{md,mdown,mkd,mkdn,markdown,mdwn}   set filetype=mkd\nau BufRead,BufNewFile *.{go}   set filetype=go\nau BufRead,BufNewFile *.{js}   set filetype=javascript\n\n```\n\n**详细说明：**\n\n- 为不同扩展名的文件设置正确的文件类型\n- markdown文件设为mkd类型\n- go文件设为go类型\n- js文件设为javascript类型\n\n### 第十一部分：快捷键映射\n\n\n```\nnmap md :!~/.vim/markdown.pl % > %.html <CR><CR>\nnmap fi :!firefox %.html & <CR><CR>\nnmap \\ \\cc\nvmap \\ \\cc\nnmap tt :%s/\\t/    /g<CR>\n\n```\n\n**详细说明：**\n\n- `nmap md`：将markdown文件转换为HTML\n- `nmap fi`：用Firefox打开HTML文件\n- `nmap \\ \\cc`和`vmap \\ \\cc`：注释快捷键\n- `nmap tt`：将所有Tab替换为4个空格\n\n### 第十二部分：新文件模板函数\n\n\n```\nautocmd BufNewFile *.cpp,*.[ch],*.sh,*.rb,*.java,*.py exec \":call SetTitle()\"\nfunc SetTitle()\n        if &filetype == 'sh'\n                call setline(1,\"\\#!/bin/bash\")\n                call append(line(\".\"), \"\")\n        elseif &filetype == 'python'\n                call setline(1,\"#!/usr/bin/env python\")\n                call append(line(\".\"),\"# coding=utf-8\")\n                call append(line(\".\")+1, \"\")\n        # ... 更多文件类型处理\nendfunc\n\n```\n\n**详细说明：**\n\n- `autocmd BufNewFile`：新建文件时自动执行\n- `SetTitle()`函数为不同文件类型插入相应的文件头\n- 包括shebang行、编码声明、作者信息等\n- 自动定位到文件末尾准备编辑\n\n### 第十三部分：功能键映射\n\n\n```\n:nmap <silent> <F9> <ESC>:Tlist<RETURN>\nmap <S-Left> :tabp<CR>\nmap <S-Right> :tabn<CR>\nmap <F3> :NERDTreeToggle<CR>\nmap <F5> :call CompileRunGcc()<CR>\n\n```\n\n**详细说明：**\n\n- `<F9>`：打开/关闭标签列表\n- `<S-Left>`和`<S-Right>`：切换标签页\n- `<F3>`：打开/关闭NERDTree文件浏览器\n- `<F5>`：编译并运行代码\n\n### 第十四部分：编译运行函数\n\n\n```\nfunc! CompileRunGcc()\n        exec \"w\"\n        if &filetype == 'c'\n                exec \"!g++ % -o %<\"\n                exec \"!time ./%<\"\n        elseif &filetype == 'cpp'\n                exec \"!g++ % -o %<\"\n                exec \"!time ./%<\"\n        # ... 其他语言处理\nendfunc\n\n```\n\n**详细说明：**\n\n- 保存文件后根据文件类型选择相应的编译和运行命令\n- 支持C、C++、Java、Python、Go等多种语言\n- 使用time命令显示运行时间\n\n### 第十五部分：代码格式化\n\n\n```\nmap <F6> :call FormartSrc()<CR><CR>\nfunc FormartSrc()\n    exec \"w\"\n    if &filetype == 'c'\n        exec \"!astyle --style=ansi -a --suffix=none %\"\n    # ... 其他格式化工具\nendfunc\n\n```\n\n**详细说明：**\n\n- `<F6>`键调用代码格式化\n- 使用astyle工具格式化C/C++代码\n- 使用autopep8格式化Python代码\n\n### 第十六部分：实用设置\n\n\n```\nset autoread\nset completeopt=preview,menu\nset autowrite\nset magic\nset guioptions-=T\nset guioptions-=m\n\n```\n\n**详细说明：**\n\n- `set autoread`：文件被外部修改时自动重新加载\n- `set completeopt=preview,menu`：补全时显示预览窗口和菜单\n- `set autowrite`：自动保存\n- `set magic`：启用正则表达式的特殊字符\n- `set guioptions-=T`：隐藏工具栏\n- `set guioptions-=m`：隐藏菜单栏\n\n### 第十七部分：CTags配置\n\n\n```\nlet Tlist_Sort_Type = \"name\"\nlet Tlist_Use_Right_Window = 1\nlet Tlist_Compart_Format = 1\nlet Tlist_Exist_OnlyWindow = 1\nset tags=tags;\nset autochdir\n\n```\n\n**详细说明：**\n\n- 配置TagList插件的行为\n- 按名称排序，在右窗口显示\n- 设置tags文件路径\n- `set autochdir`：自动切换到当前文件目录\n\n### 第十八部分：编码设置\n\n\n```\nset iskeyword+=.\nset termencoding=utf-8\nset encoding=utf8\nset fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030\n\n```\n\n**详细说明：**\n\n- `set iskeyword+=.`：将点号视为关键字一部分\n- `set termencoding=utf-8`：终端编码\n- `set encoding=utf8`：内部编码\n- `set fileencodings=...`：文件编码检测顺序\n\n### 第十九部分：Vundle插件管理\n\n\n```\nset rtp+=~/.vim/bundle/vundle/\ncall vundle#rc()\nBundle 'https://gitee.com/suyelu/vundle'\nBundle 'https://gitee.com/suyelu/vim-fugitive'\n# ... 更多插件\n\n```\n\n**详细说明：**\n\n- 配置Vundle插件管理器\n- 从gitee镜像安装各种插件\n- 包括git集成、代码补全、文件管理等插件\n\n### 主要插件功能说明\n\n1. **vim-fugitive**：Git集成\n1. **indentLine**：显示缩进线\n1. **Auto-Pairs**：自动配对括号\n1. **ctrlp.vim**：模糊文件查找\n1. **The-NERD-Commenter**：快速注释\n1. **django_templates.vim**：Django模板支持\n\n### 总结\n\n这个配置文件非常完整，包含了：\n\n- 完善的编辑环境设置\n- 多语言支持和语法高亮\n- 智能补全和代码格式化\n- 便捷的快捷键映射\n- 丰富的插件生态\n- 中文本地化支持\n适合进行多种编程语言的开发工作，特别是C/C++、Python、JavaScript、Go等语言。\n",
+    "category": "tools",
+    "tags": ["Vim", "编辑器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:55+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 20
+  },
+  {
+    "id": "note_tools_winbeau_018",
+    "title": "VPS 结点配置",
+    "summary": "在 Ubuntu 上安装 Xray（Project X）最推荐、最方便的方式是使用官方提供的一键安装脚本。这不仅能自动检测架构，还会自动配置 systemd…",
+    "content": "## 海外 VPS\n\n\n### 安装 Xray\n\n在 Ubuntu 上安装 Xray（Project X）最推荐、最方便的方式是使用官方提供的一键安装脚本。这不仅能自动检测架构，还会自动配置 systemd 服务。\n\n以下是针对 Linux 环境（适合你的 CS 背景）的详细步骤：\n\n\n#### 1. 准备工作\n\n首先，确保你的系统是最新的，并安装必要的工具（`curl` 和 `unzip` 是必须的）。\n\n\n```bash\nsudo apt update\nsudo apt install -y curl zip unzip\n```\n\n\n#### 2. 使用官方脚本安装\n\nProject X 官方提供了一个脚本，可以一键安装或升级 Xray-core，并自动处理 GeoIP 和 GeoSite 文件。\n\n运行以下命令进行安装：\n\n\n```bash\nbash -c \"$(curl -L [https://github.com/XTLS/Xray-install/raw/main/install-release.sh](https://github.com/XTLS/Xray-install/raw/main/install-release.sh))\" @ install\n```\n\n**该脚本主要做了以下几件事：**\n\n- 将 Xray 二进制文件安装到 `/usr/local/bin/xray`\n- 将配置文件目录创建在 `/usr/local/etc/xray/`\n- 将资源文件（geoip.dat, geosite.dat）放在 `/usr/local/share/xray/`\n- 创建并启用 systemd 服务：`xray.service`\n\n#### 3. 配置 Xray\n\n安装完成后，Xray 不会自动运行，因为它需要一个有效的配置文件。默认的配置文件路径是 `/usr/local/etc/xray/config.json`。\n\n你需要先生成一个 UUID（用户 ID）：\n\n\n```bash\nxray uuid\n# 输出示例: 00484590-25e2-4809-9852-04022631557c (记下这个 ID)\n```\n\n使用你喜欢的编辑器（既然你用 Vim/LazyVim，我就直接写 vim 了）编辑配置：\n\n\n```bash\nsudo vim /usr/local/etc/xray/config.json\n```\n\n这里提供一个**最简化的服务端配置模板**（VLESS + TCP + XTLS-rprx-vision 是目前较推荐的组合，或者简单的 VLESS+TCP）：\n\n\n```json\n{\n  \"log\": {\n    \"loglevel\": \"warning\"\n  },\n  \"inbounds\": [\n    {\n      \"port\": 443,\n      \"protocol\": \"vless\",\n      \"settings\": {\n        \"clients\": [\n          {\n            \"id\": \"你的UUID_填在这里\",\n            \"flow\": \"xtls-rprx-vision\",\n            \"email\": \"[user@example.com](mailto:user@example.com)\"\n          }\n        ],\n        \"decryption\": \"none\"\n      },\n      \"streamSettings\": {\n        \"network\": \"tcp\",\n        \"security\": \"tls\",\n        \"tlsSettings\": {\n          \"certificates\": [\n            {\n              \"certificateFile\": \"/path/to/your/certificate.crt\",\n              \"keyFile\": \"/path/to/your/private.key\"\n            }\n          ]\n        }\n      }\n    }\n  ],\n  \"outbounds\": [\n    {\n      \"protocol\": \"freedom\"\n    }\n  ]\n}\n```\n\n> 注意：如果你没有域名和证书，或者只是想先测试连通性，可以先配置一个简单的 VMess 或 VLESS (不带 TLS)，将端口改为非 443（如 8080），并去掉 streamSettings 中的 TLS 部分。\n>\n\n\n#### 4. 启动与管理服务\n\n配置完成后，启动服务：\n\n\n```bash\n# 启动 Xray\nsudo systemctl start xray\n\n# 设置开机自启\nsudo systemctl enable xray\n\n# 检查运行状态\nsudo systemctl status xray\n```\n\n如果启动失败，可以通过查看日志来 Debug：\n\n\n```bash\njournalctl -u xray --no-pager | tail -n 20\n```\n\n\n#### 5. 防火墙设置\n\n别忘了在防火墙放行你在配置文件中设定的端口（例如上面的 443 或 8080）。如果你使用的是 Ubuntu 默认的 `ufw`：\n\n\n```bash\nsudo ufw allow 443/tcp\nsudo ufw reload\n```\n\n\n---\n\n\n#### 常用命令备忘\n\n- **手动更新 GeoIP/GeoSite 库：**\n\n```bash\nbash -c \"$(curl -L [https://github.com/XTLS/Xray-install/raw/main/install-release.sh](https://github.com/XTLS/Xray-install/raw/main/install-release.sh))\" @ install-geodata\n```\n\n- **卸载 Xray：**\n\n```bash\nbash -c \"$(curl -L [https://github.com/XTLS/Xray-install/raw/main/install-release.sh](https://github.com/XTLS/Xray-install/raw/main/install-release.sh))\" @ remove\n```\n\n\n### 配置 Xray (Reality)\n\n既然你决定用 Reality，那我们就来个“一把梭”。要让本机的客户端连上服务器，核心在于**服务器的配置**和**客户端的填空**必须严格对应。\n\n请按照以下 3 步操作，保证你能连上。\n\n\n#### 第一步：获取 3 个关键凭证（在 VPS 上执行）\n\n在你修改服务器配置前，我们需要先生成“钥匙”。请在 Ubuntu 终端依次运行这 3 条命令，并**把结果复制到一个记事本里备用**：\n\n1. **生成 UUID (用户ID)**\n\n```bash\nxray uuid\n```\n\n> 🔥\n> root@SelabVPS:~# xray uuid\ne01c08c2-c370-482c-a997-3fd16607c724\n>\n\n1. **生成 密钥对 (Public Key 和 Private Key)**\n\n```bash\nxray x25519\n```\n\n    *\n注意：你会得到两行，一行是 Private Key（填服务器），一行是 Public Key（填本机客户端）。千万别搞混！*\n\n> 🔥\n> root@SelabVPS:~# xray x25519\nPrivateKey: uKBktpFHJFs2QYz_CpjDfU4VEIY4MmwgM1F2UYBCKks\nPassword: uOtUbqTx4UNJXIJ3xUmQlgyHDr4aBZj1sITwxMu2dmE\nHash32: -C5E0lx_Vwlhq2ahHJT23Pt_-gsjCPofihGZUnTuqMY\n>\n\n1. **生成 ShortId**\n\n```bash\nopenssl rand -hex 8\n```\n\n> 🔥\n> root@SelabVPS:~# openssl rand -hex 8\n1744e58d702c656b\n>\n\n> 🌟\n>\n> ```vhdl\n> root@selab:~# xray uuid\na27eeb4f-60c1-421a-8e44-2abc0a52829e\nroot@selab:~# sudo vim /usr/local/etc/xray/config.json\nroot@selab:~# xray x25519\nPrivateKey: wOEyzZ0D9Xgd_C8Nw0GZagF-kE4OGCW6gnqhnwvAJng\nPassword: Wtp7gTkXyZc2Mp6DakWeC8TyjZKRIZ6ipI0VsUN99ns\nHash32: EbL5F9ALzXJo41DwAnouURox5m5XxL5gjJiOjRSvmDE\nroot@selab:~# openssl rand -hex 8\na5b05614c169a240\n> ```\n>\n\n\n#### 第二步：写入服务器配置（在 VPS 上执行）\n\n使用 Vim 修改配置文件：\n\n\n```bash\nsudo vim /usr/local/etc/xray/config.json\n```\n\n清空文件（在 Normal 模式按 dG），然后粘贴下面的内容。\n\n> **重要：** 必须把下面代码里标注中文的地方，替换成你第一步记下来的内容。\n>\n\n\n```json\n{\n  \"log\": {\n    \"loglevel\": \"warning\"\n  },\n  \"inbounds\": [\n    {\n      \"port\": 443,\n      \"protocol\": \"vless\",\n      \"settings\": {\n        \"clients\": [\n          {\n            \"id\": \"把你的UUID填在这里\",\n            \"flow\": \"xtls-rprx-vision\",\n            \"email\": \"[me@example.com](mailto:me@example.com)\"\n          }\n        ],\n        \"decryption\": \"none\"\n      },\n      \"streamSettings\": {\n        \"network\": \"tcp\",\n        \"security\": \"reality\",\n        \"realitySettings\": {\n          \"show\": false,\n          \"dest\": \"[www.microsoft.com:443](http://www.microsoft.com:443)\",\n          \"serverNames\": [\n            \"[www.microsoft.com](http://www.microsoft.com)\",\n            \"[www.azure.com](http://www.azure.com)\"\n          ],\n          \"privateKey\": \"把你的Private Key填在这里\",\n          \"shortIds\": [\n            \"把你的ShortId填在这里\"\n          ]\n        }\n      },\n      \"sniffing\": {\n        \"enabled\": true,\n        \"destOverride\": [\"http\", \"tls\"]\n      }\n    }\n  ],\n  \"outbounds\": [\n    {\n      \"protocol\": \"freedom\",\n      \"tag\": \"direct\"\n    },\n    {\n      \"protocol\": \"blackhole\",\n      \"tag\": \"block\"\n    }\n  ]\n}\n```\n\n保存退出 (`:wq`)，然后重启 Xray：\n\n\n```bash\nsudo systemctl restart xray\nsudo systemctl status xray\n```\n\n*确保看到绿色的 **`active (running)`**。*\n\n\n#### 第三步：本机客户端连接（最关键的一步）\n\n假设你电脑上用的是 **v2rayN** (Windows) 或者 **V2Box / Shadowrocket** (Mac/iOS)，或者 Linux 上的 **v2rayA**。\n\n请**手动添加**一个节点，类型选择 **VLESS**，然后按照下面的表格逐一填写。**错一个字都连不上**。\n\n\n| **客户端选项 (英文/中文)** | **填入内容** | **说明** |\n| --- | --- | --- |\n| **Address (地址/IP)** | `你的VPS公网IP` | 不要填域名，直接填 IP |\n| **Port (端口)** | `443` | 必须对应配置文件里的 port |\n| **UUID (用户ID)** | `你的UUID` | 第一步生成的那个长字符串 |\n| **Flow (流控)** | `xtls-rprx-vision` | **极其重要**，不填会被限速或阻断 |\n| **Network (传输协议)** | `tcp` | 选 TCP |\n| **Security (传输层安全)** | `reality` | **注意：**这里不要选 TLS，要选 **Reality** |\n| **SNI / ServerName** | [`www.microsoft.com`](http://www.microsoft.com) | 必须和服务器配置的一样 |\n| **Fingerprint (指纹)** | `chrome` | 模拟 Chrome 浏览器 |\n| **PublicKey (公钥)** | `你的Public Key/Passward` | **这是最大的坑！** 这里填第一步生成的 **Public Key**，不是 Private Key |\n| **ShortId (简略ID)** | `你的ShortId` | 第一步生成的那个短字符串 |\n| **SpiderX** | (留空) | 不需要填 |\n\n\n#### 常见排错 CheckList\n\n如果你填完后，只有发送没有接收（无法上网），请检查：\n\n1. **Public Key 填反了没？** 客户端里必须填 `Public Key`，服务器配置文件里填 `Private Key`。\n1. **核心版本太老？** Reality 是新协议，如果你的客户端（v2rayN 等）很久没更新，可能不支持。请确保 Xray 核心版本至少在 **1.8.0** 以上。\n1. **时间同步：** 你的本机时间和 VPS 时间误差不能超过 90 秒，否则无法连接。\n填好后，先在客户端里测一下**真连接延迟**（不是 Ping，是 TCP 连接测试），如果有数字（比如 200ms），那就说明通了！\n\n\n## 海外 VPS 启用 TUN 与优化\n\n既然你的 Xray 已经跑通了，现在的 VPS 设置主要围绕 **“加速”**、**“稳定”** 和 **“安全”** 这三个维度。\n\n针对你作为 CS 学生的背景，以下是建议在 VPS 上必须执行的几项优化操作（直接在 SSH 终端执行即可）：\n\n\n#### 1. 开启 TCP BBR 加速 (最重要)\n\nBBR 是 Google 开发的 TCP 拥塞控制算法，能显著提高在有丢包网络环境下的吞吐量（就是让你看视频不卡）。\n\n复制粘贴执行：\n\n\n```bash\necho \"net.core.default_qdisc=fq\" >> /etc/sysctl.conf\necho \"net.ipv4.tcp_congestion_control=bbr\" >> /etc/sysctl.conf\nsysctl -p\n```\n\n**检查是否生效：**\n\n\n```bash\nlsmod | grep bbr\n```\n\n*如果输出里有 **`tcp_bbr`**，说明开启成功。*\n\n\n#### 2. 增加 Swap 虚拟内存 (防崩溃)\n\n大部分 VPS 内存较小（比如 512MB 或 1GB）。如果内存跑满了（比如系统更新或 Xray 突发流量），Linux 会触发 OOM Killer 把 Xray 杀掉，导致你断连。\n\n加 1GB 的 Swap 可以保命：\n\n\n```bash\n# 创建 1GB 的 swap 文件\nfallocate -l 1G /swapfile\n# 设置权限\nchmod 600 /swapfile\n# 格式化并启用\nmkswap /swapfile\nswapon /swapfile\n# 设置开机自动挂载\necho '/swapfile none swap sw 0 0' >> /etc/fstab\n```\n\n\n#### 3. 强制时间同步 (Reality 核心要求)\n\nReality 协议对时间非常敏感，客户端和服务端时间误差不能超过 90 秒。VPS 运行久了时间可能会偏。\n\n\n```bash\n# 安装 chrony (比 ntp 更快更准)\napt update && apt install -y chrony\n# 立即启动并同步\nsystemctl enable chrony --now\nchronyc makestep\n```\n\n**验证：** 输入 `date`，看输出的时间是否和现在的 UTC 时间（或你当地时间）对得上。\n\n\n#### 4. 基础安全防护 (UFW 防火墙)\n\n虽然你之前开放了 443，但建议明确关闭不必要的端口，防止被扫描爆破。\n\n\n```bash\n# 1. 允许 SSH (非常重要！否则你会把自己锁在外面)\nufw allow ssh\n# 或者如果你的 ssh 端口不是 22，比如是 12345： ufw allow 12345/tcp\n\n# 2. 允许 Xray 端口\nufw allow 443/tcp\nufw allow 80/tcp\n\n# 3. 启用防火墙\nufw enable\n```\n\n*输入 **`y`** 确认开启。*\n\n\n#### 5. (可选) 安装 Docker 环境\n\n既然你是搞开发的，VPS 除了翻墙，以后肯定会用来跑 Docker 项目（比如你提到的 lab 资料站）。现在装好 Docker 备用：\n\n\n```bash\ncurl -fsSL [https://get.docker.com](https://get.docker.com) | bash\n```\n\n\n---\n\n\n### 总结\n\n你现在的 VPS 状态应该是：\n\n1. **Xray 服务**：运行中 (Reality + Vision)\n1. **网络**：已开启 BBR 加速\n1. **内存**：有 Swap 防止崩溃\n1. **时间**：自动同步\n> **接下来的建议：**\n>\n> 尽量不要去折腾这台 VPS 的网络设置（比如乱改 IP table），也不要在这台机器上跑 BT 下载，这样能保证你的 IP 长期稳定。\n>\n> **如果在 Tun 模式下遇到问题，或者想在这个 VPS 上部署你的 Python/Vue 项目，随时告诉我。**\n>\n",
+    "category": "tools",
+    "tags": ["Node.js", "前端", "VPS", "服务器"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-10 15:13:05+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 20
+  },
+  {
+    "id": "note_tools_winbeau_006",
+    "title": "Vue",
+    "summary": "Vue —— 工程速查 / 实操记录。",
+    "content": "### 项目启动\n\n\n### 项目介绍\n",
+    "category": "tools",
+    "tags": ["Vue", "前端"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:50+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_004",
+    "title": "正在开发…",
+    "summary": "GitHub - winbeau/xju-feiyue",
+    "content": "[GitHub - winbeau/xju-feiyue](https://github.com/winbeau/xju-feiyue)\n\n1. 增加头像作者模块\n1. 架构css，补充贡献指南\n1. 开放评论区\n",
+    "category": "tools",
+    "tags": ["WIP"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:54+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 1
+  },
+  {
+    "id": "note_tools_winbeau_008",
+    "title": "WSL Git(SSH) 操作速查表",
+    "summary": "示例配置（HTTP 代理 127.0.0.1:9098）：",
+    "content": "## 新服务器配置 && git https 切换 git ssh\n\n\n## WSL Git + SSH 操作速查表\n\n\n### 1️⃣ 进入仓库\n\n\n```bash\ncd ~/dl-setup    # 替换成你的项目目录\nls -la           # 查看文件确认位置\n```\n\n\n### 2️⃣ 初始化仓库（第一次创建）\n\n\n```bash\ngit init\ngit branch -M main           # 改名为 main\ngit config --global user.name \"winbeau\"\ngit config --global user.email \"geneva4869@163.com\"\n```\n\n\n### 3️⃣ 添加文件 & 提交\n\n\n```bash\ngit add .                    # 添加所有文件到暂存区\ngit commit -m \"Initial commit\"  # 提交到本地仓库\n```\n\n\n### 4️⃣ 远程仓库操作\n\n\n```bash\ngit remote add origin git@github.com:winbeau/dl-jupyter.git  # SSH\ngit remote -v          # 查看远程仓库\ngit remote remove origin  # 删除远程仓库（如果要改地址）\n```\n\n\n### 5️⃣ 推送 / 拉取\n\n\n```bash\ngit push -u origin main   # 第一次推送并建立跟踪关系\ngit push                  # 后续推送更新\ngit pull                  # 拉取远程更新\n```\n\n\n### 6️⃣ 查看状态和历史\n\n\n```bash\ngit status                # 查看修改状态\ngit log --oneline         # 查看提交历史\ngit diff                  # 查看修改细节\ngit branch                # 查看本地分支\ngit branch -r             # 查看远程分支\n```\n\n\n### 7️⃣ SSH + 代理设置（WSL 特殊情况）\n\n\n```bash\nnano ~/.ssh/config\n```\n\n示例配置（HTTP 代理 127.0.0.1:9098）：\n\n\n```\nHost github.com\n  HostName github.com\n  User git\n  Port 22\n  IdentityFile ~/.ssh/id_ed25519\n  ProxyCommand nc -X connect -x 127.0.0.1:9098 %h %p\n```\n\n- SOCKS5 代理改为：\n\n```\n  ProxyCommand nc -X 5 -x 127.0.0.1:9098 %h %p\n```\n\n- 测试 SSH：\n\n```bash\nssh -T git@github.com\n```\n\n\n### 8️⃣ 常用快捷操作\n\n\n```bash\ngit add <file>           # 添加单个文件\ngit commit -am \"msg\"     # 修改+提交（已经 add 过的文件）\ngit push origin main     # 推送到远程 main 分支\ngit checkout -b dev      # 创建并切换到新分支 dev\ngit merge dev            # 合并 dev 分支到当前分支\ngit stash                # 临时保存未提交修改\ngit stash pop            # 恢复临时保存的修改\n```\n\n\n### 9️⃣ HTTPS 备用方案（当 SSH 被封）\n\n\n```bash\ngit remote set-url origin https://github.com/winbeau/dl-jupyter.git\ngit config --global credential.helper store   # 保存 PAT\ngit push                                       # 会要求输入用户名+PAT\n```\n\n\n---\n\n> ⚠️ 代理小提示：\n\n- http_proxy/https_proxy 只对 HTTPS 生效，SSH 需配置 ProxyCommand。\n- 第一次 SSH 连接 GitHub 会提示确认指纹，输入 `yes` 即可。\n",
+    "category": "tools",
+    "tags": ["SSH", "网络", "Git", "工具"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:59+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 7
+  },
+  {
+    "id": "note_tools_winbeau_029",
+    "title": "Windows USB 设备透传至 WSL 配置指南",
+    "summary": "本文档记录如何使用 usbipd-win 将 Windows 主机的 USB 设备（如串口调试器、开发板）透传至 WSL2 环境中。",
+    "content": "本文档记录如何使用 `usbipd-win` 将 Windows 主机的 USB 设备（如串口调试器、开发板）透传至 WSL2 环境中。\n\n\n### 1. 查看设备列表\n\n在 **Windows PowerShell (管理员)** 中运行：\n\n\n```powershell\nusbipd list\n```\n\n**示例输出：**\n\n\n```\nConnected:\nBUSID  VID:PID    DEVICE\n1-3    10C4:EA60  CP2102 USB to UART Bridge Controller\n1-7    046D:C534  Logitech USB Receiver\n```\n\n> **注意**：请记录下目标设备的 `BUSID`（例如 `1-3`）。\n\n\n### 2. 绑定设备 (Bind)\n\n设备首次使用前需要进行“绑定”，以便 usbipd 接管该设备。\n\n在 **Windows PowerShell (管理员)** 中运行：\n\n\n```powershell\n# 语法：usbipd bind --busid <BUSID>\nusbipd bind --busid 1-3\n```\n\n\n### 3. 挂载到 WSL (Attach)\n\n绑定成功后，将设备挂载到正在运行的 WSL 实例中。\n\n在 **Windows PowerShell** (无需管理员权限) 中运行：\n\n\n```powershell\n# 语法：usbipd attach --wsl --busid <BUSID>\nusbipd attach --wsl --busid 1-3\n```\n\n> 💡 提示：如果 WSL 未运行，此命令会失败。请确保 WSL 已启动。\n\n\n### 4. 在 WSL 中验证\n\n回到 **WSL 终端**，检查设备是否已挂载：\n\n\n```bash\nlsusb\n```\n\n**预期输出：**\n\n\n```\nBus 001 Device 002: ID 10c4:ea60 Silicon Labs CP2102 USB to UART Bridge Controller\n```\n\n若能看到对应设备的 ID 和描述，即表示透传成功 🎉。\n\n\n---\n\n\n### 常用管理命令\n\n\n#### 解绑设备 (Unbind)\n\n如果绑定错了设备，或者不再需要透传，可以进行解绑。\n\n在 **Windows PowerShell (管理员)** 中运行：\n\n\n```powershell\nusbipd unbind --busid 1-3\n```\n",
+    "category": "tools",
+    "tags": ["USB", "WSL", "硬件", "工具"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:44:53+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 4
+  },
+  {
+    "id": "note_tools_winbeau_021",
+    "title": "Xray",
+    "summary": "本文档分为 海外服务器端配置 与 本地/国内服务器客户端配置 两部分，旨在搭建一个基于 VLESS + XTLS-Vision 的高效安全代理服务。",
+    "content": "## zgovps\n\n\n### Xray 自启动\n\n\n## Xray 配置指南 (VLESS + TCP + TLS)\n\n本文档分为 **海外服务器端配置** 与 **本地/国内服务器客户端配置** 两部分，旨在搭建一个基于 VLESS + XTLS-Vision 的高效安全代理服务。\n\n> n\n>\n> ## 1. 海外服务器端配置 (Server)\n>\n\n\n#### 1.1 安装 Xray\n\n使用官方推荐的一键脚本安装（自动安装程序、配置文件及 systemd 服务）：\n\n\n```bash\nbash -c \"$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)\" @ install\n```\n\n- **程序路径**: `/usr/local/bin/xray`\n- **配置路径**: `/usr/local/etc/xray/config.json`\n- **服务状态**: `systemctl status xray`\n\n#### 1.2 配置服务\n\n编辑主配置文件：\n\n\n```bash\nsudo nano /usr/local/etc/xray/config.json\n```\n\n写入以下内容：\n\n\n```json\n{\n  \"log\": { \"loglevel\": \"warning\" },\n  \"inbounds\": [\n    {\n      \"port\": 443,\n      \"protocol\": \"vless\",\n      \"settings\": {\n        \"clients\": [\n          {\n            \"id\": \"bf182c5b-bb65-49fa-a84c-506263fa5f4d\", \n            \"flow\": \"xtls-rprx-vision\"\n          }\n        ],\n        \"decryption\": \"none\"\n      },\n      \"streamSettings\": {\n        \"network\": \"tcp\",\n        \"security\": \"tls\",\n        \"tlsSettings\": {\n          \"certificates\": [\n            {\n              \"certificateFile\": \"/etc/ssl/private/fullchain.cer\",\n              \"keyFile\": \"/etc/ssl/private/private.key\"\n            }\n          ]\n        }\n      }\n    }\n  ],\n  \"outbounds\": [{ \"protocol\": \"freedom\" }]\n}\n```\n\n> 💡 UUID 已恢复。若需重新生成可使用命令：`cat /proc/sys/kernel/random/uuid`\n\n\n#### 1.3 权限与端口绑定\n\n为了让 Xray 能绑定 443 端口并读取证书，建议修改 systemd 服务以 root 身份运行（或通过 setcap 授权）。\n\n编辑 `/etc/systemd/system/xray.service`，确保 `[Service]` 段配置正确：\n\n\n```\n[Unit]\nDescription=Xray Service\nAfter=[network.target](http://network.target) [nss-lookup.target](http://nss-lookup.target)\n\n[Service]\nUser=root\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE\nAmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE\nNoNewPrivileges=true\nExecStart=/usr/local/bin/xray run -c /usr/local/etc/xray/config.json\nRestart=on-failure\nRestartSec=10\n\n[Install]\nWantedBy=[multi-user.target](http://multi-user.target)\n```\n\n重载配置：\n\n\n```bash\nsudo systemctl daemon-reload\n```\n\n\n#### 1.4 申请 TLS 证书\n\n使用 [acme.sh](http://acme.sh) 申请 Let's Encrypt 证书：\n\n\n```bash\n# 1. 安装 socat ([acme.sh](http://acme.sh) 依赖)\nsudo apt update && sudo apt install -y socat\n\n# 2. 安装 [acme.sh](http://acme.sh)\ncurl https://github.com/acmesh-official/acme.sh/blob/master/acme.sh | sh\nsource ~/.bashrc\n\n# 3. 申请证书 (替换为你的域名)\n~/.[acme.sh/acme.sh](http://acme.sh/acme.sh) --issue --standalone -d [your.domain.com](http://your.domain.com)\n\n# 4. 安装证书到指定目录\n~/.[acme.sh/acme.sh](http://acme.sh/acme.sh) --install-cert -d [your.domain.com](http://your.domain.com) \\\n    --key-file       /etc/ssl/private/private.key  \\\n    --fullchain-file /etc/ssl/private/fullchain.cer \\\n    --reloadcmd     \"systemctl restart xray\"\n```\n\n\n#### 1.5 启动服务\n\n\n```bash\nsudo systemctl enable xray\nsudo systemctl restart xray\nsudo systemctl status xray\n```\n\n\n---\n\n>\n> ## 2. 本地/国内客户端配置 (Client)\n>\n\n\n#### 2.1 安装 Xray 核心\n\n适用于无图形界面的 Linux 服务器。\n\n1. **下载**: 从 GitHub Release 下载 [`Xray-linux-64.zip`](http://Xray-linux-64.zip)。\n1. **安装**:\n\n```bash\nunzip [Xray-linux-64.zip](http://Xray-linux-64.zip) -d /usr/local/xray\nchmod +x /usr/local/xray/xray\nln -sf /usr/local/xray/xray /usr/local/bin/xray\n\n# 放置资源文件\nmkdir -p /usr/local/share/xray\ncp /usr/local/xray/geo* /usr/local/share/xray/\n\n# 准备配置目录\nmkdir -p /usr/local/etc/xray\n```\n\n\n#### 2.2 客户端配置\n\n编辑 `/usr/local/etc/xray/config.json`：\n\n\n```json\n{\n  \"log\": { \"loglevel\": \"warning\" },\n  \"inbounds\": [\n    { \"port\": 10809, \"listen\": \"127.0.0.1\", \"protocol\": \"socks\", \"settings\": { \"auth\": \"noauth\" } },\n    { \"port\": 10810, \"listen\": \"127.0.0.1\", \"protocol\": \"http\",  \"settings\": { \"timeout\": 0 } }\n  ],\n  \"outbounds\": [\n    {\n      \"protocol\": \"vless\",\n      \"settings\": {\n        \"vnext\": [\n          {\n            \"address\": \"[my-domain.online](http://my-domain.online)\",\n            \"port\": 443,\n            \"users\": [\n              {\n                \"id\": \"bf182c5b-bb65-49fa-a84c-506263fa5f4d\",\n                \"encryption\": \"none\",\n                \"flow\": \"xtls-rprx-vision\"\n              }\n            ]\n          }\n        ]\n      },\n      \"streamSettings\": {\n        \"network\": \"tcp\",\n        \"security\": \"tls\",\n        \"tlsSettings\": { \"serverName\": \"[my-domain.online](http://my-domain.online)\" }\n      }\n    }\n  ]\n}\n```\n\n\n#### 2.3 管理脚本 (一键开关 VPN)\n\n\n#### 启动脚本 (`~/`[`start-vpn.sh`](http://start-vpn.sh))\n\n\n```bash\n#!/bin/bash\n# 启动 Xray 并设置代理环境变量\n# 用法: source ~/[start-vpn.sh](http://start-vpn.sh)\n\nXRAY_BIN=\"/usr/local/bin/xray\"\nXRAY_CONF=\"/usr/local/etc/xray/config.json\"\nXRAY_LOG=\"$HOME/xray.log\"\n\n# 清理旧进程\npkill -f \"$XRAY_BIN run\" >/dev/null 2>&1\n\n# 启动后台进程\nnohup \"$XRAY_BIN\" run -c \"$XRAY_CONF\" >\"$XRAY_LOG\" 2>&1 &\nsleep 1\n\nif pgrep -x \"xray\" >/dev/null; then\n    echo \"✅ Xray Started.\"\nelse\n    echo \"❌ Start Failed. Check log: $XRAY_LOG\"\n    return 1\nfi\n\n# 设置环境变量\nexport http_proxy=\"[http://127.0.0.1:10810](http://127.0.0.1:10810)\"\nexport https_proxy=\"[http://127.0.0.1:10810](http://127.0.0.1:10810)\"\nexport all_proxy=\"socks5://127.0.0.1:10809\"\n\necho \"🌐 Proxy Env Set. Testing connectivity...\"\ncurl -s --max-time 5 [google.com](http://google.com) >/dev/null && echo \"✅ Google Connectable\" || echo \"⚠️  Network Check Failed\"\n```\n\n\n#### 关闭脚本 (`~/`[`stop-vpn.sh`](http://stop-vpn.sh))\n\n\n```bash\n#!/bin/bash\nunset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY\npkill -f \"/usr/local/bin/xray run\"\necho \"🛑 Xray Stopped & Proxy Unset.\"\n```\n\n\n#### 使用方法\n\n\n```bash\nsource ~/[start-vpn.sh](http://start-vpn.sh)  # 开启\nsource ~/[stop-vpn.sh](http://stop-vpn.sh)   # 关闭\n```\n\n\n---\n\n\n#### 附录：Windows 客户端链接 (v2rayN/NekoBox)\n\n\n```\nvless://[bf182c5b-bb65-49fa-a84c-506263fa5f4d@my-domain.online:443](mailto:bf182c5b-bb65-49fa-a84c-506263fa5f4d@my-domain.online:443)?encryption=none&flow=xtls-rprx-vision&security=tls&sni=[my-domain.online](http://my-domain.online)&type=tcp&headerType=none#My-Xray-VPS\n```\n\n\n## VPS 放行防火墙（支持Tun）\n\n下面为你整理一份 **HostHatch VPS（基于 nftables）开启端口放行的完整文档**，包含你刚才遇到的问题与解决步骤，适合作为记录或发给他人直接使用。\n\n\n---\n\n\n## 📘 **HostHatch VPS：防火墙（nftables）放行端口设置文档**\n\nHostHatch 新版系统（Debian 12 / Ubuntu 22.04+）默认使用 **nftables** 而不是 iptables。\n\n因此传统的 iptables 命令（例如 `--dport`）会报错，必须改用 nft。\n\n\n---\n\n\n## 📌 **一、检查系统是否使用 nftables**\n\n执行：\n\n\n```bash\nnft list tables\n```\n\n若看到：\n\n\n```\ntable inet ...\n\n```\n\n说明系统已经启用 nftables。\n\n\n---\n\n\n## 📌 **二、创建 nftables 的 filter 表（若不存在）**\n\n如果系统中还没有 `inet filter` 表，请手动创建：\n\n\n```bash\nsudo nft add table inet filter\n\n```\n\n\n---\n\n\n## 📌 **三、创建 input 链（用于处理进入 VPS 的请求）**\n\n在 zsh 下必须用引号包住 `{}`，否则会报语法错误。\n\n正确写法：\n\n\n```bash\nsudo nft add chain inet filter input ' { type filter hook input priority 0; policy accept; } '\n\n```\n\n说明：\n\n- `hook input`：让链接管进入 VPS 的流量\n- `policy accept`：默认允许（你也可以改成 drop）\n\n---\n\n\n## 📌 **四、放行需要的端口（例如 443）**\n\n\n### 放行 TCP 443：\n\n\n```bash\nsudo nft add rule inet filter input tcp dport 443 accept\n\n```\n\n\n### 放行 UDP 443：\n\n\n```bash\nsudo nft add rule inet filter input udp dport 443 accept\n\n```\n\n说明：\n\n- 大多数代理协议（VLESS、VMess、Trojan 等）都需要 TCP\n- FakeIP / TUN / 游戏代理通常还需要 UDP\n\n---\n\n\n## 📌 **五、查看当前规则（确认是否成功）**\n\n\n```bash\nsudo nft list ruleset\n\n```\n\n正常输出示例：\n\n\n```\ntable inet filter {\n    chain input {\n        type filter hook input priority 0; policy accept;\n        tcp dport 443 accept\n        udp dport 443 accept\n    }\n}\n\n```\n\n你应该能看到两个规则（tcp/udp）。\n\n\n---\n\n\n## 📌 **六、让规则在重启后仍然生效（可选但推荐）**\n\nDebian/Ubuntu 保存 nft 配置：\n\n\n```bash\nsudo sh -c \"nft list ruleset > /etc/nftables.conf\"\nsudo systemctl enable nftables\n\n```\n\n重启测试：\n\n\n```bash\nsudo reboot\n\n```\n\n验证：\n\n\n```bash\nsudo nft list ruleset\n\n```\n\n\n---\n\n\n## 📘 **完整参考示例（可以直接复制运行）**\n\n\n```bash\nsudo nft add table inet filter\n\nsudo nft add chain inet filter input ' { type filter hook input priority 0; policy accept; } '\n\nsudo nft add rule inet filter input tcp dport 443 accept\nsudo nft add rule inet filter input udp dport 443 accept\n\nsudo sh -c \"nft list ruleset > /etc/nftables.conf\"\nsudo systemctl enable nftables\n\n```\n\n\n---\n\n\n## 🎯 文档总结（简版）\n\n\n| 目的 | 命令 |\n| --- | --- |\n| 创建 filter 表 | `nft add table inet filter` |\n| 创建 input 链 | `nft add chain inet filter input ' {...} '` |\n| 放行 TCP 443 | `nft add rule inet filter input tcp dport 443 accept` |\n| 放行 UDP 443 | `nft add rule inet filter input udp dport 443 accept` |\n| 查看规则 | `nft list ruleset` |\n| 保存规则 | `nft list ruleset > /etc/nftables.conf` |\n\n\n---\n\n如果你需要，我还能帮你进一步整理成：\n\n- Markdown 文档（适合保存）\n- Shell 自动化脚本\n- 配套 v2rayN 设置指南\n- HostHatch VPS 最佳优化指南\n你需要哪一种？我可以直接生成。\n",
+    "category": "tools",
+    "tags": ["Xray", "代理", "网络"],
+    "author": {
+      "id": "usr_winbeau",
+      "name": "winbeau"
+    },
+    "createdAt": "2026-03-02 06:45:04+00:00",
+    "likes": 0,
+    "comments": 0,
+    "readMinutes": 20
   }
 ]

@@ -1,71 +1,65 @@
-"""Seed the DB from frontend/src/api/mock/notes.json.
+"""Seed the DB from content/notes/*.md.
 
-Creates one user per distinct author in the JSON (currently only `winbeau`,
-sid `20211010001`, password `123456`) + every note in the file. Safe to
-re-run — drops and recreates all tables before seeding.
+Each markdown file is YAML-frontmatter + body. The single demo author is
+`winbeau` (sid 20211010001 / password 123456). Safe to re-run — drops and
+recreates all tables before seeding.
 """
 from __future__ import annotations
 
 import asyncio
-import json
-import random
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from uuid import uuid4
 
-# Allow `uv run python scripts/seed.py` from the backend/ dir.
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.db import models  # noqa: E402,F401 - register on Base.metadata
 from app.db.base import Base  # noqa: E402
-from app.db.models import Comment, Like, Note, User  # noqa: E402
+from app.db.models import Note, User  # noqa: E402
 from app.db.session import AsyncSessionLocal, engine  # noqa: E402
 from app.services.auth import hash_password  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NOTES_JSON = REPO_ROOT / "frontend/src/api/mock/notes.json"
+NOTES_DIR = REPO_ROOT / "content" / "notes"
 
 DEMO_PASSWORD = "123456"
-
-# Map each mock author id → 11-digit student id. `usr_winbeau` is the
-# canonical demo account documented in BACKEND_SPEC.md and shown in the
-# login page footer.
-SID_BY_AUTHOR: dict[str, str] = {
-    "usr_winbeau": "20211010001",
-}
-
-SAMPLE_COMMENTS = [
-    "感谢分享，受益匪浅。",
-    "这个细节我之前确实没注意到。",
-    "请问 fold 数怎么定的？",
-    "收藏了，下次比赛拿来抄作业。",
-    "CV-LB 一致性这一段写得很好。",
-    "我之前也踩过这个坑，握爪。",
-    "可以再展开讲讲超参的选取逻辑吗？",
-]
+DEMO_USER_ID = "usr_winbeau"
+DEMO_USER_NAME = "winbeau"
+DEMO_SID = "20211010001"
+DEMO_BIO = "工程速查 + 深度学习环境配置"
 
 
-def _scale_likes(mock_likes: int, n_users: int) -> int:
-    """Map mock likes (0-312) into [1, n_users] preserving rough ordering."""
-    if mock_likes <= 0:
-        return 0
-    return min(n_users, max(1, round(mock_likes / 70) + 1))
+_FRONT_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
 
-def _scale_comments(mock_comments: int, n_users: int) -> int:
-    """Map mock comments (0-78) into [0, min(n_users, 3)]."""
-    if mock_comments <= 0:
-        return 0
-    return min(n_users, 3, max(1, mock_comments // 25))
+def parse_md(path: Path) -> tuple[dict, str]:
+    raw = path.read_text(encoding="utf-8")
+    m = _FRONT_RE.match(raw)
+    if not m:
+        raise ValueError(f"{path}: no YAML frontmatter")
+    front = yaml.safe_load(m.group(1))
+    body = m.group(2).lstrip("\n")
+    if not isinstance(front, dict):
+        raise ValueError(f"{path}: frontmatter not a mapping")
+    return front, body
 
 
 async def main() -> None:
-    raw = json.loads(NOTES_JSON.read_text(encoding="utf-8"))
-    if not isinstance(raw, list):
-        raise SystemExit("expected notes.json to be a list")
+    if not NOTES_DIR.is_dir():
+        raise SystemExit(f"missing {NOTES_DIR}; run scripts/notion_pull.py + scripts/wrap_frontmatter.py first")
 
-    # Reset schema (dev-only; prod must use alembic).
+    md_files = sorted(NOTES_DIR.glob("*.md"))
+    if not md_files:
+        raise SystemExit(f"no *.md found under {NOTES_DIR}")
+
+    notes = []
+    for path in md_files:
+        front, body = parse_md(path)
+        notes.append((front, body))
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -73,84 +67,44 @@ async def main() -> None:
     pwd_hash = hash_password(DEMO_PASSWORD)
 
     async with AsyncSessionLocal() as session:
-        unique_authors: dict[str, dict[str, str | None]] = {}
-        for n in raw:
-            a = n["author"]
-            if a["id"] not in unique_authors:
-                unique_authors[a["id"]] = {
-                    "id": a["id"],
-                    "name": a["name"],
-                    "avatar": a.get("avatar"),
-                }
-
-        for uid, data in unique_authors.items():
-            sid = SID_BY_AUTHOR.get(uid)
-            if not sid:
-                # Fallback for unmapped author — pad to 11 digits using a hash.
-                sid = f"20211{uid[-6:].rjust(6, '0')}"[:11]
-            session.add(
-                User(
-                    id=uid,
-                    sid=sid,
-                    name=str(data["name"]),
-                    avatar=data["avatar"],
-                    bio=("工程速查 + 深度学习环境配置" if uid == "usr_winbeau" else None),
-                    password_hash=pwd_hash,
-                )
+        session.add(
+            User(
+                id=DEMO_USER_ID,
+                sid=DEMO_SID,
+                name=DEMO_USER_NAME,
+                avatar=None,
+                bio=DEMO_BIO,
+                password_hash=pwd_hash,
             )
+        )
         await session.flush()
 
-        for n in raw:
+        for front, body in notes:
+            created = front.get("createdAt", "2026-05-09T00:00:00Z")
+            if isinstance(created, str):
+                created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
+            elif isinstance(created, datetime):
+                created_dt = created
+            else:
+                raise ValueError(f"{front.get('slug')}: unrecognized createdAt {created!r}")
             session.add(
                 Note(
-                    id=n["id"],
-                    title=n["title"],
-                    summary=n["summary"],
-                    content=n.get("content", ""),
-                    cover=n.get("cover"),
-                    category=n["category"],
-                    tags=list(n.get("tags", [])),
-                    author_id=n["author"]["id"],
-                    created_at=datetime.fromisoformat(
-                        n["createdAt"].replace("Z", "+00:00")
-                    ),
-                    read_minutes=int(n.get("readMinutes", 5)),
+                    id=str(front["id"]),
+                    title=str(front["title"]),
+                    summary=str(front.get("summary", "")),
+                    content=body,
+                    cover=None,
+                    category=str(front.get("category", "tools")),
+                    tags=list(front.get("tags") or []),
+                    author_id=DEMO_USER_ID,
+                    created_at=created_dt,
+                    read_minutes=int(front.get("readMinutes", 1)),
                 )
             )
-        await session.flush()
-
-        user_ids = list(unique_authors.keys())
-        rng = random.Random(42)
-
-        likes_total = 0
-        comments_total = 0
-        for n in raw:
-            likers = rng.sample(
-                user_ids, _scale_likes(int(n.get("likes", 0)), len(user_ids))
-            )
-            for u in likers:
-                session.add(Like(note_id=n["id"], user_id=u))
-                likes_total += 1
-
-            commenters = rng.sample(
-                user_ids, _scale_comments(int(n.get("comments", 0)), len(user_ids))
-            )
-            for u in commenters:
-                session.add(
-                    Comment(
-                        id=str(uuid4()),
-                        note_id=n["id"],
-                        author_id=u,
-                        content=rng.choice(SAMPLE_COMMENTS),
-                    )
-                )
-                comments_total += 1
-
         await session.commit()
 
-    print(f"seed done: {len(unique_authors)} users / {len(raw)} notes")
-    print(f"          {likes_total} likes / {comments_total} comments")
-    print(f"demo: sid=20211010001 / password={DEMO_PASSWORD}")
+    print(f"seed done: 1 user / {len(notes)} notes")
+    print(f"demo: sid={DEMO_SID} / password={DEMO_PASSWORD}")
 
 
 if __name__ == "__main__":
