@@ -137,7 +137,10 @@ function formatTimelineDay(day: string): string {
   if (diffDays === 0) return '今天'
   if (diffDays === 1) return '昨天'
   if (diffDays >= 2 && diffDays <= 6) return WEEKDAYS[date.getDay()]
-  return `${m}月${d}日`
+  // U+2007 (figure space) matches digit width — pads single-digit M/D so
+  // 4月4日 aligns column-wise with 4月10日 / 12月10日 in a tabular-nums font.
+  const pad = (n: number) => (n < 10 ? `\u2007${n}` : `${n}`)
+  return `${pad(m)}月${pad(d)}日`
 }
 
 function RailHeader({ icon: Icon, label }: { icon?: typeof Tag; label: string }) {
