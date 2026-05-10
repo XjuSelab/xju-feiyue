@@ -16,10 +16,7 @@ export function RightRail() {
   const computed = useMemo(() => {
     if (!r.data) return null
     const tagFreq = new Map<string, number>()
-    const authorMap = new Map<
-      string,
-      { id: string; name: string; count: number }
-    >()
+    const authorMap = new Map<string, { id: string; name: string; count: number }>()
     const timeline = new Map<string, number>()
 
     for (const note of r.data) {
@@ -92,10 +89,7 @@ export function RightRail() {
         <RailHeader icon={Users} label="活跃作者" />
         <ul className="space-y-1.5">
           {computed.activeAuthors.map((a) => (
-            <li
-              key={a.id}
-              className="flex items-center justify-between text-sm"
-            >
+            <li key={a.id} className="flex items-center justify-between text-sm">
               <span className="inline-flex items-center gap-2 text-text-muted">
                 <span className="inline-flex size-6 items-center justify-center rounded-full bg-bg-subtle text-[10px] font-medium text-text">
                   {a.name.slice(0, 2).toUpperCase()}
@@ -112,11 +106,10 @@ export function RightRail() {
         <RailHeader label="近 7 日发布" />
         <ul className="space-y-1.5">
           {computed.timeline.map(([day, count]) => (
-            <li
-              key={day}
-              className="flex items-center gap-2 text-xs text-text-muted"
-            >
-              <span className="font-mono text-text-faint">{day}</span>
+            <li key={day} className="flex items-center gap-2 text-xs text-text-muted">
+              <span className="w-12 shrink-0 text-text-faint tabular-nums">
+                {formatTimelineDay(day)}
+              </span>
               <span className="flex-1 rounded-sm bg-bg-subtle">
                 <span
                   className="block h-1.5 rounded-sm bg-text"
@@ -132,13 +125,22 @@ export function RightRail() {
   )
 }
 
-function RailHeader({
-  icon: Icon,
-  label,
-}: {
-  icon?: typeof Tag
-  label: string
-}) {
+const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+function formatTimelineDay(day: string): string {
+  const [y, m, d] = day.split('-').map(Number)
+  if (!y || !m || !d) return day
+  const date = new Date(y, m - 1, d)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffDays = Math.floor((today.getTime() - date.getTime()) / 86_400_000)
+  if (diffDays === 0) return '今天'
+  if (diffDays === 1) return '昨天'
+  if (diffDays >= 2 && diffDays <= 6) return WEEKDAYS[date.getDay()]
+  return `${m}月${d}日`
+}
+
+function RailHeader({ icon: Icon, label }: { icon?: typeof Tag; label: string }) {
   return (
     <h3 className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-faint">
       {Icon && <Icon size={12} aria-hidden />}
