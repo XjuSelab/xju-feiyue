@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_028
+id: note_tools_winbeau_027
 slug: server-setup
 title: 服务器配置
 summary: 安装内核头文件(可不选)

@@ -132,6 +132,12 @@ def _title(v: dict) -> str:
     return _rt_to_md(v.get("properties", {}).get("title"))
 
 
+def _plain_title(v: dict) -> str:
+    """Like _title but strips all inline formatting — for code blocks."""
+    runs = v.get("properties", {}).get("title") or []
+    return "".join(run[0] for run in runs if run and len(run) > 0)
+
+
 def _lang(v: dict) -> str:
     raw = v.get("properties", {}).get("language") or [["plain text"]]
     val = (raw[0][0] if raw and raw[0] else "plain text").strip().lower()
@@ -219,9 +225,10 @@ def _emit_block(
             _emit_block(blocks, c, out, depth=depth + 1, list_kind=None, list_index=[1])
 
     elif btype == "code":
-        body = _title(v)  # code body is in properties.title (raw text, no formatting)
-        # rich-text in code preserves content but strips markup; _title joined
-        # it back to a single string with newlines preserved.
+        # Notion stores code body in properties.title as rich-text runs, but
+        # any inline link/bold formatting is meaningless inside a fence —
+        # strip it so we don't emit `[label](url)` mid-code-block.
+        body = _plain_title(v)
         lang = _lang(v)
         out.append("")
         out.append(f"```{lang}")

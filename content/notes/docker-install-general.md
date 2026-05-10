@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_044
+id: note_tools_winbeau_043
 slug: docker-install-general
 title: "docker 安装-普适"
 summary: 这份文档为你总结了在 Ubuntu（特别是树莓派等 ARM 架构设备）上从零安装 Docker、配置无 sudo 访问以及设置双层代理的完整流程。你可以直接…

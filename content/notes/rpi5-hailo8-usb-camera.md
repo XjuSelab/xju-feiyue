@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_041
+id: note_tools_winbeau_040
 slug: rpi5-hailo8-usb-camera
 title: Raspberry Pi5 + Haili8 + USB Camera
 summary: 本文档记录了使用 Windows Terminal (SSH) 结合 MobaXterm (本地 X Server)，打通从 USB 摄像头拉流到 Hail…

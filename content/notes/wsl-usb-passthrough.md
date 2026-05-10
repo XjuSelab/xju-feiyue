@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_029
+id: note_tools_winbeau_028
 slug: wsl-usb-passthrough
 title: Windows USB 设备透传至 WSL 配置指南
 summary: "本文档记录如何使用 usbipd-win 将 Windows 主机的 USB 设备（如串口调试器、开发板）透传至 WSL2 环境中。"

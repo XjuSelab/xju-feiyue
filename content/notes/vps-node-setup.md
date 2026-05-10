@@ -40,7 +40,7 @@ Project X 官方提供了一个脚本，可以一键安装或升级 Xray-core，
 
 
 ```bash
-bash -c "$(curl -L [https://github.com/XTLS/Xray-install/raw/main/install-release.sh](https://github.com/XTLS/Xray-install/raw/main/install-release.sh))" @ install
+bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
 ```
 
 **该脚本主要做了以下几件事：**
@@ -86,7 +86,7 @@ sudo vim /usr/local/etc/xray/config.json
           {
             "id": "你的UUID_填在这里",
             "flow": "xtls-rprx-vision",
-            "email": "[user@example.com](mailto:user@example.com)"
+            "email": "user@example.com"
           }
         ],
         "decryption": "none"
@@ -160,13 +160,13 @@ sudo ufw reload
 - **手动更新 GeoIP/GeoSite 库：**
 
 ```bash
-bash -c "$(curl -L [https://github.com/XTLS/Xray-install/raw/main/install-release.sh](https://github.com/XTLS/Xray-install/raw/main/install-release.sh))" @ install-geodata
+bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install-geodata
 ```
 
 - **卸载 Xray：**
 
 ```bash
-bash -c "$(curl -L [https://github.com/XTLS/Xray-install/raw/main/install-release.sh](https://github.com/XTLS/Xray-install/raw/main/install-release.sh))" @ remove
+bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove
 ```
 
 
@@ -264,7 +264,7 @@ sudo vim /usr/local/etc/xray/config.json
           {
             "id": "把你的UUID填在这里",
             "flow": "xtls-rprx-vision",
-            "email": "[me@example.com](mailto:me@example.com)"
+            "email": "me@example.com"
           }
         ],
         "decryption": "none"
@@ -274,10 +274,10 @@ sudo vim /usr/local/etc/xray/config.json
         "security": "reality",
         "realitySettings": {
           "show": false,
-          "dest": "[www.microsoft.com:443](http://www.microsoft.com:443)",
+          "dest": "www.microsoft.com:443",
           "serverNames": [
-            "[www.microsoft.com](http://www.microsoft.com)",
-            "[www.azure.com](http://www.azure.com)"
+            "www.microsoft.com",
+            "www.azure.com"
           ],
           "privateKey": "把你的Private Key填在这里",
           "shortIds": [
@@ -440,7 +440,7 @@ ufw enable
 
 
 ```bash
-curl -fsSL [https://get.docker.com](https://get.docker.com) | bash
+curl -fsSL https://get.docker.com | bash
 ```
 
 

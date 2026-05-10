@@ -7,7 +7,7 @@ category: tools
 tags: [Vim, 编辑器, NeoVim]
 author: winbeau
 createdAt: 2026-03-02T06:45:07Z
-readMinutes: 14
+readMinutes: 13
 notionUuid: b71fed6a-f36f-8329-80e0-8174345c49ce
 ---
 
@@ -70,7 +70,7 @@ mv ~/.local/state/nvim ~/.local/state/nvim.bak 2>/dev/null
 mv ~/.cache/nvim ~/.cache/nvim.bak 2>/dev/null
 
 # 克隆配置
-git clone [https://github.com/LazyVim/starter](https://github.com/LazyVim/starter) ~/.config/nvim
+git clone https://github.com/LazyVim/starter ~/.config/nvim
 
 # 首次启动 (会自动下载插件，国内环境可能需配置代理)
 nvim

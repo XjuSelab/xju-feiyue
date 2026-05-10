@@ -1,11 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 type Props = {
+  /** Plain-text source for the clipboard. Always required. */
   code: string
   language?: string
   className?: string
+  /**
+   * Optional rich children (e.g. rehype-highlight token spans) to render
+   * inside the <code> tag. When omitted, falls back to `code`.
+   */
+  highlightedChildren?: ReactNode
 }
 
 /**
@@ -15,7 +21,7 @@ type Props = {
  * - 点击 `navigator.clipboard.writeText`，按钮态切到 "Copied" 1.5s
  * - 左上角显示 language label（如 ```python ... ``` → "python"）
  */
-export function CodeBlock({ code, language, className }: Props) {
+export function CodeBlock({ code, language, className, highlightedChildren }: Props) {
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -47,18 +53,12 @@ export function CodeBlock({ code, language, className }: Props) {
       <button
         type="button"
         onClick={onCopy}
-        aria-label={
-          copied ? 'Copied to clipboard' : 'Copy code to clipboard'
-        }
+        aria-label={copied ? 'Copied to clipboard' : 'Copy code to clipboard'}
         className={cn(
           'absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-bg-subtle px-2 py-1 text-xs text-text-muted opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         )}
       >
-        {copied ? (
-          <Check size={12} aria-hidden />
-        ) : (
-          <Copy size={12} aria-hidden />
-        )}
+        {copied ? <Check size={12} aria-hidden /> : <Copy size={12} aria-hidden />}
         {copied ? 'Copied' : 'Copy'}
       </button>
       <code
@@ -69,7 +69,7 @@ export function CodeBlock({ code, language, className }: Props) {
           language ? 'pt-5' : undefined,
         )}
       >
-        {code}
+        {highlightedChildren ?? code}
       </code>
     </pre>
   )

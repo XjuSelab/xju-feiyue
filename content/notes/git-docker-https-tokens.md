@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_032
+id: note_tools_winbeau_031
 slug: git-docker-https-tokens
 title: "Git(docker tokens - https)"
 summary: 该文档旨在解决 Docker 环境下 Git HTTPS 推送代码时需反复输入密码的问题，提供 Token 生成及持久化存储的最佳实践。

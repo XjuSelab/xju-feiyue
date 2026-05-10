@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_026
+id: note_tools_winbeau_025
 slug: node-pnpm-install
 title: "node-pnpm 安装"
 summary: 👉 强烈推荐用 nvm（Node Version Manager），以后切换 Node 版本非常方便，不会把系统搞乱。

@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_035
+id: note_tools_winbeau_034
 slug: tailscale-lan
 title: "Tailscale-服务器建立局域网"
 summary: 服务器端需要开 两个终端：

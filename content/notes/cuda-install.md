@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_030
+id: note_tools_winbeau_029
 slug: cuda-install
 title: CUDA 安装
 summary: 安装 CUDA 11.6：

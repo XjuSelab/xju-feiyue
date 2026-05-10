@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_027
+id: note_tools_winbeau_026
 slug: l40-tinystories
 title: "L40 - TinyStories"
 summary: "L40 - TinyStories —— 工程速查 / 实操记录。"

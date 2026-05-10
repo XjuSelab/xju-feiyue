@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_033
+id: note_tools_winbeau_032
 slug: claude-code-install
 title: Claude Code 下载
 summary: 适用于 macOS 和 Ubuntu，自动处理依赖和环境配置。
@@ -23,7 +23,7 @@ notionUuid: 337fed6a-f36f-832a-9b42-01b26f23d19f
 
 
 ```bash
-curl -fsSL [https://claude.ai/install.sh](https://claude.ai/install.sh) | bash
+curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 > 安装完成后，运行 `claude` 启动并进行首次授权。
@@ -58,7 +58,7 @@ sudo apt install -y git ripgrep
 ```bash
 # Claude Code Configuration
 export ANTHROPIC_AUTH_TOKEN="sk-9yQxN4LkDR1ZFUpEIKHb0XJQKUjwupucBRMWmugJocUtJ4Vz"
-export ANTHROPIC_BASE_URL="[https://anyrouter.top](https://anyrouter.top)"
+export ANTHROPIC_BASE_URL="https://anyrouter.top"
 export MORPH_API_KEY="sk-IubCKmeMJnv7eSbf1DwacEPcA40Piq0HZ_h0X_WYrSJdPBcC"
 export TWENTYFIRST_API_KEY="59d90a411938b3693e74218e5ffd2ab20a1c74c553577344fa9f297bc7f9e9a4"
 ```

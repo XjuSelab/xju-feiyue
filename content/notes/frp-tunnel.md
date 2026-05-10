@@ -7,7 +7,7 @@ category: tools
 tags: [frp, 内网穿透]
 author: winbeau
 createdAt: 2026-03-02T06:44:50Z
-readMinutes: 12
+readMinutes: 11
 notionUuid: 299fed6a-f36f-82c1-8967-01026857d4ce
 ---
 
@@ -83,7 +83,7 @@ sudo vim /etc/systemd/system/frps.service
 ```
 [Unit]
 Description=Frp Server Service
-After = [network.target](http://network.target)
+After = network.target
 
 [Service]
 Type=simple
@@ -97,7 +97,7 @@ Restart=on-failure
 RestartSec=5s
 
 [Install]
-WantedBy=[multi-user.target](http://multi-user.target)
+WantedBy=multi-user.target
 ```
 
 1. **启动服务**:
@@ -162,8 +162,8 @@ sudo vim /etc/systemd/system/frpc.service
 [Unit]
 Description=Frp Client Service
 # 客户端需等待网络完全就绪
-After = [network.target](http://network.target) [network-online.target](http://network-online.target)
-Wants = [network-online.target](http://network-online.target)
+After = network.target network-online.target
+Wants = network-online.target
 
 [Service]
 Type=simple
@@ -176,7 +176,7 @@ Restart=on-failure
 RestartSec=5s
 
 [Install]
-WantedBy=[multi-user.target](http://multi-user.target)
+WantedBy=multi-user.target
 ```
 
 1. **启动服务**:

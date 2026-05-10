@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_031
+id: note_tools_winbeau_030
 slug: docker-container-setup
 title: Docker 容器配置
 summary: 该文档记录了如何配置一个适合深度学习开发的 Docker 容器环境，包括 Jupyter 端口穿透、Zsh + Starship 终端美化，以及 Vim 配…
@@ -25,7 +25,7 @@ docker run --gpus '"device=0"' \
     -it --name winbeau-dev \
     -v /home/jiayu/winbeau_zhao:/workspace \
     -p 8890:8888 \
-    [nvcr.io/nvidia/pytorch:23.10-py3](http://nvcr.io/nvidia/pytorch:23.10-py3) bash
+    nvcr.io/nvidia/pytorch:23.10-py3 bash
 ```
 
 
@@ -54,7 +54,7 @@ jupyter lab --ip=0.0.0.0 --no-browser --allow-root --port=8888
 
 
 ```bash
-ssh -L 8890:[localhost:8890](http://localhost:8890) target-server
+ssh -L 8890:localhost:8890 target-server
 ```
 
 
@@ -72,7 +72,7 @@ ssh \
 
 
 ```
-[http://localhost:8890](http://localhost:8890)
+http://localhost:8890
 ```
 
 
@@ -96,7 +96,7 @@ apt install -y zsh curl git
 
 
 ```bash
-curl -sS [https://starship.rs/install.sh](https://starship.rs/install.sh) | sh
+curl -sS https://starship.rs/install.sh | sh
 ```
 
 **③ 在 Zsh 中启用 Starship**
@@ -127,7 +127,7 @@ starship --version
 
 
 ```bash
-curl -sS [https://starship.rs/install.sh](https://starship.rs/install.sh) | sh
+curl -sS https://starship.rs/install.sh | sh
 ```
 
 **② 创建配置目录**
@@ -231,10 +231,10 @@ mkdir -p ~/.zsh/plugins
 
 ```bash
 # 1. zsh-autosuggestions（自动补全）
-git clone [https://github.com/zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) ~/.zsh/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/plugins/zsh-autosuggestions
 
 # 2. zsh-syntax-highlighting（语法高亮）
-git clone [https://github.com/zsh-users/zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) ~/.zsh/plugins/zsh-syntax-highlighting
+git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.zsh/plugins/zsh-syntax-highlighting
 ```
 
 **③ 更新 .zshrc 配置文件**
@@ -316,7 +316,7 @@ source ~/.zshrc
 ```bash
 # 下载 Vim-Plug 到 autoload 目录
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    [https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim`](https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim`)
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim`
 ```
 
 

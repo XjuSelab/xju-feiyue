@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_037
+id: note_tools_winbeau_036
 slug: tailscale-install
 title: Tailscale 安装
 summary: 在拥有 sudo 权限的 Linux 服务器上，执行官方一键安装脚本：

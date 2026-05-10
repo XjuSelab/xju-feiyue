@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_038
+id: note_tools_winbeau_037
 slug: ubuntu-add-pubkey
 title: Ubuntu 添加公钥
 summary: Ubuntu 添加公钥 —— 工程速查 / 实操记录。

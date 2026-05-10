@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_039
+id: note_tools_winbeau_038
 slug: rpi5-hailo8-driver
 title: Raspberry Pi5 + Hailo8 环境驱动配置
 summary: "要在树莓派 5 上彻底释放 Hailo-8 M.2 算力卡的 26 TOPS 性能，必须打通从物理层 PCIe 通道、Linux 内核驱动到 C++ 运行时…"

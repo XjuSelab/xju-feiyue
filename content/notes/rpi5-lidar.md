@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_042
+id: note_tools_winbeau_041
 slug: rpi5-lidar
 title: Raspberry Pi5 + 激光雷达
 summary: 1.

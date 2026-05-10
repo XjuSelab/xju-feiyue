@@ -1,3 +1,4 @@
+import { Children, isValidElement, type ReactNode } from 'react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -6,6 +7,23 @@ import rehypeKatex from 'rehype-katex'
 import rehypeRaw from 'rehype-raw'
 import { CodeBlock } from './CodeBlock'
 import { cn } from '@/lib/cn'
+
+/**
+ * Recursively flatten React children to plain text. rehype-highlight
+ * tokenizes fenced code into nested <span class="hljs-..."> elements, so
+ * `String(children)` yields "[object Object]"-soup. We need the real text
+ * for the copy button.
+ */
+function nodeToText(node: ReactNode): string {
+  if (node === null || node === undefined || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(nodeToText).join('')
+  if (isValidElement(node)) {
+    const childProp = (node.props as { children?: ReactNode }).children
+    return nodeToText(childProp)
+  }
+  return ''
+}
 
 type Props = {
   content: string
@@ -24,9 +42,18 @@ const components: Components = {
   pre: ({ children }) => <>{children}</>,
   code: ({ className, children, ...rest }) => {
     const match = /language-(\w+)/.exec(className ?? '')
-    const text = String(children).replace(/\n$/, '')
     if (match && match[1]) {
-      return <CodeBlock code={text} language={match[1]} />
+      // children here is a React subtree from rehype-highlight (token spans).
+      // Flatten to text for clipboard + display so we don't render
+      // "[object Object]" garbage when nodes are coerced.
+      const text = nodeToText(children).replace(/\n$/, '')
+      return (
+        <CodeBlock
+          code={text}
+          language={match[1]}
+          highlightedChildren={Children.toArray(children)}
+        />
+      )
     }
     // inline code
     return (

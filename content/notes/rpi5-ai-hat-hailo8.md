@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_040
+id: note_tools_winbeau_039
 slug: rpi5-ai-hat-hailo8
 title: Raspberry Pi5 + AI HAT(Hailo8)
 summary: "在边缘计算设备上部署大算力 AI 加速卡时，硬件通讯、环境依赖和 API 变动往往是最耗时的环节。本文记录了在 树莓派 5 上挂载 Hailo-8 (PCI…"

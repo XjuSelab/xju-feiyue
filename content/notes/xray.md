@@ -99,7 +99,7 @@ sudo nano /usr/local/etc/xray/config.json
 ```
 [Unit]
 Description=Xray Service
-After=[network.target](http://network.target) [nss-lookup.target](http://nss-lookup.target)
+After=network.target nss-lookup.target
 
 [Service]
 User=root
@@ -111,7 +111,7 @@ Restart=on-failure
 RestartSec=10
 
 [Install]
-WantedBy=[multi-user.target](http://multi-user.target)
+WantedBy=multi-user.target
 ```
 
 重载配置：
@@ -128,18 +128,18 @@ sudo systemctl daemon-reload
 
 
 ```bash
-# 1. 安装 socat ([acme.sh](http://acme.sh) 依赖)
+# 1. 安装 socat (acme.sh 依赖)
 sudo apt update && sudo apt install -y socat
 
-# 2. 安装 [acme.sh](http://acme.sh)
+# 2. 安装 acme.sh
 curl https://github.com/acmesh-official/acme.sh/blob/master/acme.sh | sh
 source ~/.bashrc
 
 # 3. 申请证书 (替换为你的域名)
-~/.[acme.sh/acme.sh](http://acme.sh/acme.sh) --issue --standalone -d [your.domain.com](http://your.domain.com)
+~/.acme.sh/acme.sh --issue --standalone -d your.domain.com
 
 # 4. 安装证书到指定目录
-~/.[acme.sh/acme.sh](http://acme.sh/acme.sh) --install-cert -d [your.domain.com](http://your.domain.com) \
+~/.acme.sh/acme.sh --install-cert -d your.domain.com \
     --key-file       /etc/ssl/private/private.key  \
     --fullchain-file /etc/ssl/private/fullchain.cer \
     --reloadcmd     "systemctl restart xray"
@@ -171,7 +171,7 @@ sudo systemctl status xray
 1. **安装**:
 
 ```bash
-unzip [Xray-linux-64.zip](http://Xray-linux-64.zip) -d /usr/local/xray
+unzip Xray-linux-64.zip -d /usr/local/xray
 chmod +x /usr/local/xray/xray
 ln -sf /usr/local/xray/xray /usr/local/bin/xray
 
@@ -202,7 +202,7 @@ mkdir -p /usr/local/etc/xray
       "settings": {
         "vnext": [
           {
-            "address": "[my-domain.online](http://my-domain.online)",
+            "address": "my-domain.online",
             "port": 443,
             "users": [
               {
@@ -217,7 +217,7 @@ mkdir -p /usr/local/etc/xray
       "streamSettings": {
         "network": "tcp",
         "security": "tls",
-        "tlsSettings": { "serverName": "[my-domain.online](http://my-domain.online)" }
+        "tlsSettings": { "serverName": "my-domain.online" }
       }
     }
   ]
@@ -234,7 +234,7 @@ mkdir -p /usr/local/etc/xray
 ```bash
 #!/bin/bash
 # 启动 Xray 并设置代理环境变量
-# 用法: source ~/[start-vpn.sh](http://start-vpn.sh)
+# 用法: source ~/start-vpn.sh
 
 XRAY_BIN="/usr/local/bin/xray"
 XRAY_CONF="/usr/local/etc/xray/config.json"
@@ -255,12 +255,12 @@ else
 fi
 
 # 设置环境变量
-export http_proxy="[http://127.0.0.1:10810](http://127.0.0.1:10810)"
-export https_proxy="[http://127.0.0.1:10810](http://127.0.0.1:10810)"
+export http_proxy="http://127.0.0.1:10810"
+export https_proxy="http://127.0.0.1:10810"
 export all_proxy="socks5://127.0.0.1:10809"
 
 echo "🌐 Proxy Env Set. Testing connectivity..."
-curl -s --max-time 5 [google.com](http://google.com) >/dev/null && echo "✅ Google Connectable" || echo "⚠️  Network Check Failed"
+curl -s --max-time 5 google.com >/dev/null && echo "✅ Google Connectable" || echo "⚠️  Network Check Failed"
 ```
 
 
@@ -279,8 +279,8 @@ echo "🛑 Xray Stopped & Proxy Unset."
 
 
 ```bash
-source ~/[start-vpn.sh](http://start-vpn.sh)  # 开启
-source ~/[stop-vpn.sh](http://stop-vpn.sh)   # 关闭
+source ~/start-vpn.sh  # 开启
+source ~/stop-vpn.sh   # 关闭
 ```
 
 
@@ -291,7 +291,7 @@ source ~/[stop-vpn.sh](http://stop-vpn.sh)   # 关闭
 
 
 ```
-vless://[bf182c5b-bb65-49fa-a84c-506263fa5f4d@my-domain.online:443](mailto:bf182c5b-bb65-49fa-a84c-506263fa5f4d@my-domain.online:443)?encryption=none&flow=xtls-rprx-vision&security=tls&sni=[my-domain.online](http://my-domain.online)&type=tcp&headerType=none#My-Xray-VPS
+vless://bf182c5b-bb65-49fa-a84c-506263fa5f4d@my-domain.online:443?encryption=none&flow=xtls-rprx-vision&security=tls&sni=my-domain.online&type=tcp&headerType=none#My-Xray-VPS
 ```
 
 

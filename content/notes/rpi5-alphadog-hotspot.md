@@ -1,5 +1,5 @@
 ---
-id: note_tools_winbeau_043
+id: note_tools_winbeau_042
 slug: rpi5-alphadog-hotspot
 title: Raspberry Pi5 + Windows 宿主机 + AlphaDog 热点网络共享配置
 summary: 本项目架构中，树莓派 5 作为边缘计算节点，同时连接两个网络：

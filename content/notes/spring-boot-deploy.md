@@ -30,7 +30,7 @@ sudo nano /etc/systemd/system/knohub-backend.service
 [Unit]
 Description=KnoHub Spring Boot Backend (mvn spring-boot:run)
 # 确保在网络和 Docker 启动后再启动
-After=[network.target](http://network.target) docker.service
+After=network.target docker.service
 Requires=docker.service
 
 [Service]
@@ -39,7 +39,7 @@ WorkingDirectory=/home/winbeau/KnoHub/backend
 
 # ===== 数据库环境变量配置 =====
 # 使用 Environment 指令直接定义变量
-Environment="DB_URL=jdbc:postgresql://[localhost:5432/knohub](http://localhost:5432/knohub)"
+Environment="DB_URL=jdbc:postgresql://localhost:5432/knohub"
 Environment="DB_USERNAME=postgres"
 Environment="DB_PASSWORD=@Geralt123"
 Environment="DB_DRIVER=org.postgresql.Driver"
@@ -55,7 +55,7 @@ Restart=always
 RestartSec=5
 
 [Install]
-WantedBy=[multi-user.target](http://multi-user.target)
+WantedBy=multi-user.target
 ```
 
 
