@@ -4,7 +4,7 @@ slug: xju-principles-of-computer-composition
 title: 计算机组成原理
 summary: 分为逻辑运算（逻辑非、逻辑加、逻辑乘、逻辑异或）和多功能算术/逻辑运算单元
 category: course
-tags: [组成原理, 408, XJU, 新疆大学]
+tags: [组成原理, "408", XJU, 新疆大学]
 author: 孙海洋
 createdAt: 2026-01-22T17:35:46+08:00
 readMinutes: 20

@@ -130,12 +130,27 @@ def derive_read_minutes(body: str) -> int:
     return max(1, min(20, round(chars / 300)))
 
 
+_YAML_AMBIGUOUS_RE = re.compile(
+    r"^(?:[+-]?\d+(?:\.\d+)?|true|false|yes|no|null|on|off|~)$",
+    re.IGNORECASE,
+)
+
+
 def yaml_escape(s: str) -> str:
-    """Quote-and-escape a YAML scalar conservatively."""
+    """Quote-and-escape a YAML scalar conservatively.
+
+    Also quotes scalars that look like bools/null/numbers so PyYAML
+    doesn't decode `408` (string) back into the int 408 — which then
+    fails Pydantic str-validation downstream.
+    """
     if not s:
         return '""'
     needs_quote = any(c in s for c in ":#'\"\\-![]{},*&|>%@`?<")
-    if needs_quote or s.strip() != s:
+    if (
+        needs_quote
+        or s.strip() != s
+        or _YAML_AMBIGUOUS_RE.match(s)
+    ):
         return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
     return s
 

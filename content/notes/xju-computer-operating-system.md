@@ -4,7 +4,7 @@ slug: xju-computer-operating-system
 title: 计算机操作系统
 summary: "发展过程中几个比较重要的基本系统 特点区别 分别是什么 操作系统的主要功能有哪些 管cpu的 管内存的 管设备的 -->"
 category: course
-tags: [操作系统, 408, XJU, 新疆大学]
+tags: [操作系统, "408", XJU, 新疆大学]
 author: 孙海洋
 createdAt: 2026-01-22T17:42:46+08:00
 readMinutes: 20
