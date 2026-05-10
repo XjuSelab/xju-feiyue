@@ -8,23 +8,19 @@ import notesJson from '@/api/mock/notes.json'
 const NOTES = notesJson as readonly Note[]
 
 /**
- * Hero stack on the login page. Pick 3 notes with diverse vibes (long-form
- * config / install guide / quick cheatsheet). Falls back to the first three
- * notes if any of these get renamed/removed, so the brand panel never
- * crashes when the seed data shifts.
+ * Hero stack on the login page. Pick 3 notes with diverse vibes (container
+ * config / driver install / git cheatsheet). Match by title rather than
+ * numeric id because the seed pipeline renumbers notes when the source set
+ * changes. Falls back to the first three notes so login never crashes on a
+ * miss.
  */
-const HERO_NOTE_IDS = [
-  'note_tools_winbeau_031', // Docker 容器配置
-  'note_tools_winbeau_030', // CUDA 安装
-  'note_tools_winbeau_008', // WSL Git(SSH) 操作速查表
-] as const
+const HERO_TITLES = ['Docker 容器配置', 'CUDA 安装', 'WSL Git(SSH) 操作速查表'] as const
 
 const HERO_NOTES: readonly Note[] = (() => {
-  const picked = HERO_NOTE_IDS.map((id) => NOTES.find((n) => n.id === id)).filter((n): n is Note =>
-    Boolean(n),
+  const picked = HERO_TITLES.map((title) => NOTES.find((n) => n.title === title)).filter(
+    (n): n is Note => Boolean(n),
   )
-  if (picked.length === HERO_NOTE_IDS.length) return picked
-  // Soft fallback: just take the first 3 so login keeps rendering.
+  if (picked.length === HERO_TITLES.length) return picked
   return NOTES.slice(0, 3)
 })()
 
