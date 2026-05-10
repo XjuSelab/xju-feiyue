@@ -107,7 +107,7 @@ export function RightRail() {
         <ul className="space-y-1.5">
           {computed.timeline.map(([day, count]) => (
             <li key={day} className="flex items-center gap-2 text-xs text-text-muted">
-              <span className="w-12 shrink-0 text-text-faint tabular-nums">
+              <span className="w-16 shrink-0 text-text-faint tabular-nums">
                 {formatTimelineDay(day)}
               </span>
               <span className="flex-1 rounded-sm bg-bg-subtle">
