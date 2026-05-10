@@ -44,9 +44,9 @@ export function CodeBlock({ code, language, className, highlightedChildren }: Pr
   }
 
   return (
-    <pre className={cn('group relative', className)}>
+    <pre className={cn('group relative leading-7', className)}>
       {language ? (
-        <span className="absolute left-3 top-2 select-none font-mono text-xs text-text-faint">
+        <span className="pointer-events-none absolute left-2.5 top-2 select-none rounded-sm bg-bg px-1.5 py-0.5 font-mono text-[10.5px] uppercase tracking-wider text-text-faint">
           {language}
         </span>
       ) : null}
@@ -55,18 +55,26 @@ export function CodeBlock({ code, language, className, highlightedChildren }: Pr
         onClick={onCopy}
         aria-label={copied ? 'Copied to clipboard' : 'Copy code to clipboard'}
         className={cn(
-          'absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm bg-bg-subtle px-2 py-1 text-xs text-text-muted opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          'absolute right-2 top-2 inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs transition focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          copied
+            ? 'bg-emerald-50 text-emerald-700 opacity-100'
+            : 'bg-bg text-text-muted opacity-0 group-hover:opacity-100 group-focus-within:opacity-100',
         )}
       >
-        {copied ? <Check size={12} aria-hidden /> : <Copy size={12} aria-hidden />}
+        {copied ? (
+          <Check size={12} aria-hidden className="text-emerald-600" />
+        ) : (
+          <Copy size={12} aria-hidden />
+        )}
         {copied ? 'Copied' : 'Copy'}
       </button>
       <code
         className={cn(
           'block',
           language ? `language-${language}` : undefined,
-          // 给左上 lang label 让位，避免代码首行被 label 覆盖
-          language ? 'pt-5' : undefined,
+          // pt-8 makes room for the absolute lang label + copy button without
+          // the first code line crashing into them.
+          language ? 'pt-8' : undefined,
         )}
       >
         {highlightedChildren ?? code}
