@@ -60,8 +60,12 @@ export function NoteDetailPage() {
       <p className="mb-6 text-base leading-relaxed text-text-muted">{note.summary}</p>
 
       <div className="mb-8 flex items-center gap-3 border-y border-border py-3 text-sm">
-        <span className="inline-flex size-7 items-center justify-center rounded-full bg-bg-subtle text-xs font-medium text-text">
-          {note.author.nickname.slice(0, 2).toUpperCase()}
+        <span className="inline-flex size-7 items-center justify-center overflow-hidden rounded-full bg-bg-subtle text-xs font-medium text-text">
+          {note.author.avatar ? (
+            <img src={note.author.avatar} alt="" className="size-full object-cover" />
+          ) : (
+            note.author.nickname.slice(0, 2).toUpperCase()
+          )}
         </span>
         <span className="text-text">{note.author.nickname}</span>
         <span className="ml-auto inline-flex items-center gap-4 text-xs text-text-faint">

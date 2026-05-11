@@ -18,7 +18,10 @@ export function RightRail() {
   const computed = useMemo(() => {
     if (!r.data) return null
     const tagFreq = new Map<string, number>()
-    const authorMap = new Map<string, { id: string; name: string; count: number }>()
+    const authorMap = new Map<
+      string,
+      { id: string; name: string; avatar: string | null; count: number }
+    >()
     const dayMap = new Map<string, Note[]>()
 
     for (const note of r.data) {
@@ -28,6 +31,7 @@ export function RightRail() {
       const a = authorMap.get(note.author.sid) ?? {
         id: note.author.sid,
         name: note.author.nickname,
+        avatar: note.author.avatar ?? null,
         count: 0,
       }
       a.count += 1
@@ -98,8 +102,12 @@ export function RightRail() {
           {computed.activeAuthors.map((a) => (
             <li key={a.id} className="flex items-center justify-between text-sm">
               <span className="inline-flex items-center gap-2 text-text-muted">
-                <span className="inline-flex size-6 items-center justify-center rounded-full bg-bg-subtle text-[10px] font-medium text-text">
-                  {a.name.slice(0, 2).toUpperCase()}
+                <span className="inline-flex size-6 items-center justify-center overflow-hidden rounded-full bg-bg-subtle text-[10px] font-medium text-text">
+                  {a.avatar ? (
+                    <img src={a.avatar} alt="" className="size-full object-cover" />
+                  ) : (
+                    a.name.slice(0, 2).toUpperCase()
+                  )}
                 </span>
                 {a.name}
               </span>

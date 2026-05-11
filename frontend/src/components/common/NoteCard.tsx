@@ -57,8 +57,12 @@ export function NoteCard({
       )}
       <div className="mt-auto flex items-center justify-between text-xs text-text-faint">
         <span className="inline-flex items-center gap-1.5">
-          <span className="inline-flex size-5 items-center justify-center rounded-full bg-bg-subtle text-[10px] font-medium text-text">
-            {note.author.nickname.slice(0, 2).toUpperCase()}
+          <span className="inline-flex size-5 items-center justify-center overflow-hidden rounded-full bg-bg-subtle text-[10px] font-medium text-text">
+            {note.author.avatar ? (
+              <img src={note.author.avatar} alt="" className="size-full object-cover" />
+            ) : (
+              note.author.nickname.slice(0, 2).toUpperCase()
+            )}
           </span>
           <span className="text-text-muted">{note.author.nickname}</span>
           <span aria-hidden>·</span>
