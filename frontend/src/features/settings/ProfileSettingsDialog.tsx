@@ -48,7 +48,10 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
   const [changingPwd, setChangingPwd] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Hydrate form whenever we open with a fresh user.
+  // Hydrate form fields ONLY on the false→true edge of `open`. If we
+  // re-ran whenever `user` changed (e.g. after an avatar upload while
+  // the dialog is still open) any in-progress edits in the text fields
+  // would silently get clobbered with the stored values.
   useEffect(() => {
     if (!open || !user) return
     setNickname(user.nickname)
@@ -59,7 +62,8 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
     setBio(user.bio ?? '')
     setCurrentPassword('')
     setNewPassword('')
-  }, [open, user])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   if (!user) return null
 
