@@ -49,7 +49,7 @@ const BRAND_PANEL_BG_STYLE: CSSProperties = {
 export function BrandPanel() {
   return (
     <aside
-      aria-label="LabNotes 简介"
+      aria-label="Feiyue 简介"
       data-brand-panel
       className="relative hidden select-none overflow-hidden lg:col-span-7 lg:flex lg:flex-col lg:justify-center lg:px-24 lg:py-20 xl:px-32"
       style={BRAND_PANEL_BG_STYLE}
@@ -60,7 +60,7 @@ export function BrandPanel() {
           className="inline-flex items-center gap-2 font-serif text-[18px] font-semibold text-text"
         >
           <NotebookPen size={20} strokeWidth={1.75} aria-hidden />
-          LabNotes
+          Feiyue
         </Link>
 
         <h1 className="mt-10 max-w-[16ch] font-serif text-[44px] font-semibold leading-[1] tracking-[-0.02em] text-text xl:text-[56px]">

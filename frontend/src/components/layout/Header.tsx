@@ -37,10 +37,10 @@ export function Header() {
       <Link
         to="/"
         className="flex items-center gap-2 font-medium text-text"
-        aria-label="LabNotes 首页"
+        aria-label="Feiyue 首页"
       >
         <NotebookPen size={18} strokeWidth={1.75} aria-hidden />
-        <span className="font-serif text-base">LabNotes</span>
+        <span className="font-serif text-base">Feiyue</span>
       </Link>
 
       <nav aria-label="主导航" className="flex items-center gap-1">
@@ -49,11 +49,7 @@ export function Header() {
         <NavItem to="/write" label="写作" />
       </nav>
 
-      <form
-        role="search"
-        onSubmit={onSearch}
-        className="ml-auto flex w-60 max-w-full items-center"
-      >
+      <form role="search" onSubmit={onSearch} className="ml-auto flex w-60 max-w-full items-center">
         <label htmlFor="header-search" className="sr-only">
           搜索笔记
         </label>
