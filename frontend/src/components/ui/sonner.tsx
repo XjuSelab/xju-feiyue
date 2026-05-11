@@ -1,37 +1,29 @@
-'use client'
+"use client"
 
-import { useTheme } from 'next-themes'
-import { Toaster as Sonner, type ToasterProps } from 'sonner'
+import { useTheme } from "next-themes"
+import { Toaster as Sonner } from "sonner"
 
-/**
- * Site-wide Sonner toaster — mounted once in App.tsx.
- *
- * Keep customization minimal: only retint the surface to match the
- * design tokens. Over-aggressive className overrides in earlier
- * iterations interfered with sonner's internal layout and the toast
- * <ol> never made it to the DOM at all.
- */
+type ToasterProps = React.ComponentProps<typeof Sonner>
+
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = 'system' } = useTheme()
+  const { theme = "system" } = useTheme()
 
   return (
     // @ts-expect-error shadcn-generated: theme prop required but useTheme() may yield undefined under exactOptionalPropertyTypes
     <Sonner
-      theme={theme as ToasterProps['theme']}
+      theme={theme as ToasterProps["theme"]}
       className="toaster group"
       toastOptions={{
         classNames: {
           toast:
-            'group toast group-[.toaster]:bg-bg group-[.toaster]:text-text group-[.toaster]:border group-[.toaster]:border-border group-[.toaster]:shadow-md',
-          description: 'group-[.toast]:text-text-muted',
+            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+          description: "group-[.toast]:text-muted-foreground",
           actionButton:
-            'group-[.toast]:bg-text group-[.toast]:text-white',
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
-            'group-[.toast]:bg-bg-subtle group-[.toast]:text-text-muted',
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
-      // 320 px keeps toasts unobtrusive at the bottom-right corner.
-      style={{ '--width': '320px' } as React.CSSProperties}
       {...props}
     />
   )
