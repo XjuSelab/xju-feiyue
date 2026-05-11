@@ -64,12 +64,12 @@ export function BrandPanel() {
         </Link>
 
         <h1 className="mt-10 max-w-[16ch] font-serif text-[44px] font-semibold leading-[1] tracking-[-0.02em] text-text xl:text-[56px]">
-          把今天的实验，
+          踏前人之路，
           <br />
-          写成下次能直接抄的作业。
+          追未尽之远。
         </h1>
         <p className="mt-4 max-w-[42ch] text-[16px] leading-[1.5] text-text-muted">
-          科研 · 课程 · 推免 · 竞赛 · Kaggle · 工具 · 生活 —— 七类笔记，一个共享笔记本。
+          新疆大学飞跃手册 · 七类经验 一站汇聚：科研 · 课程 · 推免 · 竞赛 · Kaggle · 工具 · 生活。
         </p>
       </header>
 
@@ -101,6 +101,8 @@ export function BrandPanel() {
           ))}
         </ul>
         <p className="mt-6 text-[12.5px] text-text-faint">
+          接力站 · 欢迎每一位愿意分享的你
+          <br />
           登录后可写作 · 收藏 · 评论；游客仅可浏览。
         </p>
       </footer>
