@@ -87,10 +87,8 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
         setUser(next)
       }
       onOpenChange(false)
-      // Defer the toast to a fresh microtask AFTER dialog teardown
-      // — Radix's close cleanup can swallow toasts otherwise.
       if (changed) {
-        setTimeout(() => toast.success('已保存'), 0)
+        setTimeout(() => toast.success('已保存', { duration: 10000 }), 100)
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '保存失败')
