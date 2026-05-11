@@ -1,9 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { Tag, Users } from 'lucide-react'
 import { useLatestNotes } from '@/api'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { useBrowseParams } from './useBrowseParams'
 import { cn } from '@/lib/cn'
+import type { Note } from '@/api/schemas/note'
 
 /**
  * RightRail — 右侧栏：热门标签 / 活跃作者 / 时间线（轻量本地聚合，
@@ -17,7 +19,7 @@ export function RightRail() {
     if (!r.data) return null
     const tagFreq = new Map<string, number>()
     const authorMap = new Map<string, { id: string; name: string; count: number }>()
-    const timeline = new Map<string, number>()
+    const dayMap = new Map<string, Note[]>()
 
     for (const note of r.data) {
       for (const tag of note.tags) {
@@ -31,7 +33,9 @@ export function RightRail() {
       a.count += 1
       authorMap.set(note.author.id, a)
       const day = note.createdAt.slice(0, 10)
-      timeline.set(day, (timeline.get(day) ?? 0) + 1)
+      const arr = dayMap.get(day) ?? []
+      arr.push(note)
+      dayMap.set(day, arr)
     }
 
     return {
@@ -41,9 +45,10 @@ export function RightRail() {
       activeAuthors: Array.from(authorMap.values())
         .sort((a, b) => b.count - a.count)
         .slice(0, 5),
-      timeline: Array.from(timeline.entries())
+      dayGroups: Array.from(dayMap.entries())
         .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-        .slice(0, 7),
+        .slice(0, 7)
+        .map(([day, notes]) => ({ day, notes })),
     }
   }, [r.data])
 
@@ -104,22 +109,40 @@ export function RightRail() {
 
       <section>
         <RailHeader label="近 7 日发布" />
-        <ul className="space-y-1.5">
-          {computed.timeline.map(([day, count]) => (
-            <li key={day} className="flex items-center gap-2 text-xs text-text-muted">
-              <span className="w-16 shrink-0 text-text-faint tabular-nums">
-                {formatTimelineDay(day)}
-              </span>
-              <span className="flex-1 rounded-sm bg-bg-subtle">
+        <ol className="relative space-y-3">
+          {computed.dayGroups.map((group, i) => {
+            const isFirst = i === 0
+            const isLast = i === computed.dayGroups.length - 1
+            return (
+              <li key={group.day} className="relative pl-4">
                 <span
-                  className="block h-1.5 rounded-sm bg-text"
-                  style={{ width: `${Math.min(100, count * 25)}%` }}
+                  aria-hidden
+                  className={cn(
+                    'absolute left-0 top-[5px] size-1.5 rounded-full',
+                    isFirst ? 'bg-text' : 'border border-border-strong bg-bg',
+                  )}
                 />
-              </span>
-              <span className="w-4 text-right tabular-nums">{count}</span>
-            </li>
-          ))}
-        </ul>
+                {!isLast && (
+                  <span aria-hidden className="absolute left-[2.5px] top-3 h-full w-px bg-border" />
+                )}
+                <div className="text-xs text-text-faint">{formatGroupDay(group.day)}</div>
+                <ul className="mt-1 space-y-0.5">
+                  {group.notes.map((n) => (
+                    <li key={n.id}>
+                      <Link
+                        to={`/note/${n.id}`}
+                        className="block truncate text-xs text-text-muted transition hover:text-text"
+                        title={n.title}
+                      >
+                        {n.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            )
+          })}
+        </ol>
       </section>
     </aside>
   )
@@ -127,7 +150,7 @@ export function RightRail() {
 
 const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
-function formatTimelineDay(day: string): string {
+function formatGroupDay(day: string): ReactNode {
   const [y, m, d] = day.split('-').map(Number)
   if (!y || !m || !d) return day
   const date = new Date(y, m - 1, d)
@@ -137,10 +160,16 @@ function formatTimelineDay(day: string): string {
   if (diffDays === 0) return '今天'
   if (diffDays === 1) return '昨天'
   if (diffDays >= 2 && diffDays <= 6) return WEEKDAYS[date.getDay()]
-  // U+2007 (figure space) matches digit width — pads single-digit M/D so
-  // 4月4日 aligns column-wise with 4月10日 / 12月10日 in a tabular-nums font.
-  const pad = (n: number) => (n < 10 ? `\u2007${n}` : `${n}`)
-  return `${pad(m)}月${pad(d)}日`
+  // Render the day digit in a fixed-width slot (text-center) so a single
+  // digit like `4` sits centered between 月 and 日 instead of being awkwardly
+  // pinned to one side.
+  return (
+    <span className="inline-flex items-baseline tabular-nums">
+      <span>{m}月</span>
+      <span className="inline-block w-5 text-center">{d}</span>
+      <span>日</span>
+    </span>
+  )
 }
 
 function RailHeader({ icon: Icon, label }: { icon?: typeof Tag; label: string }) {
