@@ -69,7 +69,7 @@ export function BrandPanel() {
           追未尽之远。
         </h1>
         <p className="mt-4 max-w-[42ch] text-[16px] leading-[1.5] text-text-muted">
-          新疆大学飞跃手册 · 七类经验 一站汇聚：科研 · 课程 · 推免 · 竞赛 · Kaggle · 工具 · 生活。
+          接力站 · 欢迎每一位愿意分享的你。
         </p>
       </header>
 
@@ -101,8 +101,6 @@ export function BrandPanel() {
           ))}
         </ul>
         <p className="mt-6 text-[12.5px] text-text-faint">
-          接力站 · 欢迎每一位愿意分享的你
-          <br />
           登录后可写作 · 收藏 · 评论；游客仅可浏览。
         </p>
       </footer>
