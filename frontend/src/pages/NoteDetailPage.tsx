@@ -61,8 +61,12 @@ export function NoteDetailPage() {
 
       <div className="mb-8 flex items-center gap-3 border-y border-border py-3 text-sm">
         <span className="inline-flex size-7 items-center justify-center overflow-hidden rounded-full bg-bg-subtle text-xs font-medium text-text">
-          {note.author.avatar ? (
-            <img src={note.author.avatar} alt="" className="size-full object-cover" />
+          {note.author.avatarThumb || note.author.avatar ? (
+            <img
+              src={note.author.avatarThumb ?? note.author.avatar ?? ''}
+              alt=""
+              className="size-full object-cover"
+            />
           ) : (
             note.author.nickname.slice(0, 2).toUpperCase()
           )}

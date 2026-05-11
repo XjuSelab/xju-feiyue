@@ -15,6 +15,7 @@ class UserOut(CamelModel):
     name: str
     nickname: str
     avatar: str | None = None
+    avatar_thumb: str | None = None
     bio: str | None = None
     wechat: str | None = None
     phone: str | None = None
@@ -27,6 +28,7 @@ class NoteAuthorOut(CamelModel):
     sid: str
     nickname: str
     avatar: str | None = None
+    avatar_thumb: str | None = None
 
 
 class LoginIn(CamelModel):

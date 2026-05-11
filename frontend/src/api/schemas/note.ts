@@ -20,6 +20,8 @@ export const NoteAuthorSchema = z.object({
   sid: z.string(),
   nickname: z.string(),
   avatar: z.string().url().nullish(),
+  /** Server-side downscale (~160 px). Prefer this for tiny chips. */
+  avatarThumb: z.string().url().nullish(),
 })
 export type NoteAuthor = z.infer<typeof NoteAuthorSchema>
 

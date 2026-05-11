@@ -65,6 +65,7 @@ def to_note_out(note: Note, likes: int, comments: int) -> NoteOut:
             sid=note.author.sid,
             nickname=note.author.nickname,
             avatar=note.author.avatar,
+            avatar_thumb=note.author.avatar_thumb,
         ),
         created_at=note.created_at,
         likes=likes,

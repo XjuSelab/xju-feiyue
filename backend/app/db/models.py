@@ -60,6 +60,10 @@ class User(Base):
     # seeded equal to `name` on first registration.
     nickname: Mapped[str] = mapped_column(String(120), nullable=False)
     avatar: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # Server-generated 160px thumbnail derived from `avatar` on upload.
+    # Cards / lists use this so we're not making the browser downsample a
+    # 4 K portrait into a 20 px chip.
+    avatar_thumb: Mapped[str | None] = mapped_column(String(512), nullable=True)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     wechat: Mapped[str | None] = mapped_column(String(64), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(32), nullable=True)

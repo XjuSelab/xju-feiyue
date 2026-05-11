@@ -21,6 +21,7 @@ dependencies = [
   "aiosqlite>=0.20",
   "pyyaml>=6",
   "python-multipart>=0.0.9",
+  "pillow>=10",
 ]
 
 [dependency-groups]

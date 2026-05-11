@@ -81,9 +81,9 @@ export function Header() {
               aria-label="账户菜单"
               className="inline-flex size-8 items-center justify-center rounded-full bg-bg-subtle text-sm font-medium text-text transition hover:bg-border"
             >
-              {user.avatar ? (
+              {user.avatarThumb || user.avatar ? (
                 <img
-                  src={user.avatar}
+                  src={user.avatarThumb ?? user.avatar ?? ''}
                   alt={user.nickname}
                   className="size-full rounded-full object-cover"
                 />

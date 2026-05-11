@@ -11,6 +11,8 @@ export const UserSchema = z.object({
   name: z.string(),
   nickname: z.string(),
   avatar: z.string().url().nullish(),
+  /** Server-side downscale (~160 px). Prefer this for tiny chips. */
+  avatarThumb: z.string().url().nullish(),
   bio: z.string().nullish(),
   wechat: z.string().nullish(),
   phone: z.string().nullish(),

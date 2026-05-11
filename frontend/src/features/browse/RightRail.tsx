@@ -22,6 +22,9 @@ export function RightRail() {
       string,
       { id: string; name: string; avatar: string | null; count: number }
     >()
+    // Local helper — match the card's preference: tiny chip = thumb if any.
+    const pickAvatar = (a: { avatar?: string | null; avatarThumb?: string | null }) =>
+      a.avatarThumb ?? a.avatar ?? null
     const dayMap = new Map<string, Note[]>()
 
     for (const note of r.data) {
@@ -31,7 +34,7 @@ export function RightRail() {
       const a = authorMap.get(note.author.sid) ?? {
         id: note.author.sid,
         name: note.author.nickname,
-        avatar: note.author.avatar ?? null,
+        avatar: pickAvatar(note.author),
         count: 0,
       }
       a.count += 1
