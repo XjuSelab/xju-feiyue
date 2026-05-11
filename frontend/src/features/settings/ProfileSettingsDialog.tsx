@@ -81,15 +81,12 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
       if (email !== (user.email ?? '')) patch.email = email.trim()
       if (bio !== (user.bio ?? '')) patch.bio = bio.trim()
 
-      const changed = Object.keys(patch).length > 0
-      if (changed) {
+      if (Object.keys(patch).length > 0) {
         const next = await authApi.updateMe(patch)
         setUser(next)
+        toast.success('已保存')
       }
       onOpenChange(false)
-      if (changed) {
-        setTimeout(() => toast.success('已保存', { duration: 10000 }), 100)
-      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '保存失败')
     } finally {
