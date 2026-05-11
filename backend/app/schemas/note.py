@@ -16,6 +16,7 @@ class NoteAuthorOut(CamelModel):
     sid: str
     nickname: str
     avatar: str | None = None
+    avatar_thumb: str | None = None
 
 
 class NoteOut(CamelModel):
