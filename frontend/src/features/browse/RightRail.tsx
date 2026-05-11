@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Tag, Users } from 'lucide-react'
 import { useLatestNotes } from '@/api'
@@ -45,10 +45,12 @@ export function RightRail() {
       activeAuthors: Array.from(authorMap.values())
         .sort((a, b) => b.count - a.count)
         .slice(0, 5),
-      dayGroups: Array.from(dayMap.entries())
-        .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-        .slice(0, 7)
-        .map(([day, notes]) => ({ day, notes })),
+      dayGroups: capDayGroups(
+        Array.from(dayMap.entries())
+          .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+          .map(([day, notes]) => ({ day, notes })),
+        5,
+      ),
     }
   }, [r.data])
 
@@ -108,7 +110,7 @@ export function RightRail() {
       </section>
 
       <section>
-        <RailHeader label="近 7 日发布" />
+        <RailHeader label="近期发布" />
         <ol className="relative space-y-3">
           {computed.dayGroups.map((group, i) => {
             const isFirst = i === 0
@@ -151,9 +153,7 @@ export function RightRail() {
   )
 }
 
-const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-
-function formatGroupDay(day: string): ReactNode {
+function formatGroupDay(day: string): string {
   const [y, m, d] = day.split('-').map(Number)
   if (!y || !m || !d) return day
   const date = new Date(y, m - 1, d)
@@ -162,21 +162,22 @@ function formatGroupDay(day: string): ReactNode {
   const diffDays = Math.floor((today.getTime() - date.getTime()) / 86_400_000)
   if (diffDays === 0) return '今天'
   if (diffDays === 1) return '昨天'
-  if (diffDays >= 2 && diffDays <= 6) return WEEKDAYS[date.getDay()]
-  // Both month and day live in 2-digit-wide slots (~16px at text-xs),
-  // both right-aligned, so the digit's right edge hugs the unit char
-  // (M→月 and D→日 both have zero gap). Single-digit values get their
-  // padding on the *outer* side of the unit (left of the number),
-  // which is the only configuration that keeps M↔月 and D↔日 gaps
-  // identical regardless of digit count.
-  return (
-    <span className="inline-flex items-baseline tabular-nums">
-      <span className="inline-block w-4 text-right">{m}</span>
-      <span>月</span>
-      <span className="inline-block w-4 text-right">{d}</span>
-      <span>日</span>
-    </span>
-  )
+  return `${diffDays} 天前`
+}
+
+function capDayGroups(
+  groups: { day: string; notes: Note[] }[],
+  maxNotes: number,
+): { day: string; notes: Note[] }[] {
+  const out: { day: string; notes: Note[] }[] = []
+  let used = 0
+  for (const g of groups) {
+    if (used >= maxNotes) break
+    const take = g.notes.slice(0, maxNotes - used)
+    out.push({ day: g.day, notes: take })
+    used += take.length
+  }
+  return out
 }
 
 function RailHeader({ icon: Icon, label }: { icon?: typeof Tag; label: string }) {
