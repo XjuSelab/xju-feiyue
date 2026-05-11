@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     # `${public_base_url}/uploads/avatars/foo.png`. Override per env.
     public_base_url: str = "http://localhost:8000"
 
+    # Daily author-alignment job (see app/services/author_sync.py). Tests
+    # disable this to keep the lifespan deterministic and avoid noisy log
+    # output when the test DB schema isn't fully set up.
+    author_sync_enabled: bool = True
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [s.strip() for s in self.cors_origins.split(",") if s.strip()]

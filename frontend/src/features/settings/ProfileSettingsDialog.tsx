@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import * as authApi from '@/api/endpoints/auth'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,15 @@ type Props = {
 export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
   const user = useAuthStore((s) => s.user)
   const setUser = (u: NonNullable<typeof user>) => useAuthStore.setState((s) => ({ ...s, user: u }))
+  const queryClient = useQueryClient()
+  // After the user edits nickname/avatar etc, every note card / detail
+  // page currently rendered still shows the stale author (React Query's
+  // 30s staleTime). Invalidating both keys forces a refetch on next render
+  // so the rest of the UI catches up immediately.
+  const refreshAuthorAwareQueries = () => {
+    void queryClient.invalidateQueries({ queryKey: ['notes'] })
+    void queryClient.invalidateQueries({ queryKey: ['note'] })
+  }
 
   const [nickname, setNickname] = useState('')
   const [name, setName] = useState('')
@@ -84,6 +94,7 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
       if (Object.keys(patch).length > 0) {
         const next = await authApi.updateMe(patch)
         setUser(next)
+        refreshAuthorAwareQueries()
         toast.success('已保存')
       }
       onOpenChange(false)
@@ -104,6 +115,7 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
     try {
       const next = await authApi.uploadAvatar(file)
       setUser(next)
+      refreshAuthorAwareQueries()
       toast.success('头像已更新')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '头像上传失败')

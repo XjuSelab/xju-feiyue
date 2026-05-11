@@ -13,6 +13,7 @@ from collections.abc import AsyncGenerator
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 os.environ.setdefault("JWT_SECRET", "test-secret-do-not-use-in-prod")
 os.environ.setdefault("DEEPSEEK_DRY_RUN", "1")
+os.environ.setdefault("AUTHOR_SYNC_ENABLED", "0")
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
