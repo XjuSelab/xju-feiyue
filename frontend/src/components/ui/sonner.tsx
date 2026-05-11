@@ -4,14 +4,12 @@ import { useTheme } from 'next-themes'
 import { Toaster as Sonner, type ToasterProps } from 'sonner'
 
 /**
- * Site-wide Sonner toaster. Mounted once in App.tsx.
+ * Site-wide Sonner toaster — mounted once in App.tsx.
  *
- * Surface tokens (bg/border/text) hook directly into the project's
- * `--color-bg / --color-text / --line-strong` instead of shadcn's
- * `--background / --foreground / --border` so toasts visually match
- * the rest of the cards / popovers. Variant cues (success/error/etc.)
- * come from a 2 px left-border accent in the matching category color
- * + sonner's own leading icon — no flood-fill richColors.
+ * Keep customization minimal: only retint the surface to match the
+ * design tokens. Over-aggressive className overrides in earlier
+ * iterations interfered with sonner's internal layout and the toast
+ * <ol> never made it to the DOM at all.
  */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme()
@@ -22,27 +20,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps['theme']}
       className="toaster group"
       toastOptions={{
-        // Surface — let sonner's own layout handle widths / spacing,
-        // we just retint the colors.
-        style: {
-          background: 'var(--color-bg)',
-          color: 'var(--color-text)',
-          border: '1px solid var(--line-strong)',
-          borderLeftWidth: '2px',
-          fontSize: '13px',
-          padding: '10px 12px',
-          minHeight: '40px',
-        },
         classNames: {
-          description: 'text-[12px] text-text-muted',
-          success: '!border-l-[var(--cat-life)]',
-          error: '!border-l-[var(--cat-research)]',
-          info: '!border-l-[var(--color-link)]',
-          warning: '!border-l-[var(--cat-kaggle)]',
+          toast:
+            'group toast group-[.toaster]:bg-bg group-[.toaster]:text-text group-[.toaster]:border group-[.toaster]:border-border group-[.toaster]:shadow-md',
+          description: 'group-[.toast]:text-text-muted',
+          actionButton:
+            'group-[.toast]:bg-text group-[.toast]:text-white',
+          cancelButton:
+            'group-[.toast]:bg-bg-subtle group-[.toast]:text-text-muted',
         },
       }}
-      // 320 px is narrower than sonner's default ~356 px — keeps toasts
-      // unobtrusive at the bottom-right corner.
+      // 320 px keeps toasts unobtrusive at the bottom-right corner.
       style={{ '--width': '320px' } as React.CSSProperties}
       {...props}
     />

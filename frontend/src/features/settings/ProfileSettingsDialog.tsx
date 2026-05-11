@@ -84,7 +84,9 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
       if (Object.keys(patch).length > 0) {
         const next = await authApi.updateMe(patch)
         setUser(next)
+        console.log('[ProfileSettings] about to fire toast.success')
         toast.success('已保存')
+        console.log('[ProfileSettings] toast.success fired')
       }
       onOpenChange(false)
     } catch (err) {
