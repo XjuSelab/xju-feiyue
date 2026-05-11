@@ -1,20 +1,17 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { Toaster as Sonner } from 'sonner'
-
-type ToasterProps = React.ComponentProps<typeof Sonner>
+import { Toaster as Sonner, type ToasterProps } from 'sonner'
 
 /**
- * Site-wide Sonner toaster.
+ * Site-wide Sonner toaster. Mounted once in App.tsx.
  *
- * Visual rules (kept in lock-step with the rest of the design system):
- * - Width: 320 px — narrower than sonner's default ~356 px so it doesn't
- *   crowd corner content.
- * - Surface: `bg-bg` + `border-border` so toasts look like the rest of
- *   our cards / popovers; no shadcn `bg-background` mismatch.
- * - Status: skip sonner's `richColors` flood-fill (too pop-up-y); convey
- *   variant via a 2 px left-border accent + the leading icon's color.
+ * Surface tokens (bg/border/text) hook directly into the project's
+ * `--color-bg / --color-text / --line-strong` instead of shadcn's
+ * `--background / --foreground / --border` so toasts visually match
+ * the rest of the cards / popovers. Variant cues (success/error/etc.)
+ * come from a 2 px left-border accent in the matching category color
+ * + sonner's own leading icon — no flood-fill richColors.
  */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme()
@@ -24,32 +21,29 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps['theme']}
       className="toaster group"
-      style={{ '--width': '320px' } as React.CSSProperties}
       toastOptions={{
+        // Surface — let sonner's own layout handle widths / spacing,
+        // we just retint the colors.
+        style: {
+          background: 'var(--color-bg)',
+          color: 'var(--color-text)',
+          border: '1px solid var(--line-strong)',
+          borderLeftWidth: '2px',
+          fontSize: '13px',
+          padding: '10px 12px',
+          minHeight: '40px',
+        },
         classNames: {
-          toast: [
-            'group toast',
-            'group-[.toaster]:!bg-bg group-[.toaster]:!text-text',
-            'group-[.toaster]:!border group-[.toaster]:!border-border',
-            'group-[.toaster]:!rounded-md group-[.toaster]:!shadow-md',
-            'group-[.toaster]:!px-3 group-[.toaster]:!py-2.5',
-            'group-[.toaster]:!gap-2',
-            // Left-edge accent — overridden by variant classNames below.
-            'group-[.toaster]:!border-l-2',
-          ].join(' '),
-          title: 'group-[.toast]:!text-sm group-[.toast]:!font-medium',
-          description: 'group-[.toast]:!text-xs group-[.toast]:!text-text-muted',
-          icon: 'group-[.toast]:!size-4 group-[.toast]:!shrink-0',
-          actionButton:
-            'group-[.toast]:!bg-text group-[.toast]:!text-white group-[.toast]:!text-xs group-[.toast]:!rounded-sm group-[.toast]:!px-2 group-[.toast]:!py-1',
-          cancelButton:
-            'group-[.toast]:!bg-bg-subtle group-[.toast]:!text-text-muted group-[.toast]:!text-xs group-[.toast]:!rounded-sm',
-          success: 'group-[.toaster]:!border-l-cat-life',
-          error: 'group-[.toaster]:!border-l-cat-research',
-          info: 'group-[.toaster]:!border-l-link',
-          warning: 'group-[.toaster]:!border-l-cat-kaggle',
+          description: 'text-[12px] text-text-muted',
+          success: '!border-l-[var(--cat-life)]',
+          error: '!border-l-[var(--cat-research)]',
+          info: '!border-l-[var(--color-link)]',
+          warning: '!border-l-[var(--cat-kaggle)]',
         },
       }}
+      // 320 px is narrower than sonner's default ~356 px — keeps toasts
+      // unobtrusive at the bottom-right corner.
+      style={{ '--width': '320px' } as React.CSSProperties}
       {...props}
     />
   )
