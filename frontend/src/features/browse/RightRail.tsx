@@ -114,16 +114,19 @@ export function RightRail() {
             const isFirst = i === 0
             const isLast = i === computed.dayGroups.length - 1
             return (
-              <li key={group.day} className="relative pl-4">
+              <li key={group.day} className="relative pl-5">
                 <span
                   aria-hidden
                   className={cn(
-                    'absolute left-0 top-[5px] size-1.5 rounded-full',
-                    isFirst ? 'bg-text' : 'border border-border-strong bg-bg',
+                    'absolute left-0 top-[5px] size-2 rounded-full ring-2 ring-bg',
+                    isFirst ? 'bg-text' : 'border border-text-faint bg-bg',
                   )}
                 />
                 {!isLast && (
-                  <span aria-hidden className="absolute left-[2.5px] top-3 h-full w-px bg-border" />
+                  <span
+                    aria-hidden
+                    className="absolute left-[3.5px] top-3 h-full w-px bg-border-strong"
+                  />
                 )}
                 <div className="text-xs text-text-faint">{formatGroupDay(group.day)}</div>
                 <ul className="mt-1 space-y-0.5">
