@@ -81,12 +81,17 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
       if (email !== (user.email ?? '')) patch.email = email.trim()
       if (bio !== (user.bio ?? '')) patch.bio = bio.trim()
 
-      if (Object.keys(patch).length > 0) {
+      const changed = Object.keys(patch).length > 0
+      if (changed) {
         const next = await authApi.updateMe(patch)
         setUser(next)
-        toast.success('已保存')
       }
       onOpenChange(false)
+      // Defer the toast to a fresh microtask AFTER dialog teardown
+      // — Radix's close cleanup can swallow toasts otherwise.
+      if (changed) {
+        setTimeout(() => toast.success('已保存'), 0)
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '保存失败')
     } finally {
