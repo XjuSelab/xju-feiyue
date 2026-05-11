@@ -23,8 +23,12 @@ export function RightRail() {
       { id: string; name: string; avatar: string | null; count: number }
     >()
     // Local helper — match the card's preference: tiny chip = thumb if any.
-    const pickAvatar = (a: { avatar?: string | null; avatarThumb?: string | null }) =>
-      a.avatarThumb ?? a.avatar ?? null
+    // zod's nullish() produces `string | null | undefined`, so we have to
+    // mirror that exactly under `exactOptionalPropertyTypes: true`.
+    const pickAvatar = (a: {
+      avatar?: string | null | undefined
+      avatarThumb?: string | null | undefined
+    }) => a.avatarThumb ?? a.avatar ?? null
     const dayMap = new Map<string, Note[]>()
 
     for (const note of r.data) {
