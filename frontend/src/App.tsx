@@ -27,6 +27,7 @@ export default function App() {
       <RouterProvider router={router} />
       <Toaster
         position="bottom-right"
+        richColors
         style={{ '--width': '320px' } as React.CSSProperties}
       />
     </QueryClientProvider>
