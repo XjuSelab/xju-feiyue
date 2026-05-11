@@ -25,7 +25,10 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-      <Toaster position="top-right" richColors />
+      <Toaster
+        position="bottom-right"
+        style={{ '--width': '320px' } as React.CSSProperties}
+      />
     </QueryClientProvider>
   )
 }
