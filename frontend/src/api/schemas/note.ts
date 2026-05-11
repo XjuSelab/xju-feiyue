@@ -17,8 +17,8 @@ export const CATEGORY_IDS = [
 export const CategoryIdSchema = z.enum(CATEGORY_IDS)
 
 export const NoteAuthorSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  sid: z.string(),
+  nickname: z.string(),
   avatar: z.string().url().nullish(),
 })
 export type NoteAuthor = z.infer<typeof NoteAuthorSchema>

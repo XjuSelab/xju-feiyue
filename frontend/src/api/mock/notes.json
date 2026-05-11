@@ -7,8 +7,8 @@
     "category": "tools",
     "tags": ["Anthropic", "API", "Claude", "工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:52+00:00",
     "likes": 0,
@@ -23,8 +23,8 @@
     "category": "recommend",
     "tags": ["保研", "推免", "国防科技大学", "经验分享"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2025-10-15 00:00:00+00:00",
     "likes": 0,
@@ -39,8 +39,8 @@
     "category": "recommend",
     "tags": ["保研", "推免", "套磁", "经验分享"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2025-10-01 00:00:00+00:00",
     "likes": 0,
@@ -55,8 +55,8 @@
     "category": "tools",
     "tags": ["Claude", "工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-05 15:51:15+00:00",
     "likes": 0,
@@ -71,8 +71,8 @@
     "category": "tools",
     "tags": ["CUDA", "GPU", "深度学习"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:06+00:00",
     "likes": 0,
@@ -87,8 +87,8 @@
     "category": "tools",
     "tags": ["Jupyter", "深度学习"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:51+00:00",
     "likes": 0,
@@ -103,8 +103,8 @@
     "category": "tools",
     "tags": ["Docker", "容器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-05-01 16:29:58+00:00",
     "likes": 0,
@@ -119,8 +119,8 @@
     "category": "tools",
     "tags": ["Docker", "容器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-05-05 20:31:09+00:00",
     "likes": 0,
@@ -135,8 +135,8 @@
     "category": "tools",
     "tags": ["Docker", "容器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-04-22 13:54:13+00:00",
     "likes": 0,
@@ -151,8 +151,8 @@
     "category": "tools",
     "tags": ["ESP32", "嵌入式"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:07+00:00",
     "likes": 0,
@@ -167,8 +167,8 @@
     "category": "tools",
     "tags": ["PyTorch", "GPU", "故障排查"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:08+00:00",
     "likes": 0,
@@ -183,8 +183,8 @@
     "category": "tools",
     "tags": ["frp", "内网穿透"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:50+00:00",
     "likes": 0,
@@ -199,8 +199,8 @@
     "category": "tools",
     "tags": ["Docker", "容器", "Git", "工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:05+00:00",
     "likes": 0,
@@ -215,8 +215,8 @@
     "category": "tools",
     "tags": ["Google", "AI 工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:52+00:00",
     "likes": 0,
@@ -231,8 +231,8 @@
     "category": "tools",
     "tags": ["硬件", "故障排查"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:00+00:00",
     "likes": 0,
@@ -247,8 +247,8 @@
     "category": "tools",
     "tags": ["LLM", "训练", "GPU"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:00+00:00",
     "likes": 0,
@@ -263,8 +263,8 @@
     "category": "tools",
     "tags": ["MatLab", "科学计算"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:49+00:00",
     "likes": 0,
@@ -279,8 +279,8 @@
     "category": "tools",
     "tags": ["Vim", "编辑器", "NeoVim"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:07+00:00",
     "likes": 0,
@@ -295,8 +295,8 @@
     "category": "tools",
     "tags": ["Nginx", "服务器", "部署"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:57+00:00",
     "likes": 0,
@@ -311,8 +311,8 @@
     "category": "tools",
     "tags": ["pnpm", "Node.js", "前端"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:58+00:00",
     "likes": 0,
@@ -327,8 +327,8 @@
     "category": "tools",
     "tags": ["树莓派", "硬件"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:51+00:00",
     "likes": 0,
@@ -343,8 +343,8 @@
     "category": "tools",
     "tags": ["Hailo8", "AI 硬件", "树莓派", "硬件"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-20 16:12:18+00:00",
     "likes": 0,
@@ -359,8 +359,8 @@
     "category": "tools",
     "tags": ["树莓派", "硬件", "AlphaDog", "网络"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-04-02 05:36:10+00:00",
     "likes": 0,
@@ -375,8 +375,8 @@
     "category": "tools",
     "tags": ["Hailo8", "AI 硬件", "树莓派", "硬件"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-04-10 09:43:54+00:00",
     "likes": 0,
@@ -391,8 +391,8 @@
     "category": "tools",
     "tags": ["Hailo8", "AI 硬件", "树莓派", "硬件"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-22 12:58:34+00:00",
     "likes": 0,
@@ -407,8 +407,8 @@
     "category": "tools",
     "tags": ["树莓派", "硬件", "激光雷达", "传感器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-29 10:10:00+00:00",
     "likes": 0,
@@ -423,8 +423,8 @@
     "category": "tools",
     "tags": ["AI 训练", "工程"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:03+00:00",
     "likes": 0,
@@ -439,8 +439,8 @@
     "category": "tools",
     "tags": ["服务器", "Linux"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:50+00:00",
     "likes": 0,
@@ -455,8 +455,8 @@
     "category": "tools",
     "tags": ["Spring-Boot", "Java", "后端"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:52+00:00",
     "likes": 0,
@@ -471,8 +471,8 @@
     "category": "tools",
     "tags": ["SQL", "PostgreSQL", "数据库"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:06+00:00",
     "likes": 0,
@@ -487,8 +487,8 @@
     "category": "tools",
     "tags": ["SSH", "网络", "Docker", "容器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:59+00:00",
     "likes": 0,
@@ -503,8 +503,8 @@
     "category": "tools",
     "tags": ["Linux", "systemctl"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:59+00:00",
     "likes": 0,
@@ -519,8 +519,8 @@
     "category": "tools",
     "tags": ["Tailscale", "VPN", "网络"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-20 16:01:45+00:00",
     "likes": 0,
@@ -535,8 +535,8 @@
     "category": "tools",
     "tags": ["Tailscale", "VPN", "网络"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-20 16:01:45+00:00",
     "likes": 0,
@@ -551,8 +551,8 @@
     "category": "tools",
     "tags": ["速记"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-04-04 08:34:42+00:00",
     "likes": 0,
@@ -567,8 +567,8 @@
     "category": "tools",
     "tags": ["认证", "安全"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-20 16:01:45+00:00",
     "likes": 0,
@@ -583,8 +583,8 @@
     "category": "tools",
     "tags": ["Ubuntu", "Linux"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-20 16:01:45+00:00",
     "likes": 0,
@@ -599,8 +599,8 @@
     "category": "tools",
     "tags": ["uv", "Python", "工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-04-13 10:21:06+00:00",
     "likes": 0,
@@ -615,8 +615,8 @@
     "category": "tools",
     "tags": ["Vim", "编辑器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:55+00:00",
     "likes": 0,
@@ -631,8 +631,8 @@
     "category": "tools",
     "tags": ["Node.js", "前端", "VPS", "服务器"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-10 15:13:05+00:00",
     "likes": 0,
@@ -647,8 +647,8 @@
     "category": "tools",
     "tags": ["Vue", "前端"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:50+00:00",
     "likes": 0,
@@ -663,8 +663,8 @@
     "category": "tools",
     "tags": ["WIP"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:54+00:00",
     "likes": 0,
@@ -679,8 +679,8 @@
     "category": "tools",
     "tags": ["SSH", "网络", "Git", "工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:59+00:00",
     "likes": 0,
@@ -695,8 +695,8 @@
     "category": "tools",
     "tags": ["USB", "WSL", "硬件", "工具"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:44:53+00:00",
     "likes": 0,
@@ -711,8 +711,8 @@
     "category": "course",
     "tags": ["算法", "理论", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:47:46+08:00",
     "likes": 0,
@@ -727,8 +727,8 @@
     "category": "course",
     "tags": ["Android", "编程", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:46:46+08:00",
     "likes": 0,
@@ -743,8 +743,8 @@
     "category": "course",
     "tags": ["汇编", "编程", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:45:46+08:00",
     "likes": 0,
@@ -759,8 +759,8 @@
     "category": "course",
     "tags": ["电路", "硬件", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:44:46+08:00",
     "likes": 0,
@@ -775,8 +775,8 @@
     "category": "course",
     "tags": ["编译", "理论", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:43:46+08:00",
     "likes": 0,
@@ -791,8 +791,8 @@
     "category": "course",
     "tags": ["操作系统", "408", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:42:46+08:00",
     "likes": 0,
@@ -807,8 +807,8 @@
     "category": "course",
     "tags": ["PostgreSQL", "编程", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:41:46+08:00",
     "likes": 0,
@@ -823,8 +823,8 @@
     "category": "course",
     "tags": ["离散数学", "理论基础", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:40:46+08:00",
     "likes": 0,
@@ -839,8 +839,8 @@
     "category": "course",
     "tags": ["嵌入式", "编程", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:39:46+08:00",
     "likes": 0,
@@ -855,8 +855,8 @@
     "category": "course",
     "tags": ["线性代数", "理论基础", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:38:46+08:00",
     "likes": 0,
@@ -871,8 +871,8 @@
     "category": "course",
     "tags": ["Linux", "编程", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:37:46+08:00",
     "likes": 0,
@@ -887,8 +887,8 @@
     "category": "course",
     "tags": ["毛概", "通识", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:36:46+08:00",
     "likes": 0,
@@ -903,8 +903,8 @@
     "category": "course",
     "tags": ["组成原理", "408", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:35:46+08:00",
     "likes": 0,
@@ -919,8 +919,8 @@
     "category": "course",
     "tags": ["Python", "编程", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:34:46+08:00",
     "likes": 0,
@@ -935,8 +935,8 @@
     "category": "course",
     "tags": ["信号", "硬件", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:33:46+08:00",
     "likes": 0,
@@ -951,8 +951,8 @@
     "category": "course",
     "tags": ["软件工程", "理论", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:32:46+08:00",
     "likes": 0,
@@ -967,8 +967,8 @@
     "category": "course",
     "tags": ["习概", "通识", "XJU", "新疆大学"],
     "author": {
-      "id": "usr_sunhaiyang",
-      "name": "孙海洋"
+      "sid": "20180000001",
+      "nickname": "孙海洋"
     },
     "createdAt": "2026-01-22 17:31:46+08:00",
     "likes": 0,
@@ -983,8 +983,8 @@
     "category": "tools",
     "tags": ["Xray", "代理", "网络"],
     "author": {
-      "id": "usr_winbeau",
-      "name": "winbeau"
+      "sid": "20241401231",
+      "nickname": "winbeau"
     },
     "createdAt": "2026-03-02 06:45:04+00:00",
     "likes": 0,

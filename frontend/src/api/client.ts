@@ -82,11 +82,18 @@ export async function request<T>(opts: RequestOpts<T>): Promise<T> {
   } else {
     const url = new URL(`${baseURL}${opts.path}`, window.location.origin)
     queryParams.forEach((v, k) => url.searchParams.set(k, v))
+    const isFormData = opts.body instanceof FormData
     const init: RequestInit = {
       method: opts.method,
-      headers: { 'Content-Type': 'application/json', ...(opts.headers ?? {}) },
+      // Don't set Content-Type for FormData — fetch fills the multipart
+      // boundary automatically; manually setting it would break the boundary.
+      headers: isFormData
+        ? { ...(opts.headers ?? {}) }
+        : { 'Content-Type': 'application/json', ...(opts.headers ?? {}) },
     }
-    if (opts.body !== undefined) init.body = JSON.stringify(opts.body)
+    if (opts.body !== undefined) {
+      init.body = isFormData ? (opts.body as FormData) : JSON.stringify(opts.body)
+    }
     const res = await fetch(url, init)
     if (!res.ok) {
       // 后端约定：错误体形如 { detail: string }（FastAPI 默认）。

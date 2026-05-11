@@ -75,9 +75,9 @@ async def demo_user(db_session: AsyncSession) -> models.User:
     from app.services.auth import hash_password
 
     user = models.User(
-        id="usr_test_zilun",
         sid="20211010001",
         name="Zilun Wei",
+        nickname="zilun",
         password_hash=hash_password("123456"),
         bio="测试账号",
     )
@@ -121,9 +121,9 @@ async def seeded_notes(db_session: AsyncSession) -> dict:
     users = []
     for i in range(4):
         u = models.User(
-            id=f"usr_test_{i:02d}",
             sid=f"2021101000{i + 1}",
             name=f"User {i}",
+            nickname=f"user_{i}",
             password_hash=pwd,
         )
         db_session.add(u)
@@ -148,7 +148,7 @@ async def seeded_notes(db_session: AsyncSession) -> dict:
                 content="",
                 category=cat,
                 tags=tags,
-                author_id=users[0].id,
+                author_sid=users[0].sid,
                 created_at=now - timedelta(days=days),
                 read_minutes=5,
             )
@@ -157,13 +157,13 @@ async def seeded_notes(db_session: AsyncSession) -> dict:
 
     for nid, _cat, _days, n_likes, n_comments, *_rest in spec:
         for j in range(n_likes):
-            db_session.add(models.Like(note_id=nid, user_id=users[j].id))
+            db_session.add(models.Like(note_id=nid, user_sid=users[j].sid))
         for j in range(n_comments):
             db_session.add(
                 models.Comment(
                     id=f"cmt_{nid}_{j}",
                     note_id=nid,
-                    author_id=users[j].id,
+                    author_sid=users[j].sid,
                     content=f"comment {j}",
                 )
             )

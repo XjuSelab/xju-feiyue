@@ -3,6 +3,13 @@
 Revision ID: 0001_init
 Revises:
 Create Date: 2026-05-09
+
+Schema overview:
+  - `users.sid` (11-digit student ID) is the natural primary key. All FK
+    columns (`notes.author_sid`, `drafts.owner_sid`, `likes.user_sid`,
+    `comments.author_sid`) reference it.
+  - `nickname` is what cards / detail pages render; `name` is the legal
+    name and stays editable but is normally hidden.
 """
 from collections.abc import Sequence
 
@@ -20,11 +27,14 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     op.create_table(
         "users",
-        sa.Column("id", sa.String(64), primary_key=True),
-        sa.Column("sid", sa.String(11), nullable=False),
+        sa.Column("sid", sa.String(11), primary_key=True),
         sa.Column("name", sa.String(120), nullable=False),
+        sa.Column("nickname", sa.String(120), nullable=False),
         sa.Column("avatar", sa.String(512), nullable=True),
         sa.Column("bio", sa.Text(), nullable=True),
+        sa.Column("wechat", sa.String(64), nullable=True),
+        sa.Column("phone", sa.String(32), nullable=True),
+        sa.Column("email", sa.String(128), nullable=True),
         sa.Column("password_hash", sa.String(255), nullable=False),
         sa.Column(
             "created_at",
@@ -32,9 +42,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
             nullable=False,
         ),
-        sa.UniqueConstraint("sid", name="uq_users_sid"),
     )
-    op.create_index("ix_users_sid", "users", ["sid"])
 
     op.create_table(
         "notes",
@@ -46,9 +54,9 @@ def upgrade() -> None:
         sa.Column("category", sa.String(20), nullable=False),
         sa.Column("tags", StringList(), nullable=False),
         sa.Column(
-            "author_id",
-            sa.String(64),
-            sa.ForeignKey("users.id", ondelete="CASCADE"),
+            "author_sid",
+            sa.String(11),
+            sa.ForeignKey("users.sid", ondelete="CASCADE"),
             nullable=False,
         ),
         sa.Column(
@@ -66,9 +74,9 @@ def upgrade() -> None:
         "drafts",
         sa.Column("id", sa.String(64), primary_key=True),
         sa.Column(
-            "owner_id",
-            sa.String(64),
-            sa.ForeignKey("users.id", ondelete="CASCADE"),
+            "owner_sid",
+            sa.String(11),
+            sa.ForeignKey("users.sid", ondelete="CASCADE"),
             nullable=False,
         ),
         sa.Column("title", sa.String(255), nullable=False, server_default=""),
@@ -83,7 +91,7 @@ def upgrade() -> None:
             nullable=False,
         ),
     )
-    op.create_index("ix_drafts_owner_id", "drafts", ["owner_id"])
+    op.create_index("ix_drafts_owner_sid", "drafts", ["owner_sid"])
     op.create_index("ix_drafts_updated_at", "drafts", ["updated_at"])
 
     op.create_table(
@@ -95,9 +103,9 @@ def upgrade() -> None:
             primary_key=True,
         ),
         sa.Column(
-            "user_id",
-            sa.String(64),
-            sa.ForeignKey("users.id", ondelete="CASCADE"),
+            "user_sid",
+            sa.String(11),
+            sa.ForeignKey("users.sid", ondelete="CASCADE"),
             primary_key=True,
         ),
         sa.Column(
@@ -106,7 +114,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
             nullable=False,
         ),
-        sa.UniqueConstraint("note_id", "user_id", name="uq_likes_note_user"),
+        sa.UniqueConstraint("note_id", "user_sid", name="uq_likes_note_user"),
     )
 
     op.create_table(
@@ -119,9 +127,9 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
-            "author_id",
-            sa.String(64),
-            sa.ForeignKey("users.id", ondelete="CASCADE"),
+            "author_sid",
+            sa.String(11),
+            sa.ForeignKey("users.sid", ondelete="CASCADE"),
             nullable=False,
         ),
         sa.Column("content", sa.Text(), nullable=False),
@@ -142,10 +150,9 @@ def downgrade() -> None:
     op.drop_table("comments")
     op.drop_table("likes")
     op.drop_index("ix_drafts_updated_at", table_name="drafts")
-    op.drop_index("ix_drafts_owner_id", table_name="drafts")
+    op.drop_index("ix_drafts_owner_sid", table_name="drafts")
     op.drop_table("drafts")
     op.drop_index("ix_notes_created_at", table_name="notes")
     op.drop_index("ix_notes_category", table_name="notes")
     op.drop_table("notes")
-    op.drop_index("ix_users_sid", table_name="users")
     op.drop_table("users")

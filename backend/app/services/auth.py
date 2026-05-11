@@ -1,4 +1,7 @@
-"""Auth helpers — bcrypt password hashing + HS256 JWT issue/decode."""
+"""Auth helpers — bcrypt password hashing + HS256 JWT issue/decode.
+
+JWT payload `sub` is the user's sid (student ID, also the table PK).
+"""
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -20,11 +23,10 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(user_id: str, sid: str) -> str:
+def create_access_token(sid: str) -> str:
     now = datetime.now(timezone.utc)
     payload = {
-        "sub": user_id,
-        "sid": sid,
+        "sub": sid,
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(minutes=settings.jwt_expire_minutes)).timestamp()),
     }
@@ -32,7 +34,7 @@ def create_access_token(user_id: str, sid: str) -> str:
 
 
 def decode_token(token: str) -> str | None:
-    """Return user_id from a valid JWT, or None if invalid/expired."""
+    """Return user sid from a valid JWT, or None if invalid/expired."""
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[ALGO])
     except JWTError:

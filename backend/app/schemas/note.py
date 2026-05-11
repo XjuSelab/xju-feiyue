@@ -11,8 +11,10 @@ CategoryId = Literal[
 
 
 class NoteAuthorOut(CamelModel):
-    id: str
-    name: str
+    """Embedded author payload on /notes — keeps contact fields out of public list."""
+
+    sid: str
+    nickname: str
     avatar: str | None = None
 
 

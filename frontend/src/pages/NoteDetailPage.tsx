@@ -61,9 +61,9 @@ export function NoteDetailPage() {
 
       <div className="mb-8 flex items-center gap-3 border-y border-border py-3 text-sm">
         <span className="inline-flex size-7 items-center justify-center rounded-full bg-bg-subtle text-xs font-medium text-text">
-          {note.author.name.slice(0, 2).toUpperCase()}
+          {note.author.nickname.slice(0, 2).toUpperCase()}
         </span>
-        <span className="text-text">{note.author.name}</span>
+        <span className="text-text">{note.author.nickname}</span>
         <span className="ml-auto inline-flex items-center gap-4 text-xs text-text-faint">
           <span className="inline-flex items-center gap-1">
             <Heart size={12} aria-hidden /> {note.likes}

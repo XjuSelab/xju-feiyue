@@ -136,7 +136,7 @@ function NoteStackCard({ note, index }: { note: Note; index: number }) {
           <Icon size={12} strokeWidth={2} aria-hidden />
           {cat.label}
         </span>
-        <span className="text-[12px] text-text-faint">{note.author.name}</span>
+        <span className="text-[12px] text-text-faint">{note.author.nickname}</span>
       </div>
       <h3 className="mt-2.5 font-serif text-[17px] font-semibold leading-[1.35] text-text">
         {note.title}

@@ -17,11 +17,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 NOTES_DIR = REPO_ROOT / "content" / "notes"
 OUT = REPO_ROOT / "frontend" / "src" / "api" / "mock" / "notes.json"
 
-# Frontmatter `author` (display name) → mock author shape sent to the
-# frontend. Keep ids in lock-step with backend/scripts/seed.py USERS.
+# Frontmatter `author` (nickname) → mock author shape sent to the
+# frontend. Keep sids in lock-step with backend/scripts/seed.py USERS.
 AUTHOR_MAP: dict[str, dict] = {
-    "winbeau": {"id": "usr_winbeau", "name": "winbeau"},
-    "孙海洋":   {"id": "usr_sunhaiyang", "name": "孙海洋"},
+    "winbeau": {"sid": "20241401231", "nickname": "winbeau"},
+    "孙海洋":   {"sid": "20180000001", "nickname": "孙海洋"},
 }
 DEFAULT_AUTHOR = AUTHOR_MAP["winbeau"]
 _FRONT = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
@@ -56,7 +56,7 @@ def main() -> int:
         })
 
     if unknown:
-        print(f"  ! unknown authors → defaulted to {DEFAULT_AUTHOR['name']}: {sorted(unknown)}")
+        print(f"  ! unknown authors → defaulted to {DEFAULT_AUTHOR['nickname']}: {sorted(unknown)}")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     total_chars = sum(len(n["content"]) for n in items)

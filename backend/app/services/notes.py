@@ -33,7 +33,7 @@ async def count_likes(db: AsyncSession, note_ids: Iterable[str]) -> dict[str, in
     if not ids:
         return {}
     stmt = (
-        select(Like.note_id, func.count(Like.user_id))
+        select(Like.note_id, func.count(Like.user_sid))
         .where(Like.note_id.in_(ids))
         .group_by(Like.note_id)
     )
@@ -62,8 +62,8 @@ def to_note_out(note: Note, likes: int, comments: int) -> NoteOut:
         category=cast(CategoryId, note.category),
         tags=list(note.tags or []),
         author=NoteAuthorOut(
-            id=note.author.id,
-            name=note.author.name,
+            sid=note.author.sid,
+            nickname=note.author.nickname,
             avatar=note.author.avatar,
         ),
         created_at=note.created_at,

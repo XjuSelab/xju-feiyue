@@ -25,13 +25,13 @@ export function RightRail() {
       for (const tag of note.tags) {
         tagFreq.set(tag, (tagFreq.get(tag) ?? 0) + 1)
       }
-      const a = authorMap.get(note.author.id) ?? {
-        id: note.author.id,
-        name: note.author.name,
+      const a = authorMap.get(note.author.sid) ?? {
+        id: note.author.sid,
+        name: note.author.nickname,
         count: 0,
       }
       a.count += 1
-      authorMap.set(note.author.id, a)
+      authorMap.set(note.author.sid, a)
       const day = note.createdAt.slice(0, 10)
       const arr = dayMap.get(day) ?? []
       arr.push(note)

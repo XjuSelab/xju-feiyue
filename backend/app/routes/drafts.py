@@ -38,7 +38,7 @@ async def _get_owned_draft(
     draft_id: str, user: User, db: AsyncSession
 ) -> Draft:
     draft = await db.get(Draft, draft_id)
-    if not draft or draft.owner_id != user.id:
+    if not draft or draft.owner_sid != user.sid:
         raise HTTPException(status_code=404, detail="草稿不存在")
     return draft
 
@@ -51,7 +51,7 @@ async def create(
 ) -> DraftOut:
     draft = Draft(
         id=str(uuid4()),
-        owner_id=user.id,
+        owner_sid=user.sid,
         title=body.title or "",
         content=body.content or "",
         category=body.category,
@@ -69,7 +69,7 @@ async def list_mine(
     db: AsyncSession = Depends(get_db),
 ) -> list[DraftOut]:
     stmt = (
-        select(Draft).where(Draft.owner_id == user.id).order_by(Draft.updated_at.desc())
+        select(Draft).where(Draft.owner_sid == user.sid).order_by(Draft.updated_at.desc())
     )
     drafts = (await db.execute(stmt)).scalars().all()
     return [DraftOut.model_validate(d) for d in drafts]
@@ -140,7 +140,7 @@ async def publish(
         content=draft.content,
         category=draft.category,
         tags=list(draft.tags),
-        author_id=user.id,
+        author_sid=user.sid,
         created_at=datetime.now(timezone.utc),
         read_minutes=_read_minutes(draft.content),
     )
@@ -156,7 +156,7 @@ async def publish(
         cover=note.cover,
         category=note.category,  # type: ignore[arg-type]
         tags=list(note.tags),
-        author=NoteAuthorOut(id=user.id, name=user.name, avatar=user.avatar),
+        author=NoteAuthorOut(sid=user.sid, nickname=user.nickname, avatar=user.avatar),
         created_at=note.created_at,
         likes=0,
         comments=0,

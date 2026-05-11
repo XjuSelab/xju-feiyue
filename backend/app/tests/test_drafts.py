@@ -46,12 +46,13 @@ async def test_list_drafts_returns_only_mine(
         id="usr_other",
         sid="20211019999",
         name="Other",
+        nickname="other",
         password_hash=hash_password("123456"),
     )
     db_session.add(other)
     await db_session.flush()
     db_session.add(
-        Draft(id="draft_other", owner_id=other.id, title="other draft")
+        Draft(id="draft_other", owner_sid=other.sid, title="other draft")
     )
     await db_session.commit()
 
@@ -69,15 +70,15 @@ async def test_get_other_users_draft_returns_404(
     db_session: AsyncSession,
 ) -> None:
     other = User(
-        id="usr_other2",
         sid="20211019998",
         name="Other2",
+        nickname="other",
         password_hash=hash_password("123456"),
     )
     db_session.add(other)
     await db_session.flush()
     db_session.add(
-        Draft(id="draft_other2", owner_id=other.id, title="not yours")
+        Draft(id="draft_other2", owner_sid=other.sid, title="not yours")
     )
     await db_session.commit()
 
@@ -193,7 +194,7 @@ async def test_publish_full_round_trip(
     assert note["likes"] == 0
     assert note["comments"] == 0
     assert note["readMinutes"] >= 1
-    assert note["author"]["id"] == "usr_test_zilun"
+    assert note["author"]["sid"] == "20211010001"
     assert note["createdAt"].endswith("Z")
     # Auto summary = first paragraph
     assert note["summary"] == "正文第一段。"
@@ -206,7 +207,7 @@ async def test_publish_full_round_trip(
     # Note row should exist
     note_row = await db_session.get(Note, note["id"])
     assert note_row is not None
-    assert note_row.author_id == "usr_test_zilun"
+    assert note_row.author_sid == "20211010001"
 
 
 async def test_publish_other_user_draft_returns_404(
@@ -215,9 +216,9 @@ async def test_publish_other_user_draft_returns_404(
     db_session: AsyncSession,
 ) -> None:
     other = User(
-        id="usr_other3",
         sid="20211019997",
         name="Other3",
+        nickname="other",
         password_hash=hash_password("123456"),
     )
     db_session.add(other)
@@ -225,7 +226,7 @@ async def test_publish_other_user_draft_returns_404(
     db_session.add(
         Draft(
             id="draft_other3",
-            owner_id=other.id,
+            owner_sid=other.sid,
             title="not mine",
             content="x",
             category="kaggle",
@@ -245,15 +246,15 @@ async def test_patch_other_user_draft_returns_404(
     db_session: AsyncSession,
 ) -> None:
     other = User(
-        id="usr_other4",
         sid="20211019996",
         name="Other4",
+        nickname="other",
         password_hash=hash_password("123456"),
     )
     db_session.add(other)
     await db_session.flush()
     db_session.add(
-        Draft(id="draft_other4", owner_id=other.id, title="locked")
+        Draft(id="draft_other4", owner_sid=other.sid, title="locked")
     )
     await db_session.commit()
 

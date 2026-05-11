@@ -1,3 +1,17 @@
 # Upstream xju-course-wiki source mirror — entirely raw / regenerable via
 # `python scripts/xju_pull.py`. Not tracked.
 scripts/xju_wiki_raw/
+
+# Playwright MCP transient cache (screenshots + console logs).
+.playwright-mcp/
+frontend/playwright/screenshots/
+
+# Local screenshots from manual UI iteration (per-session, regenerable).
+*.png
+
+# Python bytecode cache.
+__pycache__/
+
+# Backend file-uploads (avatars etc.) — not tracked; deploy syncs them
+# via the HF state-sync (or remount the volume in prod).
+backend/uploads/

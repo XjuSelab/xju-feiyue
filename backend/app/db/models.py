@@ -53,11 +53,17 @@ CATEGORY_VALUES = (
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    sid: Mapped[str] = mapped_column(String(11), unique=True, index=True, nullable=False)
+    # Student ID is the natural primary key — 11-digit numeric string.
+    sid: Mapped[str] = mapped_column(String(11), primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
+    # Displayed across the app (cards / detail header / dropdown). Mutable;
+    # seeded equal to `name` on first registration.
+    nickname: Mapped[str] = mapped_column(String(120), nullable=False)
     avatar: Mapped[str | None] = mapped_column(String(512), nullable=True)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    wechat: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(128), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -77,8 +83,8 @@ class Note(Base):
     cover: Mapped[str | None] = mapped_column(String(512), nullable=True)
     category: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     tags: Mapped[list[str]] = mapped_column(StringList(), nullable=False, default=list)
-    author_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    author_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
@@ -94,8 +100,8 @@ class Draft(Base):
     __tablename__ = "drafts"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    owner_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    owner_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False, default="")
     content: Mapped[str] = mapped_column(Text, nullable=False, default="")
@@ -114,13 +120,13 @@ class Draft(Base):
 
 class Like(Base):
     __tablename__ = "likes"
-    __table_args__ = (UniqueConstraint("note_id", "user_id", name="uq_likes_note_user"),)
+    __table_args__ = (UniqueConstraint("note_id", "user_sid", name="uq_likes_note_user"),)
 
     note_id: Mapped[str] = mapped_column(
         ForeignKey("notes.id", ondelete="CASCADE"), primary_key=True
     )
-    user_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -136,8 +142,8 @@ class Comment(Base):
     note_id: Mapped[str] = mapped_column(
         ForeignKey("notes.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    author_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    author_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(

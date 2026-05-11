@@ -20,10 +20,10 @@ async def get_current_user(
     auth = request.headers.get("Authorization", "")
     if not auth.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="未登录")
-    user_id = decode_token(auth[7:])
-    if not user_id:
+    sid = decode_token(auth[7:])
+    if not sid:
         raise HTTPException(status_code=401, detail="Token 无效或已过期")
-    user = await db.get(User, user_id)
+    user = await db.get(User, sid)
     if not user:
         raise HTTPException(status_code=401, detail="用户不存在")
     return user

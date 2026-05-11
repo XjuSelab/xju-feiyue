@@ -1,9 +1,11 @@
 """Seed the DB from content/notes/*.md.
 
-Each markdown file is YAML-frontmatter + body. Authors are looked up by name
-in USERS — winbeau is the demo login account; 孙海洋 (XJU 学长, course wiki
-contributor) signs the imported xju-* notes. Safe to re-run — drops and
-recreates all tables before seeding.
+Each markdown file is YAML-frontmatter + body. The frontmatter `author`
+field is the nickname (what's shown on cards); we resolve nickname →
+user sid here. winbeau is the demo login account; 孙海洋 (XJU 学长,
+course wiki contributor) signs the imported xju-* notes.
+
+Safe to re-run — drops and recreates all tables before seeding.
 """
 from __future__ import annotations
 
@@ -26,25 +28,33 @@ from app.services.auth import hash_password  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTES_DIR = REPO_ROOT / "content" / "notes"
 
+# nickname is the user-visible handle; cards / note details render it.
+# password values land in cleartext in this file on purpose — local-dev only.
 USERS: list[dict] = [
     {
-        "id": "usr_winbeau",
-        "sid": "20211010001",
-        "name": "winbeau",
-        "password": "123456",
+        "sid": "20241401231",
+        "name": "赵文彪",
+        "nickname": "winbeau",
+        "password": "@Winbeau0318",
         "bio": "工程速查 + 深度学习环境配置",
+        "wechat": None,
+        "phone": None,
+        "email": None,
     },
     {
-        "id": "usr_sunhaiyang",
         "sid": "20180000001",
         "name": "孙海洋",
+        "nickname": "孙海洋",
         "password": "123456",
         "bio": "新疆大学课程笔记 · xju-course-wiki 维护者",
+        "wechat": None,
+        "phone": None,
+        "email": None,
     },
 ]
 
-NAME_TO_USER_ID: dict[str, str] = {u["name"]: u["id"] for u in USERS}
-DEFAULT_USER_ID: str = USERS[0]["id"]
+NICKNAME_TO_SID: dict[str, str] = {u["nickname"]: u["sid"] for u in USERS}
+DEFAULT_USER_SID: str = USERS[0]["sid"]
 
 
 _FRONT_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
@@ -64,7 +74,9 @@ def parse_md(path: Path) -> tuple[dict, str]:
 
 async def main() -> None:
     if not NOTES_DIR.is_dir():
-        raise SystemExit(f"missing {NOTES_DIR}; run scripts/notion_pull.py + scripts/wrap_frontmatter.py first")
+        raise SystemExit(
+            f"missing {NOTES_DIR}; run scripts/notion_pull.py + scripts/wrap_frontmatter.py first"
+        )
 
     md_files = sorted(NOTES_DIR.glob("*.md"))
     if not md_files:
@@ -83,11 +95,14 @@ async def main() -> None:
         for u in USERS:
             session.add(
                 User(
-                    id=u["id"],
                     sid=u["sid"],
                     name=u["name"],
+                    nickname=u["nickname"],
                     avatar=None,
                     bio=u["bio"],
+                    wechat=u.get("wechat"),
+                    phone=u.get("phone"),
+                    email=u.get("email"),
                     password_hash=hash_password(u["password"]),
                 )
             )
@@ -102,10 +117,10 @@ async def main() -> None:
                 created_dt = created
             else:
                 raise ValueError(f"{front.get('slug')}: unrecognized createdAt {created!r}")
-            author_name = str(front.get("author") or "").strip()
-            author_id = NAME_TO_USER_ID.get(author_name, DEFAULT_USER_ID)
-            if author_name and author_name not in NAME_TO_USER_ID:
-                unknown_authors.add(author_name)
+            author_nickname = str(front.get("author") or "").strip()
+            author_sid = NICKNAME_TO_SID.get(author_nickname, DEFAULT_USER_SID)
+            if author_nickname and author_nickname not in NICKNAME_TO_SID:
+                unknown_authors.add(author_nickname)
             session.add(
                 Note(
                     id=str(front["id"]),
@@ -115,7 +130,7 @@ async def main() -> None:
                     cover=None,
                     category=str(front.get("category", "tools")),
                     tags=list(front.get("tags") or []),
-                    author_id=author_id,
+                    author_sid=author_sid,
                     created_at=created_dt,
                     read_minutes=int(front.get("readMinutes", 1)),
                 )
@@ -123,11 +138,15 @@ async def main() -> None:
         await session.commit()
 
     if unknown_authors:
-        print(f"  ! unknown authors → defaulted to {DEFAULT_USER_ID}: {sorted(unknown_authors)}")
+        print(
+            f"  ! unknown authors → defaulted to {DEFAULT_USER_SID}: {sorted(unknown_authors)}"
+        )
 
     print(f"seed done: {len(USERS)} users / {len(notes)} notes")
     for u in USERS:
-        print(f"  user: name={u['name']:<10} sid={u['sid']} pw={u['password']}")
+        print(
+            f"  user: sid={u['sid']} name={u['name']:<6} nickname={u['nickname']:<8} pw={u['password']}"
+        )
 
 
 if __name__ == "__main__":

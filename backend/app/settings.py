@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     # crash on plain CSV; sticking to str + a derived list property avoids it.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    # Public base URL the *frontend* uses to reach this API (e.g.
+    # http://localhost:8000). Stored avatar URLs prepend this so an
+    # uploaded file at /uploads/avatars/foo.png renders as
+    # `${public_base_url}/uploads/avatars/foo.png`. Override per env.
+    public_base_url: str = "http://localhost:8000"
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [s.strip() for s in self.cors_origins.split(",") if s.strip()]

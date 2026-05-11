@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Search, NotebookPen, LogOut, User as UserIcon } from 'lucide-react'
+import { Search, NotebookPen, LogOut, Settings, User as UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/cn'
 import { MegaMenu } from './MegaMenu'
+import { ProfileSettingsDialog } from '@/features/settings/ProfileSettingsDialog'
 
 export function Header() {
   const navigate = useNavigate()
@@ -22,6 +23,7 @@ export function Header() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const [query, setQuery] = useState('')
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const onSearch = (e: FormEvent) => {
     e.preventDefault()
@@ -79,12 +81,20 @@ export function Header() {
               aria-label="账户菜单"
               className="inline-flex size-8 items-center justify-center rounded-full bg-bg-subtle text-sm font-medium text-text transition hover:bg-border"
             >
-              {user.name.slice(0, 2).toUpperCase()}
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.nickname}
+                  className="size-full rounded-full object-cover"
+                />
+              ) : (
+                user.nickname.slice(0, 2).toUpperCase()
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel className="flex flex-col">
-              <span className="text-sm">{user.name}</span>
+              <span className="text-sm">{user.nickname}</span>
               <span className="text-xs text-text-faint">{user.sid}</span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -92,6 +102,15 @@ export function Header() {
               <Link to="/me" className="flex w-full items-center gap-2">
                 <UserIcon size={14} aria-hidden /> 我的笔记
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault()
+                setSettingsOpen(true)
+              }}
+              className="flex items-center gap-2"
+            >
+              <Settings size={14} aria-hidden /> 设置
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -116,6 +135,7 @@ export function Header() {
           </Button>
         </div>
       )}
+      <ProfileSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </header>
   )
 }
