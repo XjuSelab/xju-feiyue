@@ -81,13 +81,12 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
       if (email !== (user.email ?? '')) patch.email = email.trim()
       if (bio !== (user.bio ?? '')) patch.bio = bio.trim()
 
-      if (Object.keys(patch).length === 0) {
-        toast.message('没有改动')
-        return
+      if (Object.keys(patch).length > 0) {
+        const next = await authApi.updateMe(patch)
+        setUser(next)
+        toast.success('已保存')
       }
-      const next = await authApi.updateMe(patch)
-      setUser(next)
-      toast.success('已保存')
+      onOpenChange(false)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '保存失败')
     } finally {
