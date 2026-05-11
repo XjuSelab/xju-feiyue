@@ -85,6 +85,9 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
         const next = await authApi.updateMe(patch)
         setUser(next)
         toast.success('已保存')
+        console.log('[diag] dialog still open=', open, 'toast called')
+        // TEMP: keep dialog open to inspect toast
+        return
       }
       onOpenChange(false)
     } catch (err) {
