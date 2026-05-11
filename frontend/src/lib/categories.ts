@@ -43,7 +43,7 @@ export const CATEGORIES: readonly Category[] = [
     icon: Microscope,
     colorVar: '--cat-research',
     tagBgVar: '--tag-research-bg',
-    desc: '论文阅读 · 实验设计 · 组会汇报',
+    desc: '论文阅读 · Idea 探索 · 组会汇报',
   },
   {
     id: 'course',
@@ -51,7 +51,7 @@ export const CATEGORIES: readonly Category[] = [
     icon: BookOpen,
     colorVar: '--cat-course',
     tagBgVar: '--tag-course-bg',
-    desc: '课堂笔记 · 作业整理 · 考试复习',
+    desc: '选课指南 · 课堂笔记 · 考试复习',
   },
   {
     id: 'recommend',
@@ -67,7 +67,7 @@ export const CATEGORIES: readonly Category[] = [
     icon: Trophy,
     colorVar: '--cat-competition',
     tagBgVar: '--tag-competition-bg',
-    desc: '数模 · ACM · 创新创业赛',
+    desc: 'RobCon · ACM · 数模 · 国创赛',
   },
   {
     id: 'kaggle',
@@ -91,15 +91,12 @@ export const CATEGORIES: readonly Category[] = [
     icon: Coffee,
     colorVar: '--cat-life',
     tagBgVar: '--tag-life-bg',
-    desc: '实验室日常 · 心情碎片 · 城市记录',
+    desc: '课余日常 · 心情碎片 · 城市记录',
   },
 ] as const
 
 const CATEGORY_BY_ID: Readonly<Record<CategoryId, Category>> = Object.freeze(
-  Object.fromEntries(CATEGORIES.map((c) => [c.id, c])) as Record<
-    CategoryId,
-    Category
-  >,
+  Object.fromEntries(CATEGORIES.map((c) => [c.id, c])) as Record<CategoryId, Category>,
 )
 
 export const getCategory = (id: CategoryId): Category => {
