@@ -163,13 +163,17 @@ function formatGroupDay(day: string): ReactNode {
   if (diffDays === 0) return '今天'
   if (diffDays === 1) return '昨天'
   if (diffDays >= 2 && diffDays <= 6) return WEEKDAYS[date.getDay()]
-  // Render the day digit in a fixed-width slot (text-center) so a single
-  // digit like `4` sits centered between 月 and 日 instead of being awkwardly
-  // pinned to one side.
+  // Both month and day go in 2-digit-wide slots (~16px at text-xs):
+  //   - Month is right-aligned so single-digit M (e.g. 4) hugs 月 and
+  //     2-digit M (10/11/12) also lands flush against 月 — column-wise
+  //     the 月 character stays at the same x across rows.
+  //   - Day is centered so single-digit D doesn't look orphaned, and
+  //     2-digit D fills the slot naturally.
   return (
     <span className="inline-flex items-baseline tabular-nums">
-      <span>{m}月</span>
-      <span className="inline-block w-5 text-center">{d}</span>
+      <span className="inline-block w-4 text-right">{m}</span>
+      <span>月</span>
+      <span className="inline-block w-4 text-center">{d}</span>
       <span>日</span>
     </span>
   )
