@@ -84,9 +84,12 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
       if (Object.keys(patch).length > 0) {
         const next = await authApi.updateMe(patch)
         setUser(next)
-        console.log('[ProfileSettings] about to fire toast.success')
-        toast.success('已保存')
-        console.log('[ProfileSettings] toast.success fired')
+        const w = window as unknown as { __sonner?: { toast?: unknown } }
+        console.log('[ProfileSettings] sameToast?', toast === w.__sonner?.toast, 'toast=', toast)
+        const id = toast.success('已保存', { duration: 30_000 })
+        console.log('[ProfileSettings] toast.success returned id=', id)
+        // Don't close dialog this round — keep open to see toast.
+        return
       }
       onOpenChange(false)
     } catch (err) {
