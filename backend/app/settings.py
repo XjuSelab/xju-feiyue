@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     # output when the test DB schema isn't fully set up.
     author_sync_enabled: bool = True
 
+    # Single-admin gate for /admin/* routes. Match by `users.sid`; any
+    # request from a non-matching sid gets a generic 404 so the route
+    # is undiscoverable to anyone but the admin.
+    admin_sid: str = "20241401231"
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [s.strip() for s in self.cors_origins.split(",") if s.strip()]

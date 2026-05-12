@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.db.session import AsyncSessionLocal
-from app.routes import ai, auth, drafts, interactions, notes
+from app.routes import admin, ai, auth, drafts, interactions, notes
 from app.services.author_sync import repair
 from app.settings import settings
 
@@ -76,6 +76,7 @@ app.include_router(notes.router)
 app.include_router(drafts.router)
 app.include_router(interactions.router)
 app.include_router(ai.router)
+app.include_router(admin.router)
 
 
 @app.get("/health", tags=["meta"])

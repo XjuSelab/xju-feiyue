@@ -6,13 +6,22 @@ import secrets
 import time
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 from PIL import Image, UnidentifiedImageError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import User
-from app.deps import get_current_user, get_db
+from app.db.models import LoginEvent, User
+from app.deps import client_ip, get_current_user, get_db
 from app.schemas.user import (
     LoginIn,
     LoginOut,
@@ -55,12 +64,19 @@ def _make_thumbnail(data: bytes, out_path: Path) -> None:
 
 
 @router.post("/login", response_model=LoginOut)
-async def login(body: LoginIn, db: AsyncSession = Depends(get_db)) -> LoginOut:
+async def login(
+    body: LoginIn,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> LoginOut:
     stmt = select(User).where(User.sid == body.sid)
     user = (await db.execute(stmt)).scalar_one_or_none()
     if not user or not verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="学号或密码不正确")
     token = create_access_token(user.sid)
+    ua = (request.headers.get("user-agent") or "")[:500] or None
+    db.add(LoginEvent(user_sid=user.sid, ip=client_ip(request), user_agent=ua))
+    await db.commit()
     return LoginOut(user=UserOut.model_validate(user), token=token)
 
 

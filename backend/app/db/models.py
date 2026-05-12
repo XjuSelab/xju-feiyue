@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import (
     DateTime,
     ForeignKey,
+    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -156,3 +157,23 @@ class Comment(Base):
 
     note: Mapped[Note] = relationship(back_populates="comments", lazy="raise")
     author: Mapped[User] = relationship(lazy="joined")
+
+
+class LoginEvent(Base):
+    """Successful-login audit trail — admin-visible only.
+
+    Captures the client IP from the reverse-proxy headers (X-Forwarded-For
+    / X-Real-IP), the User-Agent, and a server timestamp.
+    """
+
+    __tablename__ = "login_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
+    )
+    ip: Mapped[str] = mapped_column(String(45), nullable=False)
+    user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )

@@ -14,6 +14,25 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+def client_ip(request: Request) -> str:
+    """Best-effort client IP from reverse-proxy headers.
+
+    Our nginx sets `X-Forwarded-For` (`$proxy_add_x_forwarded_for`, with
+    the originating client at the leftmost position) and `X-Real-IP`
+    (first hop). Trust the leftmost XFF entry because the only writer in
+    front of us is our own proxy.
+    """
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        first = xff.split(",", 1)[0].strip()
+        if first:
+            return first
+    real = request.headers.get("x-real-ip")
+    if real:
+        return real.strip()
+    return request.client.host if request.client else ""
+
+
 async def get_current_user(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> User:
