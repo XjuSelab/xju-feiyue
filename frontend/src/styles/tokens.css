@@ -48,6 +48,12 @@
   --code-inline-bg: rgba(135, 131, 120, 0.15);
   --code-inline-fg: #eb5757;
 
+  /* === Flash highlight (jump-to-quote) ===
+     Warm marker-pen yellow that sits next to cat-course (#d9730d) and
+     cat-life (#b5926a) on the palette. Alpha kept around 0.45 so body
+     text underneath stays readable. */
+  --highlight-flash-bg: rgba(255, 213, 79, 0.45);
+
   /* === AI diff (R4 editor 引用) === */
   --ai-add-soft: #fafbfa;
   --ai-add-strong: #0f7b6c;
