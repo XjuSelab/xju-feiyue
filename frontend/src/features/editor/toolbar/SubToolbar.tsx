@@ -10,6 +10,7 @@ import {
   Hash,
   Sparkles,
   Eye,
+  Columns,
   X,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -28,6 +29,8 @@ type Props = {
   onRemoveTag: (tag: string) => void
   onToggleAi: () => void
   onSetViewMode: (m: EditorViewMode) => void
+  /** Reset splitter back to an even split (only useful in 'split' viewMode). */
+  onResetLayout: () => void
 }
 
 export function SubToolbar({
@@ -40,6 +43,7 @@ export function SubToolbar({
   onRemoveTag,
   onToggleAi,
   onSetViewMode,
+  onResetLayout,
 }: Props) {
   const [tagInput, setTagInput] = useState('')
 
@@ -60,25 +64,16 @@ export function SubToolbar({
       <ToolButton aria-label="斜体" onClick={() => onMarkdownInsert('*$*')}>
         <Italic size={12} aria-hidden />
       </ToolButton>
-      <ToolButton
-        aria-label="无序列表"
-        onClick={() => onMarkdownInsert('\n- ')}
-      >
+      <ToolButton aria-label="无序列表" onClick={() => onMarkdownInsert('\n- ')}>
         <List size={12} aria-hidden />
       </ToolButton>
-      <ToolButton
-        aria-label="有序列表"
-        onClick={() => onMarkdownInsert('\n1. ')}
-      >
+      <ToolButton aria-label="有序列表" onClick={() => onMarkdownInsert('\n1. ')}>
         <ListOrdered size={12} aria-hidden />
       </ToolButton>
       <ToolButton aria-label="引用" onClick={() => onMarkdownInsert('\n> ')}>
         <Quote size={12} aria-hidden />
       </ToolButton>
-      <ToolButton
-        aria-label="行内代码"
-        onClick={() => onMarkdownInsert('`$`')}
-      >
+      <ToolButton aria-label="行内代码" onClick={() => onMarkdownInsert('`$`')}>
         <Code size={12} aria-hidden />
       </ToolButton>
       <ToolButton aria-label="链接" onClick={() => onMarkdownInsert('[$](url)')}>
@@ -118,13 +113,7 @@ export function SubToolbar({
             <button
               key={m}
               type="button"
-              aria-label={
-                m === 'split'
-                  ? '分屏'
-                  : m === 'editor-only'
-                    ? '仅编辑器'
-                    : '仅预览'
-              }
+              aria-label={m === 'split' ? '分屏' : m === 'editor-only' ? '仅编辑器' : '仅预览'}
               aria-pressed={viewMode === m}
               onClick={() => onSetViewMode(m)}
               className={cn(
@@ -136,6 +125,18 @@ export function SubToolbar({
             </button>
           ))}
         </span>
+
+        {viewMode === 'split' && (
+          <button
+            type="button"
+            aria-label="恢复栏宽平分"
+            title="恢复平分"
+            onClick={onResetLayout}
+            className="inline-flex size-6 items-center justify-center rounded-sm text-text-muted transition hover:bg-bg-subtle hover:text-text"
+          >
+            <Columns size={12} aria-hidden />
+          </button>
+        )}
 
         <Button
           type="button"
@@ -151,10 +152,7 @@ export function SubToolbar({
   )
 }
 
-function ToolButton({
-  children,
-  ...rest
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+function ToolButton({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="button"

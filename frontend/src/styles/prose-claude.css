@@ -152,6 +152,30 @@
   margin: 2em 0;
 }
 
+/* Flash highlight for "jump to quoted span" — wraps the matched text for ~1.6s
+   before being unwrapped. Uses the same warm tone as inline `code` so it sits
+   inside prose without clashing with the surrounding palette. */
+mark.flash-highlight {
+  background: var(--code-inline-bg, #fef3c7);
+  color: inherit;
+  padding: 0 0.15em;
+  border-radius: var(--radius-sm, 3px);
+  box-shadow: 0 0 0 1px var(--color-border-strong, rgba(0, 0, 0, 0.15));
+  animation: flash-highlight-fade 1.6s ease-out forwards;
+}
+
+@keyframes flash-highlight-fade {
+  0%,
+  60% {
+    background: var(--code-inline-bg, #fef3c7);
+    box-shadow: 0 0 0 1px var(--color-border-strong, rgba(0, 0, 0, 0.15));
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 1px transparent;
+  }
+}
+
 /* Dark variant placeholder（暂不实现具体值，预留 R5+ 主题切换） */
 .prose-claude--dark {
   /* TODO: dark scheme overrides in future round */

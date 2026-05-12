@@ -110,6 +110,54 @@ export function NoteDetailPage() {
     if (viewMode === 'off') setViewMode('inline')
   }
 
+  const onQuoteClick = (anchorText: string) => {
+    const root = contentRef.current
+    if (!root) return
+    // Walk text nodes to locate the first occurrence of anchorText in the
+    // rendered body. Concatenating data lets the match span Text-node
+    // boundaries (rehype-highlight breaks inline runs into many spans).
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    const nodes: Text[] = []
+    let total = ''
+    let n: Node | null = walker.nextNode()
+    while (n) {
+      nodes.push(n as Text)
+      total += (n as Text).data
+      n = walker.nextNode()
+    }
+    const idx = total.indexOf(anchorText)
+    if (idx < 0) {
+      toast.info('未找到对应原文段（可能已被编辑）')
+      return
+    }
+    const range = makeRangeAt(nodes, idx, idx + anchorText.length)
+    if (!range) return
+    const rect = range.getBoundingClientRect()
+    window.scrollTo({
+      top: window.scrollY + rect.top - window.innerHeight / 3,
+      behavior: 'smooth',
+    })
+
+    // Wrap the range in a temporary <mark.flash-highlight>; CSS animation
+    // fades it out and a JS timer removes the mark to restore the DOM.
+    const mark = document.createElement('mark')
+    mark.className = 'flash-highlight'
+    try {
+      range.surroundContents(mark)
+    } catch {
+      // surroundContents throws when the range crosses non-text boundaries
+      // (e.g. across an inline <strong>). Fall back to scrolling without highlight.
+      return
+    }
+    window.setTimeout(() => {
+      const parent = mark.parentNode
+      if (!parent) return
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark)
+      parent.removeChild(mark)
+      parent.normalize()
+    }, 1600)
+  }
+
   const article = (
     <>
       <Link
@@ -199,7 +247,14 @@ export function NoteDetailPage() {
         </span>
       </div>
 
-      <div ref={contentRef}>
+      <div
+        ref={contentRef}
+        // The body is read-only — silence any accidental focus caret that
+        // browsers sometimes show on focusable scrollable children (e.g.
+        // <pre overflow:auto>) or via Caret Browsing mode. Selection
+        // highlighting still works normally.
+        style={{ caretColor: 'transparent' }}
+      >
         {note.content ? (
           <Markdown content={note.content} />
         ) : (
@@ -239,6 +294,7 @@ export function NoteDetailPage() {
             noteId={note.id}
             noteAuthorSid={note.author.sid}
             variant="inline"
+            onQuoteClick={onQuoteClick}
           />
         )}
         {viewMode === 'drawer' && (
@@ -248,6 +304,7 @@ export function NoteDetailPage() {
               noteId={note.id}
               noteAuthorSid={note.author.sid}
               variant="drawer"
+              onQuoteClick={onQuoteClick}
             />
           </aside>
         )}
@@ -286,6 +343,34 @@ export function NoteDetailPage() {
       </Dialog>
     </>
   )
+}
+
+/** Build a Range that spans `[start, end)` across a flat list of text nodes. */
+function makeRangeAt(nodes: Text[], start: number, end: number): Range | null {
+  if (nodes.length === 0) return null
+  let acc = 0
+  let startNode: Text | null = null
+  let startOffset = 0
+  let endNode: Text | null = null
+  let endOffset = 0
+  for (const n of nodes) {
+    const next = acc + n.data.length
+    if (startNode === null && start <= next) {
+      startNode = n
+      startOffset = start - acc
+    }
+    if (end <= next) {
+      endNode = n
+      endOffset = end - acc
+      break
+    }
+    acc = next
+  }
+  if (!startNode || !endNode) return null
+  const range = document.createRange()
+  range.setStart(startNode, startOffset)
+  range.setEnd(endNode, endOffset)
+  return range
 }
 
 type ToggleProps = {

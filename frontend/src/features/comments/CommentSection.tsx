@@ -23,10 +23,16 @@ type Props = {
   noteAuthorSid: string
   /** 'inline' renders inside the article flow; 'drawer' renders compact for a side panel. */
   variant?: 'inline' | 'drawer'
+  /**
+   * Click handler for anchored quotes — receives the quoted text so the
+   * caller can scroll to and flash the matching span in the note body.
+   * Quotes render as clickable blockquotes when this is provided.
+   */
+  onQuoteClick?: (anchorText: string) => void
 }
 
 export const CommentSection = forwardRef<CommentSectionHandle, Props>(function CommentSection(
-  { noteId, noteAuthorSid, variant = 'inline' },
+  { noteId, noteAuthorSid, variant = 'inline', onQuoteClick },
   ref,
 ) {
   const authMode = useAuthStore((s) => s.mode)
@@ -185,11 +191,22 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
                     </button>
                   )}
                 </div>
-                {c.anchorText && (
-                  <blockquote className="mt-1 border-l-2 border-border-strong bg-bg-subtle px-3 py-1 text-xs italic text-text-muted">
-                    {c.anchorText}
-                  </blockquote>
-                )}
+                {c.anchorText &&
+                  (onQuoteClick ? (
+                    <button
+                      type="button"
+                      onClick={() => onQuoteClick(c.anchorText!)}
+                      aria-label="跳到原文这段"
+                      title="跳到原文这段"
+                      className="mt-1 block w-full cursor-pointer border-l-2 border-border-strong bg-bg-subtle px-3 py-1 text-left text-xs italic text-text-muted transition hover:border-text hover:text-text"
+                    >
+                      {c.anchorText}
+                    </button>
+                  ) : (
+                    <blockquote className="mt-1 border-l-2 border-border-strong bg-bg-subtle px-3 py-1 text-xs italic text-text-muted">
+                      {c.anchorText}
+                    </blockquote>
+                  ))}
                 <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-text">
                   {c.content}
                 </p>

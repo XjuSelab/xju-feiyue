@@ -2,7 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  type ImperativePanelGroupHandle,
+} from 'react-resizable-panels'
 import type { EditorView } from '@codemirror/view'
 import { ApiError } from '@/api/client'
 import * as draftsApi from '@/api/endpoints/drafts'
@@ -92,6 +97,7 @@ export function WritePage() {
 
   const editorScrollRef = useRef<HTMLElement | null>(null)
   const previewScrollRef = useRef<HTMLDivElement | null>(null)
+  const panelGroupRef = useRef<ImperativePanelGroupHandle | null>(null)
   useScrollSync(editorScrollRef, previewScrollRef, viewMode === 'split')
 
   const { compose, isPending, active, history, setActive, clearActive } = useAICompose()
@@ -269,10 +275,21 @@ export function WritePage() {
         onRemoveTag={onRemoveTag}
         onToggleAi={() => setAiOpen((o) => !o)}
         onSetViewMode={setViewMode}
+        onResetLayout={() => {
+          // Distribute evenly across however many panels are currently mounted
+          // (2 for split, 3 when the AI drawer is open).
+          const panelCount = aiOpen ? 3 : 2
+          const even = Number((100 / panelCount).toFixed(2))
+          const layout = Array.from({ length: panelCount }, (_, i) =>
+            i === panelCount - 1 ? 100 - even * (panelCount - 1) : even,
+          )
+          panelGroupRef.current?.setLayout(layout)
+        }}
       />
 
       <PanelGroup
         key={layoutKey}
+        ref={panelGroupRef}
         direction="horizontal"
         autoSaveId={layoutKey}
         className="min-h-0 flex-1"
