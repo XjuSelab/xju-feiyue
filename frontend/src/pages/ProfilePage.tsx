@@ -303,13 +303,19 @@ function ItemRow({
 function KindBadge({ kind }: { kind: 'published' | 'draft' }) {
   if (kind === 'published') {
     return (
-      <span className="inline-flex items-center rounded-sm bg-emerald-100 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+      <span
+        style={{ color: 'var(--cat-tools)', borderColor: 'var(--cat-tools)' }}
+        className="inline-flex items-center rounded-sm border bg-bg px-1.5 py-0.5 text-[11px] font-medium"
+      >
         发布
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center rounded-sm bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+    <span
+      style={{ color: 'var(--cat-course)', borderColor: 'var(--cat-course)' }}
+      className="inline-flex items-center rounded-sm border bg-bg px-1.5 py-0.5 text-[11px] font-medium"
+    >
       草稿
     </span>
   )

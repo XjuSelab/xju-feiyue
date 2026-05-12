@@ -52,8 +52,10 @@ function HotRow({ notes }: { notes: ReturnType<typeof useHotNotes>['data'] & obj
     if (!el) return
     const update = () => {
       const maxScroll = el.scrollWidth - el.clientWidth
-      const left = el.scrollLeft > 1
-      const right = el.scrollLeft < maxScroll - 1
+      // snap-mandatory can leave a few pixels of residual at the rails; treat
+      // anything within 8px of an edge as "at the edge" so the fade hides cleanly.
+      const left = el.scrollLeft > 8
+      const right = el.scrollLeft < maxScroll - 8
       setEdges((prev) => (prev.left === left && prev.right === right ? prev : { left, right }))
     }
     update()
