@@ -1,172 +1,98 @@
 # 飞跃 · Feiyue
 
-> 新疆大学 SeLab 飞跃笔记平台 —— 把上一届的踩坑、保研经验、课程资料沉淀成可检索的长文笔记，留给下一届。
+> 新疆大学 SeLab 飞跃笔记平台。
+>
+> 把上一届踩过的坑、走通的路、读过的论文，沉淀成可检索的长文，
+> 留给下一届。
 
-[![Python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-
-线上演示：<https://winbeau.top>
+线上：<https://winbeau.top>
 
 ---
 
 ## 这是什么
 
-**飞跃** 是 SeLab 的一个内部知识沉淀站。
+每年九月，新一届的同学坐进实验室。同样的问题会被问第二遍、第三遍、第十遍：
 
-- 长文 + Markdown（KaTeX 数学公式、围栏代码块、GFM Admonition、相对图片）
-- 7 个分类：科研 / 课程 / 推荐 / 竞赛 / Kaggle / 工具 / 生活
-- 学号登录 + 个人头像 / 简介 / 微信 + 服务端生成 160 px 缩略图
-- 草稿自动保存 + DeepSeek AI 续写助手
-- 标签 / 点赞 / 评论 / 时间线右栏
-- 后台登录 IP 审计（仅站长可见）
-- 状态备份：Hugging Face Dataset，DB + .env 一键拉取还原
+- "保研要从大几开始准备？要不要刷题？要刷哪种？"
+- "实验室那台 4090 怎么连？" "CUDA 怎么装才能不踩坑？"
+- "这门课的实验报告，上一届有人写过吗？"
+- "Kaggle 第一次打怎么入门？" "ICPC 区域赛有什么经验？"
 
-内容真源是仓库里的 `content/notes/*.md`，每篇带 YAML frontmatter；后端启动时通过 `seed.py` 读 frontmatter → 写 DB。日常运营加篇笔记 = 提交一个 .md 文件。
+答案当然有人知道。学长姐自己当年都摸索过来。问题是：那些经验**没有沉下来**。
+微信群消息会沉到底，桌面文件会随毕业格式化，工位上的 sticky note 会消失。
+半年之后，一切要从零讲起。
+
+**飞跃** 想解决的就是这件事。
+
+我们鼓励学长姐写**长文笔记**——不是一句两句的 tip，而是一个完整问题的来龙去脉：
+为什么这么选，踩了哪些坑，最后怎么走通的，附上当时跑通的命令和代码。
+也欢迎读者点赞、评论、补充——一篇好笔记可以一届一届续写。
+
+这是一份**给下一届的、有温度的工程档案**。
 
 ---
 
-## 技术栈
+## 里面有什么
 
-|              | 选型 |
+七个分类。每个分类下面是一篇篇可以被检索 / 标签过滤 / 按时间排序的长文：
+
+| 分类   | 长什么样 |
 |---|---|
-| 后端          | FastAPI · SQLAlchemy 2 (async) · Alembic · Pydantic 2 · bcrypt · python-jose JWT |
-| 前端          | React 19 · Vite · TypeScript · Tailwind · Radix UI · TanStack Query · react-hook-form · zod |
-| Markdown 渲染 | remark-gfm · remark-math · rehype-katex · rehype-highlight · rehype-raw |
-| 编辑器        | CodeMirror 6 (markdown mode) |
-| 数据库        | SQLite (默认) ｜ PostgreSQL (生产可选) |
-| AI            | DeepSeek `/v1/chat/completions` |
-| 部署          | systemd + nginx + Let's Encrypt |
-| 状态同步      | huggingface_hub + age 加密 |
+| **科研** | 论文精读、方向选择、组会汇报、第一次跑通 baseline 的全部血泪 |
+| **课程** | 离散数学 / 编译原理 / 408 / 数据库实验，上一届写好的复习笔记和实验思路 |
+| **推荐** | 我读过的好书 / 好论文 / 好教程，附一句"为什么值得读" |
+| **竞赛** | 数模 / ICPC / "互联网+" / 挑战杯，从报名到答辩的真实流程 |
+| **Kaggle** | 第一次打 Kaggle 要看什么，notebook 怎么组织，分数怎么 push 到金牌 |
+| **工具** | 服务器 / Docker / VS Code Remote / Git 工作流，让"工程不背锅" |
+| **生活** | 食堂 / 选导师 / 出国申请 / 心理健康，那些课表外但同样重要的事 |
+
+每篇笔记带：作者头像、阅读时长估算、标签、KaTeX 公式、围栏代码块、Markdown 引用块。
+个人主页可以看到这个人写过的所有笔记。右栏会聚合"近期发布 / 热门标签 / 活跃作者"。
 
 ---
 
-## 仓库结构
+## 我们相信的事
 
-```
-.
-├── backend/                FastAPI 后端（uv 管理依赖）
-│   ├── app/
-│   │   ├── routes/         auth / notes / drafts / interactions / ai / admin
-│   │   ├── schemas/        Pydantic camelCase 出参（与前端 zod 对齐）
-│   │   ├── services/       业务逻辑（auth / notes / ai / author_sync）
-│   │   └── db/             models.py + session
-│   ├── alembic/versions/   迁移
-│   └── scripts/            seed.py / add_user.py / sync_authors.py / ...
-├── frontend/               React 应用（pnpm 管理）
-│   └── src/
-│       ├── api/            axios / zod schema / mock / hooks
-│       ├── features/       按页面切的 feature 包
-│       ├── components/     ui / common / layout
-│       └── pages/          路由顶层组件
-├── content/notes/          ★ 真源笔记 markdown（带 frontmatter）
-├── docs/                   架构记录 + 设计决策
-├── scripts/                xju_wiki 导入 + HF 同步脚本
-├── BACKEND_SPEC.md         前端↔后端契约（19 routes + 10 schemas）
-├── CONTRIBUTING.md         开发规范 / Commit 规范
-└── Makefile                sync-* 目标入口
-```
+- **笔记是文件，不是数据库行。** 真源是仓库里的 `content/notes/*.md`。
+  一篇笔记 = 一个 Pull Request。哪天换了数据库 / 换了渲染器，
+  内容本身永远在 `git log` 里。
+- **作者归属是头等公民。** 每篇笔记的 frontmatter 里有 `author`，
+  后台有每日校准任务把 DB 的外键自动对齐回 frontmatter——
+  作者不是被"挂"在笔记上，而是一份可追溯的承诺。
+- **慢一点没关系，但要长。** 默认 readMinutes ≥ 5。
+  我们鼓励作者把背景 / 动机 / 死路 / 出路都写下来——
+  对当下的你可能多 10 分钟，对未来的读者可能省一整周。
+- **设计要克制。** 极简衬线 + 单一强调色 + 不闪烁不弹窗。
+  长文阅读器才是这个站存在的意义。
 
 ---
 
-## 快速开始（本地）
+## 想加一篇笔记？
 
-### 先决条件
+最低成本：fork 仓库，往 `content/notes/` 里扔一个 markdown 文件，提 PR。
+具体格式（frontmatter 必填字段、分类枚举、推荐 tag 命名）见
+[`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
-- Python 3.11+
-- Node 20+ · pnpm 9+
-- [`uv`](https://docs.astral.sh/uv/)（推荐管理后端 venv）
-
-### 后端
-
-```bash
-cd backend
-uv sync                                    # 装依赖到 backend/.venv
-cp .env.example .env.local                 # 改 jwt_secret / deepseek_api_key
-uv run alembic upgrade head                # 建表
-uv run python scripts/seed.py              # 用 content/notes/*.md 灌数据
-uv run uvicorn app.main:app --reload       # http://localhost:8000
-```
-
-### 前端
-
-```bash
-cd frontend
-pnpm install --prefer-offline
-pnpm dev                                   # http://localhost:5173
-```
-
-> 小内存机器上 `pnpm install` 可能慢；可加 `--network-concurrency=1`。
-
-默认登录账号见 `backend/scripts/seed.py`（学号 + 密码）。
+不会 git 也没关系——
+联系站长（[winbeau](https://github.com/winbeau)）开个账号，
+直接在网站上注册 / 发布 / 编辑草稿。
 
 ---
 
-## 加一个新用户
+## 技术栈（一行带过）
 
-```bash
-# 交互问询
-uv run python backend/scripts/add_user.py
-
-# 一行参数
-uv run python backend/scripts/add_user.py --sid 20241401231 --name 张三
-
-# 批量从 CSV / stdin（"sid,name" 一行一对）
-uv run python backend/scripts/add_user.py --batch users.csv
-```
-
-默认初始密码 `123456`，已存在的用户重跑只刷新姓名，不会覆盖密码。
-
-## 加一篇新笔记
-
-1. 在 `content/notes/` 下新建 `<slug>.md`
-2. 顶部写 YAML frontmatter（参考已有任何一篇）：
-   ```yaml
-   ---
-   id: note_<category>_<author>_<i>
-   slug: <kebab-case-slug>
-   title: 标题
-   summary: 摘要 80 字以内
-   category: research | course | recommend | competition | kaggle | tools | life
-   tags: [tag1, tag2]
-   author: <已有用户的 nickname>
-   createdAt: 2026-05-12T00:00:00Z
-   readMinutes: 5
-   ---
-   ```
-3. 后端会在下次 seed / 运行时把它读进 DB；后台有个每日 `author_sync` 任务把 DB 的作者 FK 自动校准回 frontmatter。
-
----
-
-## 部署概览
-
-生产部署见 `docs/` 与 `scripts/sync/README.md`，要点：
-
-- 后端：`systemd` 守 `uv run uvicorn`，监 `127.0.0.1:8001`
-- nginx：单 location 把 `/(auth|notes|drafts|interactions|ai|health|uploads|admin)/*` 反代给后端，其余 fall through 到前端 SPA `dist/`
-- 证书：Let's Encrypt + certbot
-- 状态备份：DB + `.env.local` 通过 `make sync-push` age-加密推到私有 HF Dataset
-- 远端机一键还原：`make sync-bootstrap && make sync-pull`
-
----
-
-## 文档
-
-- [`BACKEND_SPEC.md`](BACKEND_SPEC.md) —— 前端↔后端 wire 契约（必读）
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 分支 / commit / PR 规范
-- [`docs/`](docs/) —— 架构决策与设计记录
-- [`scripts/sync/README.md`](scripts/sync/README.md) —— HF Dataset 状态同步
+FastAPI · React 19 · Tailwind · SQLite · Alembic · DeepSeek · systemd · nginx · Let's Encrypt.
+完整开发说明见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [`BACKEND_SPEC.md`](BACKEND_SPEC.md)。
 
 ---
 
 ## 致谢
 
-- 课程笔记来自 [@SunSeaLucky/xju-course-wiki](https://github.com/SunSeaLucky/xju-course-wiki)（孙海洋学长）
-- 设计参考 / 灵感来自小红书 / 知乎专栏 / Notion 长文
-- 部署一砖一瓦的踩坑笔记会陆续整理进 `docs/`
+- 课程笔记最早的源材料来自孙海洋学长的
+  [xju-course-wiki](https://github.com/SunSeaLucky/xju-course-wiki)。
+- SeLab 的师兄师姐 / 学弟学妹，写笔记的、读笔记的、提 issue 的，每一位。
+- 那些"我当时要是早点知道就好了"的瞬间——这个站记下来。
 
 ## License
 
-仓库内默认仅供 SeLab 内部使用；如需对外使用请先开 Issue 商榷。
+仓库内默认仅供 SeLab 内部使用。对外引用 / 翻拍 / 二次分发请先开 Issue 商榷。
