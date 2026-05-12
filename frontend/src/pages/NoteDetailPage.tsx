@@ -151,11 +151,17 @@ export function NoteDetailPage() {
     // Prefer the CSS Custom Highlight API — it doesn't mutate the DOM and
     // works across inline boundaries (a quoted span that straddles <a> /
     // <code> / hljs token spans would make surroundContents throw).
+    //
+    // Duck-type rather than instanceof Map: CSS.highlights is a
+    // HighlightRegistry which *quacks* like a Map but does not extend it.
     const HL_NAME = 'flash-anchor'
-    const cssHighlights = (CSS as unknown as { highlights?: Map<string, unknown> }).highlights
-    if (typeof window !== 'undefined' && 'Highlight' in window && cssHighlights instanceof Map) {
-      const HighlightCtor = (window as unknown as { Highlight: new (r: Range) => unknown })
-        .Highlight
+    type HighlightRegistryLike = {
+      set: (k: string, v: object) => void
+      delete: (k: string) => void
+    }
+    const cssHighlights = (CSS as unknown as { highlights?: HighlightRegistryLike }).highlights
+    const HighlightCtor = (window as unknown as { Highlight?: new (r: Range) => object }).Highlight
+    if (cssHighlights && typeof cssHighlights.set === 'function' && HighlightCtor) {
       const hl = new HighlightCtor(range)
       cssHighlights.set(HL_NAME, hl)
       window.setTimeout(() => cssHighlights.delete(HL_NAME), 1600)
