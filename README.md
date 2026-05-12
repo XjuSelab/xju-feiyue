@@ -1,6 +1,6 @@
 # 飞跃 · Feiyue
 
-> 新疆大学 SeLab 的笔记站。学长姐写长文，把踩过的坑、走通的路留给下一届。
+> 一个面向高校实验室 / 学生社群的笔记站。学长姐写长文，把踩过的坑、走通的路留给下一届。
 
 线上：<https://winbeau.top>
 
@@ -38,8 +38,8 @@ FastAPI · React 19 · Tailwind · SQLite · DeepSeek。
 ## 致谢
 
 - 课程笔记的源材料来自孙海洋学长的 [xju-course-wiki](https://github.com/SunSeaLucky/xju-course-wiki)
-- SeLab 的师兄师姐、学弟学妹，每位写笔记和读笔记的人
+- 每一位愿意把自己踩过的坑写下来、留给下一届的作者
 
 ## License
 
-仅供 SeLab 内部使用；对外引用请先开 Issue。
+默认仅供站点运营方使用；对外引用 / 二次分发请先开 Issue 商榷。
