@@ -26,6 +26,11 @@ async def compose_stream(body: AIComposeIn) -> StreamingResponse:
     """
 
     async def event_gen() -> AsyncIterator[str]:
+        # Prime the response with an SSE comment so nginx (even with
+        # X-Accel-Buffering: no) actually flushes the first packet
+        # immediately — DeepSeek's first delta can be 1-2 s away and we
+        # don't want the client's read() blocked waiting for it.
+        yield ": ready\n\n"
         try:
             async for chunk in ai_compose.stream_chunks(body):
                 yield f"data: {json.dumps({'chunk': chunk}, ensure_ascii=False)}\n\n"
