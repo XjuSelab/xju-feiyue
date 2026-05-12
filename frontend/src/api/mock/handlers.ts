@@ -43,7 +43,11 @@ registerMock('GET', '/auth/me', async (req: MockReq) => {
 // ============== notes ==============
 
 // Validate fixtures at load time — fail fast if JSON drifts from schema.
-const ALL_NOTES: Note[] = (notesFixture as unknown[]).map((n) => NoteSchema.parse(n))
+// Mock fixtures pre-date the likedByMe field; inject the default so each row
+// still matches NoteSchema without rewriting 994 lines of JSON.
+const ALL_NOTES: Note[] = (notesFixture as unknown[]).map((n) =>
+  NoteSchema.parse({ likedByMe: false, ...(n as Record<string, unknown>) }),
+)
 
 const DEFAULT_LIMIT = 6
 const MAX_LIMIT = 50

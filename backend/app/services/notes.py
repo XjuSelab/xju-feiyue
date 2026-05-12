@@ -27,6 +27,24 @@ from app.schemas.note import (
 DEFAULT_LIMIT = 6
 MAX_LIMIT = 50
 
+_SUMMARY_MAX = 200
+
+
+def summary_from(content: str) -> str:
+    """First non-empty paragraph trimmed to {_SUMMARY_MAX} chars; ellipsis if cut."""
+    text = content.strip()
+    if not text:
+        return ""
+    first_para = next((p.strip() for p in text.split("\n\n") if p.strip()), text)
+    if len(first_para) <= _SUMMARY_MAX:
+        return first_para
+    return first_para[:_SUMMARY_MAX].rstrip() + "…"
+
+
+def read_minutes_from(content: str) -> int:
+    # ~500 CJK chars per minute is the loose convention used in similar apps.
+    return max(1, round(len(content) / 500))
+
 
 async def count_likes(db: AsyncSession, note_ids: Iterable[str]) -> dict[str, int]:
     ids = list(note_ids)
@@ -52,7 +70,22 @@ async def count_comments(db: AsyncSession, note_ids: Iterable[str]) -> dict[str,
     return {row[0]: row[1] for row in await db.execute(stmt)}
 
 
-def to_note_out(note: Note, likes: int, comments: int) -> NoteOut:
+async def liked_by_user(
+    db: AsyncSession, user_sid: str | None, note_ids: Iterable[str]
+) -> set[str]:
+    """Return the subset of note_ids this user has liked. Empty for anon."""
+    ids = list(note_ids)
+    if not ids or not user_sid:
+        return set()
+    stmt = select(Like.note_id).where(
+        Like.user_sid == user_sid, Like.note_id.in_(ids)
+    )
+    return {row[0] for row in await db.execute(stmt)}
+
+
+def to_note_out(
+    note: Note, likes: int, comments: int, liked_by_me: bool = False
+) -> NoteOut:
     return NoteOut(
         id=note.id,
         title=note.title,
@@ -71,10 +104,15 @@ def to_note_out(note: Note, likes: int, comments: int) -> NoteOut:
         likes=likes,
         comments=comments,
         read_minutes=note.read_minutes,
+        liked_by_me=liked_by_me,
     )
 
 
-async def list_notes(query: ListNotesQuery, db: AsyncSession) -> PaginatedNotes:
+async def list_notes(
+    query: ListNotesQuery,
+    db: AsyncSession,
+    user_sid: str | None = None,
+) -> PaginatedNotes:
     stmt = select(Note).options(selectinload(Note.author))
     if query.cat:
         stmt = stmt.where(Note.category == query.cat)
@@ -99,6 +137,7 @@ async def list_notes(query: ListNotesQuery, db: AsyncSession) -> PaginatedNotes:
     note_ids = [n.id for n in notes_orm]
     likes = await count_likes(db, note_ids)
     comments = await count_comments(db, note_ids)
+    liked = await liked_by_user(db, user_sid, note_ids)
 
     rows: list[tuple[Note, int, int]] = [
         (n, likes.get(n.id, 0), comments.get(n.id, 0)) for n in notes_orm
@@ -126,6 +165,9 @@ async def list_notes(query: ListNotesQuery, db: AsyncSession) -> PaginatedNotes:
     next_cursor = page[-1][0].id if has_more and page else None
 
     return PaginatedNotes(
-        items=[to_note_out(n, like_count, c) for n, like_count, c in page],
+        items=[
+            to_note_out(n, like_count, c, n.id in liked)
+            for n, like_count, c in page
+        ],
         next_cursor=next_cursor,
     )

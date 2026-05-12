@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { request } from '../client'
 import {
   NoteListSchema,
@@ -5,8 +6,16 @@ import {
   PaginatedNotesSchema,
   type Note,
   type ListNotesQuery,
+  type NoteUpdateIn,
   type PaginatedNotes,
 } from '../schemas/note'
+
+const TOKEN_KEY = 'labnotes.auth.token'
+
+function authHeaders(): Record<string, string> {
+  const t = localStorage.getItem(TOKEN_KEY)
+  return t ? { Authorization: `Bearer ${t}` } : {}
+}
 
 /**
  * R4 home-agent 实现：所有函数走 client.request → mock dispatcher (dev) /
@@ -27,14 +36,13 @@ function toRequestQuery(
   return params
 }
 
-export async function listNotes(
-  query?: ListNotesQuery,
-): Promise<PaginatedNotes> {
+export async function listNotes(query?: ListNotesQuery): Promise<PaginatedNotes> {
   const requestQuery = toRequestQuery(query)
   return request({
     method: 'GET',
     path: '/notes',
     schema: PaginatedNotesSchema,
+    headers: authHeaders(),
     ...(requestQuery !== undefined ? { query: requestQuery } : {}),
   })
 }
@@ -44,6 +52,7 @@ export async function getHotThisWeek(): Promise<Note[]> {
     method: 'GET',
     path: '/notes/hot',
     schema: NoteListSchema,
+    headers: authHeaders(),
   })
 }
 
@@ -52,6 +61,7 @@ export async function getLatest(): Promise<Note[]> {
     method: 'GET',
     path: '/notes/latest',
     schema: NoteListSchema,
+    headers: authHeaders(),
   })
 }
 
@@ -60,6 +70,7 @@ export async function getMostLiked(): Promise<Note[]> {
     method: 'GET',
     path: '/notes/liked',
     schema: NoteListSchema,
+    headers: authHeaders(),
   })
 }
 
@@ -69,5 +80,25 @@ export async function getNote(id: string): Promise<Note> {
     path: '/notes/get',
     query: { id },
     schema: NoteSchema,
+    headers: authHeaders(),
+  })
+}
+
+export async function updateNote(id: string, body: NoteUpdateIn): Promise<Note> {
+  return request({
+    method: 'PATCH',
+    path: `/notes/${id}`,
+    body,
+    schema: NoteSchema,
+    headers: authHeaders(),
+  })
+}
+
+export async function deleteNote(id: string): Promise<void> {
+  await request({
+    method: 'DELETE',
+    path: `/notes/${id}`,
+    schema: z.null(),
+    headers: authHeaders(),
   })
 }

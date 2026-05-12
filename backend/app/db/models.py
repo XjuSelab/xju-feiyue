@@ -97,8 +97,15 @@ class Note(Base):
     read_minutes: Mapped[int] = mapped_column(nullable=False, default=1)
 
     author: Mapped[User] = relationship(back_populates="notes", lazy="joined")
-    likes: Mapped[list[Like]] = relationship(back_populates="note", lazy="raise")
-    comments: Mapped[list[Comment]] = relationship(back_populates="note", lazy="raise")
+    # passive_deletes=True: rely on DB-level ondelete='CASCADE' instead of
+    # having SQLAlchemy try to NULL the FK first (which would violate Like's
+    # PK constraint since note_id is part of its composite primary key).
+    likes: Mapped[list[Like]] = relationship(
+        back_populates="note", lazy="raise", passive_deletes=True
+    )
+    comments: Mapped[list[Comment]] = relationship(
+        back_populates="note", lazy="raise", passive_deletes=True
+    )
 
 
 class Draft(Base):

@@ -19,6 +19,8 @@ type Props = {
   onPublish: () => void
   publishing?: boolean
   savedAt?: string
+  /** 'new' (default): 保存草稿 + 发布; 'edit': 编辑已发布笔记，发布按钮变 "保存修改" */
+  mode?: 'new' | 'edit'
 }
 
 export function MainToolbar({
@@ -30,7 +32,9 @@ export function MainToolbar({
   onPublish,
   publishing = false,
   savedAt,
+  mode = 'new',
 }: Props) {
+  const isEdit = mode === 'edit'
   return (
     <header className="flex h-12 items-center gap-3 border-b border-border bg-bg px-6">
       <Input
@@ -62,17 +66,26 @@ export function MainToolbar({
 
       {savedAt && <span className="ml-auto text-xs text-text-faint">已保存 · {savedAt}</span>}
 
+      {!isEdit && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onSave}
+          className={savedAt ? '' : 'ml-auto'}
+        >
+          <Save size={12} aria-hidden /> 保存草稿
+        </Button>
+      )}
       <Button
         type="button"
-        variant="outline"
         size="sm"
-        onClick={onSave}
-        className={savedAt ? '' : 'ml-auto'}
+        onClick={onPublish}
+        disabled={publishing}
+        className={isEdit && !savedAt ? 'ml-auto' : ''}
       >
-        <Save size={12} aria-hidden /> 保存草稿
-      </Button>
-      <Button type="button" size="sm" onClick={onPublish} disabled={publishing}>
-        <Send size={12} aria-hidden /> {publishing ? '发布中…' : '发布'}
+        <Send size={12} aria-hidden />{' '}
+        {publishing ? (isEdit ? '保存中…' : '发布中…') : isEdit ? '保存修改' : '发布'}
       </Button>
     </header>
   )

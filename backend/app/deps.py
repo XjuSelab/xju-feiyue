@@ -46,3 +46,20 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="用户不存在")
     return user
+
+
+async def get_optional_user(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> User | None:
+    """Like get_current_user but silently returns None when unauthenticated.
+
+    Used by read endpoints that want to surface per-user state (e.g.
+    `likedByMe`) without forcing login.
+    """
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return None
+    sid = decode_token(auth[7:])
+    if not sid:
+        return None
+    return await db.get(User, sid)

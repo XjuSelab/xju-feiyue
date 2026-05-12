@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Heart, MessageSquare, Clock } from 'lucide-react'
+import { toast } from 'sonner'
+import { useToggleLike } from '@/api'
 import type { Note } from '@/api/schemas/note'
+import { useAuthStore } from '@/stores/authStore'
 import { CategoryBadge } from './CategoryBadge'
 import { cn } from '@/lib/cn'
 
@@ -26,6 +29,18 @@ export function NoteCard({
   renderSummary,
 }: Props) {
   const compact = variant === 'compact'
+  const authMode = useAuthStore((s) => s.mode)
+  const toggleLike = useToggleLike()
+  const onLikeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Card root is a <Link>; suppress navigation before mutating.
+    e.preventDefault()
+    e.stopPropagation()
+    if (authMode !== 'authed') {
+      toast.error('请先登录后再点赞')
+      return
+    }
+    toggleLike.mutate({ id: note.id, liked: note.likedByMe })
+  }
   return (
     <Link
       to={`/note/${note.id}`}
@@ -73,9 +88,20 @@ export function NoteCard({
           <span>{formatRelative(note.createdAt)}</span>
         </span>
         <span className="inline-flex items-center gap-3">
-          <span className="inline-flex items-center gap-1">
-            <Heart size={12} aria-hidden /> {note.likes}
-          </span>
+          <button
+            type="button"
+            onClick={onLikeClick}
+            disabled={toggleLike.isPending}
+            aria-label={note.likedByMe ? '取消点赞' : '点赞'}
+            aria-pressed={note.likedByMe}
+            className={cn(
+              'inline-flex items-center gap-1 rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong',
+              note.likedByMe && 'text-red-500 hover:text-red-500',
+            )}
+          >
+            <Heart size={12} aria-hidden fill={note.likedByMe ? 'currentColor' : 'none'} />{' '}
+            {note.likes}
+          </button>
           <span className="inline-flex items-center gap-1">
             <MessageSquare size={12} aria-hidden /> {note.comments}
           </span>

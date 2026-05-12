@@ -11,11 +11,13 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
   type UseInfiniteQueryResult,
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query'
 import * as notesApi from './endpoints/notes'
+import * as interactionsApi from './endpoints/interactions'
 import * as aiApi from './endpoints/ai'
 import type { Note, ListNotesQuery, PaginatedNotes } from './schemas/note'
 import type { AIComposeRequest, AIComposeResponse } from './schemas/ai'
@@ -34,6 +36,7 @@ export type { HttpMethod, MockHandler, MockReq } from './client'
 
 export * as authApi from './endpoints/auth'
 export * as notesApi from './endpoints/notes'
+export * as interactionsApi from './endpoints/interactions'
 export * as aiApi from './endpoints/ai'
 
 export {
@@ -122,5 +125,85 @@ export function useNote(id: string): UseQueryResult<Note> {
 export function useAICompose(): UseMutationResult<AIComposeResponse, Error, AIComposeRequest> {
   return useMutation({
     mutationFn: (req: AIComposeRequest) => aiApi.compose(req),
+  })
+}
+
+type ToggleLikeVars = { id: string; liked: boolean }
+
+type LikeSnapshot = {
+  prevNote: Note | undefined
+  notesQueries: Array<[readonly unknown[], unknown]>
+}
+
+function applyLikeDelta(note: Note, currentlyLiked: boolean): Note {
+  return {
+    ...note,
+    likedByMe: !currentlyLiked,
+    likes: Math.max(0, note.likes + (currentlyLiked ? -1 : 1)),
+  }
+}
+
+/**
+ * Toggle the current viewer's like on a note. Optimistic + rollback on
+ * error. Touches both ['note', id] (single) and ['notes', ...] (lists +
+ * infinite queries).
+ *
+ * Pass `liked` = note.likedByMe at click time; mutationFn picks
+ * like vs unlike based on that.
+ */
+export function useToggleLike(): UseMutationResult<void, Error, ToggleLikeVars, LikeSnapshot> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, liked }: ToggleLikeVars) =>
+      liked ? interactionsApi.unlikeNote(id) : interactionsApi.likeNote(id),
+    onMutate: async ({ id, liked }: ToggleLikeVars): Promise<LikeSnapshot> => {
+      await qc.cancelQueries({ queryKey: ['note', id] })
+      await qc.cancelQueries({ queryKey: ['notes'] })
+
+      const prevNote = qc.getQueryData<Note>(['note', id])
+      const notesQueries = qc.getQueriesData<unknown>({ queryKey: ['notes'] })
+
+      if (prevNote) {
+        qc.setQueryData<Note>(['note', id], applyLikeDelta(prevNote, liked))
+      }
+
+      for (const [key, data] of notesQueries) {
+        if (!data) continue
+        // Infinite query (useNotes): { pages: PaginatedNotes[], pageParams }
+        if (
+          typeof data === 'object' &&
+          'pages' in (data as object) &&
+          Array.isArray((data as { pages: unknown }).pages)
+        ) {
+          const inf = data as { pages: PaginatedNotes[]; pageParams: unknown[] }
+          qc.setQueryData(key, {
+            ...inf,
+            pages: inf.pages.map((page) => ({
+              ...page,
+              items: page.items.map((n) => (n.id === id ? applyLikeDelta(n, liked) : n)),
+            })),
+          })
+        } else if (Array.isArray(data)) {
+          // Flat Note[] (useHotNotes / useLatestNotes / useMostLikedNotes)
+          qc.setQueryData(
+            key,
+            (data as Note[]).map((n) => (n.id === id ? applyLikeDelta(n, liked) : n)),
+          )
+        }
+      }
+
+      return { prevNote, notesQueries }
+    },
+    onError: (_err: Error, vars: ToggleLikeVars, ctx?: LikeSnapshot) => {
+      if (!ctx) return
+      if (ctx.prevNote) qc.setQueryData(['note', vars.id], ctx.prevNote)
+      for (const [key, data] of ctx.notesQueries) {
+        qc.setQueryData(key, data)
+      }
+    },
+    onSettled: (_d, _e, { id }: ToggleLikeVars) => {
+      void qc.invalidateQueries({ queryKey: ['note', id] })
+      void qc.invalidateQueries({ queryKey: ['notes'] })
+    },
   })
 }

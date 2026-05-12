@@ -32,6 +32,16 @@ class NoteOut(CamelModel):
     likes: int = Field(ge=0)
     comments: int = Field(ge=0)
     read_minutes: int = Field(ge=1)
+    liked_by_me: bool = False
+
+
+class NoteUpdateIn(CamelModel):
+    """Partial update body for PATCH /notes/{id}. Mirrors DraftIn."""
+
+    title: str | None = None
+    content: str | None = None
+    category: CategoryId | None = None
+    tags: list[str] | None = None
 
 
 class ListNotesQuery(CamelModel):

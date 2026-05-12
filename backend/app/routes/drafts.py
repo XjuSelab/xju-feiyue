@@ -12,26 +12,9 @@ from app.db.models import Draft, Note, User
 from app.deps import get_current_user, get_db
 from app.schemas.draft import DraftIn, DraftOut
 from app.schemas.note import NoteAuthorOut, NoteOut
+from app.services.notes import read_minutes_from, summary_from
 
 router = APIRouter(prefix="/notes/drafts", tags=["drafts"])
-
-_SUMMARY_MAX = 200
-
-
-def _summary_from(content: str) -> str:
-    """First non-empty paragraph trimmed to {_SUMMARY_MAX} chars; ellipsis if cut."""
-    text = content.strip()
-    if not text:
-        return ""
-    first_para = next((p.strip() for p in text.split("\n\n") if p.strip()), text)
-    if len(first_para) <= _SUMMARY_MAX:
-        return first_para
-    return first_para[:_SUMMARY_MAX].rstrip() + "…"
-
-
-def _read_minutes(content: str) -> int:
-    # ~500 CJK chars per minute is the loose convention used in similar apps.
-    return max(1, round(len(content) / 500))
 
 
 async def _get_owned_draft(
@@ -136,13 +119,13 @@ async def publish(
     note = Note(
         id=str(uuid4()),
         title=draft.title,
-        summary=_summary_from(draft.content),
+        summary=summary_from(draft.content),
         content=draft.content,
         category=draft.category,
         tags=list(draft.tags),
         author_sid=user.sid,
         created_at=datetime.now(timezone.utc),
-        read_minutes=_read_minutes(draft.content),
+        read_minutes=read_minutes_from(draft.content),
     )
     db.add(note)
     await db.delete(draft)

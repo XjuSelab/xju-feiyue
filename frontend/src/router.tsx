@@ -9,18 +9,10 @@ import { RequireAccess } from '@/components/layout/RequireAccess'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { ErrorState } from '@/components/common/ErrorState'
 
-const HomePage = lazy(() =>
-  import('@/pages/HomePage').then((m) => ({ default: m.HomePage })),
-)
-const BrowsePage = lazy(() =>
-  import('@/pages/BrowsePage').then((m) => ({ default: m.BrowsePage })),
-)
-const WritePage = lazy(() =>
-  import('@/pages/WritePage').then((m) => ({ default: m.WritePage })),
-)
-const LoginPage = lazy(() =>
-  import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })),
-)
+const HomePage = lazy(() => import('@/pages/HomePage').then((m) => ({ default: m.HomePage })))
+const BrowsePage = lazy(() => import('@/pages/BrowsePage').then((m) => ({ default: m.BrowsePage })))
+const WritePage = lazy(() => import('@/pages/WritePage').then((m) => ({ default: m.WritePage })))
+const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })))
 const NoteDetailPage = lazy(() =>
   import('@/pages/NoteDetailPage').then((m) => ({
     default: m.NoteDetailPage,
@@ -119,6 +111,16 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       },
       {
         path: '/write/:draftId',
+        element: (
+          <PageBoundary>
+            <RequireAccess requireAuth>
+              <WritePage />
+            </RequireAccess>
+          </PageBoundary>
+        ),
+      },
+      {
+        path: '/write/note/:noteId',
         element: (
           <PageBoundary>
             <RequireAccess requireAuth>

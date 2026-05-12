@@ -5,7 +5,11 @@ import { CATEGORIES, getCategory } from '@/lib/categories'
 import type { Note } from '@/api/schemas/note'
 import notesJson from '@/api/mock/notes.json'
 
-const NOTES = notesJson as readonly Note[]
+// Mock fixture pre-dates the likedByMe field; coerce by injecting a default.
+const NOTES = (notesJson as readonly Omit<Note, 'likedByMe'>[]).map((n) => ({
+  ...n,
+  likedByMe: false,
+})) as readonly Note[]
 
 /**
  * Hero stack on the login page. Pick 3 notes with diverse vibes (container

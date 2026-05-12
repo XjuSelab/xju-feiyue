@@ -41,8 +41,18 @@ export const NoteSchema = z.object({
   comments: z.number().int().nonnegative(),
   /** estimated read time in minutes */
   readMinutes: z.number().int().positive(),
+  /** Whether the current viewer has liked this note. Anon viewers see false. */
+  likedByMe: z.boolean(),
 })
 export type Note = z.infer<typeof NoteSchema>
+
+/** Body shape for PATCH /notes/{id} — all fields optional. */
+export type NoteUpdateIn = {
+  title?: string
+  content?: string
+  category?: z.infer<typeof CategoryIdSchema>
+  tags?: string[]
+}
 
 export const NoteListSchema = z.array(NoteSchema)
 

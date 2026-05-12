@@ -1,15 +1,37 @@
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Clock, Heart, MessageSquare } from 'lucide-react'
-import { useNote } from '@/api'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Clock, Heart, MessageSquare, Pencil, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
+import { notesApi, useNote, useToggleLike, ApiError } from '@/api'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { Markdown } from '@/components/common/Markdown'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { useAuthStore } from '@/stores/authStore'
+import { cn } from '@/lib/cn'
 import 'highlight.js/styles/github.css'
 
 export function NoteDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const qc = useQueryClient()
   const { data: note, isLoading, error, refetch } = useNote(id ?? '')
+
+  const authMode = useAuthStore((s) => s.mode)
+  const currentSid = useAuthStore((s) => s.user?.sid)
+  const toggleLike = useToggleLike()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   if (isLoading) {
     return (
@@ -28,6 +50,32 @@ export function NoteDetailPage() {
         />
       </section>
     )
+  }
+
+  const isAuthor = !!currentSid && currentSid === note.author.sid
+
+  const onLikeClick = () => {
+    if (authMode !== 'authed') {
+      toast.error('请先登录后再点赞')
+      return
+    }
+    toggleLike.mutate({ id: note.id, liked: note.likedByMe })
+  }
+
+  const onConfirmDelete = async () => {
+    if (deleting) return
+    setDeleting(true)
+    try {
+      await notesApi.deleteNote(note.id)
+      toast.success('已删除')
+      void qc.invalidateQueries({ queryKey: ['notes'] })
+      navigate('/')
+    } catch (e) {
+      const msg = e instanceof ApiError ? e.message : '删除失败，请稍后再试'
+      toast.error(msg)
+      setDeleting(false)
+      setConfirmOpen(false)
+    }
   }
 
   return (
@@ -72,10 +120,46 @@ export function NoteDetailPage() {
           )}
         </span>
         <span className="text-text">{note.author.nickname}</span>
-        <span className="ml-auto inline-flex items-center gap-4 text-xs text-text-faint">
+
+        {isAuthor && (
           <span className="inline-flex items-center gap-1">
-            <Heart size={12} aria-hidden /> {note.likes}
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-xs text-text-muted"
+            >
+              <Link to={`/write/note/${note.id}`}>
+                <Pencil size={12} aria-hidden /> 编辑
+              </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirmOpen(true)}
+              className="h-7 gap-1 px-2 text-xs text-text-muted hover:text-red-500"
+            >
+              <Trash2 size={12} aria-hidden /> 删除
+            </Button>
           </span>
+        )}
+
+        <span className="ml-auto inline-flex items-center gap-4 text-xs text-text-faint">
+          <button
+            type="button"
+            onClick={onLikeClick}
+            disabled={toggleLike.isPending}
+            aria-label={note.likedByMe ? '取消点赞' : '点赞'}
+            aria-pressed={note.likedByMe}
+            className={cn(
+              'inline-flex items-center gap-1 rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong',
+              note.likedByMe && 'text-red-500 hover:text-red-500',
+            )}
+          >
+            <Heart size={12} aria-hidden fill={note.likedByMe ? 'currentColor' : 'none'} />{' '}
+            {note.likes}
+          </button>
           <span className="inline-flex items-center gap-1">
             <MessageSquare size={12} aria-hidden /> {note.comments}
           </span>
@@ -97,6 +181,33 @@ export function NoteDetailPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={confirmOpen} onOpenChange={(o) => !deleting && setConfirmOpen(o)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>确认删除这篇笔记？</DialogTitle>
+            <DialogDescription>删除后将无法恢复，相关点赞与评论也会一并清除。</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmOpen(false)}
+              disabled={deleting}
+            >
+              取消
+            </Button>
+            <Button
+              type="button"
+              onClick={onConfirmDelete}
+              disabled={deleting}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              {deleting ? '删除中…' : '确认删除'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

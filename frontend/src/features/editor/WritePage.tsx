@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 import type { EditorView } from '@codemirror/view'
 import { ApiError } from '@/api/client'
 import * as draftsApi from '@/api/endpoints/drafts'
+import * as notesApi from '@/api/endpoints/notes'
 import { useAuthStore } from '@/stores/authStore'
-import { useDraftStore } from '@/stores/draftStore'
+import { useDraftStore, type Draft } from '@/stores/draftStore'
 import { cn } from '@/lib/cn'
 import type { CategoryId } from '@/lib/categories'
 import { MarkdownEditor } from './MarkdownEditor'
@@ -21,8 +23,10 @@ import { useScrollSync } from './hooks/useScrollSync'
 const FLOAT_THRESHOLD = 4
 
 export function WritePage() {
-  const { draftId } = useParams<{ draftId: string }>()
+  const { draftId, noteId } = useParams<{ draftId?: string; noteId?: string }>()
   const navigate = useNavigate()
+  const qc = useQueryClient()
+  const isEditMode = !!noteId
 
   const drafts = useDraftStore((s) => s.drafts)
   const currentId = useDraftStore((s) => s.currentId)
@@ -31,20 +35,51 @@ export function WritePage() {
   const updateDraft = useDraftStore((s) => s.updateDraft)
   const saveDraft = useDraftStore((s) => s.saveDraft)
   const deleteDraft = useDraftStore((s) => s.deleteDraft)
-  const draft = currentId ? (drafts[currentId] ?? null) : null
+
+  // Edit mode keeps its draft entirely in local state so it doesn't pollute
+  // the persisted drafts list. Initial values come from the published note.
+  const [editingDraft, setEditingDraft] = useState<Draft | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
+
+  const storeDraft = currentId ? (drafts[currentId] ?? null) : null
+  const draft = isEditMode ? editingDraft : storeDraft
 
   const authMode = useAuthStore((s) => s.mode)
   const [publishing, setPublishing] = useState(false)
   const editorViewRef = useRef<EditorView | null>(null)
 
-  // Initial load: route param > existing current > new
+  // Initial load: edit mode hydrates from API; otherwise route param > existing > new.
   useEffect(() => {
+    if (isEditMode && noteId) {
+      let cancelled = false
+      notesApi
+        .getNote(noteId)
+        .then((note) => {
+          if (cancelled) return
+          setEditingDraft({
+            id: `edit_${note.id}`,
+            title: note.title,
+            content: note.content,
+            category: note.category,
+            tags: note.tags,
+            updatedAt: new Date().toISOString(),
+          })
+        })
+        .catch((e: unknown) => {
+          if (cancelled) return
+          setEditError(e instanceof Error ? e.message : '加载笔记失败')
+        })
+      return () => {
+        cancelled = true
+      }
+    }
     if (draftId) {
       loadDraft(draftId)
     } else if (!currentId) {
       ensureCurrent()
     }
-  }, [draftId, currentId, loadDraft, ensureCurrent])
+    return undefined
+  }, [isEditMode, noteId, draftId, currentId, loadDraft, ensureCurrent])
 
   const [viewMode, setViewMode] = useState<EditorViewMode>('split')
   const [aiOpen, setAiOpen] = useState(false)
@@ -61,27 +96,47 @@ export function WritePage() {
 
   const { compose, isPending, active, history, setActive, clearActive } = useAICompose()
 
-  // Autosave when draft body changes
-  useAutoSave([draft?.title, draft?.content, draft?.category, draft?.tags?.join(',')], saveDraft)
+  // Autosave: only meaningful for new drafts. Edit mode persists on Publish.
+  useAutoSave(
+    [draft?.title, draft?.content, draft?.category, draft?.tags?.join(',')],
+    isEditMode ? () => {} : saveDraft,
+  )
 
   const wordCount = useMemo(
     () => (draft?.content ?? '').replace(/\s+/g, '').length,
     [draft?.content],
   )
 
-  if (!draft) {
+  if (isEditMode && editError) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-text-muted">
-        正在准备草稿…
+        加载失败：{editError}
       </div>
     )
   }
 
-  const onContentChange = (v: string) => updateDraft({ content: v })
-  const onTitleChange = (v: string) => updateDraft({ title: v })
-  const onCategoryChange = (c: CategoryId) => updateDraft({ category: c })
-  const onAddTag = (tag: string) => updateDraft({ tags: [...draft.tags, tag] })
-  const onRemoveTag = (tag: string) => updateDraft({ tags: draft.tags.filter((t) => t !== tag) })
+  if (!draft) {
+    return (
+      <div className="flex h-full items-center justify-center text-sm text-text-muted">
+        {isEditMode ? '正在加载笔记…' : '正在准备草稿…'}
+      </div>
+    )
+  }
+
+  // Unified write-through that picks the right backing store.
+  const updateField = (patch: Partial<Omit<Draft, 'id' | 'updatedAt'>>) => {
+    if (isEditMode) {
+      setEditingDraft((d) => (d ? { ...d, ...patch, updatedAt: new Date().toISOString() } : d))
+    } else {
+      updateDraft(patch)
+    }
+  }
+
+  const onContentChange = (v: string) => updateField({ content: v })
+  const onTitleChange = (v: string) => updateField({ title: v })
+  const onCategoryChange = (c: CategoryId) => updateField({ category: c })
+  const onAddTag = (tag: string) => updateField({ tags: [...draft.tags, tag] })
+  const onRemoveTag = (tag: string) => updateField({ tags: draft.tags.filter((t) => t !== tag) })
 
   // Insert markdown via CodeMirror — `$` in the snippet is the caret marker:
   // wraps the current selection if any, otherwise places the cursor where
@@ -129,36 +184,49 @@ export function WritePage() {
     const title = draft.title.trim()
     const content = draft.content.trim()
     if (!title) {
-      toast.error('发布前请先填写标题')
+      toast.error(isEditMode ? '标题不能为空' : '发布前请先填写标题')
       return
     }
     if (!content) {
-      toast.error('发布前请先填写正文')
+      toast.error(isEditMode ? '正文不能为空' : '发布前请先填写正文')
       return
     }
     if (!draft.category) {
-      toast.error('发布前请先选择分类')
+      toast.error(isEditMode ? '请先选择分类' : '发布前请先选择分类')
       return
     }
     if (authMode !== 'authed') {
-      toast.error('请先登录后再发布')
+      toast.error('请先登录')
       return
     }
 
     setPublishing(true)
     try {
-      const server = await draftsApi.createDraft({
-        title: draft.title,
-        content: draft.content,
-        category: draft.category,
-        tags: draft.tags,
-      })
-      const note = await draftsApi.publishDraft(server.id)
-      deleteDraft(draft.id)
-      toast.success('发布成功')
-      navigate(`/note/${note.id}`)
+      if (isEditMode && noteId) {
+        await notesApi.updateNote(noteId, {
+          title: draft.title,
+          content: draft.content,
+          category: draft.category,
+          tags: draft.tags,
+        })
+        toast.success('修改已保存')
+        void qc.invalidateQueries({ queryKey: ['note', noteId] })
+        void qc.invalidateQueries({ queryKey: ['notes'] })
+        navigate(`/note/${noteId}`)
+      } else {
+        const server = await draftsApi.createDraft({
+          title: draft.title,
+          content: draft.content,
+          category: draft.category,
+          tags: draft.tags,
+        })
+        const note = await draftsApi.publishDraft(server.id)
+        deleteDraft(draft.id)
+        toast.success('发布成功')
+        navigate(`/note/${note.id}`)
+      }
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : '发布失败，请稍后再试'
+      const msg = e instanceof ApiError ? e.message : '保存失败，请稍后再试'
       toast.error(msg)
     } finally {
       setPublishing(false)
@@ -182,11 +250,16 @@ export function WritePage() {
         onTitleChange={onTitleChange}
         onCategoryChange={onCategoryChange}
         onSave={() => {
+          if (isEditMode) {
+            toast.info('点击「保存修改」提交更改')
+            return
+          }
           saveDraft()
           toast.success('已保存草稿')
         }}
         onPublish={onPublish}
         publishing={publishing}
+        mode={isEditMode ? 'edit' : 'new'}
       />
       <SubToolbar
         tags={draft.tags}
