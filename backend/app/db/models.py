@@ -116,6 +116,7 @@ class Draft(Base):
         ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     content: Mapped[str] = mapped_column(Text, nullable=False, default="")
     category: Mapped[str | None] = mapped_column(String(20), nullable=True)
     tags: Mapped[list[str]] = mapped_column(StringList(), nullable=False, default=list)

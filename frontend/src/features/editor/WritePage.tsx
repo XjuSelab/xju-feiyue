@@ -22,6 +22,7 @@ import { SubToolbar, type EditorViewMode } from './toolbar/SubToolbar'
 import { AIDrawer } from './ai/AIDrawer'
 import { FloatingToolbar } from './ai/FloatingToolbar'
 import { useAICompose } from './ai/useAICompose'
+import { SummaryField } from './SummaryField'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useScrollSync } from './hooks/useScrollSync'
 
@@ -64,6 +65,7 @@ export function WritePage() {
           setEditingDraft({
             id: `edit_${note.id}`,
             title: note.title,
+            summary: note.summary,
             content: note.content,
             category: note.category,
             tags: note.tags,
@@ -104,7 +106,7 @@ export function WritePage() {
 
   // Autosave: only meaningful for new drafts. Edit mode persists on Publish.
   useAutoSave(
-    [draft?.title, draft?.content, draft?.category, draft?.tags?.join(',')],
+    [draft?.title, draft?.summary, draft?.content, draft?.category, draft?.tags?.join(',')],
     isEditMode ? () => {} : saveDraft,
   )
 
@@ -211,6 +213,7 @@ export function WritePage() {
       if (isEditMode && noteId) {
         await notesApi.updateNote(noteId, {
           title: draft.title,
+          summary: draft.summary,
           content: draft.content,
           category: draft.category,
           tags: draft.tags,
@@ -222,6 +225,7 @@ export function WritePage() {
       } else {
         const server = await draftsApi.createDraft({
           title: draft.title,
+          summary: draft.summary,
           content: draft.content,
           category: draft.category,
           tags: draft.tags,
@@ -285,7 +289,20 @@ export function WritePage() {
           )
           panelGroupRef.current?.setLayout(layout)
         }}
+        canPolish={selection.text.trim().length >= FLOAT_THRESHOLD}
+        onPolish={() => {
+          setAiOpen(true)
+          compose('polish', selection.text)
+        }}
       />
+
+      <div className="border-b border-border bg-bg px-6 py-2">
+        <SummaryField
+          value={draft.summary}
+          onChange={(v) => updateField({ summary: v })}
+          content={draft.content}
+        />
+      </div>
 
       <PanelGroup
         key={layoutKey}

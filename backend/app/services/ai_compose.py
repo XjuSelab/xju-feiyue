@@ -35,7 +35,8 @@ def build_prompt(mode: str, options: dict[str, Any] | None) -> str:
     if mode == "polish":
         return (
             "你是一个中文文本润色助手。修订下面文本：修正语法、消除冗余、保持原意。"
-            "仅返回修订后文本，不要任何解释。"
+            "保留原有 markdown 语法（**粗体**、*斜体*、`代码`、列表、引用、链接等），"
+            "不要把 markdown 渲染成纯文本。仅返回修订后文本，不要任何解释。"
         )
     if mode == "shorten":
         return (
@@ -59,6 +60,13 @@ def build_prompt(mode: str, options: dict[str, Any] | None) -> str:
     if mode == "custom":
         prompt = str(opts.get("prompt", ""))
         return f"按以下要求修改文本：{prompt}\n\n仅返回修改后文本。"
+    if mode == "summarize":
+        max_chars = int(opts.get("maxChars", 120))
+        return (
+            f"用最多 {max_chars} 个中文字符为下面这篇笔记写一段简介。"
+            "目标读者是浏览首页卡片的人，点出主题与价值，不要列条目，不要使用 markdown。"
+            "仅返回简介本身，不要前缀、不要引号。"
+        )
     raise ValueError(f"unknown mode: {mode}")
 
 
@@ -90,6 +98,11 @@ async def compose(req: AIComposeIn) -> AIComposeOut:
 
         choice = resp.choices[0].message.content if resp.choices else None
         after = choice or ""
+
+    if req.mode == "summarize":
+        cap = int((req.options or {}).get("maxChars", 120))
+        if len(after) > cap:
+            after = after[:cap].rstrip() + "…"
 
     elapsed_ms = int((time.monotonic() - started) * 1000)
     return AIComposeOut(

@@ -36,6 +36,7 @@ async def create(
         id=str(uuid4()),
         owner_sid=user.sid,
         title=body.title or "",
+        summary=body.summary or "",
         content=body.content or "",
         category=body.category,
         tags=list(body.tags or []),
@@ -78,6 +79,8 @@ async def update(
     draft = await _get_owned_draft(draft_id, user, db)
     if body.title is not None:
         draft.title = body.title
+    if body.summary is not None:
+        draft.summary = body.summary
     if body.content is not None:
         draft.content = body.content
     if body.category is not None:
@@ -119,7 +122,7 @@ async def publish(
     note = Note(
         id=str(uuid4()),
         title=draft.title,
-        summary=summary_from(draft.content),
+        summary=draft.summary.strip() or summary_from(draft.content),
         content=draft.content,
         category=draft.category,
         tags=list(draft.tags),

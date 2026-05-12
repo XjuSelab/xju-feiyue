@@ -11,6 +11,7 @@ import {
   Sparkles,
   Eye,
   Columns,
+  Wand2,
   X,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -31,6 +32,10 @@ type Props = {
   onSetViewMode: (m: EditorViewMode) => void
   /** Reset splitter back to an even split (only useful in 'split' viewMode). */
   onResetLayout: () => void
+  /** Whether the editor currently has a selection long enough to polish. */
+  canPolish: boolean
+  /** Trigger AI polish on the current selection. */
+  onPolish: () => void
 }
 
 export function SubToolbar({
@@ -44,6 +49,8 @@ export function SubToolbar({
   onToggleAi,
   onSetViewMode,
   onResetLayout,
+  canPolish,
+  onPolish,
 }: Props) {
   const [tagInput, setTagInput] = useState('')
 
@@ -137,6 +144,18 @@ export function SubToolbar({
             <Columns size={12} aria-hidden />
           </button>
         )}
+
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={onPolish}
+          disabled={!canPolish}
+          title={canPolish ? '润色选中文字' : '先选中一段文字（≥ 4 字）'}
+          className="h-7"
+        >
+          <Wand2 size={12} aria-hidden /> 润色
+        </Button>
 
         <Button
           type="button"

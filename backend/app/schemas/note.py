@@ -39,6 +39,7 @@ class NoteUpdateIn(CamelModel):
     """Partial update body for PATCH /notes/{id}. Mirrors DraftIn."""
 
     title: str | None = None
+    summary: str | None = None
     content: str | None = None
     category: CategoryId | None = None
     tags: list[str] | None = None

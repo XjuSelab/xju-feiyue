@@ -5,7 +5,9 @@ from pydantic import Field
 
 from app.schemas._base import CamelModel
 
-AIComposeMode = Literal["polish", "shorten", "expand", "tone", "translate", "custom"]
+AIComposeMode = Literal[
+    "polish", "shorten", "expand", "tone", "translate", "custom", "summarize"
+]
 DiffType = Literal["equal", "add", "del"]
 
 

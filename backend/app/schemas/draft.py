@@ -7,6 +7,7 @@ from app.schemas.note import CategoryId
 
 class DraftIn(CamelModel):
     title: str | None = None
+    summary: str | None = None
     content: str | None = None
     category: CategoryId | None = None
     tags: list[str] | None = None
@@ -15,6 +16,7 @@ class DraftIn(CamelModel):
 class DraftOut(CamelModel):
     id: str
     title: str
+    summary: str = ""
     content: str
     category: CategoryId | None = None
     tags: list[str] = Field(default_factory=list)

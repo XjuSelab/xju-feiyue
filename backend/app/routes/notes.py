@@ -133,8 +133,12 @@ async def update_note(
         if not body.content.strip():
             raise HTTPException(status_code=422, detail="正文不能为空")
         note.content = body.content
-        note.summary = summary_from(body.content)
         note.read_minutes = read_minutes_from(body.content)
+
+    if body.summary is not None:
+        note.summary = body.summary.strip() or summary_from(note.content)
+    elif body.content is not None:
+        note.summary = summary_from(body.content)
 
     await db.commit()
     await db.refresh(note)

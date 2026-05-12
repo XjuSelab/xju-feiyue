@@ -5,6 +5,7 @@ import { CategoryIdSchema, NoteSchema, type Note } from '../schemas/note'
 export const DraftSchema = z.object({
   id: z.string(),
   title: z.string(),
+  summary: z.string(),
   content: z.string(),
   category: CategoryIdSchema.nullable(),
   tags: z.array(z.string()),
@@ -14,6 +15,7 @@ export type Draft = z.infer<typeof DraftSchema>
 
 export type DraftIn = {
   title?: string
+  summary?: string
   content?: string
   category?: z.infer<typeof CategoryIdSchema> | null
   tags?: string[]

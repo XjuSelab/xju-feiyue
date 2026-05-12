@@ -178,6 +178,15 @@ function transform(
       const prompt = (options?.['prompt'] as string) ?? ''
       return `${text}\n\n（按 prompt 修改：${prompt || '未提供 prompt'}）`
     }
+    case 'summarize': {
+      const max = Number(options?.['maxChars'] ?? 120)
+      const stripped = text
+        .replace(/[#>*_`\-\n]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+      const head = stripped.slice(0, Math.max(40, max - 4))
+      return head.length === stripped.length ? head : `${head}…`
+    }
   }
 }
 

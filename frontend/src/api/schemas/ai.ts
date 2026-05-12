@@ -12,6 +12,7 @@ export const AIComposeModeSchema = z.enum([
   'tone',
   'translate',
   'custom',
+  'summarize',
 ])
 export type AIComposeMode = z.infer<typeof AIComposeModeSchema>
 

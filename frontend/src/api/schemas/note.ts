@@ -49,6 +49,7 @@ export type Note = z.infer<typeof NoteSchema>
 /** Body shape for PATCH /notes/{id} — all fields optional. */
 export type NoteUpdateIn = {
   title?: string
+  summary?: string
   content?: string
   category?: z.infer<typeof CategoryIdSchema>
   tags?: string[]

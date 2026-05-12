@@ -5,6 +5,7 @@ import type { CategoryId } from '@/lib/categories'
 export type Draft = {
   id: string
   title: string
+  summary: string
   content: string
   category: CategoryId
   tags: string[]
@@ -29,16 +30,14 @@ const newId = () => `draft_${Date.now().toString(36)}_${Math.random().toString(3
 const blankDraft = (): Draft => ({
   id: newId(),
   title: '',
+  summary: '',
   content: '',
   category: 'research',
   tags: [],
   updatedAt: new Date().toISOString(),
 })
 
-const creator: StateCreator<
-  DraftState,
-  [['zustand/persist', unknown]]
-> = (set, get) => ({
+const creator: StateCreator<DraftState, [['zustand/persist', unknown]]> = (set, get) => ({
   drafts: {},
   currentId: null,
   ensureCurrent: () => {
@@ -108,5 +107,19 @@ export const useDraftStore = create<DraftState>()(
     name: 'labnotes.drafts',
     storage: createJSONStorage(() => localStorage),
     partialize: (s) => ({ drafts: s.drafts, currentId: s.currentId }),
+    version: 1,
+    migrate: (persisted, _version) => {
+      const s = persisted as {
+        drafts?: Record<string, Partial<Draft>>
+        currentId?: string | null
+      } | null
+      if (!s?.drafts) return s as never
+      const upgraded: Record<string, Draft> = {}
+      for (const [id, d] of Object.entries(s.drafts)) {
+        const cur = d as Partial<Draft>
+        upgraded[id] = { ...(cur as Draft), summary: cur.summary ?? '' }
+      }
+      return { ...s, drafts: upgraded } as never
+    },
   }),
 )
