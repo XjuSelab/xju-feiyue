@@ -21,7 +21,9 @@ OUT = REPO_ROOT / "frontend" / "src" / "api" / "mock" / "notes.json"
 # frontend. Keep sids in lock-step with backend/scripts/seed.py USERS.
 AUTHOR_MAP: dict[str, dict] = {
     "winbeau": {"sid": "20241401231", "nickname": "winbeau"},
-    "孙海洋":   {"sid": "20180000001", "nickname": "孙海洋"},
+    "孙海洋":   {"sid": "20222004210", "nickname": "孙海洋"},
+    "郭子腾":   {"sid": "20221305207", "nickname": "郭子腾"},
+    "夏清伟":   {"sid": "20221401231", "nickname": "夏清伟"},
 }
 DEFAULT_AUTHOR = AUTHOR_MAP["winbeau"]
 _FRONT = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
