@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { markdown } from '@codemirror/lang-markdown'
 
@@ -15,6 +15,10 @@ type Props = {
   /** Receive the underlying CodeMirror EditorView so the parent can dispatch
    * transactions (toolbar insertions). Called once after mount. */
   onReady?: (view: EditorView) => void
+  /** Image files pasted into the editor — caller decides upload behavior. */
+  onPasteFiles?: (files: File[]) => void
+  /** Image files dropped onto the editor — caller decides upload behavior. */
+  onDropFiles?: (files: File[]) => void
   className?: string
 }
 
@@ -24,7 +28,22 @@ type Props = {
  * - selection 监听上抛（spec 浮动工具条用）
  * - 字号 14 与 prose-claude 不一致，保留 prose 在预览侧渲染
  */
-export function MarkdownEditor({ value, onChange, onSelectionChange, onReady, className }: Props) {
+export function MarkdownEditor({
+  value,
+  onChange,
+  onSelectionChange,
+  onReady,
+  onPasteFiles,
+  onDropFiles,
+  className,
+}: Props) {
+  // Stable refs so the editor extension below doesn't have to be rebuilt
+  // every render (which would tear down + remount CodeMirror).
+  const pasteRef = useRef(onPasteFiles)
+  const dropRef = useRef(onDropFiles)
+  pasteRef.current = onPasteFiles
+  dropRef.current = onDropFiles
+
   const extensions = useMemo(
     () => [
       markdown(),
@@ -40,6 +59,30 @@ export function MarkdownEditor({ value, onChange, onSelectionChange, onReady, cl
           padding: '16px 24px',
         },
         '.cm-focused': { outline: 'none' },
+      }),
+      EditorView.domEventHandlers({
+        paste(event) {
+          const handler = pasteRef.current
+          if (!handler) return false
+          const files = Array.from(event.clipboardData?.files ?? []).filter((f) =>
+            f.type.startsWith('image/'),
+          )
+          if (files.length === 0) return false
+          event.preventDefault()
+          handler(files)
+          return true
+        },
+        drop(event) {
+          const handler = dropRef.current
+          if (!handler) return false
+          const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
+            f.type.startsWith('image/'),
+          )
+          if (files.length === 0) return false
+          event.preventDefault()
+          handler(files)
+          return true
+        },
       }),
     ],
     [],

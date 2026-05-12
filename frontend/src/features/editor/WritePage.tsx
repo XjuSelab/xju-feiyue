@@ -12,6 +12,7 @@ import type { EditorView } from '@codemirror/view'
 import { ApiError } from '@/api/client'
 import * as draftsApi from '@/api/endpoints/drafts'
 import * as notesApi from '@/api/endpoints/notes'
+import * as uploadsApi from '@/api/endpoints/uploads'
 import { useAuthStore } from '@/stores/authStore'
 import { useDraftStore, type Draft } from '@/stores/draftStore'
 import type { CategoryId } from '@/lib/categories'
@@ -53,6 +54,7 @@ export function WritePage() {
   const authMode = useAuthStore((s) => s.mode)
   const [publishing, setPublishing] = useState(false)
   const editorViewRef = useRef<EditorView | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Initial load: edit mode hydrates from API; otherwise route param > existing > new.
   useEffect(() => {
@@ -172,6 +174,24 @@ export function WritePage() {
     })
     view.focus()
   }
+
+  const uploadAndInsert = async (file: File) => {
+    if (authMode !== 'authed') {
+      toast.error('请先登录再上传图片')
+      return
+    }
+    const t = toast.loading('图片上传中…')
+    try {
+      const { url } = await uploadsApi.uploadNoteImage(file)
+      onMarkdownInsert(`![](${url})`)
+      toast.success('已插入图片', { id: t })
+    } catch (e) {
+      const msg = e instanceof ApiError ? e.message : '上传失败'
+      toast.error(msg, { id: t })
+    }
+  }
+
+  const onPickImage = () => fileInputRef.current?.click()
 
   const onAcceptAll = () => {
     if (!active) return
@@ -294,6 +314,20 @@ export function WritePage() {
           setAiOpen(true)
           compose('polish', selection.text)
         }}
+        onPickImage={onPickImage}
+      />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0]
+          if (f) void uploadAndInsert(f)
+          // Reset so re-selecting the same file fires onChange again.
+          e.target.value = ''
+        }}
       />
 
       <div className="border-b border-border bg-bg px-6 py-2">
@@ -326,6 +360,12 @@ export function WritePage() {
                 onSelectionChange={setSelection}
                 onReady={(v) => {
                   editorViewRef.current = v
+                }}
+                onPasteFiles={(files) => {
+                  if (files[0]) void uploadAndInsert(files[0])
+                }}
+                onDropFiles={(files) => {
+                  if (files[0]) void uploadAndInsert(files[0])
                 }}
                 className="h-full"
               />

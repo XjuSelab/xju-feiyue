@@ -191,6 +191,14 @@ function transform(
   }
 }
 
+// ============== uploads ==============
+
+registerMock('POST', '/notes/images', async () => {
+  // Mock dev fixture — placekitten lets us see the inserted image in
+  // MarkdownPreview without a backend.
+  return { url: 'https://placekitten.com/640/360' }
+})
+
 registerMock('POST', '/ai/compose', async (req: MockReq) => {
   const parsed = AIComposeRequestSchema.parse(req.body)
   const before = parsed.text

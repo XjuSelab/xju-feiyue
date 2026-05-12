@@ -7,6 +7,7 @@ import {
   Quote,
   Code,
   Link as LinkIcon,
+  Image as ImageIcon,
   Hash,
   Sparkles,
   Eye,
@@ -36,6 +37,8 @@ type Props = {
   canPolish: boolean
   /** Trigger AI polish on the current selection. */
   onPolish: () => void
+  /** Open the OS file picker to upload an image into the editor. */
+  onPickImage: () => void
 }
 
 export function SubToolbar({
@@ -51,6 +54,7 @@ export function SubToolbar({
   onResetLayout,
   canPolish,
   onPolish,
+  onPickImage,
 }: Props) {
   const [tagInput, setTagInput] = useState('')
 
@@ -85,6 +89,9 @@ export function SubToolbar({
       </ToolButton>
       <ToolButton aria-label="链接" onClick={() => onMarkdownInsert('[$](url)')}>
         <LinkIcon size={12} aria-hidden />
+      </ToolButton>
+      <ToolButton aria-label="插入图片" onClick={onPickImage}>
+        <ImageIcon size={12} aria-hidden />
       </ToolButton>
 
       <span className="mx-2 h-4 w-px bg-border" aria-hidden />
