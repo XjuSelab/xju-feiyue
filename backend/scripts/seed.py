@@ -42,7 +42,7 @@ USERS: list[dict] = [
         "email": None,
     },
     {
-        "sid": "20180000001",
+        "sid": "20222004210",
         "name": "孙海洋",
         "nickname": "孙海洋",
         "password": "123456",
