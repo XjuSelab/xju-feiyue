@@ -152,9 +152,16 @@
   margin: 2em 0;
 }
 
-/* Flash highlight for "jump to quoted span" — wraps the matched text for ~1.6s
-   before being unwrapped. Uses the same warm tone as inline `code` so it sits
-   inside prose without clashing with the surrounding palette. */
+/* Flash highlight for "jump to quoted span". Preferred path uses the CSS
+   Custom Highlight API (doesn't mutate DOM, works across inline boundaries).
+   The keyframe + selector pair drives a ~1.6s fade — JS clears the Highlight
+   entry afterwards. */
+::highlight(flash-anchor) {
+  background-color: var(--code-inline-bg, #fef3c7);
+  color: inherit;
+}
+
+/* Fallback: legacy <mark> wrap for browsers without Highlight API. */
 mark.flash-highlight {
   background: var(--code-inline-bg, #fef3c7);
   color: inherit;

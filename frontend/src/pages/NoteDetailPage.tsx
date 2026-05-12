@@ -125,12 +125,22 @@ export function NoteDetailPage() {
       total += (n as Text).data
       n = walker.nextNode()
     }
-    const idx = total.indexOf(anchorText)
-    if (idx < 0) {
-      toast.info('未找到对应原文段（可能已被编辑）')
-      return
+    let start = total.indexOf(anchorText)
+    let end = start + anchorText.length
+    if (start < 0) {
+      // Selection.toString() collapses newlines to spaces but the rendered
+      // textContent preserves them — fall back to a whitespace-tolerant
+      // regex so anchors that span hard breaks still resolve.
+      const pattern = anchorText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+')
+      const m = new RegExp(pattern).exec(total)
+      if (!m) {
+        toast.info('未找到对应原文段（可能已被编辑）')
+        return
+      }
+      start = m.index
+      end = start + m[0].length
     }
-    const range = makeRangeAt(nodes, idx, idx + anchorText.length)
+    const range = makeRangeAt(nodes, start, end)
     if (!range) return
     const rect = range.getBoundingClientRect()
     window.scrollTo({
@@ -138,15 +148,27 @@ export function NoteDetailPage() {
       behavior: 'smooth',
     })
 
-    // Wrap the range in a temporary <mark.flash-highlight>; CSS animation
-    // fades it out and a JS timer removes the mark to restore the DOM.
+    // Prefer the CSS Custom Highlight API — it doesn't mutate the DOM and
+    // works across inline boundaries (a quoted span that straddles <a> /
+    // <code> / hljs token spans would make surroundContents throw).
+    const HL_NAME = 'flash-anchor'
+    const cssHighlights = (CSS as unknown as { highlights?: Map<string, unknown> }).highlights
+    if (typeof window !== 'undefined' && 'Highlight' in window && cssHighlights instanceof Map) {
+      const HighlightCtor = (window as unknown as { Highlight: new (r: Range) => unknown })
+        .Highlight
+      const hl = new HighlightCtor(range)
+      cssHighlights.set(HL_NAME, hl)
+      window.setTimeout(() => cssHighlights.delete(HL_NAME), 1600)
+      return
+    }
+
+    // Fallback: wrap with <mark.flash-highlight> for older browsers. May
+    // skip the highlight if the range crosses inline parents.
     const mark = document.createElement('mark')
     mark.className = 'flash-highlight'
     try {
       range.surroundContents(mark)
     } catch {
-      // surroundContents throws when the range crosses non-text boundaries
-      // (e.g. across an inline <strong>). Fall back to scrolling without highlight.
       return
     }
     window.setTimeout(() => {
