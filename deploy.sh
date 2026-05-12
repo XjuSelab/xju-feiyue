@@ -38,6 +38,10 @@ cd backend
 
 sudo systemctl restart aurash-backend.service
 sleep 3
-curl -sf http://127.0.0.1:8001/health > /dev/null \
+# --noproxy 127.0.0.1: this shell often has http_proxy=http://127.0.0.1:10808
+# exported for GFW-aware tooling, which makes curl route the health probe
+# through a proxy that (rightly) refuses localhost — producing a false
+# "!! health check failed" even though uvicorn is fine.
+curl -sf --noproxy 127.0.0.1 http://127.0.0.1:8001/health > /dev/null \
     && echo "== backend healthy" \
     || { echo "!! health check failed"; sudo journalctl -u aurash-backend.service -n 30 --no-pager; exit 1; }
