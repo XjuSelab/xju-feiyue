@@ -275,14 +275,7 @@ export function NoteDetailPage() {
         </span>
       </div>
 
-      <div
-        ref={contentRef}
-        // The body is read-only — silence any accidental focus caret that
-        // browsers sometimes show on focusable scrollable children (e.g.
-        // <pre overflow:auto>) or via Caret Browsing mode. Selection
-        // highlighting still works normally.
-        style={{ caretColor: 'transparent' }}
-      >
+      <div ref={contentRef}>
         {note.content ? (
           <Markdown content={note.content} />
         ) : (

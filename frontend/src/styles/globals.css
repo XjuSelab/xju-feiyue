@@ -69,6 +69,22 @@
   * {
     @apply border-border;
   }
+
+  /* Suppress the blinking typing caret everywhere by default. Read-only
+     headings / paragraphs / cards can still pick up a focus caret in some
+     browsers (Caret Browsing mode, or a focusable scrollable child like a
+     <pre overflow:auto>); we don't want a vertical bar flashing on text the
+     user can't edit. Re-enable for real inputs further down. */
+  html {
+    caret-color: transparent;
+  }
+  input,
+  textarea,
+  [contenteditable='true'],
+  [contenteditable='plaintext-only'],
+  .cm-content {
+    caret-color: auto;
+  }
 }
 
 /* ==========================================================================
