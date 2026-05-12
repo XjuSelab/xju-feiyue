@@ -180,6 +180,43 @@ mark.flash-highlight {
   }
 }
 
+/* Persistent inline anchor mark — wraps the quoted text of every anchored
+   comment in the article body. Subtle dotted underline at rest so the
+   reader sees that something is annotated without it screaming, and lights
+   up to the warm-amber highlight on hover or when the matching comment is
+   hovered on the other side. */
+mark.anchor-mark {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--highlight-flash-bg);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition:
+    background 180ms ease-out,
+    text-decoration-color 180ms ease-out;
+}
+mark.anchor-mark:hover,
+mark.anchor-mark.anchor-active {
+  background: var(--highlight-flash-bg);
+  text-decoration-color: transparent;
+}
+
+/* Comment li, when its anchor is being pointed at from the article side. */
+li[data-comment-id].anchor-active {
+  background: var(--highlight-flash-bg);
+}
+
+/* One-shot flash on a comment li after the user clicked its mark in the
+   article. Reuses the same fade keyframe as the jump-to-quote flash. */
+li[data-comment-id].flash-comment {
+  animation: flash-highlight-fade 1.6s ease-out forwards;
+}
+
 /* Dark variant placeholder（暂不实现具体值，预留 R5+ 主题切换） */
 .prose-claude--dark {
   /* TODO: dark scheme overrides in future round */

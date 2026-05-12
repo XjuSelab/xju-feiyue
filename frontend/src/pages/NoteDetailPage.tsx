@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { notesApi, useNote, useToggleLike, ApiError } from '@/api'
+import { notesApi, useComments, useNote, useToggleLike, ApiError } from '@/api'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
@@ -29,6 +29,7 @@ import {
 import { CommentSection, type CommentSectionHandle } from '@/features/comments/CommentSection'
 import { useCommentViewMode } from '@/features/comments/useCommentViewMode'
 import { useTextSelection } from '@/features/comments/useTextSelection'
+import { useAnchorMarks, type AnchorSpec } from '@/features/comments/useAnchorMarks'
 import { QuoteBubble } from '@/features/comments/QuoteBubble'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/cn'
@@ -50,6 +51,76 @@ export function NoteDetailPage() {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const commentSectionRef = useRef<CommentSectionHandle | null>(null)
   const selection = useTextSelection(contentRef)
+
+  // Bidirectional anchor wiring (F2.4).
+  // 1) Wrap every anchored quote in `<mark class="anchor-mark" data-comment-id>`
+  //    inside the article body so we have hover/click targets.
+  // 2) Track the currently-hovered comment id from EITHER side: when the
+  //    cursor enters a comment li with an anchor, OR a mark in the article,
+  //    we light up both ends.
+  // 3) Clicking a mark scrolls + flashes the matching comment li.
+  const commentsQ = useComments(note?.id ?? '')
+  const anchors = useMemo<AnchorSpec[]>(
+    () =>
+      (commentsQ.data?.pages ?? [])
+        .flatMap((p) => p.items)
+        .filter((c) => !!c.anchorText)
+        .map((c) => ({ commentId: c.id, text: c.anchorText as string })),
+    [commentsQ.data],
+  )
+  const [hoveredCommentId, setHoveredCommentId] = useState<string | null>(null)
+  useAnchorMarks(contentRef, anchors, [note?.content])
+
+  useEffect(() => {
+    const root = contentRef.current
+    if (!root) return
+    root
+      .querySelectorAll('mark.anchor-mark.anchor-active')
+      .forEach((m) => m.classList.remove('anchor-active'))
+    if (hoveredCommentId) {
+      root
+        .querySelectorAll(`mark[data-comment-id="${cssEscape(hoveredCommentId)}"]`)
+        .forEach((m) => m.classList.add('anchor-active'))
+    }
+  }, [hoveredCommentId, anchors])
+
+  useEffect(() => {
+    const root = contentRef.current
+    if (!root) return
+    const onOver = (e: MouseEvent) => {
+      const target = e.target
+      if (!(target instanceof Element)) return
+      const mark = target.closest('mark.anchor-mark') as HTMLElement | null
+      if (!mark) return
+      const id = mark.dataset['commentId']
+      if (id) setHoveredCommentId(id)
+    }
+    const onOut = (e: MouseEvent) => {
+      const related = e.relatedTarget
+      if (related instanceof Element && related.closest('mark.anchor-mark')) return
+      setHoveredCommentId((prev) => (prev !== null ? null : prev))
+    }
+    const onClick = (e: MouseEvent) => {
+      const target = e.target
+      if (!(target instanceof Element)) return
+      const mark = target.closest('mark.anchor-mark') as HTMLElement | null
+      if (!mark) return
+      const id = mark.dataset['commentId']
+      if (!id) return
+      // Force-open inline comments if user is in 'off' mode — they just asked
+      // for the related comment.
+      if (viewMode === 'off') setViewMode('inline')
+      requestAnimationFrame(() => commentSectionRef.current?.flashComment(id))
+    }
+    root.addEventListener('mouseover', onOver)
+    root.addEventListener('mouseout', onOut)
+    root.addEventListener('click', onClick)
+    return () => {
+      root.removeEventListener('mouseover', onOver)
+      root.removeEventListener('mouseout', onOut)
+      root.removeEventListener('click', onClick)
+    }
+  }, [viewMode, setViewMode])
 
   if (isLoading) {
     return (
@@ -316,6 +387,8 @@ export function NoteDetailPage() {
             noteAuthorSid={note.author.sid}
             variant="inline"
             onQuoteClick={onQuoteClick}
+            activeCommentId={hoveredCommentId}
+            onCommentHover={setHoveredCommentId}
           />
         )}
         {viewMode === 'drawer' && (
@@ -326,6 +399,8 @@ export function NoteDetailPage() {
               noteAuthorSid={note.author.sid}
               variant="drawer"
               onQuoteClick={onQuoteClick}
+              activeCommentId={hoveredCommentId}
+              onCommentHover={setHoveredCommentId}
             />
           </aside>
         )}
@@ -375,6 +450,11 @@ export function NoteDetailPage() {
  * crossing parent spans (rehype-highlight chops a single word into adjacent
  * <span class="hljs-*"> children).
  */
+function cssEscape(s: string): string {
+  const fn = (window.CSS as { escape?: (s: string) => string } | undefined)?.escape
+  return fn ? fn(s) : s.replace(/["\\]/g, '\\$&')
+}
+
 function makeRangeAt(nodes: Text[], start: number, end: number): Range | null {
   if (nodes.length === 0 || end <= start) return null
   let acc = 0

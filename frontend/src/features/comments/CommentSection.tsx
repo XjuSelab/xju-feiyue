@@ -16,6 +16,8 @@ export type QuoteContext = {
 
 export type CommentSectionHandle = {
   startQuote: (q: QuoteContext) => void
+  /** Scroll a comment li into view and run a 1.6 s flash on it. No-op when not found. */
+  flashComment: (commentId: string) => void
 }
 
 type Props = {
@@ -29,10 +31,17 @@ type Props = {
    * Quotes render as clickable blockquotes when this is provided.
    */
   onQuoteClick?: (anchorText: string) => void
+  /**
+   * Comment id whose article-anchor is currently hovered. The matching li
+   * gets the .anchor-active class so the user can see both ends linked.
+   */
+  activeCommentId?: string | null
+  /** Fires when the cursor enters / leaves an anchored comment li. */
+  onCommentHover?: (commentId: string | null) => void
 }
 
 export const CommentSection = forwardRef<CommentSectionHandle, Props>(function CommentSection(
-  { noteId, noteAuthorSid, variant = 'inline', onQuoteClick },
+  { noteId, noteAuthorSid, variant = 'inline', onQuoteClick, activeCommentId, onCommentHover },
   ref,
 ) {
   const authMode = useAuthStore((s) => s.mode)
@@ -46,6 +55,7 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
   const [content, setContent] = useState('')
   const [quote, setQuote] = useState<QuoteContext | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const sectionRef = useRef<HTMLElement | null>(null)
 
   useImperativeHandle(
     ref,
@@ -54,6 +64,17 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
         setQuote(q)
         // Focus next tick so the textarea exists.
         requestAnimationFrame(() => textareaRef.current?.focus())
+      },
+      flashComment: (commentId: string) => {
+        const root = sectionRef.current
+        if (!root) return
+        const li = root.querySelector(
+          `li[data-comment-id="${cssEscape(commentId)}"]`,
+        ) as HTMLLIElement | null
+        if (!li) return
+        li.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        li.classList.add('flash-comment')
+        window.setTimeout(() => li.classList.remove('flash-comment'), 1600)
       },
     }),
     [],
@@ -107,6 +128,7 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
 
   return (
     <section
+      ref={sectionRef}
       data-comments-variant={variant}
       className={cn(
         variant === 'inline' ? 'mt-12 border-t border-border pt-8' : 'flex h-full flex-col',
@@ -159,8 +181,19 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
         )}
         {flatComments.map((c, idx) => {
           const canDelete = !!me && (me.sid === c.author.sid || me.sid === noteAuthorSid)
+          const hasAnchor = !!c.anchorText
           return (
-            <li key={c.id} data-comment-id={c.id} className="flex gap-3">
+            <li
+              key={c.id}
+              data-comment-id={c.id}
+              onMouseEnter={hasAnchor ? () => onCommentHover?.(c.id) : undefined}
+              onMouseLeave={hasAnchor ? () => onCommentHover?.(null) : undefined}
+              className={cn(
+                'flex gap-3 rounded-md transition-colors',
+                hasAnchor && '-mx-2 px-2 py-1',
+                activeCommentId === c.id && 'anchor-active',
+              )}
+            >
               <span className="inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg-subtle text-xs font-medium text-text">
                 {c.author.avatarThumb || c.author.avatar ? (
                   <img
@@ -232,6 +265,13 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
     </section>
   )
 })
+
+function cssEscape(s: string): string {
+  // CSS.escape exists in all modern browsers; fall back to a minimal stringifier
+  // for environments (jsdom, very old chromiums) where it isn't defined.
+  const fn = (window.CSS as { escape?: (s: string) => string } | undefined)?.escape
+  return fn ? fn(s) : s.replace(/["\\]/g, '\\$&')
+}
 
 function formatRelative(iso: string): string {
   const then = new Date(iso).getTime()
