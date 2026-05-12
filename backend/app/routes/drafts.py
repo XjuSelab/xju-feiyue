@@ -12,6 +12,7 @@ from app.db.models import Draft, Note, User
 from app.deps import get_current_user, get_db
 from app.schemas.draft import DraftIn, DraftOut
 from app.schemas.note import NoteAuthorOut, NoteOut
+from app.services import ai_compose
 from app.services.notes import read_minutes_from, summary_from
 
 router = APIRouter(prefix="/notes/drafts", tags=["drafts"])
@@ -119,10 +120,18 @@ async def publish(
     if not draft.category:
         raise HTTPException(status_code=422, detail="发布前必须选择分类")
 
+    summary = draft.summary.strip()
+    if not summary:
+        # Default fallback is the AI summary (the user opted out of writing one).
+        # If DeepSeek is unreachable we still publish — degrade to first-paragraph.
+        summary = await ai_compose.summarize_or_fallback(
+            draft.content, summary_from(draft.content)
+        )
+
     note = Note(
         id=str(uuid4()),
         title=draft.title,
-        summary=draft.summary.strip() or summary_from(draft.content),
+        summary=summary,
         content=draft.content,
         category=draft.category,
         tags=list(draft.tags),

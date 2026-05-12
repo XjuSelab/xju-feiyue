@@ -6,7 +6,9 @@ response is diffed against the input so the UI can render add/del segments.
 """
 from __future__ import annotations
 
+import asyncio
 import time
+from collections.abc import AsyncIterator
 from typing import Any
 
 from fastapi import HTTPException
@@ -61,11 +63,10 @@ def build_prompt(mode: str, options: dict[str, Any] | None) -> str:
         prompt = str(opts.get("prompt", ""))
         return f"按以下要求修改文本：{prompt}\n\n仅返回修改后文本。"
     if mode == "summarize":
-        max_chars = int(opts.get("maxChars", 120))
         return (
-            f"用最多 {max_chars} 个中文字符为下面这篇笔记写一段简介。"
-            "目标读者是浏览首页卡片的人，点出主题与价值，不要列条目，不要使用 markdown。"
-            "仅返回简介本身，不要前缀、不要引号。"
+            "为下面这篇笔记写一段一句话简介，**不超过 35 个中文字符**。"
+            "目标读者是浏览首页卡片的人，点出主题与价值，不要列条目，不要使用 markdown，"
+            "不要换行。仅返回简介本身，不要前缀、不要引号。"
         )
     raise ValueError(f"unknown mode: {mode}")
 
@@ -99,11 +100,6 @@ async def compose(req: AIComposeIn) -> AIComposeOut:
         choice = resp.choices[0].message.content if resp.choices else None
         after = choice or ""
 
-    if req.mode == "summarize":
-        cap = int((req.options or {}).get("maxChars", 120))
-        if len(after) > cap:
-            after = after[:cap].rstrip() + "…"
-
     elapsed_ms = int((time.monotonic() - started) * 1000)
     return AIComposeOut(
         segments=compute_diff_segments(req.text, after),
@@ -111,3 +107,56 @@ async def compose(req: AIComposeIn) -> AIComposeOut:
         after=after,
         elapsed_ms=elapsed_ms,
     )
+
+
+async def stream_chunks(req: AIComposeIn) -> AsyncIterator[str]:
+    """Yield raw text deltas from DeepSeek as they arrive (no SSE framing)."""
+    sys_prompt = build_prompt(req.mode, req.options)
+
+    if settings.deepseek_dry_run:
+        # Echo input in 5 visible chunks so dev/tests can see the streaming UX.
+        text = req.text
+        step = max(4, (len(text) + 4) // 5)
+        for i in range(0, len(text), step):
+            yield text[i : i + step]
+            await asyncio.sleep(0.12)
+        return
+
+    try:
+        client = get_client()
+        resp = await client.chat.completions.create(
+            model=settings.deepseek_model,
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": req.text},
+            ],
+            temperature=0.3,
+            max_tokens=300,
+            stream=True,
+        )
+        async for event in resp:
+            if not event.choices:
+                continue
+            delta = event.choices[0].delta
+            chunk = getattr(delta, "content", None)
+            if chunk:
+                yield chunk
+    except RateLimitError as e:
+        raise HTTPException(502, "AI 服务繁忙，请稍后再试") from e
+    except APIStatusError as e:
+        raise HTTPException(502, f"AI 上游错误：{e.status_code}") from e
+    except (APIConnectionError, APIError) as e:
+        raise HTTPException(504, "AI 上游超时或不可达") from e
+
+
+async def summarize_or_fallback(content: str, fallback: str) -> str:
+    """Best-effort AI summary. Returns `fallback` if upstream is unreachable
+    or if dry-run mode is active (the echo would be the entire body, not a
+    summary — and tests/dev shouldn't pay for a real upstream call)."""
+    if not content.strip() or settings.deepseek_dry_run:
+        return fallback
+    try:
+        out = await compose(AIComposeIn(mode="summarize", text=content))
+        return out.after.strip() or fallback
+    except HTTPException:
+        return fallback

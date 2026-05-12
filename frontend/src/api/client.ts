@@ -15,6 +15,12 @@ const useMock = import.meta.env.DEV && !apiBase
 // interactions|ai|health|uploads|admin)/* → backend, so /auth/login goes
 // straight through. Override with VITE_API_BASE for cross-origin setups.
 const baseURL = apiBase ?? ''
+
+/** Whether the in-process mock dispatch is active. Exported for endpoints
+ * like /ai/compose/stream that bypass the mock JSON path (raw fetch + SSE)
+ * and need to fall back when mocks are mounted. */
+export const isMockMode = (): boolean => useMock
+export const getApiBase = (): string => baseURL
 const MOCK_LATENCY_MS = 200
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'

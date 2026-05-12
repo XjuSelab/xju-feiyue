@@ -15,6 +15,7 @@ from app.schemas.note import (
     NoteUpdateIn,
     PaginatedNotes,
 )
+from app.services import ai_compose
 from app.services.notes import (
     count_comments,
     count_likes,
@@ -136,9 +137,17 @@ async def update_note(
         note.read_minutes = read_minutes_from(body.content)
 
     if body.summary is not None:
-        note.summary = body.summary.strip() or summary_from(note.content)
+        stripped = body.summary.strip()
+        if stripped:
+            note.summary = stripped
+        else:
+            note.summary = await ai_compose.summarize_or_fallback(
+                note.content, summary_from(note.content)
+            )
     elif body.content is not None:
-        note.summary = summary_from(body.content)
+        note.summary = await ai_compose.summarize_or_fallback(
+            body.content, summary_from(body.content)
+        )
 
     await db.commit()
     await db.refresh(note)

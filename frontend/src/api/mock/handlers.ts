@@ -179,12 +179,13 @@ function transform(
       return `${text}\n\n（按 prompt 修改：${prompt || '未提供 prompt'}）`
     }
     case 'summarize': {
-      const max = Number(options?.['maxChars'] ?? 120)
+      // Mock mirrors the real prompt: ≤ 35 Chinese chars, one line, no markdown.
+      void options
       const stripped = text
         .replace(/[#>*_`\-\n]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim()
-      const head = stripped.slice(0, Math.max(40, max - 4))
+      const head = stripped.slice(0, 32)
       return head.length === stripped.length ? head : `${head}…`
     }
   }
