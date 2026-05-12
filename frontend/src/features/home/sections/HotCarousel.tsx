@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useHotNotes } from '@/api'
 import { NoteCard } from '@/components/common/NoteCard'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
@@ -10,18 +11,10 @@ export function HotCarousel() {
   return (
     <section aria-labelledby="hot-heading" className="space-y-4">
       <header className="flex items-end gap-2">
-        <h2
-          id="hot-heading"
-          className="font-serif text-xl font-semibold text-text"
-        >
+        <h2 id="hot-heading" className="font-serif text-xl font-semibold text-text">
           本周热门
         </h2>
-        <Flame
-          size={16}
-          aria-hidden
-          className="text-cat-research"
-          strokeWidth={1.75}
-        />
+        <Flame size={16} aria-hidden className="text-cat-research" strokeWidth={1.75} />
       </header>
 
       {q.isPending ? (
@@ -41,18 +34,71 @@ export function HotCarousel() {
       ) : q.data.length === 0 ? (
         <p className="text-sm text-text-muted">暂无热门笔记。</p>
       ) : (
-        <div
-          role="list"
-          aria-label="本周热门笔记"
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2"
-        >
-          {q.data.map((note) => (
-            <div role="listitem" key={note.id} className="snap-start">
-              <NoteCard note={note} variant="compact" />
-            </div>
-          ))}
-        </div>
+        <HotRow notes={q.data} />
       )}
     </section>
+  )
+}
+
+function HotRow({ notes }: { notes: ReturnType<typeof useHotNotes>['data'] & object }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [edges, setEdges] = useState<{ left: boolean; right: boolean }>({
+    left: false,
+    right: false,
+  })
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => {
+      const maxScroll = el.scrollWidth - el.clientWidth
+      const left = el.scrollLeft > 1
+      const right = el.scrollLeft < maxScroll - 1
+      setEdges((prev) => (prev.left === left && prev.right === right ? prev : { left, right }))
+    }
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => {
+      el.removeEventListener('scroll', update)
+      ro.disconnect()
+    }
+  }, [notes])
+
+  return (
+    <div className="relative">
+      <div
+        ref={ref}
+        role="list"
+        aria-label="本周热门笔记"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2 [&::-webkit-scrollbar]:hidden"
+      >
+        {notes.map((note) => (
+          <div role="listitem" key={note.id} className="snap-start">
+            <NoteCard note={note} variant="compact" />
+          </div>
+        ))}
+      </div>
+      <div
+        aria-hidden
+        style={{
+          backgroundImage: 'linear-gradient(to right, var(--color-bg), rgba(255,255,255,0))',
+        }}
+        className={`pointer-events-none absolute inset-y-0 left-0 w-16 transition-opacity duration-200 ${
+          edges.left ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
+      <div
+        aria-hidden
+        style={{
+          backgroundImage: 'linear-gradient(to left, var(--color-bg), rgba(255,255,255,0))',
+        }}
+        className={`pointer-events-none absolute inset-y-0 right-0 w-16 transition-opacity duration-200 ${
+          edges.right ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
+    </div>
   )
 }
