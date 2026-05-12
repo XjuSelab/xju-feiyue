@@ -5,7 +5,7 @@ title: 保研经验完整指南 — 黑话词汇 + 入面经历
 summary: "保研黑话词汇表 + 6 所院校面经 + 弱 com 套磁策略 + 关键要点（科研 > 绩点 >> 竞赛、高绩点 + 过六级）。"
 category: recommend
 tags: [保研, 推免, 套磁, 经验分享]
-author: winbeau
+author: 夏清伟
 createdAt: 2025-10-01T00:00:00Z
 readMinutes: 20
 ---

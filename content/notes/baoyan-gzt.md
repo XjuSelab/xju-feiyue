@@ -5,7 +5,7 @@ title: 保研分享会 — 国防科技大学推免（郭子腾）
 summary: "新疆大学专排 5/126 → 国防科大计算机 CS 学硕：推免流程、夏令营/预推免/套磁策略 + 学科竞赛全清单。"
 category: recommend
 tags: [保研, 推免, 国防科技大学, 经验分享]
-author: winbeau
+author: 郭子腾
 createdAt: 2025-10-15T00:00:00Z
 readMinutes: 12
 ---
