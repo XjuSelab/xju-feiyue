@@ -345,9 +345,17 @@ export function NoteDetailPage() {
   )
 }
 
-/** Build a Range that spans `[start, end)` across a flat list of text nodes. */
+/**
+ * Build a Range that spans `[start, end)` across a flat list of text nodes.
+ *
+ * Bias on boundaries: start uses strict `<` so a position right at a node's
+ * end lands at offset 0 of the next node — that keeps the start inside the
+ * node we're about to read, which is what `surroundContents` needs to avoid
+ * crossing parent spans (rehype-highlight chops a single word into adjacent
+ * <span class="hljs-*"> children).
+ */
 function makeRangeAt(nodes: Text[], start: number, end: number): Range | null {
-  if (nodes.length === 0) return null
+  if (nodes.length === 0 || end <= start) return null
   let acc = 0
   let startNode: Text | null = null
   let startOffset = 0
@@ -355,7 +363,7 @@ function makeRangeAt(nodes: Text[], start: number, end: number): Range | null {
   let endOffset = 0
   for (const n of nodes) {
     const next = acc + n.data.length
-    if (startNode === null && start <= next) {
+    if (startNode === null && start < next) {
       startNode = n
       startOffset = start - acc
     }
