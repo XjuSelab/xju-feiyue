@@ -64,6 +64,8 @@ export const ListNotesQuerySchema = z.object({
   tags: z.array(z.string()).optional(),
   cursor: z.string().optional(),
   limit: z.number().int().positive().max(50).optional(),
+  /** Restrict to the authenticated user's own notes (sent with auth header). */
+  mine: z.boolean().optional(),
 })
 export type ListNotesQuery = z.infer<typeof ListNotesQuerySchema>
 

@@ -36,6 +36,7 @@ async def list_(
     tags: str | None = None,
     cursor: str | None = None,
     limit: int = Query(default=6, ge=1, le=50),
+    mine: bool = False,
     db: AsyncSession = Depends(get_db),
     user: User | None = Depends(get_optional_user),
 ) -> PaginatedNotes:
@@ -48,6 +49,7 @@ async def list_(
             tags=tag_list,
             cursor=cursor,
             limit=limit,
+            mine=mine,
         ),
         db,
         user_sid=user.sid if user else None,

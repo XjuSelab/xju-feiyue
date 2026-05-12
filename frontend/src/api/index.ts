@@ -19,9 +19,11 @@ import {
 import * as notesApi from './endpoints/notes'
 import * as interactionsApi from './endpoints/interactions'
 import * as aiApi from './endpoints/ai'
+import * as draftsApi from './endpoints/drafts'
 import type { Note, ListNotesQuery, PaginatedNotes } from './schemas/note'
 import type { Comment, CommentIn, PaginatedComments } from './schemas/interaction'
 import type { AIComposeRequest, AIComposeResponse } from './schemas/ai'
+import type { Draft } from './endpoints/drafts'
 
 if (import.meta.env.DEV && !import.meta.env['VITE_API_BASE']) {
   // Side-effect import; handlers register on module load. Skipped when
@@ -39,6 +41,8 @@ export * as authApi from './endpoints/auth'
 export * as notesApi from './endpoints/notes'
 export * as interactionsApi from './endpoints/interactions'
 export * as aiApi from './endpoints/ai'
+export * as draftsApi from './endpoints/drafts'
+export { DraftSchema, type Draft, type DraftIn } from './endpoints/drafts'
 
 export {
   UserSchema,
@@ -324,6 +328,42 @@ export function useDeleteComment(
     },
     onSettled: () => {
       void qc.invalidateQueries({ queryKey: key })
+    },
+  })
+}
+
+// ------ /me page: published notes + drafts ------
+
+export function useMyNotes(
+  enabled = true,
+): UseInfiniteQueryResult<{ pages: PaginatedNotes[]; pageParams: (string | undefined)[] }> {
+  return useInfiniteQuery({
+    queryKey: ['me', 'notes'],
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) => {
+      const q: ListNotesQuery = { mine: true, limit: 20 }
+      if (typeof pageParam === 'string') q.cursor = pageParam
+      return notesApi.listNotes(q)
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last: PaginatedNotes) => last.nextCursor ?? undefined,
+    enabled,
+  })
+}
+
+export function useMyDrafts(enabled = true): UseQueryResult<Draft[]> {
+  return useQuery({
+    queryKey: ['me', 'drafts'],
+    queryFn: () => draftsApi.listDrafts(),
+    enabled,
+  })
+}
+
+export function useDeleteDraft(): UseMutationResult<void, Error, string> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => draftsApi.deleteDraft(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me', 'drafts'] })
     },
   })
 }

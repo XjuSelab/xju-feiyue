@@ -51,6 +51,9 @@ class ListNotesQuery(CamelModel):
     tags: list[str] | None = None
     cursor: str | None = None
     limit: int | None = Field(default=None, ge=1, le=50)
+    # When true, restrict results to the authenticated user's own notes.
+    # Ignored (treated as false) when no bearer token is presented.
+    mine: bool | None = None
 
 
 class PaginatedNotes(CamelModel):

@@ -33,6 +33,7 @@ function toRequestQuery(
   if (q.cursor) params['cursor'] = q.cursor
   if (typeof q.limit === 'number') params['limit'] = q.limit
   if (q.tags && q.tags.length > 0) params['tags'] = q.tags.join(',')
+  if (q.mine) params['mine'] = 'true'
   return params
 }
 

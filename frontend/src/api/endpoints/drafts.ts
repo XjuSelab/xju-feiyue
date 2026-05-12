@@ -26,6 +26,15 @@ function authHeaders(): Record<string, string> {
   return t ? { Authorization: `Bearer ${t}` } : {}
 }
 
+export async function listDrafts(): Promise<Draft[]> {
+  return request({
+    method: 'GET',
+    path: '/notes/drafts',
+    schema: z.array(DraftSchema),
+    headers: authHeaders(),
+  })
+}
+
 export async function createDraft(body: DraftIn): Promise<Draft> {
   return request({
     method: 'POST',

@@ -124,6 +124,8 @@ async def list_notes(
                 func.lower(Note.summary).like(like),
             )
         )
+    if query.mine and user_sid:
+        stmt = stmt.where(Note.author_sid == user_sid)
 
     notes_orm = list((await db.execute(stmt)).scalars().all())
 
