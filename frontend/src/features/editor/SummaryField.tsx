@@ -10,9 +10,11 @@ type Props = {
   onChange: (v: string) => void
   /** Full markdown body — fed to the AI as the source to summarize. */
   content: string
+  /** Note title — passed to AI so the summary doesn't restate the title. */
+  title?: string
 }
 
-export function SummaryField({ value, onChange, content }: Props) {
+export function SummaryField({ value, onChange, content, title }: Props) {
   const [prevSummary, setPrevSummary] = useState<string | null>(null)
   const { generate, isPending } = useSummaryCompose()
 
@@ -24,6 +26,7 @@ export function SummaryField({ value, onChange, content }: Props) {
     onChange('')
     generate({
       content,
+      ...(title !== undefined ? { title } : {}),
       onProgress: (current) => onChange(current),
       onDone: (final) => onChange(final),
     })

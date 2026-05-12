@@ -4,6 +4,8 @@ import { composeStream } from '@/api/endpoints/ai'
 
 type StartArgs = {
   content: string
+  /** Note title — fed to the model so it doesn't paraphrase the title. */
+  title?: string
   /** Called with the cumulative summary text on every delta. */
   onProgress: (current: string) => void
   /** Final value (also passed to onProgress on the last tick). */
@@ -19,15 +21,20 @@ export function useSummaryCompose() {
   const [isPending, setPending] = useState(false)
   const bufferRef = useRef('')
 
-  const generate = useCallback(({ content, onProgress, onDone }: StartArgs) => {
+  const generate = useCallback(({ content, title, onProgress, onDone }: StartArgs) => {
     if (!content.trim()) {
       toast.error('请先填写正文，再让 AI 总结')
       return
     }
     bufferRef.current = ''
     setPending(true)
+    const trimmedTitle = title?.trim()
     void composeStream(
-      { mode: 'summarize', text: content },
+      {
+        mode: 'summarize',
+        text: content,
+        ...(trimmedTitle ? { options: { title: trimmedTitle } } : {}),
+      },
       {
         onChunk: (delta) => {
           bufferRef.current += delta

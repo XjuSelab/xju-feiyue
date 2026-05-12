@@ -63,8 +63,17 @@ def build_prompt(mode: str, options: dict[str, Any] | None) -> str:
         prompt = str(opts.get("prompt", ""))
         return f"按以下要求修改文本：{prompt}\n\n仅返回修改后文本。"
     if mode == "summarize":
+        title = str(opts.get("title", "")).strip()
+        avoid_title = (
+            f"笔记标题已经是「{title}」。简介**不要复述、改写或拆解**标题里的字面信息，"
+            "假设读者已经读到了标题，需要的是标题之外的角度——"
+            "读完这篇能学到的具体知识点、得到的工具/结论、或者作者的独特观察。"
+            if title
+            else ""
+        )
         return (
             "为下面这篇笔记写一段一句话简介，**不超过 35 个中文字符**。"
+            f"{avoid_title}"
             "目标读者是浏览首页卡片的人，点出主题与价值，不要列条目，不要使用 markdown，"
             "不要换行。仅返回简介本身，不要前缀、不要引号。"
         )
@@ -149,14 +158,23 @@ async def stream_chunks(req: AIComposeIn) -> AsyncIterator[str]:
         raise HTTPException(504, "AI 上游超时或不可达") from e
 
 
-async def summarize_or_fallback(content: str, fallback: str) -> str:
+async def summarize_or_fallback(
+    content: str, fallback: str, *, title: str | None = None
+) -> str:
     """Best-effort AI summary. Returns `fallback` if upstream is unreachable
     or if dry-run mode is active (the echo would be the entire body, not a
-    summary — and tests/dev shouldn't pay for a real upstream call)."""
+    summary — and tests/dev shouldn't pay for a real upstream call).
+
+    When `title` is provided, the prompt steers DeepSeek away from
+    paraphrasing it.
+    """
     if not content.strip() or settings.deepseek_dry_run:
         return fallback
+    options = {"title": title} if title else None
     try:
-        out = await compose(AIComposeIn(mode="summarize", text=content))
+        out = await compose(
+            AIComposeIn(mode="summarize", text=content, options=options)
+        )
         return out.after.strip() or fallback
     except HTTPException:
         return fallback

@@ -142,11 +142,11 @@ async def update_note(
             note.summary = stripped
         else:
             note.summary = await ai_compose.summarize_or_fallback(
-                note.content, summary_from(note.content)
+                note.content, summary_from(note.content), title=note.title
             )
     elif body.content is not None:
         note.summary = await ai_compose.summarize_or_fallback(
-            body.content, summary_from(body.content)
+            body.content, summary_from(body.content), title=note.title
         )
 
     await db.commit()

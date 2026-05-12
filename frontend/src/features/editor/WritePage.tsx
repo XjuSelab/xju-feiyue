@@ -301,6 +301,7 @@ export function WritePage() {
           value={draft.summary}
           onChange={(v) => updateField({ summary: v })}
           content={draft.content}
+          title={draft.title}
         />
       </div>
 

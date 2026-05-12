@@ -125,7 +125,7 @@ async def publish(
         # Default fallback is the AI summary (the user opted out of writing one).
         # If DeepSeek is unreachable we still publish — degrade to first-paragraph.
         summary = await ai_compose.summarize_or_fallback(
-            draft.content, summary_from(draft.content)
+            draft.content, summary_from(draft.content), title=draft.title
         )
 
     note = Note(
