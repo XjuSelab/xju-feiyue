@@ -158,6 +158,12 @@ class Comment(Base):
         ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Optional anchor — when present, the comment quotes a span of the note's
+    # rendered body. Offsets index into the rendered DOM textContent stream
+    # (kept for future highlight-restoration; MVP only uses anchor_text).
+    anchor_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    anchor_offset_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    anchor_offset_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )

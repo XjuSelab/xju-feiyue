@@ -20,6 +20,7 @@ import * as notesApi from './endpoints/notes'
 import * as interactionsApi from './endpoints/interactions'
 import * as aiApi from './endpoints/ai'
 import type { Note, ListNotesQuery, PaginatedNotes } from './schemas/note'
+import type { Comment, CommentIn, PaginatedComments } from './schemas/interaction'
 import type { AIComposeRequest, AIComposeResponse } from './schemas/ai'
 
 if (import.meta.env.DEV && !import.meta.env['VITE_API_BASE']) {
@@ -59,6 +60,13 @@ export {
   type ListNotesQuery,
   type PaginatedNotes,
 } from './schemas/note'
+export {
+  CommentSchema,
+  PaginatedCommentsSchema,
+  type Comment,
+  type CommentIn,
+  type PaginatedComments,
+} from './schemas/interaction'
 export {
   AIComposeRequestSchema,
   AIComposeResponseSchema,
@@ -204,6 +212,118 @@ export function useToggleLike(): UseMutationResult<void, Error, ToggleLikeVars, 
     onSettled: (_d, _e, { id }: ToggleLikeVars) => {
       void qc.invalidateQueries({ queryKey: ['note', id] })
       void qc.invalidateQueries({ queryKey: ['notes'] })
+    },
+  })
+}
+
+// ------ Comments ------
+
+const COMMENT_PAGE_SIZE = 20
+
+type CommentsInfiniteData = {
+  pages: PaginatedComments[]
+  pageParams: (string | undefined)[]
+}
+
+export function useComments(noteId: string): UseInfiniteQueryResult<CommentsInfiniteData> {
+  return useInfiniteQuery({
+    queryKey: ['note', noteId, 'comments'],
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
+      interactionsApi.listComments(noteId, {
+        limit: COMMENT_PAGE_SIZE,
+        // exactOptionalPropertyTypes: omit the key entirely when undefined.
+        ...(pageParam !== undefined ? { cursor: pageParam } : {}),
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last: PaginatedComments) => last.nextCursor ?? undefined,
+    enabled: noteId.length > 0,
+  })
+}
+
+type CreateCommentSnapshot = {
+  prevData: CommentsInfiniteData | undefined
+  tempId: string
+}
+
+export function useCreateComment(
+  noteId: string,
+): UseMutationResult<Comment, Error, CommentIn, CreateCommentSnapshot> {
+  const qc = useQueryClient()
+  const key = ['note', noteId, 'comments'] as const
+  return useMutation({
+    mutationFn: (body: CommentIn) => interactionsApi.createComment(noteId, body),
+    onMutate: async (body) => {
+      await qc.cancelQueries({ queryKey: key })
+      const prevData = qc.getQueryData<CommentsInfiniteData>(key)
+      const tempId = `optimistic_${Date.now()}_${Math.random().toString(36).slice(2)}`
+      // Best-effort optimistic insert — we don't know the author shape from
+      // here, so insert a placeholder; the refetch overwrites it.
+      if (prevData && prevData.pages.length > 0) {
+        const firstPage = prevData.pages[0]!
+        const optimistic: Comment = {
+          id: tempId,
+          noteId,
+          author: {
+            sid: '',
+            nickname: '…',
+            avatar: null,
+            avatarThumb: null,
+          },
+          content: body.content,
+          createdAt: new Date().toISOString(),
+          anchorText: body.anchorText ?? null,
+          anchorOffsetStart: body.anchorOffsetStart ?? null,
+          anchorOffsetEnd: body.anchorOffsetEnd ?? null,
+        }
+        qc.setQueryData<CommentsInfiniteData>(key, {
+          ...prevData,
+          pages: [
+            { ...firstPage, items: [optimistic, ...firstPage.items] },
+            ...prevData.pages.slice(1),
+          ],
+        })
+      }
+      return { prevData, tempId }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevData) qc.setQueryData(key, ctx.prevData)
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: key })
+    },
+  })
+}
+
+type DeleteCommentSnapshot = {
+  prevData: CommentsInfiniteData | undefined
+}
+
+export function useDeleteComment(
+  noteId: string,
+): UseMutationResult<void, Error, string, DeleteCommentSnapshot> {
+  const qc = useQueryClient()
+  const key = ['note', noteId, 'comments'] as const
+  return useMutation({
+    mutationFn: (commentId: string) => interactionsApi.deleteComment(noteId, commentId),
+    onMutate: async (commentId) => {
+      await qc.cancelQueries({ queryKey: key })
+      const prevData = qc.getQueryData<CommentsInfiniteData>(key)
+      if (prevData) {
+        qc.setQueryData<CommentsInfiniteData>(key, {
+          ...prevData,
+          pages: prevData.pages.map((p) => ({
+            ...p,
+            items: p.items.filter((c) => c.id !== commentId),
+          })),
+        })
+      }
+      return { prevData }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevData) qc.setQueryData(key, ctx.prevData)
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: key })
     },
   })
 }

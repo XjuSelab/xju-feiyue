@@ -1,6 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Clock, Heart, MessageSquare, Pencil, Trash2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Clock,
+  Heart,
+  MessageSquare,
+  MessageSquareOff,
+  PanelRight,
+  Pencil,
+  Trash2,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { notesApi, useNote, useToggleLike, ApiError } from '@/api'
@@ -17,6 +26,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { CommentSection, type CommentSectionHandle } from '@/features/comments/CommentSection'
+import { useCommentViewMode } from '@/features/comments/useCommentViewMode'
+import { useTextSelection } from '@/features/comments/useTextSelection'
+import { QuoteBubble } from '@/features/comments/QuoteBubble'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/cn'
 import 'highlight.js/styles/github.css'
@@ -32,6 +45,11 @@ export function NoteDetailPage() {
   const toggleLike = useToggleLike()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [viewMode, setViewMode] = useCommentViewMode()
+
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  const commentSectionRef = useRef<CommentSectionHandle | null>(null)
+  const selection = useTextSelection(contentRef)
 
   if (isLoading) {
     return (
@@ -78,8 +96,22 @@ export function NoteDetailPage() {
     }
   }
 
-  return (
-    <section data-page="note-detail" className="mx-auto max-w-3xl px-6 py-12">
+  const onQuotePick = () => {
+    if (!selection) return
+    commentSectionRef.current?.startQuote({
+      text: selection.text,
+      offsetStart: selection.offsetStart,
+      offsetEnd: selection.offsetEnd,
+    })
+    // Drop the selection so the bubble disappears and the textarea takes focus.
+    window.getSelection()?.removeAllRanges()
+    // If the user is in 'off' mode, surfacing the quote button must also
+    // bring back inline comments — they explicitly asked to comment.
+    if (viewMode === 'off') setViewMode('inline')
+  }
+
+  const article = (
+    <>
       <Link
         to="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-text-faint hover:text-text-muted"
@@ -107,7 +139,7 @@ export function NoteDetailPage() {
       </h1>
       <p className="mb-6 text-base leading-relaxed text-text-muted">{note.summary}</p>
 
-      <div className="mb-8 flex items-center gap-3 border-y border-border py-3 text-sm">
+      <div className="mb-8 flex flex-wrap items-center gap-3 border-y border-border py-3 text-sm">
         <span className="inline-flex size-7 items-center justify-center overflow-hidden rounded-full bg-bg-subtle text-xs font-medium text-text">
           {note.author.avatarThumb || note.author.avatar ? (
             <img
@@ -145,7 +177,8 @@ export function NoteDetailPage() {
           </span>
         )}
 
-        <span className="ml-auto inline-flex items-center gap-4 text-xs text-text-faint">
+        <span className="ml-auto inline-flex items-center gap-3 text-xs text-text-faint">
+          <CommentViewToggle mode={viewMode} onChange={setViewMode} />
           <button
             type="button"
             onClick={onLikeClick}
@@ -166,11 +199,13 @@ export function NoteDetailPage() {
         </span>
       </div>
 
-      {note.content ? (
-        <Markdown content={note.content} />
-      ) : (
-        <p className="text-sm italic text-text-faint">（这篇笔记暂无正文）</p>
-      )}
+      <div ref={contentRef}>
+        {note.content ? (
+          <Markdown content={note.content} />
+        ) : (
+          <p className="text-sm italic text-text-faint">（这篇笔记暂无正文）</p>
+        )}
+      </div>
 
       {note.tags.length > 0 && (
         <div className="mt-10 flex flex-wrap gap-2 border-t border-border pt-6 text-xs text-text-muted">
@@ -181,6 +216,47 @@ export function NoteDetailPage() {
           ))}
         </div>
       )}
+    </>
+  )
+
+  return (
+    <>
+      <section
+        data-page="note-detail"
+        data-comment-view={viewMode}
+        className={cn(
+          'relative px-6 py-12',
+          viewMode === 'drawer'
+            ? 'mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_320px]'
+            : 'mx-auto max-w-3xl',
+        )}
+      >
+        <article className={viewMode === 'drawer' ? 'min-w-0' : ''}>{article}</article>
+
+        {viewMode === 'inline' && (
+          <CommentSection
+            ref={commentSectionRef}
+            noteId={note.id}
+            noteAuthorSid={note.author.sid}
+            variant="inline"
+          />
+        )}
+        {viewMode === 'drawer' && (
+          <aside className="sticky top-20 hidden h-[calc(100vh-6rem)] overflow-y-auto rounded-md border border-border bg-bg p-4 lg:block">
+            <CommentSection
+              ref={commentSectionRef}
+              noteId={note.id}
+              noteAuthorSid={note.author.sid}
+              variant="drawer"
+            />
+          </aside>
+        )}
+      </section>
+
+      <QuoteBubble
+        position={selection ? { x: selection.rect.x, y: selection.rect.y } : null}
+        onPick={onQuotePick}
+      />
 
       <Dialog open={confirmOpen} onOpenChange={(o) => !deleting && setConfirmOpen(o)}>
         <DialogContent>
@@ -208,6 +284,42 @@ export function NoteDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </section>
+    </>
+  )
+}
+
+type ToggleProps = {
+  mode: 'inline' | 'drawer' | 'off'
+  onChange: (m: 'inline' | 'drawer' | 'off') => void
+}
+
+function CommentViewToggle({ mode, onChange }: ToggleProps) {
+  const opts: Array<{ value: ToggleProps['mode']; label: string; icon: React.ReactNode }> = [
+    { value: 'inline', label: '文末楼层', icon: <MessageSquare size={12} aria-hidden /> },
+    { value: 'drawer', label: '侧边栏', icon: <PanelRight size={12} aria-hidden /> },
+    { value: 'off', label: '不看评论', icon: <MessageSquareOff size={12} aria-hidden /> },
+  ]
+  return (
+    <span
+      role="group"
+      aria-label="评论显示模式"
+      className="inline-flex items-center rounded border border-border"
+    >
+      {opts.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          aria-label={o.label}
+          aria-pressed={mode === o.value}
+          onClick={() => onChange(o.value)}
+          className={cn(
+            'inline-flex items-center px-1.5 py-0.5 transition',
+            mode === o.value ? 'bg-bg-subtle text-text' : 'text-text-faint hover:text-text-muted',
+          )}
+        >
+          {o.icon}
+        </button>
+      ))}
+    </span>
   )
 }

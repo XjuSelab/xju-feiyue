@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import type { EditorView } from '@codemirror/view'
 import { ApiError } from '@/api/client'
 import * as draftsApi from '@/api/endpoints/drafts'
 import * as notesApi from '@/api/endpoints/notes'
 import { useAuthStore } from '@/stores/authStore'
 import { useDraftStore, type Draft } from '@/stores/draftStore'
-import { cn } from '@/lib/cn'
 import type { CategoryId } from '@/lib/categories'
 import { MarkdownEditor } from './MarkdownEditor'
 import { MarkdownPreview } from './MarkdownPreview'
@@ -233,14 +233,12 @@ export function WritePage() {
     }
   }
 
-  // Editor 35 / Preview 35 / Drawer 30 when AI open；其余视图按 viewMode 切。
-  const gridCols = aiOpen
-    ? 'grid-cols-[35fr_35fr_30fr]'
-    : viewMode === 'split'
-      ? 'grid-cols-2'
-      : 'grid-cols-1'
   const showEditor = viewMode !== 'preview-only'
   const showPreview = viewMode !== 'editor-only'
+  // Distinct autoSaveId per layout combination so each one keeps its own
+  // splitter position in localStorage (otherwise toggling viewMode/aiOpen
+  // would overwrite the size with a layout that has a different panel count).
+  const layoutKey = `write-${viewMode}-${aiOpen ? 'ai' : 'noai'}`
 
   return (
     <section data-page="write" className="flex h-[calc(100vh-3.5rem-60px)] flex-col">
@@ -273,43 +271,62 @@ export function WritePage() {
         onSetViewMode={setViewMode}
       />
 
-      <div className={cn('grid min-h-0 flex-1', gridCols)}>
+      <PanelGroup
+        key={layoutKey}
+        direction="horizontal"
+        autoSaveId={layoutKey}
+        className="min-h-0 flex-1"
+      >
         {showEditor && (
-          <div
-            ref={(el) => {
-              editorScrollRef.current = el?.querySelector('.cm-scroller') ?? el
-            }}
-            className="min-w-0 border-r border-border"
-          >
-            <MarkdownEditor
-              value={draft.content}
-              onChange={onContentChange}
-              onSelectionChange={setSelection}
-              onReady={(v) => {
-                editorViewRef.current = v
+          <Panel defaultSize={showPreview ? (aiOpen ? 35 : 50) : 70} minSize={20}>
+            <div
+              ref={(el) => {
+                editorScrollRef.current = el?.querySelector('.cm-scroller') ?? el
               }}
-              className="h-full"
-            />
-          </div>
+              className="h-full min-w-0 border-r border-border"
+            >
+              <MarkdownEditor
+                value={draft.content}
+                onChange={onContentChange}
+                onSelectionChange={setSelection}
+                onReady={(v) => {
+                  editorViewRef.current = v
+                }}
+                className="h-full"
+              />
+            </div>
+          </Panel>
         )}
-        {showPreview && <MarkdownPreview ref={previewScrollRef} content={draft.content} />}
+        {showEditor && showPreview && (
+          <PanelResizeHandle className="w-1 bg-border transition hover:bg-border-strong" />
+        )}
+        {showPreview && (
+          <Panel defaultSize={showEditor ? (aiOpen ? 35 : 50) : 70} minSize={20}>
+            <MarkdownPreview ref={previewScrollRef} content={draft.content} className="h-full" />
+          </Panel>
+        )}
         {aiOpen && (
-          <AIDrawer
-            isPending={isPending}
-            active={active}
-            history={history}
-            selectedText={selection.text}
-            onCompose={compose}
-            onAcceptAll={onAcceptAll}
-            onReject={clearActive}
-            onClose={() => setAiOpen(false)}
-            onPickHistory={(id) => {
-              const found = history.find((h) => h.id === id)
-              if (found) setActive(found)
-            }}
-          />
+          <>
+            <PanelResizeHandle className="w-1 bg-border transition hover:bg-border-strong" />
+            <Panel defaultSize={30} minSize={20} maxSize={50}>
+              <AIDrawer
+                isPending={isPending}
+                active={active}
+                history={history}
+                selectedText={selection.text}
+                onCompose={compose}
+                onAcceptAll={onAcceptAll}
+                onReject={clearActive}
+                onClose={() => setAiOpen(false)}
+                onPickHistory={(id) => {
+                  const found = history.find((h) => h.id === id)
+                  if (found) setActive(found)
+                }}
+              />
+            </Panel>
+          </>
         )}
-      </div>
+      </PanelGroup>
 
       <FloatingToolbar
         position={
