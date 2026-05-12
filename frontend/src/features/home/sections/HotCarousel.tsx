@@ -51,11 +51,20 @@ function HotRow({ notes }: { notes: ReturnType<typeof useHotNotes>['data'] & obj
     const el = ref.current
     if (!el) return
     const update = () => {
-      const maxScroll = el.scrollWidth - el.clientWidth
-      // snap-mandatory can leave a few pixels of residual at the rails; treat
-      // anything within 8px of an edge as "at the edge" so the fade hides cleanly.
-      const left = el.scrollLeft > 8
-      const right = el.scrollLeft < maxScroll - 8
+      // snap-mandatory parks scrollLeft at a snap point, so it can stop tens
+      // of pixels short of scrollWidth even when the last card is fully on
+      // screen. Use the actual first/last item bounds vs the viewport so the
+      // fade only shows when something is genuinely clipped.
+      const items = el.querySelectorAll('[role="listitem"]')
+      const first = items[0] as HTMLElement | undefined
+      const last = items[items.length - 1] as HTMLElement | undefined
+      if (!first || !last) {
+        setEdges({ left: false, right: false })
+        return
+      }
+      const viewport = el.getBoundingClientRect()
+      const left = first.getBoundingClientRect().left < viewport.left - 4
+      const right = last.getBoundingClientRect().right > viewport.right + 4
       setEdges((prev) => (prev.left === left && prev.right === right ? prev : { left, right }))
     }
     update()
