@@ -11,7 +11,10 @@ import type { ZodType } from 'zod'
 
 const apiBase = import.meta.env['VITE_API_BASE'] as string | undefined
 const useMock = import.meta.env.DEV && !apiBase
-const baseURL = apiBase ?? '/api'
+// Default to same-origin direct path: prod nginx maps /(auth|notes|drafts|
+// interactions|ai|health|uploads|admin)/* → backend, so /auth/login goes
+// straight through. Override with VITE_API_BASE for cross-origin setups.
+const baseURL = apiBase ?? ''
 const MOCK_LATENCY_MS = 200
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
