@@ -17,6 +17,7 @@ type Props = {
   onCategoryChange: (c: CategoryId) => void
   onSave: () => void
   onPublish: () => void
+  publishing?: boolean
   savedAt?: string
 }
 
@@ -27,6 +28,7 @@ export function MainToolbar({
   onCategoryChange,
   onSave,
   onPublish,
+  publishing = false,
   savedAt,
 }: Props) {
   return (
@@ -38,14 +40,8 @@ export function MainToolbar({
         aria-label="笔记标题"
         className="h-8 max-w-md flex-1 border-0 bg-transparent font-serif text-lg font-semibold focus-visible:ring-0"
       />
-      <Select
-        value={category}
-        onValueChange={(v) => onCategoryChange(v as CategoryId)}
-      >
-        <SelectTrigger
-          aria-label="选择分类"
-          className="h-8 w-32 text-sm"
-        >
+      <Select value={category} onValueChange={(v) => onCategoryChange(v as CategoryId)}>
+        <SelectTrigger aria-label="选择分类" className="h-8 w-32 text-sm">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -64,11 +60,7 @@ export function MainToolbar({
         </SelectContent>
       </Select>
 
-      {savedAt && (
-        <span className="ml-auto text-xs text-text-faint">
-          已保存 · {savedAt}
-        </span>
-      )}
+      {savedAt && <span className="ml-auto text-xs text-text-faint">已保存 · {savedAt}</span>}
 
       <Button
         type="button"
@@ -79,8 +71,8 @@ export function MainToolbar({
       >
         <Save size={12} aria-hidden /> 保存草稿
       </Button>
-      <Button type="button" size="sm" onClick={onPublish}>
-        <Send size={12} aria-hidden /> 发布
+      <Button type="button" size="sm" onClick={onPublish} disabled={publishing}>
+        <Send size={12} aria-hidden /> {publishing ? '发布中…' : '发布'}
       </Button>
     </header>
   )

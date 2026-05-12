@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import type { EditorView } from '@codemirror/view'
+import { ApiError } from '@/api/client'
+import * as draftsApi from '@/api/endpoints/drafts'
+import { useAuthStore } from '@/stores/authStore'
 import { useDraftStore } from '@/stores/draftStore'
 import { cn } from '@/lib/cn'
 import type { CategoryId } from '@/lib/categories'
@@ -18,6 +22,7 @@ const FLOAT_THRESHOLD = 4
 
 export function WritePage() {
   const { draftId } = useParams<{ draftId: string }>()
+  const navigate = useNavigate()
 
   const drafts = useDraftStore((s) => s.drafts)
   const currentId = useDraftStore((s) => s.currentId)
@@ -25,7 +30,12 @@ export function WritePage() {
   const loadDraft = useDraftStore((s) => s.loadDraft)
   const updateDraft = useDraftStore((s) => s.updateDraft)
   const saveDraft = useDraftStore((s) => s.saveDraft)
+  const deleteDraft = useDraftStore((s) => s.deleteDraft)
   const draft = currentId ? (drafts[currentId] ?? null) : null
+
+  const authMode = useAuthStore((s) => s.mode)
+  const [publishing, setPublishing] = useState(false)
+  const editorViewRef = useRef<EditorView | null>(null)
 
   // Initial load: route param > existing current > new
   useEffect(() => {
@@ -49,24 +59,13 @@ export function WritePage() {
   const previewScrollRef = useRef<HTMLDivElement | null>(null)
   useScrollSync(editorScrollRef, previewScrollRef, viewMode === 'split')
 
-  const {
-    compose,
-    isPending,
-    active,
-    history,
-    setActive,
-    clearActive,
-  } = useAICompose()
+  const { compose, isPending, active, history, setActive, clearActive } = useAICompose()
 
   // Autosave when draft body changes
-  useAutoSave(
-    [draft?.title, draft?.content, draft?.category, draft?.tags?.join(',')],
-    saveDraft,
-  )
+  useAutoSave([draft?.title, draft?.content, draft?.category, draft?.tags?.join(',')], saveDraft)
 
   const wordCount = useMemo(
-    () =>
-      (draft?.content ?? '').replace(/\s+/g, '').length,
+    () => (draft?.content ?? '').replace(/\s+/g, '').length,
     [draft?.content],
   )
 
@@ -81,25 +80,41 @@ export function WritePage() {
   const onContentChange = (v: string) => updateDraft({ content: v })
   const onTitleChange = (v: string) => updateDraft({ title: v })
   const onCategoryChange = (c: CategoryId) => updateDraft({ category: c })
-  const onAddTag = (tag: string) =>
-    updateDraft({ tags: [...draft.tags, tag] })
-  const onRemoveTag = (tag: string) =>
-    updateDraft({ tags: draft.tags.filter((t) => t !== tag) })
+  const onAddTag = (tag: string) => updateDraft({ tags: [...draft.tags, tag] })
+  const onRemoveTag = (tag: string) => updateDraft({ tags: draft.tags.filter((t) => t !== tag) })
 
-  // Insert markdown snippet at end of content (CodeMirror-aware insertion is
-  // a future enhancement; this is the dumb-but-correct fallback).
+  // Insert markdown via CodeMirror — `$` in the snippet is the caret marker:
+  // wraps the current selection if any, otherwise places the cursor where
+  // `$` was (e.g. `**$**` → cursor between the asterisks).
   const onMarkdownInsert = (snippet: string) => {
-    const cleaned = snippet.replace(/\$/g, '')
-    onContentChange(`${draft.content}${cleaned}`)
+    const view = editorViewRef.current
+    const markerIdx = snippet.indexOf('$')
+    const before = markerIdx >= 0 ? snippet.slice(0, markerIdx) : snippet
+    const after = markerIdx >= 0 ? snippet.slice(markerIdx + 1) : ''
+
+    if (!view) {
+      // Fallback: append to end (no editor yet). Drops the marker.
+      onContentChange(`${draft.content}${before}${after}`)
+      return
+    }
+    const sel = view.state.selection.main
+    const selected = view.state.doc.sliceString(sel.from, sel.to)
+    const insertText = `${before}${selected}${after}`
+    view.dispatch({
+      changes: { from: sel.from, to: sel.to, insert: insertText },
+      selection: {
+        anchor: sel.from + before.length,
+        head: sel.from + before.length + selected.length,
+      },
+    })
+    view.focus()
   }
 
   const onAcceptAll = () => {
     if (!active) return
     if (selection.from !== selection.to) {
       const next =
-        draft.content.slice(0, selection.from) +
-        active.after +
-        draft.content.slice(selection.to)
+        draft.content.slice(0, selection.from) + active.after + draft.content.slice(selection.to)
       onContentChange(next)
     } else {
       onContentChange(active.after)
@@ -108,10 +123,46 @@ export function WritePage() {
     clearActive()
   }
 
-  const onPublish = () => {
-    toast.message('发布功能尚在 R5+', {
-      description: '当前为 mock 数据层；接通真后端时启用。',
-    })
+  const onPublish = async () => {
+    if (publishing || !draft) return
+
+    const title = draft.title.trim()
+    const content = draft.content.trim()
+    if (!title) {
+      toast.error('发布前请先填写标题')
+      return
+    }
+    if (!content) {
+      toast.error('发布前请先填写正文')
+      return
+    }
+    if (!draft.category) {
+      toast.error('发布前请先选择分类')
+      return
+    }
+    if (authMode !== 'authed') {
+      toast.error('请先登录后再发布')
+      return
+    }
+
+    setPublishing(true)
+    try {
+      const server = await draftsApi.createDraft({
+        title: draft.title,
+        content: draft.content,
+        category: draft.category,
+        tags: draft.tags,
+      })
+      const note = await draftsApi.publishDraft(server.id)
+      deleteDraft(draft.id)
+      toast.success('发布成功')
+      navigate(`/note/${note.id}`)
+    } catch (e) {
+      const msg = e instanceof ApiError ? e.message : '发布失败，请稍后再试'
+      toast.error(msg)
+    } finally {
+      setPublishing(false)
+    }
   }
 
   // Editor 35 / Preview 35 / Drawer 30 when AI open；其余视图按 viewMode 切。
@@ -124,10 +175,7 @@ export function WritePage() {
   const showPreview = viewMode !== 'editor-only'
 
   return (
-    <section
-      data-page="write"
-      className="flex h-[calc(100vh-3.5rem-60px)] flex-col"
-    >
+    <section data-page="write" className="flex h-[calc(100vh-3.5rem-60px)] flex-col">
       <MainToolbar
         title={draft.title}
         category={draft.category}
@@ -138,6 +186,7 @@ export function WritePage() {
           toast.success('已保存草稿')
         }}
         onPublish={onPublish}
+        publishing={publishing}
       />
       <SubToolbar
         tags={draft.tags}
@@ -163,13 +212,14 @@ export function WritePage() {
               value={draft.content}
               onChange={onContentChange}
               onSelectionChange={setSelection}
+              onReady={(v) => {
+                editorViewRef.current = v
+              }}
               className="h-full"
             />
           </div>
         )}
-        {showPreview && (
-          <MarkdownPreview ref={previewScrollRef} content={draft.content} />
-        )}
+        {showPreview && <MarkdownPreview ref={previewScrollRef} content={draft.content} />}
         {aiOpen && (
           <AIDrawer
             isPending={isPending}

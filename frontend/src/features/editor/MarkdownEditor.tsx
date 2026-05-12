@@ -12,6 +12,9 @@ type Props = {
     /** Viewport-anchored bbox of selection top, useful for FloatingToolbar */
     rect: { x: number; y: number } | null
   }) => void
+  /** Receive the underlying CodeMirror EditorView so the parent can dispatch
+   * transactions (toolbar insertions). Called once after mount. */
+  onReady?: (view: EditorView) => void
   className?: string
 }
 
@@ -21,12 +24,7 @@ type Props = {
  * - selection 监听上抛（spec 浮动工具条用）
  * - 字号 14 与 prose-claude 不一致，保留 prose 在预览侧渲染
  */
-export function MarkdownEditor({
-  value,
-  onChange,
-  onSelectionChange,
-  className,
-}: Props) {
+export function MarkdownEditor({ value, onChange, onSelectionChange, onReady, className }: Props) {
   const extensions = useMemo(
     () => [
       markdown(),
@@ -59,6 +57,9 @@ export function MarkdownEditor({
         highlightActiveLineGutter: false,
       }}
       className={className}
+      onCreateEditor={(view) => {
+        onReady?.(view)
+      }}
       onUpdate={(v) => {
         if (!onSelectionChange) return
         if (!v.selectionSet && !v.docChanged) return
