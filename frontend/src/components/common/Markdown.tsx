@@ -30,6 +30,16 @@ type Props = {
   className?: string
 }
 
+// "https://example.com" 这种字符串都算 URL。要求带 scheme，避免把作者写的普通
+// 文本（比如 "config.json"）误判成链接。
+const URL_LIKE = /^https?:\/\/\S+$/i
+
+// 旧版编辑器链接按钮模板是 `[$](url)`，光标停在 `[]` 里，很多作者把链接文本写好
+// 后忘了替换 `url` 占位词，最终保存成 `[https://...](url)`。渲染出来 `<a href="url">`
+// 是相对路径，点了会跳到 /note/url 404。下面这个救场逻辑：href 像占位/空时，
+// 如果可见文本是 URL，就把文本当真正的 href。
+const HREF_PLACEHOLDER = /^(url|URL|#|)$/
+
 /**
  * Markdown — Claude 风格 prose 容器，渲染 md/gfm/math/raw-html。
  * - 内联 `code` 走 prose-claude.css 默认样式
@@ -38,6 +48,23 @@ type Props = {
  *   样式上色（主题样式由消费侧按需 import，例如 import 'highlight.js/styles/github.css'）
  */
 const components: Components = {
+  a: ({ href, children, ...rest }) => {
+    let resolvedHref = href ?? ''
+    if (HREF_PLACEHOLDER.test(resolvedHref)) {
+      const text = nodeToText(children).trim()
+      if (URL_LIKE.test(text)) resolvedHref = text
+    }
+    const external = /^https?:\/\//i.test(resolvedHref)
+    return (
+      <a
+        href={resolvedHref}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        {...rest}
+      >
+        {children}
+      </a>
+    )
+  },
   // 让 CodeBlock 自己渲染 <pre>，避免 react-markdown 套两层 <pre>
   pre: ({ children }) => <>{children}</>,
   code: ({ className, children, ...rest }) => {

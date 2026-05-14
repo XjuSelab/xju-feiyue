@@ -175,6 +175,41 @@ export function WritePage() {
     view.focus()
   }
 
+  // 链接按钮：先前模板是 `[$](url)`，光标停在 `[]` 里，`url` 占位词原样留下；
+  // 用户选中一段文字（甚至 URL 本身）点链接后，常常忽略 `url` 直接保存，
+  // 渲染出来就是 `<a href="url">`，相对路径误跳到 /note/url。改成：
+  //   - 选区是 URL → `[](selection)`，光标落在 `[]` 里让用户填标签
+  //   - 选区是普通文字（或空） → `[selection](https://)`，并把 `https://`
+  //     选中，方便直接粘贴
+  const onInsertLink = () => {
+    const view = editorViewRef.current
+    if (!view) {
+      onContentChange(`${draft.content}[](https://)`)
+      return
+    }
+    const sel = view.state.selection.main
+    const selected = view.state.doc.sliceString(sel.from, sel.to)
+    const looksLikeUrl = /^https?:\/\/\S+$/i.test(selected.trim())
+    let insertText: string
+    let anchor: number
+    let head: number
+    if (looksLikeUrl) {
+      insertText = `[](${selected.trim()})`
+      anchor = sel.from + 1
+      head = anchor
+    } else {
+      const urlPlaceholder = 'https://'
+      insertText = `[${selected}](${urlPlaceholder})`
+      anchor = sel.from + 1 + selected.length + 2
+      head = anchor + urlPlaceholder.length
+    }
+    view.dispatch({
+      changes: { from: sel.from, to: sel.to, insert: insertText },
+      selection: { anchor, head },
+    })
+    view.focus()
+  }
+
   const uploadAndInsert = async (file: File) => {
     if (authMode !== 'authed') {
       toast.error('请先登录再上传图片')
@@ -295,6 +330,7 @@ export function WritePage() {
         viewMode={viewMode}
         aiOpen={aiOpen}
         onMarkdownInsert={onMarkdownInsert}
+        onInsertLink={onInsertLink}
         onAddTag={onAddTag}
         onRemoveTag={onRemoveTag}
         onToggleAi={() => setAiOpen((o) => !o)}

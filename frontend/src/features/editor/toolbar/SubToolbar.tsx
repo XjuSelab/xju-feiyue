@@ -27,6 +27,7 @@ type Props = {
   viewMode: EditorViewMode
   aiOpen: boolean
   onMarkdownInsert: (snippet: string) => void
+  onInsertLink: () => void
   onAddTag: (tag: string) => void
   onRemoveTag: (tag: string) => void
   onToggleAi: () => void
@@ -47,6 +48,7 @@ export function SubToolbar({
   viewMode,
   aiOpen,
   onMarkdownInsert,
+  onInsertLink,
   onAddTag,
   onRemoveTag,
   onToggleAi,
@@ -87,7 +89,7 @@ export function SubToolbar({
       <ToolButton aria-label="行内代码" onClick={() => onMarkdownInsert('`$`')}>
         <Code size={12} aria-hidden />
       </ToolButton>
-      <ToolButton aria-label="链接" onClick={() => onMarkdownInsert('[$](url)')}>
+      <ToolButton aria-label="链接" onClick={onInsertLink}>
         <LinkIcon size={12} aria-hidden />
       </ToolButton>
       <ToolButton aria-label="插入图片" onClick={onPickImage}>
