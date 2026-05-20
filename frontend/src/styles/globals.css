@@ -119,3 +119,90 @@
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Schools page (/schools) — page-scoped pseudo-elements & scrollbar
+   ----------------------------------------------------------------------------
+   These rules are page-specific; the rest of the page is built with Tailwind
+   utilities + tokens.css variables. Only things hard or noisy to express in
+   pure Tailwind live here:
+     - active-tab underlines (::after) for group tabs + drawer tabs
+     - timeline track + dots (::before) for trace tab
+     - table row hover bg + negative-row red wash (hover-state coupling)
+     - thin scrollbar for the table & drawer body
+   ========================================================================== */
+
+/* group tab underline */
+.schools-grp-tab[data-on]::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-text);
+  border-radius: 1px;
+}
+
+/* drawer tab underline */
+.schools-dr-tab[data-on]::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-text);
+  border-radius: 1px;
+}
+
+/* table row hover + negative wash */
+.schools-tbl-row:hover .schools-tbl-cell {
+  background: var(--color-bg-subtle);
+}
+.schools-tbl-row-neg .schools-tbl-cell {
+  background: var(--row-neg-bg);
+}
+.schools-tbl-row-neg:hover .schools-tbl-cell {
+  background: var(--row-neg-hover-bg);
+}
+
+/* trace timeline track + dots */
+.schools-trace-line::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--color-border);
+}
+.schools-trace-row::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 14px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--line-strong);
+}
+.schools-trace-row[data-final]::before {
+  border-color: var(--cat-tools);
+}
+
+/* thin scrollbar */
+.schools-tbl-wrap::-webkit-scrollbar,
+.schools-dr-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.schools-tbl-wrap::-webkit-scrollbar-thumb,
+.schools-dr-body::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+.schools-tbl-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--line-strong);
+}

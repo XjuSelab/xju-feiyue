@@ -49,6 +49,7 @@ export function Header() {
         <NavItem to="/" label="主页" />
         <MegaMenu />
         <NavItem to="/write" label="写作" />
+        <NavItem to="/schools" label="高校信息" />
       </nav>
 
       <form role="search" onSubmit={onSearch} className="ml-auto flex w-60 max-w-full items-center">

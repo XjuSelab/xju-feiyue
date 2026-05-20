@@ -86,6 +86,13 @@
   --font-serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 
+  /* === Schools page (导师投递参考) semantic aliases === */
+  --recruit-yes: var(--cat-tools);
+  --recruit-no: var(--cat-research);
+  --recruit-unk: var(--color-text-faint);
+  --row-neg-bg: rgba(224, 62, 62, 0.04);
+  --row-neg-hover-bg: rgba(224, 62, 62, 0.08);
+
   /* === Aliases (compat with design HTML / styles.css 原文) === */
   --bg: var(--color-bg);
   --bg-soft: var(--color-bg-subtle);
