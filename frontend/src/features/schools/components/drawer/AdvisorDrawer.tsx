@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import type { Advisor } from '../../types'
 import { formatRelTime } from '../../data'
 import { REP_LABEL } from '../cells/rep-meta'
@@ -42,11 +41,7 @@ export function AdvisorDrawer({ advisor, onClose }: AdvisorDrawerProps) {
   }, [advisor?.id])
 
   if (!advisor) {
-    return (
-      <Sheet open={false} onOpenChange={(o) => !o && onClose()}>
-        <SheetContent side="right" />
-      </Sheet>
-    )
+    return <DialogPrimitive.Root open={false} onOpenChange={(o) => !o && onClose()} />
   }
 
   const a = advisor
@@ -68,107 +63,109 @@ export function AdvisorDrawer({ advisor, onClose }: AdvisorDrawerProps) {
   ]
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent
-        side="right"
-        className="flex w-[min(520px,92vw)] max-w-none flex-col gap-0 border-l border-border bg-bg p-0 shadow-[-8px_0_32px_rgba(0,0,0,0.08)] sm:max-w-none"
-      >
-        <SheetTitle className="sr-only">{a.name_cn} 详情</SheetTitle>
-        <SheetDescription className="sr-only">导师详情抽屉</SheetDescription>
+    <DialogPrimitive.Root open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex h-full w-[min(520px,92vw)] flex-col gap-0 border-l border-border bg-bg shadow-[-8px_0_32px_rgba(0,0,0,0.08)] outline-none transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right">
+          <DialogPrimitive.Title className="sr-only">{a.name_cn} 详情</DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">
+            导师详情抽屉
+          </DialogPrimitive.Description>
 
-        <div className="flex-none border-b border-border">
-          <div className="flex items-start gap-3.5 px-5 pb-4 pt-5">
-            <div className="min-w-0 flex-1">
-              <h2 className="m-0 mb-0.5 font-serif text-[22px] font-semibold tracking-[-0.01em] text-text">
-                {a.name_cn}
-              </h2>
-              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-sans text-[12.5px] text-text-muted">
-                <span className="font-medium text-text">{a.school.name_cn}</span>
-                {a.departments.map((d) => (
-                  <span key={d.code}>· {d.name_cn}</span>
-                ))}
-                {a.title && <span>· {a.title}</span>}
+          <div className="flex-none border-b border-border">
+            <div className="flex items-start gap-3.5 px-5 pb-4 pt-5">
+              <div className="min-w-0 flex-1">
+                <h2 className="m-0 mb-0.5 font-serif text-[22px] font-semibold tracking-[-0.01em] text-text">
+                  {a.name_cn}
+                </h2>
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-sans text-[12.5px] text-text-muted">
+                  <span className="font-medium text-text">{a.school.name_cn}</span>
+                  {a.departments.map((d) => (
+                    <span key={d.code}>· {d.name_cn}</span>
+                  ))}
+                  {a.title && <span>· {a.title}</span>}
+                </div>
               </div>
+              <DialogPrimitive.Close
+                aria-label="关闭"
+                className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-sm bg-transparent text-text-muted transition-colors hover:bg-bg-subtle hover:text-text"
+              >
+                <X size={16} strokeWidth={1.8} />
+              </DialogPrimitive.Close>
             </div>
-            <DialogPrimitive.Close
-              aria-label="关闭"
-              className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-sm bg-transparent text-text-muted transition-colors hover:bg-bg-subtle hover:text-text"
-            >
-              <X size={16} strokeWidth={1.8} />
-            </DialogPrimitive.Close>
-          </div>
 
-          <div className="flex flex-wrap gap-2 px-5 pb-3.5">
-            <span
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-md px-3 py-1 font-sans text-[12.5px] font-medium',
-                recKlass,
-              )}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {recLabel}
-              {a.recruiting_confidence != null && (
-                <span className="font-mono text-[11px] opacity-75">
-                  · {(a.recruiting_confidence * 100).toFixed(0)}%
+            <div className="flex flex-wrap gap-2 px-5 pb-3.5">
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-md px-3 py-1 font-sans text-[12.5px] font-medium',
+                  recKlass,
+                )}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {recLabel}
+                {a.recruiting_confidence != null && (
+                  <span className="font-mono text-[11px] opacity-75">
+                    · {(a.recruiting_confidence * 100).toFixed(0)}%
+                  </span>
+                )}
+              </span>
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-md px-3 py-1 font-sans text-[12.5px] font-medium',
+                  REP_BIG_BADGE[repTag],
+                )}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {REP_LABEL[repTag as keyof typeof REP_LABEL]}
+              </span>
+              {a.last_enriched_at && (
+                <span className="self-center font-mono text-[11px] text-text-faint">
+                  调研于 {formatRelTime(a.last_enriched_at)}
                 </span>
               )}
-            </span>
-            <span
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-md px-3 py-1 font-sans text-[12.5px] font-medium',
-                REP_BIG_BADGE[repTag],
-              )}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {REP_LABEL[repTag as keyof typeof REP_LABEL]}
-            </span>
-            {a.last_enriched_at && (
-              <span className="self-center font-mono text-[11px] text-text-faint">
-                调研于 {formatRelTime(a.last_enriched_at)}
-              </span>
+            </div>
+
+            <div className="flex gap-0 border-b border-border px-3.5">
+              {tabs.map((t) => {
+                const on = tab === t.k
+                return (
+                  <button
+                    type="button"
+                    key={t.k}
+                    onClick={() => setTab(t.k)}
+                    data-on={on || undefined}
+                    className={cn(
+                      'schools-dr-tab relative cursor-pointer px-3 py-2.5 font-sans text-[12.5px] font-medium transition-colors',
+                      on ? 'text-text' : 'text-text-muted hover:text-text',
+                    )}
+                  >
+                    {t.l}
+                    {t.c != null && t.c > 0 && (
+                      <span
+                        className={cn(
+                          'ml-1 rounded-[3px] bg-bg-subtle px-1.5 py-px font-mono text-[10.5px]',
+                          on ? 'text-text-muted' : 'text-text-faint',
+                        )}
+                      >
+                        {t.c}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="schools-dr-body flex-1 overflow-y-auto px-5 pb-8 pt-4">
+            {tab === 'overview' && <OverviewTab advisor={a} />}
+            {tab === 'matrix' && (
+              <MatrixTab quotas={a.quotas} openQuota={openQuota} setOpenQuota={setOpenQuota} />
             )}
+            {tab === 'eval' && <EvaluationTab evaluations={a.evaluations} />}
+            {tab === 'trace' && <TraceTab trace={a.trace || []} />}
           </div>
-
-          <div className="flex gap-0 border-b border-border px-3.5">
-            {tabs.map((t) => {
-              const on = tab === t.k
-              return (
-                <button
-                  type="button"
-                  key={t.k}
-                  onClick={() => setTab(t.k)}
-                  data-on={on || undefined}
-                  className={cn(
-                    'schools-dr-tab relative cursor-pointer px-3 py-2.5 font-sans text-[12.5px] font-medium transition-colors',
-                    on ? 'text-text' : 'text-text-muted hover:text-text',
-                  )}
-                >
-                  {t.l}
-                  {t.c != null && t.c > 0 && (
-                    <span
-                      className={cn(
-                        'ml-1 rounded-[3px] bg-bg-subtle px-1.5 py-px font-mono text-[10.5px]',
-                        on ? 'text-text-muted' : 'text-text-faint',
-                      )}
-                    >
-                      {t.c}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="schools-dr-body flex-1 overflow-y-auto px-5 pb-8 pt-4">
-          {tab === 'overview' && <OverviewTab advisor={a} />}
-          {tab === 'matrix' && (
-            <MatrixTab quotas={a.quotas} openQuota={openQuota} setOpenQuota={setOpenQuota} />
-          )}
-          {tab === 'eval' && <EvaluationTab evaluations={a.evaluations} />}
-          {tab === 'trace' && <TraceTab trace={a.trace || []} />}
-        </div>
-      </SheetContent>
-    </Sheet>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }
