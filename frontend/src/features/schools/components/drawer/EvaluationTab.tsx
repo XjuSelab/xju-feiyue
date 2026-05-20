@@ -7,29 +7,30 @@ interface EvaluationTabProps {
 }
 
 export function EvaluationTab({ evaluations }: EvaluationTabProps) {
-  const groups: Record<string, Evaluation[]> = {}
+  const groups = new Map<string, Evaluation[]>()
   evaluations.forEach((e) => {
-    ;(groups[e.source] = groups[e.source] || []).push(e)
+    const list = groups.get(e.source) ?? []
+    list.push(e)
+    groups.set(e.source, list)
   })
-  const sourceKeys = Object.keys(groups)
 
   return (
     <>
       <Disclaimer />
-      {sourceKeys.length === 0 ? (
+      {groups.size === 0 ? (
         <div className="rounded-md bg-bg-subtle px-3 py-8 text-center font-sans text-[13px] text-text-faint">
           尚未抓到网络评价
         </div>
       ) : (
-        sourceKeys.map((src) => (
+        Array.from(groups, ([src, items]) => (
           <div key={src} className="mb-[18px]">
             <div className="mb-2 flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1 rounded-[4px] bg-bg-subtle px-2 py-0.5 font-mono text-[11.5px] font-medium text-text">
                 {src}
               </span>
-              <span className="font-mono text-[11px] text-text-faint">{groups[src].length} 条</span>
+              <span className="font-mono text-[11px] text-text-faint">{items.length} 条</span>
             </div>
-            {groups[src].map((ev, i) => (
+            {items.map((ev, i) => (
               <EvalCard key={i} ev={ev} />
             ))}
           </div>

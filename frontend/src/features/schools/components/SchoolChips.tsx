@@ -11,7 +11,7 @@ interface SchoolChipsProps {
 }
 
 export function SchoolChips({ group, school, schoolCounts, onGroup, onSchool }: SchoolChipsProps) {
-  const activeGroup = SCHOOL_GROUPS.find((g) => g.code === group) ?? SCHOOL_GROUPS[0]
+  const activeGroup = SCHOOL_GROUPS.find((g) => g.code === group) ?? SCHOOL_GROUPS[0]!
 
   return (
     <>

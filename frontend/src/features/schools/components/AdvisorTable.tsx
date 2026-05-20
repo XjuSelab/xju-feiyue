@@ -177,7 +177,7 @@ export function AdvisorTable({ rows, onPick, sort, setSort }: AdvisorTableProps)
                   )}
                 </Td>
                 <Td>
-                  <EmailCell email={a.email} obfuscated={a.email_obfuscated} />
+                  <EmailCell email={a.email ?? null} obfuscated={a.email_obfuscated} />
                 </Td>
                 <Td>
                   <RecruitCell status={a.is_recruiting} />
@@ -186,7 +186,7 @@ export function AdvisorTable({ rows, onPick, sort, setSort }: AdvisorTableProps)
                   <RepCell tag={a.reputation_tag} />
                 </Td>
                 <Td>
-                  <SummaryCell text={a.enriched_summary} />
+                  <SummaryCell text={a.enriched_summary ?? null} />
                 </Td>
                 <Td>
                   <span

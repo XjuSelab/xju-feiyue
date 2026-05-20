@@ -32,7 +32,8 @@ export function SchoolsPage() {
   // snap to first school in group when group changes
   useEffect(() => {
     const sg = SCHOOL_GROUPS.find((g) => g.code === group)
-    if (sg && !sg.schools.includes(school)) setSchool(sg.schools[0])
+    const first = sg?.schools[0]
+    if (sg && first && !sg.schools.includes(school)) setSchool(first)
   }, [group, school])
 
   const schoolAdvisors = useMemo(() => ADVISORS.filter((a) => a.school.code === school), [school])

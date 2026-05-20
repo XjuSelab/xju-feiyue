@@ -36,7 +36,7 @@ export function OverviewTab({ advisor: a }: OverviewTabProps) {
 
       <Section title="联系方式">
         <Kv k="邮箱">
-          <EmailCell email={a.email} obfuscated={a.email_obfuscated} />
+          <EmailCell email={a.email ?? null} obfuscated={a.email_obfuscated} />
         </Kv>
         <Kv k="电话">
           {a.phone ? (
