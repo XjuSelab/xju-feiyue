@@ -11,7 +11,7 @@ import type {
 } from './types'
 
 // C9 顺序按联盟成立公告原序：清华、北大、复旦、上交、南大、浙大、中科大、哈工大、西安交大。
-const C9_SCHOOLS: SchoolCode[] = [
+export const C9_SCHOOLS: SchoolCode[] = [
   'tsinghua',
   'pku',
   'fudan',
@@ -28,8 +28,8 @@ export const SCHOOL_GROUPS: SchoolGroup[] = [
   { code: 'hwu', label: '华五', schools: ['fudan', 'sjtu', 'nju', 'zju', 'ustc'] },
   { code: 'c9', label: 'C9 高校', schools: C9_SCHOOLS },
   // "高校信息" 的 chips 在运行时由 SchoolsPage 从 /schools/meta 拼出来
-  // —— 只显示数据库里实际收录了 advisor 的学校。这里 schools 字段是
-  // meta 还没加载时的 fallback；正常情况下 SchoolChips 会替换掉它。
+  // —— 只显示数据库里实际收录、且**不在 C9 联盟**里的学校（与 C9 tab
+  // 互补）。schools 字段留空作占位；SchoolChips 会用动态列表替换。
   { code: 'all', label: '高校信息', schools: [] },
 ]
 

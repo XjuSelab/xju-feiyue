@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { SCHOOLS, SCHOOL_GROUPS } from './data'
+import { C9_SCHOOLS, SCHOOLS, SCHOOL_GROUPS } from './data'
+
+const C9_SET = new Set<SchoolCode>(C9_SCHOOLS)
 import {
   BLANK_FILTERS,
   DEFAULT_SORT,
@@ -58,11 +60,11 @@ export function SchoolsPage() {
     staleTime: 5 * 60_000,
   })
 
-  // 高校信息 group：从 meta 取实际收录的学校，count desc 排序。
+  // 高校信息 group：从 meta 取**非 C9** 的实际收录学校，与 C9 tab 互补。
   const dynamicAllSchools = useMemo<SchoolCode[]>(() => {
     const items = metaQuery.data?.schools ?? []
     return items
-      .filter((s) => s.code in SCHOOLS && s.count > 0)
+      .filter((s) => s.code in SCHOOLS && s.count > 0 && !C9_SET.has(s.code as SchoolCode))
       .sort((a, b) => b.count - a.count)
       .map((s) => s.code as SchoolCode)
   }, [metaQuery.data])

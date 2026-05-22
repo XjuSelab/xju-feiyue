@@ -55,7 +55,9 @@ export function SchoolChips({
 
       <div className="mb-4.5 flex flex-wrap gap-1.5" style={{ marginBottom: 18 }}>
         {chipSchools.length === 0 && group === 'all' && (
-          <div className="font-sans text-[12.5px] italic text-text-faint">数据库暂无收录的学校</div>
+          <div className="font-sans text-[12.5px] italic text-text-faint">
+            数据库暂无 C9 之外的学校
+          </div>
         )}
         {chipSchools.map((sk) => {
           const s = SCHOOLS[sk]
