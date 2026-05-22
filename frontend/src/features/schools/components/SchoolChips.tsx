@@ -6,18 +6,34 @@ interface SchoolChipsProps {
   group: GroupCode
   school: SchoolCode
   schoolCounts: Record<SchoolCode, number>
+  /**
+   * Dynamic chip list for the "高校信息" (`all`) tab — schools actually
+   * present in the current dataset, sorted descending by count. For
+   * static groups (top2/华五/c9) this is ignored; the group's hardcoded
+   * `schools` array wins.
+   */
+  dynamicAllSchools: SchoolCode[]
   onGroup: (g: GroupCode) => void
   onSchool: (s: SchoolCode) => void
 }
 
-export function SchoolChips({ group, school, schoolCounts, onGroup, onSchool }: SchoolChipsProps) {
+export function SchoolChips({
+  group,
+  school,
+  schoolCounts,
+  dynamicAllSchools,
+  onGroup,
+  onSchool,
+}: SchoolChipsProps) {
   const activeGroup = SCHOOL_GROUPS.find((g) => g.code === group) ?? SCHOOL_GROUPS[0]!
+  const chipSchools: SchoolCode[] = group === 'all' ? dynamicAllSchools : activeGroup.schools
 
   return (
     <>
       <div className="schools-grp-tabs mb-3.5 flex border-b border-border">
         {SCHOOL_GROUPS.map((g) => {
-          const n = g.schools.reduce((s, k) => s + (schoolCounts[k as SchoolCode] || 0), 0)
+          const schoolsForCount: SchoolCode[] = g.code === 'all' ? dynamicAllSchools : g.schools
+          const n = schoolsForCount.reduce((s, k) => s + (schoolCounts[k] || 0), 0)
           const on = group === g.code
           return (
             <button
@@ -38,8 +54,12 @@ export function SchoolChips({ group, school, schoolCounts, onGroup, onSchool }: 
       </div>
 
       <div className="mb-4.5 flex flex-wrap gap-1.5" style={{ marginBottom: 18 }}>
-        {activeGroup.schools.map((sk) => {
+        {chipSchools.length === 0 && group === 'all' && (
+          <div className="font-sans text-[12.5px] italic text-text-faint">数据库暂无收录的学校</div>
+        )}
+        {chipSchools.map((sk) => {
           const s = SCHOOLS[sk]
+          if (!s) return null
           const on = school === sk
           return (
             <button

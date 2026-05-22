@@ -27,9 +27,10 @@ export const SCHOOL_GROUPS: SchoolGroup[] = [
   { code: 'top2', label: 'Top2', schools: ['tsinghua', 'pku'] },
   { code: 'hwu', label: '华五', schools: ['fudan', 'sjtu', 'nju', 'zju', 'ustc'] },
   { code: 'c9', label: 'C9 高校', schools: C9_SCHOOLS },
-  // "高校信息" 是兜底 group——包含 SCHOOLS 全集。未来加入非 C9 学校时只要
-  // 进 SCHOOLS，就自动在这里露面（不会落到任何 advisor 之外）。
-  { code: 'all', label: '高校信息', schools: C9_SCHOOLS },
+  // "高校信息" 的 chips 在运行时由 SchoolsPage 从 /schools/meta 拼出来
+  // —— 只显示数据库里实际收录了 advisor 的学校。这里 schools 字段是
+  // meta 还没加载时的 fallback；正常情况下 SchoolChips 会替换掉它。
+  { code: 'all', label: '高校信息', schools: [] },
 ]
 
 export const SCHOOLS: Record<SchoolCode, School> = {

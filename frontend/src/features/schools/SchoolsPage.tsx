@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { SCHOOL_GROUPS } from './data'
+import { SCHOOLS, SCHOOL_GROUPS } from './data'
 import {
   BLANK_FILTERS,
   DEFAULT_SORT,
@@ -52,18 +52,32 @@ export function SchoolsPage() {
     setSort(DEFAULT_SORT)
   }, [school])
 
-  // snap to first school in group when group changes
-  useEffect(() => {
-    const sg = SCHOOL_GROUPS.find((g) => g.code === group)
-    const first = sg?.schools[0]
-    if (sg && first && !sg.schools.includes(school)) setSchool(first)
-  }, [group, school])
-
   const metaQuery = useQuery({
     queryKey: ['schools', 'meta'],
     queryFn: getSchoolsMeta,
     staleTime: 5 * 60_000,
   })
+
+  // 高校信息 group：从 meta 取实际收录的学校，count desc 排序。
+  const dynamicAllSchools = useMemo<SchoolCode[]>(() => {
+    const items = metaQuery.data?.schools ?? []
+    return items
+      .filter((s) => s.code in SCHOOLS && s.count > 0)
+      .sort((a, b) => b.count - a.count)
+      .map((s) => s.code as SchoolCode)
+  }, [metaQuery.data])
+
+  // Group 切换时把 school 拉到组内第一个 chip。
+  useEffect(() => {
+    const sg = SCHOOL_GROUPS.find((g) => g.code === group)
+    if (!sg) return
+    const schools = group === 'all' ? dynamicAllSchools : sg.schools
+    if (schools.length === 0) return
+    if (!schools.includes(school)) {
+      const first = schools[0]
+      if (first) setSchool(first)
+    }
+  }, [group, school, dynamicAllSchools])
 
   const listParams = buildListParams(school, filters, sort)
   const listQuery = useQuery({
@@ -132,6 +146,7 @@ export function SchoolsPage() {
         group={group}
         school={school}
         schoolCounts={schoolCounts}
+        dynamicAllSchools={dynamicAllSchools}
         onGroup={setGroup}
         onSchool={setSchool}
       />
