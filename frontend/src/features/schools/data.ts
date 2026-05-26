@@ -135,7 +135,7 @@ export const ADVISORS: Advisor[] = [
       T('read', '阅读', 'iiis.tsinghua.edu.cn/yao-recruit → 2400 chars'),
       T('search', '搜索', '"yao mx zhihu 评价" → 8 results'),
       T('read', '阅读', 'zhihu.com/q/12345 → 1800 chars'),
-      T('final', '提交', '招生·positive·conf=0.85'),
+      T('final', '提交评价', '招生·positive·conf=0.85'),
     ],
   },
   {
@@ -170,7 +170,7 @@ export const ADVISORS: Advisor[] = [
     trace: [
       T('search', '搜索', '"李振华 清华 计算机 招生" → 6 results'),
       T('read', '阅读', 'cs.tsinghua.edu.cn/info/1116/2841 → 1200 chars'),
-      T('final', '提交', '招生未明·neutral·conf=null'),
+      T('final', '提交评价', '招生未明·neutral·conf=null'),
     ],
   },
   {
@@ -206,7 +206,7 @@ export const ADVISORS: Advisor[] = [
     trace: [
       T('search', '搜索', '"陈墨 AIR 清华 招生" → 4 results'),
       T('read', '阅读', 'air.tsinghua.edu.cn/info/1009/1218 → 800 chars'),
-      T('final', '提交', '招生·unknown·conf=0.7'),
+      T('final', '提交评价', '招生·unknown·conf=0.7'),
     ],
   },
   {
@@ -280,7 +280,7 @@ export const ADVISORS: Advisor[] = [
     trace: [
       T('search', '搜索', '"王思颖 清华 招生" → 18 results'),
       T('read', '阅读', '3 sources'),
-      T('final', '提交', '招生·positive·conf=0.95'),
+      T('final', '提交评价', '招生·positive·conf=0.95'),
     ],
   },
   {
@@ -315,7 +315,7 @@ export const ADVISORS: Advisor[] = [
     evaluations: [],
     trace: [
       T('search', '搜索', '"钟海涛 清华 2026 招生" → 5 results'),
-      T('final', '提交', '不招·neutral·conf=0.85'),
+      T('final', '提交评价', '不招·neutral·conf=0.85'),
     ],
   },
 
@@ -385,7 +385,7 @@ export const ADVISORS: Advisor[] = [
       T('read', '阅读', 'daoshipingjia.net/teacher/89413 → 2100 chars'),
       T('search', '搜索', '"易江芳 招生 2026" → 7 results'),
       T('read', '阅读', 'cs.pku.edu.cn/zsxx/yjszs/dsxx.htm → 3200 chars'),
-      T('final', '提交', '招生·negative·conf=0.8'),
+      T('final', '提交评价', '招生·negative·conf=0.8'),
     ],
   },
   {

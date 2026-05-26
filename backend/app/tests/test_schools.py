@@ -130,6 +130,41 @@ class TestList:
         r = await client.get("/schools/list", params={"q": '"机器学习" AND'})
         assert r.status_code == 200  # FTS escape neutralises metachars
 
+    async def test_pinyin_full_match(self, client):
+        # 姜少峰 (advisor 193) → full pinyin "jiangshaofeng".
+        await _boot(client)
+        r = await client.get(
+            "/schools/list", params={"q": "jiangshaofeng", "page_size": 50}
+        )
+        assert r.status_code == 200
+        assert 193 in {row["id"] for row in r.json()["items"]}
+
+    async def test_pinyin_initials_match(self, client):
+        # 姜少峰 → initials "jsf".
+        await _boot(client)
+        r = await client.get("/schools/list", params={"q": "jsf", "page_size": 50})
+        assert r.status_code == 200
+        assert 193 in {row["id"] for row in r.json()["items"]}
+
+    async def test_chinese_substring_in_interests(self, client):
+        # "学习" is a substring of "机器学习" — unicode61 keeps that one token,
+        # so this only works via the substring LIKE branch, not FTS.
+        await _boot(client)
+        r = await client.get("/schools/list", params={"q": "学习", "page_size": 50})
+        assert r.status_code == 200
+        assert r.json()["total"] >= 1
+
+    async def test_pinyin_combines_with_school_filter(self, client):
+        # Pinyin search AND school filter — every hit must be in the school.
+        await _boot(client)
+        r = await client.get(
+            "/schools/list",
+            params={"q": "jiang", "school": "pku", "page_size": 50},
+        )
+        assert r.status_code == 200
+        for row in r.json()["items"]:
+            assert row["school"]["code"] == "pku"
+
 
 class TestDetail:
     async def test_known_advisor_has_nested_data(self, client):

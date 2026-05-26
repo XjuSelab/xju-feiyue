@@ -14,6 +14,9 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.schools_engine import get_holder
+from app.services.schools_pinyin import get_pinyin_index
+
 # Frontend's filter.ts uses this exact list — must stay in sync.
 KNOWN_TITLES: tuple[str, ...] = ("教授", "副教授", "助理教授", "研究员")
 TITLE_OTHER_SENTINEL = "其他"
@@ -51,7 +54,11 @@ _REP_SCORE_CASE = (
 )
 
 
-def _build_where(filters: AdvisorFilters, params: dict[str, Any]) -> str:
+def _build_where(
+    filters: AdvisorFilters,
+    params: dict[str, Any],
+    pinyin_ids: set[int] | None = None,
+) -> str:
     """Append filter clauses to ``params`` and return the WHERE SQL fragment.
 
     Empty lists / blank q simply skip their clause — no `IN ()` errors.
@@ -114,12 +121,31 @@ def _build_where(filters: AdvisorFilters, params: dict[str, Any]) -> str:
     if filters.has_summary:
         clauses.append("a.enriched_summary IS NOT NULL AND a.enriched_summary != ''")
 
-    fts_query = _escape_fts(filters.q)
-    if fts_query:
-        params["q_text"] = fts_query
-        clauses.append(
-            "a.id IN (SELECT rowid FROM advisor_fts WHERE advisor_fts MATCH :q_text)"
-        )
+    # Search block — q matches via ANY of:
+    #   * FTS5 MATCH      — CJK token / phrase search over name+bio+interests
+    #   * substring LIKE  — partial CJK ("学习"→"机器学习") and latin fragments
+    #   * pinyin id-set   — full pinyin / initials, computed in Python upstream
+    # OR'd together so "yao" / "ymx" / "姚" / "学习" all hit. q absent → skip.
+    if filters.q and filters.q.strip():
+        search_pieces: list[str] = []
+        fts_query = _escape_fts(filters.q)
+        if fts_query:
+            params["q_text"] = fts_query
+            search_pieces.append(
+                "a.id IN (SELECT rowid FROM advisor_fts WHERE advisor_fts MATCH :q_text)"
+            )
+        # Substring LIKE across name + content so partial CJK matches even
+        # inside a token unicode61 keeps whole ("学习" → "机器学习" interests).
+        # 4k rows → full scan is sub-millisecond; no index needed.
+        params["q_like"] = f"%{_escape_like(filters.q.strip())}%"
+        for col in ("a.name_cn", "a.name_en", "a.research_interests", "a.enriched_summary"):
+            search_pieces.append(f"{col} LIKE :q_like ESCAPE '\\'")
+        if pinyin_ids:
+            ids = list(pinyin_ids)
+            names = ", ".join(f":pyid_{i}" for i in range(len(ids)))
+            params.update({f"pyid_{i}": v for i, v in enumerate(ids)})
+            search_pieces.append(f"a.id IN ({names})")
+        clauses.append("(" + " OR ".join(search_pieces) + ")")
 
     return " AND ".join(clauses)
 
@@ -152,6 +178,14 @@ def _escape_fts(q: str | None) -> str | None:
     if not tokens:
         return None
     return " ".join(f'"{tok}"' for tok in tokens)
+
+
+def _escape_like(s: str) -> str:
+    """Neutralise LIKE wildcards so user input is matched literally.
+
+    Pairs with ``ESCAPE '\\'`` in the SQL. Backslash must be escaped first.
+    """
+    return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 def _order_by(sort: SortSpec) -> str:
@@ -244,7 +278,13 @@ async def query_advisor_rows(
     offset = (page - 1) * page_size
 
     params: dict[str, Any] = {}
-    where = _build_where(filters, params)
+    # Latin query → also match the in-memory pinyin index (full + initials).
+    # Pure-CJK queries skip it entirely (FTS + LIKE cover them).
+    pinyin_ids: set[int] | None = None
+    if filters.q and re.search(r"[a-zA-Z]", filters.q):
+        idx = await get_pinyin_index(session, get_holder().mtime)
+        pinyin_ids = idx.match(filters.q)
+    where = _build_where(filters, params, pinyin_ids)
 
     # Total count first (cheaper without ORDER BY / LIMIT).
     total_sql = text(f"SELECT COUNT(*) AS n FROM advisor a WHERE {where}")

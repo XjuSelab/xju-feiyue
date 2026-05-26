@@ -1,5 +1,6 @@
 import { cn } from '@/lib/cn'
 import type { TraceItem } from '../../types'
+import { linkify } from '../../lib/linkify'
 
 interface TraceTabProps {
   trace: TraceItem[]
@@ -26,19 +27,19 @@ export function TraceTab({ trace }: TraceTabProps) {
             className={cn(
               'schools-trace-row relative grid items-baseline gap-2.5 py-2 font-sans text-[12.5px] text-text-muted',
             )}
-            style={{ gridTemplateColumns: '64px 56px 1fr' }}
+            style={{ gridTemplateColumns: '64px auto 1fr' }}
           >
             <span className="font-mono text-[11px] text-text-faint">{num}</span>
             <span
               className={cn(
-                'w-fit rounded-[3px] px-1.5 py-px text-[11.5px] font-medium',
+                'w-fit whitespace-nowrap rounded-[3px] px-1.5 py-px text-[11.5px] font-medium',
                 isFinal ? 'bg-tag-tools text-cat-tools' : 'bg-bg-subtle text-text',
               )}
             >
               {t.label}
             </span>
-            <span className="overflow-hidden text-ellipsis font-mono text-[11.5px] leading-[1.6] text-text">
-              {t.detail}
+            <span className="break-all font-mono text-[11.5px] leading-[1.6] text-text">
+              {linkify(t.detail)}
             </span>
           </div>
         )

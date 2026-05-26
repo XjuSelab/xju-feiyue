@@ -28,7 +28,7 @@ from typing import Any
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-_log = logging.getLogger("labnotes.schools_engine")
+_log = logging.getLogger("xju_feiyue.schools_engine")
 
 
 class SchoolsDataMissing(RuntimeError):
@@ -54,6 +54,11 @@ class SchoolsEngineHolder:
     @property
     def manifest(self) -> dict[str, Any] | None:
         return self._manifest
+
+    @property
+    def mtime(self) -> float:
+        """Current sqlite mtime — used as a cache key for derived indexes."""
+        return self._mtime
 
     @property
     def is_ready(self) -> bool:

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { C9_SCHOOLS, SCHOOL_GROUPS } from './data'
 
 const C9_SET = new Set<SchoolCode>(C9_SCHOOLS)
@@ -41,12 +41,30 @@ function buildListParams(
   return p
 }
 
+const LIST_STALE_MS = 5 * 60_000
+
 export function SchoolsPage() {
+  const queryClient = useQueryClient()
   const [group, setGroup] = useState<GroupCode>('top2')
   const [school, setSchool] = useState<SchoolCode>('tsinghua')
   const [pickedId, setPickedId] = useState<number | null>(null)
   const [filters, setFilters] = useState<FilterState>(BLANK_FILTERS)
   const [sort, setSort] = useState<SortState>(DEFAULT_SORT)
+
+  // Hover/focus a school chip → warm its list into the cache. Switching school
+  // resets filters/sort to the blank defaults (see effect below), so the
+  // prefetched key matches the query that fires on click → instant render.
+  const prefetchSchool = useCallback(
+    (code: SchoolCode) => {
+      const params = buildListParams(code, BLANK_FILTERS, DEFAULT_SORT)
+      void queryClient.prefetchQuery({
+        queryKey: ['schools', 'list', params],
+        queryFn: () => listAdvisors(params),
+        staleTime: LIST_STALE_MS,
+      })
+    },
+    [queryClient],
+  )
 
   // reset filters/sort when school changes
   useEffect(() => {
@@ -88,6 +106,7 @@ export function SchoolsPage() {
     queryKey: ['schools', 'list', listParams],
     queryFn: () => listAdvisors(listParams),
     placeholderData: (prev) => prev,
+    staleTime: LIST_STALE_MS,
   })
 
   const detailQuery = useQuery({
@@ -154,6 +173,7 @@ export function SchoolsPage() {
         dynamicAllSchools={dynamicAllSchools}
         onGroup={setGroup}
         onSchool={setSchool}
+        onPrefetch={prefetchSchool}
       />
 
       <FilterBar

@@ -18,6 +18,8 @@ interface SchoolChipsProps {
   dynamicAllSchools: SchoolCode[]
   onGroup: (g: GroupCode) => void
   onSchool: (s: SchoolCode) => void
+  /** Warm a school's list into the cache on hover/focus (zero-latency click). */
+  onPrefetch?: (s: SchoolCode) => void
 }
 
 export function SchoolChips({
@@ -28,6 +30,7 @@ export function SchoolChips({
   dynamicAllSchools,
   onGroup,
   onSchool,
+  onPrefetch,
 }: SchoolChipsProps) {
   const activeGroup = SCHOOL_GROUPS.find((g) => g.code === group) ?? SCHOOL_GROUPS[0]!
   const chipSchools: SchoolCode[] = group === 'all' ? dynamicAllSchools : activeGroup.schools
@@ -71,6 +74,8 @@ export function SchoolChips({
               key={sk}
               type="button"
               onClick={() => onSchool(sk)}
+              onMouseEnter={() => onPrefetch?.(sk)}
+              onFocus={() => onPrefetch?.(sk)}
               className={cn(
                 'inline-flex cursor-pointer items-center gap-2 rounded-full border py-1.5 pl-2.5 pr-3 font-sans text-[13px] transition-colors',
                 on

@@ -66,7 +66,7 @@ export function AdvisorDrawer({ advisor, onClose }: AdvisorDrawerProps) {
     <DialogPrimitive.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex h-full w-[min(520px,92vw)] flex-col gap-0 border-l border-border bg-bg shadow-[-8px_0_32px_rgba(0,0,0,0.08)] outline-none transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right">
+        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex h-full w-[min(600px,94vw)] flex-col gap-0 border-l border-border bg-bg shadow-[-8px_0_32px_rgba(0,0,0,0.08)] outline-none transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right">
           <DialogPrimitive.Title className="sr-only">{a.name_cn} 详情</DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">
             导师详情抽屉
