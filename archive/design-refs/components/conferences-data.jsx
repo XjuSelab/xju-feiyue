@@ -33,7 +33,11 @@ const CCF_FIELDS = [
   { id: 'misc',     name_cn: '交叉 / 综合 / 新兴',        short: '交叉',   color: '#787774' },
 ];
 
-/* ----- helper: terser entry literal ----- */
+/* ----- helper: terser entry literal -----
+   extra 额外键：
+     h/cy/loc/cd/dl/n     主页 / 届 / 地点 / 会期 / 截稿 / 备注
+     sub/acc/rate/sy      投稿数 / 接受数 / 接受率(%) / 统计数据年份
+   录取统计为人工整理的近期公开数据，sy 标注来源年份；以官网为准。 */
 const _c = (abbr, name_full, field, tier, publisher, dblp, extra = {}) => ({
   abbr, name_full, field, tier, publisher, dblp,
   homepage: extra.h ?? null,
@@ -42,6 +46,10 @@ const _c = (abbr, name_full, field, tier, publisher, dblp, extra = {}) => ({
   conf_date:extra.cd ?? null,
   deadline: extra.dl ?? null,
   note:     extra.n ?? null,
+  submissions:     extra.sub  ?? null,
+  accepted:        extra.acc  ?? null,
+  acceptance_rate: extra.rate ?? null,
+  stats_year:      extra.sy   ?? null,
 });
 
 const CCF_CONFS = [
@@ -329,19 +337,19 @@ const CCF_CONFS = [
   /* ===== 8 · 人工智能 ===== */
   /* A */
   _c('AAAI',   'AAAI Conference on Artificial Intelligence','ai','A','AAAI','http://dblp.uni-trier.de/db/conf/aaai/',
-     { h:'https://aaai.org/conference/aaai/aaai-27/', cy:'2027', loc:'San Francisco, USA', cd:'2027-01-21 ~ 01-28', dl:'2026-08-11', n:'摘要 8.4 · 全文 8.11' }),
+     { h:'https://aaai.org/conference/aaai/aaai-27/', cy:'2027', loc:'San Francisco, USA', cd:'2027-01-21 ~ 01-28', dl:'2026-08-11', n:'摘要 8.4 · 全文 8.11', sub:9862, acc:2342, rate:23.8, sy:2024 }),
   _c('NeurIPS','Conference on Neural Information Processing Systems','ai','A','MIT Press','http://dblp.uni-trier.de/db/conf/nips/',
-     { h:'https://neurips.cc/Conferences/2026', cy:'2026', loc:'San Diego, USA', cd:'2026-12-07 ~ 12-12', dl:'2026-05-15', n:'已截止' }),
+     { h:'https://neurips.cc/Conferences/2026', cy:'2026', loc:'San Diego, USA', cd:'2026-12-07 ~ 12-12', dl:'2026-05-15', n:'已截止', sub:12343, acc:3218, rate:26.1, sy:2023 }),
   _c('ACL',    'Annual Meeting of the Association for Computational Linguistics','ai','A','ACL','http://dblp.uni-trier.de/db/conf/acl/',
      { h:'https://2026.aclweb.org/', cy:'2026', loc:'Vienna, Austria', cd:'2026-07-26 ~ 08-01', dl:'2026-02-15', n:'ARR 滚动' }),
   _c('CVPR',   'IEEE/CVF Computer Vision and Pattern Recognition Conference','ai','A','IEEE','http://dblp.uni-trier.de/db/conf/cvpr/',
-     { h:'https://cvpr.thecvf.com/Conferences/2026', cy:'2026', loc:'Nashville, USA', cd:'2026-06-21 ~ 06-26', dl:'2025-11-14', n:'已结束' }),
+     { h:'https://cvpr.thecvf.com/Conferences/2026', cy:'2026', loc:'Nashville, USA', cd:'2026-06-21 ~ 06-26', dl:'2025-11-14', n:'已结束', sub:11532, acc:2719, rate:23.6, sy:2024 }),
   _c('ICCV',   'International Conference on Computer Vision','ai','A','IEEE','http://dblp.uni-trier.de/db/conf/iccv/',
-     { h:'https://iccv.thecvf.com/Conferences/2027', cy:'2027', loc:'TBA', cd:'2027-10', dl:'2027-03-08', n:'隔年举办' }),
+     { h:'https://iccv.thecvf.com/Conferences/2027', cy:'2027', loc:'TBA', cd:'2027-10', dl:'2027-03-08', n:'隔年举办', sub:8068, acc:2161, rate:26.8, sy:2023 }),
   _c('ICML',   'International Conference on Machine Learning','ai','A','ACM','http://dblp.uni-trier.de/db/conf/icml/',
-     { h:'https://icml.cc/Conferences/2026', cy:'2026', loc:'Vancouver, Canada', cd:'2026-07-19 ~ 07-25', dl:'2026-01-30', n:'已截止' }),
+     { h:'https://icml.cc/Conferences/2026', cy:'2026', loc:'Vancouver, Canada', cd:'2026-07-19 ~ 07-25', dl:'2026-01-30', n:'已截止', sub:9473, acc:2610, rate:27.5, sy:2024 }),
   _c('ICLR',   'International Conference on Learning Representations','ai','A','OpenReview','https://dblp.uni-trier.de/db/conf/iclr/index.html',
-     { h:'https://iclr.cc/Conferences/2027', cy:'2027', loc:'TBA', cd:'2027-04', dl:'2026-09-25', n:'秋档截稿' }),
+     { h:'https://iclr.cc/Conferences/2027', cy:'2027', loc:'TBA', cd:'2027-04', dl:'2026-09-25', n:'秋档截稿', sub:7262, acc:2260, rate:31.1, sy:2024 }),
 
   /* B */
   _c('COLT',   'Annual Conference on Computational Learning Theory','ai','B','Springer','http://dblp.uni-trier.de/db/conf/colt/'),
@@ -358,7 +366,7 @@ const CCF_CONFS = [
   _c('KR',     'International Conference on Principles of Knowledge Representation and Reasoning','ai','B','Morgan Kaufmann','http://dblp.uni-trier.de/db/conf/kr/'),
   _c('AAMAS',  'International Joint Conference on Autonomous Agents and Multi-agent Systems','ai','B','Springer','http://dblp.uni-trier.de/db/conf/atal/index.html'),
   _c('IJCAI',  'International Joint Conference on Artificial Intelligence','ai','B','Morgan Kaufmann','http://dblp.uni-trier.de/db/conf/ijcai/',
-     { h:'https://2026.ijcai.org/', cy:'2026', loc:'Montréal, Canada', cd:'2026-08-15 ~ 08-21', dl:'2026-01-16', n:'已截止' }),
+     { h:'https://2026.ijcai.org/', cy:'2026', loc:'Montréal, Canada', cd:'2026-08-15 ~ 08-21', dl:'2026-01-16', n:'已截止', rate:14, sy:2024 }),
   _c('NAACL',  'North American Chapter of the Association for Computational Linguistics','ai','B','ACL','http://dblp.uni-trier.de/db/conf/naacl/'),
 
   /* C */

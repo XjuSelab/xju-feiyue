@@ -54,8 +54,10 @@ DATA_TS_PATH = REPO_ROOT / "frontend" / "src" / "features" / "conferences" / "da
 SCHEMA_VERSION = 1
 SEED_VERSION = "seed-0.1.0"
 
-# Columns persisted to sqlite, in stable insertion order. The first 13 are the
-# display fields the .jsx already carries; the rest are the crawler's state.
+# Columns persisted to sqlite, in stable insertion order. These are the display
+# fields the .jsx carries (incl. the録取 stats); the crawler-state columns are
+# appended in build_sqlite. Numeric ones are listed in NUMERIC_FIELDS so the
+# data.ts emitter writes bare numbers, not quoted strings.
 SEED_FIELDS = (
     "id",
     "abbr",
@@ -70,7 +72,13 @@ SEED_FIELDS = (
     "conf_date",
     "deadline",
     "note",
+    "submissions",
+    "accepted",
+    "acceptance_rate",
+    "stats_year",
 )
+
+NUMERIC_FIELDS = {"submissions", "accepted", "acceptance_rate", "stats_year"}
 
 CREATE_TABLE = """
 CREATE TABLE conferences (
@@ -87,6 +95,10 @@ CREATE TABLE conferences (
     conf_date     TEXT,
     deadline      TEXT,        -- ISO yyyy-mm-dd, or NULL when unannounced
     note          TEXT,
+    submissions     INTEGER,       -- 投稿数（stats_year 那届）
+    accepted        INTEGER,       -- 接受数
+    acceptance_rate REAL,          -- 接受率（百分数，如 23.6）
+    stats_year      INTEGER,       -- 上述统计的来源年份
     crawl_state   TEXT NOT NULL,   -- unannounced | announced | closed
     confidence    REAL,            -- crawler's confidence (NULL for human seed)
     source_url    TEXT,            -- where the crawler verified it
@@ -203,6 +215,13 @@ def js_str(value) -> str:
     return f"'{s}'"
 
 
+def _emit(field: str, value) -> str:
+    """data.ts value literal: bare number for numeric fields, quoted str else."""
+    if field in NUMERIC_FIELDS:
+        return "null" if value is None else json.dumps(value)
+    return js_str(value)
+
+
 def write_data_ts(confs: list[dict], fields: list[dict]) -> None:
     lines: list[str] = [
         "/**",
@@ -226,7 +245,7 @@ def write_data_ts(confs: list[dict], fields: list[dict]) -> None:
         )
     lines += ["]", "", "export const CCF_CONFS: Conference[] = ["]
     for c in confs:
-        parts = ", ".join(f"{f}: {js_str(c.get(f))}" for f in SEED_FIELDS)
+        parts = ", ".join(f"{f}: {_emit(f, c.get(f))}" for f in SEED_FIELDS)
         lines.append(f"  {{ {parts} }},")
     lines += ["]", ""]
     DATA_TS_PATH.parent.mkdir(parents=True, exist_ok=True)

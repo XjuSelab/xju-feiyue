@@ -8,7 +8,6 @@ import {
   type ConfStatus,
   type ConfView,
   type FilterState,
-  type Tier,
 } from '../types'
 
 interface FilterBarProps {
@@ -23,11 +22,8 @@ interface FilterBarProps {
 const INACTIVE_CHIP =
   'border-border bg-bg text-text-muted hover:border-border-strong hover:text-text'
 
-const TIER_ACTIVE: Record<Tier, string> = {
-  A: 'border-text bg-text text-white',
-  B: 'border-[#6B6862] bg-[#6B6862] text-white',
-  C: 'border-text-muted bg-text-muted text-white',
-}
+// 三档选中统一同色——级别靠 chip 文案 CCF-A/B/C 区分，不再用深浅灰。
+const TIER_ACTIVE = 'border-text bg-text text-white'
 
 const STATUS_ACTIVE: Record<ConfStatus, string> = {
   soon: 'border-cat-course bg-cat-course text-white',
@@ -52,7 +48,7 @@ function Chip({
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-[4px] border px-[9px] py-[3px] font-sans text-[12px] leading-[1.5] transition-colors',
+        'inline-flex items-center gap-1.5 rounded-[4px] border px-[9px] py-[3px] font-sans text-[12px] leading-[1.5] transition-colors duration-75',
         on ? activeCls : INACTIVE_CHIP,
       )}
     >
@@ -118,7 +114,7 @@ export function FilterBar({ filters, setFilters, total, shown, view, setView }: 
             <Chip
               key={t}
               on={filters.tier.includes(t)}
-              activeCls={TIER_ACTIVE[t]}
+              activeCls={TIER_ACTIVE}
               onClick={() => toggleArr('tier', t)}
             >
               CCF-{t}

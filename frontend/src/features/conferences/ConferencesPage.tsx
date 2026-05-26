@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Info } from 'lucide-react'
+import { ExternalLink, Info } from 'lucide-react'
 import { CCF_CONFS } from './data'
 import { applyFilters } from './filter'
 import { applySort, smartSort } from './sort'
@@ -56,9 +56,16 @@ export function ConferencesPage() {
         </strong>{' '}
         第七版 · 2026 年 3 月更新 · 共{' '}
         <strong className="font-semibold text-text">{totalAll}</strong> 个会议 · 截稿与会期人工整理,
-        <code className="rounded-[3px] bg-bg-subtle px-1.5 py-px font-mono text-[11px] text-text-muted">
+        <a
+          href="https://www.ccf.org.cn/Academic_Evaluation/By_category/"
+          target="_blank"
+          rel="noreferrer"
+          title="CCF 推荐国际学术会议和期刊目录（官方）"
+          className="inline-flex items-center gap-0.5 rounded-[3px] bg-bg-subtle px-1.5 py-px font-mono text-[11px] text-text-muted transition-colors hover:text-link"
+        >
           以官网公告为准
-        </code>
+          <ExternalLink size={10} strokeWidth={1.8} aria-hidden />
+        </a>
       </p>
 
       <FieldTabs value={field} onChange={setField} countsByField={countsByField} total={totalAll} />

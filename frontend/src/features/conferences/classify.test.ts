@@ -25,6 +25,10 @@ const conf = (over: Partial<Conference>): Conference => ({
   conf_date: over.conf_date ?? null,
   deadline: over.deadline ?? null,
   note: over.note ?? null,
+  submissions: over.submissions ?? null,
+  accepted: over.accepted ?? null,
+  acceptance_rate: over.acceptance_rate ?? null,
+  stats_year: over.stats_year ?? null,
 })
 
 const BLANK = {

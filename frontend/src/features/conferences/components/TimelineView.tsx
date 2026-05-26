@@ -128,6 +128,14 @@ export function TimelineView({ rows }: { rows: Conference[] }) {
                             <span>{c.note}</span>
                           </>
                         )}
+                        {c.acceptance_rate != null && (
+                          <>
+                            <span className="text-border-strong">·</span>
+                            <span className="font-mono text-[11.5px]">
+                              录取 {c.acceptance_rate}%{c.stats_year ? ` (${c.stats_year})` : ''}
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5">

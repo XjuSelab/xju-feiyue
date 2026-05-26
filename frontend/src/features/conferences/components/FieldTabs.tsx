@@ -9,39 +9,37 @@ interface FieldTabsProps {
   total: number
 }
 
+// 圆角矩形按钮（可多行换行），替代原先横向滚动的下划线 tab 条。
+const pill = (on: boolean) =>
+  cn(
+    'inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-sans text-[13px] font-medium leading-none transition-colors duration-75',
+    on
+      ? 'border-text bg-text text-white'
+      : 'border-border bg-bg text-text-muted hover:border-border-strong hover:text-text',
+  )
+
 export function FieldTabs({ value, onChange, countsByField, total }: FieldTabsProps) {
-  const tabCls = (on: boolean) =>
-    cn(
-      'conf-field-tab relative inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap px-[13px] pb-3 pt-2 font-serif text-[16px] font-medium tracking-[-0.005em] transition-colors',
-      on ? 'text-text' : 'text-text-muted hover:text-text',
-    )
-  const count = (n: number) => (
-    <span className="align-[1px] font-mono text-[11px] text-text-faint">{n}</span>
+  const count = (n: number, on: boolean) => (
+    <span className={cn('font-mono text-[11px]', on ? 'text-white/65' : 'text-text-faint')}>
+      {n}
+    </span>
   )
 
   return (
-    <div className="conf-field-tabs mb-3.5 flex overflow-x-auto whitespace-nowrap border-b border-border">
-      <button
-        type="button"
-        data-on={value === 'all' || undefined}
-        onClick={() => onChange('all')}
-        className={tabCls(value === 'all')}
-      >
-        全部 {count(total)}
+    <div className="mb-3.5 flex flex-wrap gap-2">
+      <button type="button" onClick={() => onChange('all')} className={pill(value === 'all')}>
+        全部 {count(total, value === 'all')}
       </button>
-      {CCF_FIELDS.map((f) => (
-        <button
-          key={f.id}
-          type="button"
-          data-on={value === f.id || undefined}
-          onClick={() => onChange(f.id)}
-          className={tabCls(value === f.id)}
-        >
-          <span className="h-2 w-2 flex-none rounded-full" style={{ background: f.color }} />
-          {f.name_cn}
-          {count(countsByField[f.id] || 0)}
-        </button>
-      ))}
+      {CCF_FIELDS.map((f) => {
+        const on = value === f.id
+        return (
+          <button key={f.id} type="button" onClick={() => onChange(f.id)} className={pill(on)}>
+            <span className="h-2 w-2 flex-none rounded-full" style={{ background: f.color }} />
+            {f.name_cn}
+            {count(countsByField[f.id] || 0, on)}
+          </button>
+        )
+      })}
     </div>
   )
 }

@@ -212,23 +212,10 @@
    ----------------------------------------------------------------------------
    Same approach as the schools block: the page is Tailwind + tokens.css, only
    the hover-coupled / pseudo-element bits live here.
-     - active field-tab underline (::after)
      - table row hover bg + "即将截稿" amber row wash (hover-state coupling)
      - timeline dots (::before) tinted by status
-     - thin scrollbars for the field-tab strip & the table
+     - thin scrollbar for the table
    ========================================================================== */
-
-/* field-tab active underline */
-.conf-field-tab[data-on]::after {
-  content: '';
-  position: absolute;
-  left: 13px;
-  right: 13px;
-  bottom: -1px;
-  height: 2px;
-  background: var(--color-text);
-  border-radius: 1px;
-}
 
 /* table row hover + "soon" amber wash */
 .conf-tbl-row:hover .conf-tbl-cell {
@@ -264,13 +251,7 @@
   background: var(--color-bg-subtle);
 }
 
-/* thin scrollbars */
-.conf-field-tabs::-webkit-scrollbar {
-  height: 4px;
-}
-.conf-field-tabs::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-}
+/* thin scrollbar for the table */
 .conf-tbl-wrap::-webkit-scrollbar {
   height: 8px;
 }

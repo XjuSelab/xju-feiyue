@@ -7,6 +7,7 @@ import { FieldChip } from './cells/FieldChip'
 import { WhereCell } from './cells/WhereCell'
 import { DeadlineCell } from './cells/DeadlineCell'
 import { LinksCell } from './cells/LinksCell'
+import { AcceptanceCell } from './cells/AcceptanceCell'
 
 interface ConfTableProps {
   rows: Conference[]
@@ -14,7 +15,7 @@ interface ConfTableProps {
   setSort: (s: SortState) => void
 }
 
-type ColKey = SortKey | 'field' | 'publisher' | 'where' | 'links'
+type ColKey = SortKey | 'field' | 'publisher' | 'accept' | 'where' | 'links'
 type Col = { k: ColKey; label: string; width: number; sortable?: boolean }
 
 const COLS: Col[] = [
@@ -22,6 +23,7 @@ const COLS: Col[] = [
   { k: 'tier', label: '级别', width: 70, sortable: true },
   { k: 'field', label: '领域', width: 110 },
   { k: 'publisher', label: '出版方', width: 100 },
+  { k: 'accept', label: '录取', width: 120 },
   { k: 'where', label: '地点 · 日期', width: 230 },
   { k: 'deadline', label: '截稿日期', width: 220, sortable: true },
   { k: 'links', label: '链接', width: 180 },
@@ -56,7 +58,7 @@ export function ConfTable({ rows, sort, setSort }: ConfTableProps) {
 
   return (
     <div className="conf-tbl-wrap overflow-x-auto rounded-lg border border-border bg-bg">
-      <table className="w-full min-w-[1200px] table-fixed border-separate border-spacing-0 font-sans text-[13px]">
+      <table className="w-full min-w-[1320px] table-fixed border-separate border-spacing-0 font-sans text-[13px]">
         <colgroup>
           {COLS.map((c) => (
             <col key={c.k} style={{ width: c.width }} />
@@ -120,6 +122,9 @@ export function ConfTable({ rows, sort, setSort }: ConfTableProps) {
                   >
                     {c.publisher}
                   </span>
+                </Td>
+                <Td>
+                  <AcceptanceCell conf={c} />
                 </Td>
                 <Td>
                   <WhereCell conf={c} />

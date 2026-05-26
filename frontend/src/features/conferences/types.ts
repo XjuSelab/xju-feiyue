@@ -44,6 +44,13 @@ export interface Conference {
   /** ISO yyyy-mm-dd，或 null（未公布）。 */
   deadline: string | null
   note: string | null
+  /** 录取统计（指 stats_year 那一届；人工整理，R3 爬虫接管后刷新）。 */
+  submissions: number | null
+  accepted: number | null
+  /** 接受率（百分数，如 23.6 表示 23.6%）。 */
+  acceptance_rate: number | null
+  /** 上面统计数据来源的年份。 */
+  stats_year: number | null
 }
 
 export type ConfView = 'table' | 'timeline'
