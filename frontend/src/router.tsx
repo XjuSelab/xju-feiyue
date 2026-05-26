@@ -15,6 +15,9 @@ const WritePage = lazy(() => import('@/pages/WritePage').then((m) => ({ default:
 const SchoolsPage = lazy(() =>
   import('@/pages/SchoolsPage').then((m) => ({ default: m.SchoolsPage })),
 )
+const ConferencesPage = lazy(() =>
+  import('@/pages/ConferencesPage').then((m) => ({ default: m.ConferencesPage })),
+)
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })))
 const NoteDetailPage = lazy(() =>
   import('@/pages/NoteDetailPage').then((m) => ({
@@ -138,6 +141,16 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
           <PageBoundary>
             <RequireAccess requireAuth>
               <SchoolsPage />
+            </RequireAccess>
+          </PageBoundary>
+        ),
+      },
+      {
+        path: '/conferences',
+        element: (
+          <PageBoundary>
+            <RequireAccess requireAuth>
+              <ConferencesPage />
             </RequireAccess>
           </PageBoundary>
         ),

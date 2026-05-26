@@ -206,3 +206,78 @@
 .schools-tbl-wrap::-webkit-scrollbar-thumb:hover {
   background: var(--line-strong);
 }
+
+/* ==========================================================================
+   CCF conferences page (/conferences) — page-scoped pseudo-elements
+   ----------------------------------------------------------------------------
+   Same approach as the schools block: the page is Tailwind + tokens.css, only
+   the hover-coupled / pseudo-element bits live here.
+     - active field-tab underline (::after)
+     - table row hover bg + "即将截稿" amber row wash (hover-state coupling)
+     - timeline dots (::before) tinted by status
+     - thin scrollbars for the field-tab strip & the table
+   ========================================================================== */
+
+/* field-tab active underline */
+.conf-field-tab[data-on]::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-text);
+  border-radius: 1px;
+}
+
+/* table row hover + "soon" amber wash */
+.conf-tbl-row:hover .conf-tbl-cell {
+  background: var(--color-bg-subtle);
+}
+.conf-tbl-row-soon .conf-tbl-cell {
+  background: rgba(217, 115, 13, 0.05);
+}
+.conf-tbl-row-soon:hover .conf-tbl-cell {
+  background: rgba(217, 115, 13, 0.09);
+}
+
+/* timeline dots on the month track */
+.conf-tl-item::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--line-strong);
+}
+.conf-tl-item[data-status='soon']::before {
+  border-color: var(--cat-course);
+}
+.conf-tl-item[data-status='open']::before {
+  border-color: var(--cat-tools);
+}
+.conf-tl-item[data-status='closed']::before {
+  border-color: var(--color-border);
+  background: var(--color-bg-subtle);
+}
+
+/* thin scrollbars */
+.conf-field-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.conf-field-tabs::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+.conf-tbl-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+.conf-tbl-wrap::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+.conf-tbl-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--line-strong);
+}

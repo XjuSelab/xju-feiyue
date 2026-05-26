@@ -8,8 +8,10 @@ by any code.
 
 | Folder | Origin | Migrated to |
 |---|---|---|
-| `pages/` | 6 standalone HTML mocks (home / browse / write / login / app shell / design-system) | `frontend/src/pages/` + `frontend/src/features/*/sections/` + `frontend/src/pages/_dev/DesignSystemPage.tsx` |
-| `components/` | 3 JSX mocks (ai-drawer / icons / mega-menu) | `frontend/src/features/editor/ai/` + `frontend/src/lib/categories.ts` + `frontend/src/components/layout/MegaMenu.tsx` |
+| `pages/` | standalone HTML mocks (home / browse / write / login / app shell / design-system) | `frontend/src/pages/` + `frontend/src/features/*/sections/` + `frontend/src/pages/_dev/DesignSystemPage.tsx` |
+| `components/` | JSX mocks (ai-drawer / icons / mega-menu) | `frontend/src/features/editor/ai/` + `frontend/src/lib/categories.ts` + `frontend/src/components/layout/MegaMenu.tsx` |
+| `pages/schools.html` + `components/schools-data.jsx` | 高校信息（导师投递参考）页 mock + 数据 | `frontend/src/features/schools/` |
+| `pages/conferences.html` + `components/conferences-data.jsx` | CCF 推荐会议页 mock + 230 条种子数据 | `frontend/src/features/conferences/` |
 | `stylesheets/` | `styles.css` — single-file design language baseline | `frontend/src/styles/{tokens.css,globals.css,prose-claude.css}` + `frontend/tailwind.config.ts` |
 
 If you want to compare the production component against its original mock,

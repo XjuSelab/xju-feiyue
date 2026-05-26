@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>CCF 会议 · LabNotes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../stylesheets/styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="../components/icons.jsx"></script>
+<script type="text/babel" src="../components/mega-menu.jsx"></script>
+<script type="text/babel" src="../components/conferences-data.jsx"></script>
+<style>
+  body { font-size: 14.5px; }
+
+  /* ---- top nav (matches other pages) ---- */
+  .nav { height: 56px; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 30; display: flex; align-items: center; padding: 0 28px; gap: 24px; }
+  .nav-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: var(--fg); cursor: pointer; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { font-family: var(--font-ui); font-size: 14px; font-weight: 500; color: var(--fg-muted); padding: 7px 12px; border-radius: var(--r-md); cursor: pointer; transition: background var(--t-fast), color var(--t-fast); }
+  .nav-tab:hover { background: var(--bg-soft); color: var(--fg); }
+  .nav-tab.active { color: var(--fg); background: var(--bg-soft); }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .guest-badge { font-family: var(--font-ui); font-size: 12px; color: var(--fg-muted); background: var(--bg-soft); padding: 4px 10px; border-radius: var(--r-sm); font-weight: 500; }
+  .avatar-trigger { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-soft); color: var(--fg); font-family: var(--font-ui); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--line); }
+
+  /* ---- page ---- */
+  .page-ccf { width: 100%; margin: 0; padding: 28px 28px 64px; }
+  @media (min-width: 1600px) { .page-ccf { padding-left: 40px; padding-right: 40px; } }
+
+  .page-h { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 6px; }
+  .page-h h1 { font-family: var(--font-serif); font-weight: 600; font-size: 28px; letter-spacing: -0.01em; margin: 0; }
+  .page-h .sub { font-family: var(--font-ui); font-size: 13px; color: var(--fg-muted); }
+  .page-h .sub strong { color: var(--fg); font-weight: 600; }
+
+  .page-disclaim {
+    font-family: var(--font-ui); font-size: 12px; color: var(--fg-faint);
+    margin: 0 0 18px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .page-disclaim svg { flex: 0 0 auto; }
+  .page-disclaim code {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--bg-soft); padding: 1px 6px; border-radius: 3px;
+    color: var(--fg-muted);
+  }
+
+  /* ---- field tabs (top row) ---- */
+  .field-tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--line);
+    margin: 0 0 14px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .field-tabs::-webkit-scrollbar { height: 4px; }
+  .field-tabs::-webkit-scrollbar-thumb { background: var(--line); }
+  .field-tab {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--fg-muted);
+    padding: 8px 13px 12px;
+    cursor: pointer;
+    position: relative;
+    letter-spacing: -0.005em;
+    transition: color var(--t-fast);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .field-tab:hover { color: var(--fg); }
+  .field-tab.on { color: var(--fg); }
+  .field-tab.on::after {
+    content: ""; position: absolute; left: 13px; right: 13px; bottom: -1px; height: 2px;
+    background: var(--fg); border-radius: 1px;
+  }
+  .field-tab .field-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex: 0 0 auto;
+  }
+  .field-tab-count {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--fg-faint); vertical-align: 1px;
+  }
+
+  /* ---- filter bar ---- */
+  .filters { background: var(--bg-soft); border-radius: var(--r-lg); padding: 12px 14px; margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; }
+  .fl-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .fl-label { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-faint); flex: 0 0 60px; }
+  .fl-chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; min-width: 0; }
+  .fl-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .fl-chip:hover { color: var(--fg); border-color: var(--line-strong); }
+  .fl-chip.on { background: var(--fg); color: #fff; border-color: var(--fg); }
+  .fl-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+
+  /* tier chip variants */
+  .fl-chip.tier-A.on { background: var(--fg); border-color: var(--fg); }
+  .fl-chip.tier-B.on { background: #6B6862; border-color: #6B6862; }
+  .fl-chip.tier-C.on { background: var(--fg-muted); border-color: var(--fg-muted); }
+
+  /* status chip variants */
+  .fl-chip.st-soon.on   { background: var(--cat-course); border-color: var(--cat-course); }
+  .fl-chip.st-open.on   { background: var(--cat-tools); border-color: var(--cat-tools); }
+  .fl-chip.st-closed.on { background: var(--cat-research); border-color: var(--cat-research); }
+  .fl-chip.st-tbd.on    { background: var(--fg-muted); border-color: var(--fg-muted); }
+
+  .fl-search { position: relative; flex: 1 1 auto; max-width: 360px; }
+  .fl-search input {
+    width: 100%; padding: 6px 10px 6px 30px;
+    font-family: var(--font-ui); font-size: 13px;
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md);
+    color: var(--fg); outline: none; transition: border-color var(--t-fast);
+  }
+  .fl-search input:focus { border-color: var(--fg); }
+  .fl-search svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--fg-faint); }
+
+  .fl-toggle { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-muted); cursor: pointer; user-select: none; }
+  .fl-toggle-sw { width: 26px; height: 14px; border-radius: 8px; background: var(--line-strong); position: relative; transition: background var(--t-fast); }
+  .fl-toggle-sw::after { content: ""; position: absolute; top: 1px; left: 1px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform var(--t-fast); box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+  .fl-toggle.on .fl-toggle-sw { background: var(--fg); }
+  .fl-toggle.on .fl-toggle-sw::after { transform: translateX(12px); }
+  .fl-toggle.on { color: var(--fg); }
+
+  .fl-stats { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-faint); white-space: nowrap; margin-left: auto; }
+
+  /* view switcher */
+  .view-sw {
+    display: inline-flex;
+    border: 1px solid var(--line); border-radius: var(--r-md);
+    overflow: hidden; background: var(--bg);
+  }
+  .view-sw-btn {
+    padding: 5px 12px;
+    font-family: var(--font-ui); font-size: 12.5px; font-weight: 500;
+    color: var(--fg-muted); background: transparent; border: 0;
+    border-right: 1px solid var(--line); cursor: pointer;
+    transition: background var(--t-fast), color var(--t-fast);
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .view-sw-btn:last-child { border-right: 0; }
+  .view-sw-btn:hover { background: var(--bg-soft); color: var(--fg); }
+  .view-sw-btn.on { background: var(--fg); color: #fff; }
+
+  /* ---- table ---- */
+  .tbl-wrap { border: 1px solid var(--line); border-radius: var(--r-lg); overflow-x: auto; background: var(--bg); }
+  .tbl-wrap::-webkit-scrollbar { height: 8px; }
+  .tbl-wrap::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  .tbl { width: 100%; min-width: 1200px; border-collapse: separate; border-spacing: 0; font-family: var(--font-ui); font-size: 13px; table-layout: fixed; }
+  .tbl thead th {
+    background: var(--bg-soft); color: var(--fg-muted); font-weight: 600;
+    text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line);
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;
+    user-select: none; white-space: nowrap;
+  }
+  .tbl thead th.sortable { cursor: pointer; transition: color var(--t-fast); }
+  .tbl thead th.sortable:hover { color: var(--fg); }
+  .tbl thead th .sort-icon { display: inline-block; vertical-align: -1px; margin-left: 3px; color: var(--fg-faint); }
+  .tbl thead th.sort-active, .tbl thead th.sort-active .sort-icon { color: var(--fg); }
+  .tbl tbody td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; color: var(--fg); background: var(--bg); transition: background var(--t-fast); }
+  .tbl tbody tr:last-child td { border-bottom: none; }
+  .tbl tbody tr:hover td { background: var(--bg-soft); }
+
+  /* row deadline tints */
+  .tbl tbody tr.row-soon td { background: rgba(217, 115, 13, 0.05); }
+  .tbl tbody tr.row-soon:hover td { background: rgba(217, 115, 13, 0.09); }
+
+  /* col widths */
+  .col-abbr     { width: 200px; }
+  .col-tier     { width: 70px; }
+  .col-field    { width: 110px; }
+  .col-publisher{ width: 100px; }
+  .col-where    { width: 230px; }
+  .col-deadline { width: 220px; }
+  .col-links    { width: 180px; }
+
+  /* abbreviation cell */
+  .abbr-cell {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .abbr-text {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    line-height: 1.1;
+  }
+  .abbr-full {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    color: var(--fg-faint);
+    line-height: 1.35;
+    /* allow wrap */
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  /* tier badge — most prominent visual */
+  .tier {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 44px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+  .tier-A { background: var(--fg); color: #fff; }
+  .tier-B { background: var(--bg-hover); color: var(--fg); border: 1px solid var(--line-strong); }
+  .tier-C { background: var(--bg-soft); color: var(--fg-muted); }
+  .tier-prefix {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.6;
+    margin-right: 2px;
+    vertical-align: 1px;
+  }
+
+  /* field chip in row */
+  .fchip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px 2px 6px;
+    background: var(--bg-soft);
+    border-radius: 4px;
+    font-family: var(--font-ui); font-size: 11.5px;
+    color: var(--fg);
+    line-height: 1.6;
+  }
+  .fchip-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+
+  /* publisher pill */
+  .pub-pill {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-muted);
+    background: var(--bg-soft);
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* where cell — location + date stacked */
+  .where {
+    display: flex; flex-direction: column; gap: 2px;
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+  }
+  .where-loc {
+    color: var(--fg);
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .where-date {
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+  }
+  .where-cycle {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--fg-faint);
+    background: var(--bg-soft);
+    padding: 0 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    vertical-align: 1px;
+  }
+  .where-empty { color: var(--fg-faint); font-style: italic; font-size: 12px; }
+
+  /* deadline cell — the star of the page */
+  .dl {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .dl-row1 {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dl-date {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--fg);
+  }
+  .dl-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  .dl-badge .b-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .dl-badge.b-soon { background: rgba(217, 115, 13, 0.14); color: var(--cat-course); }
+  .dl-badge.b-open { background: rgba(15, 123, 108, 0.12); color: var(--cat-tools); }
+  .dl-badge.b-closed { background: var(--bg-soft); color: var(--fg-faint); }
+  .dl-badge.b-tbd { background: var(--bg-soft); color: var(--fg-faint); }
+
+  .dl-row2 {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--fg-faint);
+    /* let it wrap */
+    line-height: 1.5;
+  }
+  .dl-bar {
+    height: 3px;
+    width: 140px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .dl-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width var(--t-fast);
+  }
+  .dl-bar-fill.b-soon { background: var(--cat-course); }
+  .dl-bar-fill.b-open { background: var(--cat-tools); }
+  .dl-bar-fill.b-closed { background: var(--line-strong); }
+
+  .dl-empty {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--fg-faint);
+    font-style: italic;
+  }
+
+  /* links cell */
+  .links { display: inline-flex; gap: 6px; align-items: center; }
+  .lk-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 9px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+    text-decoration: none;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+  .lk-btn:hover { background: var(--bg-soft); border-color: var(--line-strong); text-decoration: none; }
+  .lk-btn.primary { background: var(--fg); color: #fff; border-color: var(--fg); }
+  .lk-btn.primary:hover { background: #2A2825; }
+  .lk-btn.muted { color: var(--fg-muted); background: transparent; border-color: transparent; }
+  .lk-btn.muted:hover { background: var(--bg-soft); color: var(--fg); border-color: var(--line); }
+  .lk-btn[aria-disabled="true"] {
+    color: var(--fg-faint); background: var(--bg-soft); border-color: var(--line);
+    cursor: not-allowed; opacity: 0.7;
+  }
+
+  /* empty state */
+  .empty { padding: 60px 20px; text-align: center; color: var(--fg-faint); font-family: var(--font-ui); font-size: 13px; }
+  .empty-h { font-family: var(--font-serif); font-weight: 600; font-size: 18px; color: var(--fg-muted); margin: 0 0 6px; }
+
+  /* ===== timeline view ===== */
+  .tl-wrap { display: flex; flex-direction: column; gap: 24px; padding-top: 4px; }
+  .tl-month {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .tl-month-h {
+    position: sticky; top: 64px;
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: 22px; color: var(--fg);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    padding-top: 4px;
+  }
+  .tl-month-h .y {
+    display: block;
+    font-family: var(--font-mono); font-size: 11.5px;
+    font-weight: 500;
+    color: var(--fg-faint);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+  .tl-month-h .cnt {
+    display: block;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--fg-faint); margin-top: 8px;
+  }
+  .tl-items {
+    display: flex; flex-direction: column;
+    gap: 0;
+    border-left: 1px solid var(--line);
+    padding-left: 18px;
+    position: relative;
+  }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 0;
+    position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+  .tl-item:last-child { border-bottom: 0; }
+  .tl-item::before {
+    content: ""; position: absolute;
+    left: -22px; top: 18px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--line-strong);
+  }
+  .tl-item.soon::before { border-color: var(--cat-course); }
+  .tl-item.open::before { border-color: var(--cat-tools); }
+  .tl-item.closed::before { border-color: var(--line); background: var(--bg-soft); }
+  .tl-day {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg-muted);
+    font-weight: 500;
+  }
+  .tl-day .wk {
+    display: block; font-size: 10.5px;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 1px;
+  }
+  .tl-conf { min-width: 0; }
+  .tl-conf-h { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .tl-conf-abbr {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: 16px; color: var(--fg);
+    letter-spacing: -0.005em;
+  }
+  .tl-conf-meta {
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--fg-muted);
+    margin-top: 4px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .tl-conf-meta .sep { color: var(--line-strong); }
+  .tl-actions { display: flex; gap: 6px; align-items: center; }
+
+  /* footer */
+  .footer { height: 60px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-size: 12.5px; color: var(--fg-faint); background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ==================== constants ==================== */
+const TODAY = new Date('2026-05-26T12:00:00');
+
+const TIERS = ['A', 'B', 'C'];
+const STATUSES = [
+  { v: 'soon',   l: '即将截稿', sub: '≤ 30 天', tone: 'soon' },
+  { v: 'open',   l: '征稿中',   sub: '> 30 天', tone: 'open' },
+  { v: 'closed', l: '已截止',   sub: '过去周期', tone: 'closed' },
+  { v: 'tbd',    l: '未公布',   sub: '等待官宣', tone: 'tbd' },
+];
+
+const PUBLISHERS_TOP = ['ACM', 'IEEE', 'IEEE/ACM', 'USENIX', 'Springer', 'AAAI'];
+
+/* ==================== icons ==================== */
+const J = {
+  search:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  ext:       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>,
+  list:      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
+  calendar:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+  info:      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+  arrowUp:   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>,
+  arrowDown: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>,
+  arrowUpDown:<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>,
+  pin:       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s-8-7.58-8-13a8 8 0 0 1 16 0c0 5.42-8 13-8 13z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+};
+
+/* ==================== helpers ==================== */
+function classify(conf) {
+  if (!conf.deadline) return 'tbd';
+  const dl = new Date(conf.deadline + 'T23:59:59');
+  const ms = dl - TODAY;
+  const days = Math.ceil(ms / 86400000);
+  if (days < 0) return 'closed';
+  if (days <= 30) return 'soon';
+  return 'open';
+}
+
+function daysUntil(deadline) {
+  if (!deadline) return null;
+  const dl = new Date(deadline + 'T23:59:59');
+  return Math.ceil((dl - TODAY) / 86400000);
+}
+
+function fmtDeadlineWord(deadline) {
+  const d = daysUntil(deadline);
+  if (d == null) return '';
+  if (d < 0) return `已截止 ${-d} 天`;
+  if (d === 0) return '今日截稿';
+  if (d <= 30) return `还剩 ${d} 天`;
+  return `${d} 天后截稿`;
+}
+
+function progressForBar(deadline) {
+  const d = daysUntil(deadline);
+  if (d == null) return 0;
+  if (d < 0) return 100;
+  if (d > 180) return 5;
+  // map 0..180 → 100..5
+  return Math.max(5, Math.min(100, 100 - (d / 180) * 95));
+}
+
+function fieldOf(id) { return CCF_FIELDS.find(f => f.id === id); }
+
+/* ==================== top nav ==================== */
+function TopNav({ user }) {
+  return (
+    <nav className="nav">
+      <div className="nav-brand" onClick={() => location.href = 'home.html'}>
+        <span style={{ fontSize: 18 }}>📓</span> LabNotes
+      </div>
+      <div className="nav-tabs">
+        <div className="nav-tab" onClick={() => location.href = 'home.html'}>主页</div>
+        <BrowseTabWithMenu active={false} />
+        <div className={`nav-tab ${user.role === 'guest' ? 'is-disabled' : ''}`}
+             style={user.role === 'guest' ? { opacity: 0.4, cursor: 'not-allowed' } : null}
+             onClick={() => user.role !== 'guest' && (location.href = 'write.html')}>写作</div>
+        <div className="nav-tab" onClick={() => location.href = 'schools.html'}>高校信息</div>
+        <div className="nav-tab active">CCF 会议</div>
+      </div>
+      <div className="nav-right">
+        {user.role === 'guest' ? (
+          <>
+            <span className="guest-badge">游客模式</span>
+            <a className="btn btn-sm btn-primary" href="login.html" style={{ textDecoration: 'none' }}>登录</a>
+          </>
+        ) : (
+          <div className="avatar-trigger">{user.initials}</div>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+/* ==================== chips ==================== */
+function Chip({ on, onClick, children, klass }) {
+  return (
+    <button className={`fl-chip ${on ? 'on' : ''} ${klass || ''}`} onClick={onClick} type="button">
+      {children}
+    </button>
+  );
+}
+
+function Toggle({ on, onClick, children }) {
+  return (
+    <span className={`fl-toggle ${on ? 'on' : ''}`} onClick={onClick}>
+      <span className="fl-toggle-sw"></span>
+      {children}
+    </span>
+  );
+}
+
+/* ==================== field tabs ==================== */
+function FieldTabs({ value, onChange, countsByField, total }) {
+  return (
+    <div className="field-tabs">
+      <span className={`field-tab ${value === 'all' ? 'on' : ''}`} onClick={() => onChange('all')}>
+        全部 <span className="field-tab-count">{total}</span>
+      </span>
+      {CCF_FIELDS.map(f => (
+        <span key={f.id} className={`field-tab ${value === f.id ? 'on' : ''}`} onClick={() => onChange(f.id)}>
+          <span className="field-dot" style={{ background: f.color }}></span>
+          {f.name_cn}
+          <span className="field-tab-count">{countsByField[f.id] || 0}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ==================== filter bar ==================== */
+function FilterBar({ filters, setFilters, total, shown, view, setView }) {
+  const toggleArr = (key, v) => {
+    const cur = filters[key];
+    setFilters({ ...filters, [key]: cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v] });
+  };
+
+  return (
+    <div className="filters">
+      <div className="fl-row">
+        <span className="fl-label">CCF 级别</span>
+        <div className="fl-chips">
+          {TIERS.map(t => (
+            <Chip key={t} klass={`tier-${t}`} on={filters.tier.includes(t)} onClick={() => toggleArr('tier', t)}>
+              CCF-{t}
+            </Chip>
+          ))}
+        </div>
+      </div>
+
+      <div className="fl-row">
+        <span className="fl-label">截稿状态</span>
+        <div className="fl-chips">
+          {STATUSES.map(s => (
+            <Chip key={s.v} klass={`st-${s.tone}`} on={filters.status.includes(s.v)} onClick={() => toggleArr('status', s.v)}>
+              <span className="fl-chip-dot"></span>{s.l}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, opacity: 0.7 }}>{s.sub}</span>
+            </Chip>
+          ))}
+        </div>
+      </div>
+
+      <div className="fl-row">
+        <span className="fl-label">出版方</span>
+        <div className="fl-chips">
+          {PUBLISHERS_TOP.map(p => (
+            <Chip key={p} on={filters.pub.includes(p)} onClick={() => toggleArr('pub', p)}>{p}</Chip>
+          ))}
+        </div>
+      </div>
+
+      <div className="fl-row">
+        <div className="fl-search">
+          {J.search}
+          <input placeholder="搜索简称 / 全称 / 出版方 / 地点…" value={filters.q} onChange={e => setFilters({ ...filters, q: e.target.value })} />
+        </div>
+        <Toggle on={filters.aOnly} onClick={() => setFilters({ ...filters, aOnly: !filters.aOnly })}>仅 A 类</Toggle>
+        <Toggle on={filters.upcoming} onClick={() => setFilters({ ...filters, upcoming: !filters.upcoming })}>有未来截稿</Toggle>
+
+        <div className="view-sw" style={{ marginLeft: 8 }}>
+          <button className={`view-sw-btn ${view === 'table' ? 'on' : ''}`} onClick={() => setView('table')}>{J.list} 表格</button>
+          <button className={`view-sw-btn ${view === 'timeline' ? 'on' : ''}`} onClick={() => setView('timeline')}>{J.calendar} 时间线</button>
+        </div>
+
+        <span className="fl-stats">显示 {shown} / {total}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ==================== row cells ==================== */
+function AbbrCell({ conf }) {
+  return (
+    <div className="abbr-cell">
+      <span className="abbr-text">{conf.abbr}</span>
+      <span className="abbr-full">{conf.name_full}</span>
+    </div>
+  );
+}
+
+function TierBadge({ tier }) {
+  return <span className={`tier tier-${tier}`}><span className="tier-prefix">CCF-</span>{tier}</span>;
+}
+
+function FieldChip({ field }) {
+  const f = fieldOf(field);
+  if (!f) return null;
+  return (
+    <span className="fchip" title={f.name_cn}>
+      <span className="fchip-dot" style={{ background: f.color }}></span>
+      {f.short}
+    </span>
+  );
+}
+
+function WhereCell({ conf }) {
+  if (!conf.location && !conf.conf_date) {
+    return <span className="where-empty">— 待公布</span>;
+  }
+  return (
+    <div className="where">
+      <span className="where-loc">
+        {J.pin}
+        {conf.location || '待公布'}
+        {conf.cycle && <span className="where-cycle">{conf.cycle}</span>}
+      </span>
+      <span className="where-date">{conf.conf_date || '—'}</span>
+    </div>
+  );
+}
+
+function DeadlineCell({ conf }) {
+  const status = classify(conf);
+  if (status === 'tbd') {
+    return (
+      <div className="dl">
+        <span className="dl-empty">— 待公布</span>
+      </div>
+    );
+  }
+  const word = fmtDeadlineWord(conf.deadline);
+  const klass = status === 'soon' ? 'b-soon' : status === 'open' ? 'b-open' : 'b-closed';
+  return (
+    <div className="dl">
+      <div className="dl-row1">
+        <span className="dl-date">{conf.deadline}</span>
+        <span className={`dl-badge ${klass}`}>
+          <span className="b-dot"></span>{word}
+        </span>
+      </div>
+      {conf.note && <div className="dl-row2">{conf.note}</div>}
+      <div className="dl-bar"><div className={`dl-bar-fill ${klass}`} style={{ width: `${progressForBar(conf.deadline)}%` }}></div></div>
+    </div>
+  );
+}
+
+function LinksCell({ conf }) {
+  const hasHome = !!conf.homepage;
+  return (
+    <div className="links">
+      {hasHome ? (
+        <a className="lk-btn primary" href={conf.homepage} target="_blank" rel="noreferrer">官网 {J.ext}</a>
+      ) : (
+        <span className="lk-btn" aria-disabled="true">官网未发布</span>
+      )}
+      <a className="lk-btn muted" href={conf.dblp} target="_blank" rel="noreferrer">DBLP {J.ext}</a>
+    </div>
+  );
+}
+
+/* ==================== table view ==================== */
+function ConfTable({ rows, sort, setSort }) {
+  if (rows.length === 0) {
+    return (
+      <div className="tbl-wrap">
+        <div className="empty">
+          <div className="empty-h">当前筛选下无会议</div>
+          <div>试着取消几个 chip,或清空搜索关键词</div>
+        </div>
+      </div>
+    );
+  }
+
+  const headers = [
+    { k: 'abbr',     l: '会议',     cls: 'col-abbr',     sortable: true  },
+    { k: 'tier',     l: '级别',     cls: 'col-tier',     sortable: true  },
+    { k: 'field',    l: '领域',     cls: 'col-field' },
+    { k: 'publisher',l: '出版方',   cls: 'col-publisher' },
+    { k: 'where',    l: '地点 · 日期', cls: 'col-where' },
+    { k: 'deadline', l: '截稿日期', cls: 'col-deadline', sortable: true  },
+    { k: 'links',    l: '链接',     cls: 'col-links' },
+  ];
+
+  const sortIcon = (k) => {
+    if (sort.key !== k) return J.arrowUpDown;
+    return sort.dir === 'desc' ? J.arrowDown : J.arrowUp;
+  };
+  const onSortClick = (k) => {
+    if (sort.key === k) setSort({ key: k, dir: sort.dir === 'desc' ? 'asc' : 'desc' });
+    else setSort({ key: k, dir: k === 'deadline' ? 'asc' : 'asc' });
+  };
+
+  return (
+    <div className="tbl-wrap">
+      <table className="tbl">
+        <colgroup>{headers.map(h => <col key={h.k} className={h.cls} />)}</colgroup>
+        <thead>
+          <tr>
+            {headers.map(h => (
+              <th key={h.k}
+                  className={`${h.cls} ${h.sortable ? 'sortable' : ''} ${sort.key === h.k ? 'sort-active' : ''}`}
+                  onClick={h.sortable ? () => onSortClick(h.k) : null}>
+                {h.l}
+                {h.sortable && <span className="sort-icon">{sortIcon(h.k)}</span>}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(c => {
+            const status = classify(c);
+            return (
+              <tr key={c.id} className={status === 'soon' ? 'row-soon' : ''}>
+                <td><AbbrCell conf={c} /></td>
+                <td><TierBadge tier={c.tier} /></td>
+                <td><FieldChip field={c.field} /></td>
+                <td><span className="pub-pill" title={c.publisher}>{c.publisher}</span></td>
+                <td><WhereCell conf={c} /></td>
+                <td><DeadlineCell conf={c} /></td>
+                <td><LinksCell conf={c} /></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ==================== timeline view ==================== */
+const WK_CN = ['日', '一', '二', '三', '四', '五', '六'];
+const MONTH_CN = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+function TimelineView({ rows }) {
+  // Only show entries that HAVE a deadline; group by month; within month sort by day asc.
+  const withDl = rows.filter(r => !!r.deadline).map(r => ({
+    ...r,
+    _d: new Date(r.deadline + 'T23:59:59'),
+  }));
+  withDl.sort((a, b) => a._d - b._d);
+
+  const groups = {};
+  for (const r of withDl) {
+    const key = `${r._d.getFullYear()}-${r._d.getMonth()}`;
+    (groups[key] = groups[key] || []).push(r);
+  }
+  const keys = Object.keys(groups).sort();
+
+  // Show only future + recently past (within 60 days) by default, but if filter brought closed: show all.
+  if (keys.length === 0) {
+    return (
+      <div className="tbl-wrap">
+        <div className="empty">
+          <div className="empty-h">当前筛选下没有可用截稿数据</div>
+          <div>切换"截稿状态"或清空搜索,试试看其他周期</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="tl-wrap">
+      {keys.map(k => {
+        const items = groups[k];
+        const sample = items[0]._d;
+        const y = sample.getFullYear();
+        const m = sample.getMonth();
+        return (
+          <div className="tl-month" key={k}>
+            <div className="tl-month-h">
+              {MONTH_CN[m]}
+              <span className="y">{y}</span>
+              <span className="cnt">{items.length} 项截稿</span>
+            </div>
+            <div className="tl-items">
+              {items.map(c => {
+                const status = classify(c);
+                const dd = c._d;
+                return (
+                  <div className={`tl-item ${status}`} key={c.id}>
+                    <div className="tl-day">
+                      {String(dd.getDate()).padStart(2, '0')}
+                      <span className="wk">周{WK_CN[dd.getDay()]}</span>
+                    </div>
+                    <div className="tl-conf">
+                      <div className="tl-conf-h">
+                        <span className="tl-conf-abbr">{c.abbr}</span>
+                        <TierBadge tier={c.tier} />
+                        <FieldChip field={c.field} />
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-faint)' }}>
+                          {status === 'closed' ? `已截止 ${-daysUntil(c.deadline)} 天`
+                            : status === 'soon' ? `仅剩 ${daysUntil(c.deadline)} 天`
+                            : `${daysUntil(c.deadline)} 天后`}
+                        </span>
+                      </div>
+                      <div className="tl-conf-meta">
+                        <span>{c.name_full}</span>
+                      </div>
+                      <div className="tl-conf-meta" style={{ marginTop: 2 }}>
+                        <span><span style={{ verticalAlign: '-1px' }}>{J.pin}</span> {c.location || '待公布'}</span>
+                        <span className="sep">·</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5 }}>{c.conf_date || '日期待公布'}</span>
+                        {c.cycle && <><span className="sep">·</span><span style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>cycle {c.cycle}</span></>}
+                        {c.note && <><span className="sep">·</span><span>{c.note}</span></>}
+                      </div>
+                    </div>
+                    <div className="tl-actions">
+                      <LinksCell conf={c} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ==================== sort ==================== */
+function applySort(rows, sort) {
+  const arr = [...rows];
+  const tierOrder = { A: 0, B: 1, C: 2 };
+  arr.sort((a, b) => {
+    if (sort.key === 'tier') {
+      const d = tierOrder[a.tier] - tierOrder[b.tier];
+      return sort.dir === 'asc' ? d : -d;
+    }
+    if (sort.key === 'abbr') {
+      const d = a.abbr.localeCompare(b.abbr);
+      return sort.dir === 'asc' ? d : -d;
+    }
+    if (sort.key === 'deadline') {
+      // null deadlines sink to end
+      const aD = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+      const bD = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+      const d = aD - bD;
+      return sort.dir === 'asc' ? d : -d;
+    }
+    return 0;
+  });
+  return arr;
+}
+
+/* ==================== smart default sort ==================== */
+function smartSort(rows) {
+  // upcoming soonest first; then open by deadline; then tbd (A first); then closed by recency
+  return [...rows].sort((a, b) => {
+    const sA = classify(a);
+    const sB = classify(b);
+    const order = { soon: 0, open: 1, tbd: 2, closed: 3 };
+    if (order[sA] !== order[sB]) return order[sA] - order[sB];
+    // within soon/open: by deadline asc
+    if (sA === 'soon' || sA === 'open') {
+      return new Date(a.deadline) - new Date(b.deadline);
+    }
+    // within tbd or closed: tier asc, then abbr
+    const tierOrder = { A: 0, B: 1, C: 2 };
+    if (a.tier !== b.tier) return tierOrder[a.tier] - tierOrder[b.tier];
+    return a.abbr.localeCompare(b.abbr);
+  });
+}
+
+/* ==================== App ==================== */
+function App() {
+  const user = { role: 'member', initials: 'YL' };
+  const [field, setField] = useState('all');
+  const [filters, setFilters] = useState({
+    tier: [], status: [], pub: [], q: '', aOnly: false, upcoming: false,
+  });
+  const [sort, setSort] = useState({ key: 'smart', dir: 'asc' });
+  const [view, setView] = useState('table');
+
+  // counts of all conferences by field (ignoring filters except field)
+  const countsByField = useMemo(() => {
+    const m = {};
+    for (const c of CCF_CONFS) m[c.field] = (m[c.field] || 0) + 1;
+    return m;
+  }, []);
+  const totalAll = CCF_CONFS.length;
+
+  // filtered rows
+  const rows = useMemo(() => {
+    let r = CCF_CONFS;
+    if (field !== 'all')         r = r.filter(c => c.field === field);
+    if (filters.tier.length)     r = r.filter(c => filters.tier.includes(c.tier));
+    if (filters.status.length)   r = r.filter(c => filters.status.includes(classify(c)));
+    if (filters.pub.length)      r = r.filter(c => filters.pub.includes(c.publisher));
+    if (filters.aOnly)           r = r.filter(c => c.tier === 'A');
+    if (filters.upcoming) {
+      r = r.filter(c => {
+        const d = daysUntil(c.deadline);
+        return d != null && d >= 0;
+      });
+    }
+    if (filters.q.trim()) {
+      const q = filters.q.trim().toLowerCase();
+      r = r.filter(c =>
+        c.abbr.toLowerCase().includes(q) ||
+        c.name_full.toLowerCase().includes(q) ||
+        (c.publisher || '').toLowerCase().includes(q) ||
+        (c.location || '').toLowerCase().includes(q)
+      );
+    }
+    return r;
+  }, [field, filters]);
+
+  // sort
+  const sortedRows = useMemo(() => {
+    if (view === 'timeline') return rows; // timeline does its own sort
+    if (sort.key === 'smart') return smartSort(rows);
+    return applySort(rows, sort);
+  }, [rows, sort, view]);
+
+  return (
+    <>
+      <TopNav user={user} />
+
+      <div className="page-ccf">
+        <div className="page-h">
+          <div>
+            <h1>CCF 推荐国际学术会议</h1>
+            <div className="page-disclaim">
+              {J.info}
+              依据 <strong style={{ color: 'var(--fg)' }}>《CCF 推荐国际学术会议和期刊目录》</strong> 第七版 · 2026 年 3 月更新 ·
+              共 <strong style={{ color: 'var(--fg)' }}>{totalAll}</strong> 个会议 · 截稿与会期人工整理,
+              <code>以官网公告为准</code>
+            </div>
+          </div>
+          <div className="sub">今日 <strong>2026-05-26</strong></div>
+        </div>
+
+        <FieldTabs value={field} onChange={setField} countsByField={countsByField} total={totalAll} />
+
+        <FilterBar
+          filters={filters} setFilters={setFilters}
+          total={totalAll} shown={rows.length}
+          view={view} setView={setView}
+        />
+
+        {view === 'table'
+          ? <ConfTable rows={sortedRows} sort={sort} setSort={setSort} />
+          : <TimelineView rows={rows} />
+        }
+      </div>
+
+      <div className="footer">© LabNotes · 知识库 by 师兄师姐</div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+
+</body>
+</html>

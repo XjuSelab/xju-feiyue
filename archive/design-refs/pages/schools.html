@@ -888,6 +888,7 @@ function TopNav({ user, onLogout }) {
           写作
         </div>
         <div className="nav-tab active">高校信息</div>
+        <div className="nav-tab" onClick={() => location.href = 'conferences.html'}>CCF 会议</div>
       </div>
       <div className="nav-right">
         {user.role === 'guest' ? (

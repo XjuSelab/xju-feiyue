@@ -50,6 +50,7 @@ export function Header() {
         <MegaMenu />
         <NavItem to="/write" label="写作" />
         <NavItem to="/schools" label="高校信息" />
+        <NavItem to="/conferences" label="CCF 会议" />
       </nav>
 
       <form role="search" onSubmit={onSearch} className="ml-auto flex w-60 max-w-full items-center">

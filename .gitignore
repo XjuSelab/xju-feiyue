@@ -21,3 +21,9 @@ backend/uploads/
 # (`make schools-push` / `make schools-pull`; see scripts/sync/schools.py).
 # Not tracked in git — the git push timed out on the 23MB blob.
 backend/data/schools/
+
+# CCF conferences reference data — read-only service sqlite, seeded by
+# scripts/seed_conferences.py and (R3) maintained by the conf crawler. Synced
+# out-of-band to the xju-feiyue-data HF dataset under the conferences/ namespace
+# (`make conf-push` / `make conf-pull`). Regenerable, so kept out of git.
+backend/data/conferences/
