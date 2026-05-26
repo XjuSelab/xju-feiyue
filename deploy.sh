@@ -8,6 +8,7 @@
 # so we just always run them. Use --dry-run to check status without restarting.
 set -euo pipefail
 cd "$(dirname "$0")"
+ROOT="$(pwd)"
 
 DRY_RUN=0
 for arg in "$@"; do
@@ -55,25 +56,34 @@ sleep 3
 # "!! health check failed" even though uvicorn is fine.
 if curl -sf --noproxy 127.0.0.1 http://127.0.0.1:8001/health > /dev/null; then
     echo "== backend healthy"
-    exit 0
+else
+    echo "!! health check failed — diagnosing"
+    echo
+    echo "-- proxy env (curl may be tunneling localhost through this) --"
+    env | grep -iE '^(http|https|all|no)_proxy=' || echo "  (none set)"
+    echo
+    echo "-- raw curl trace --"
+    curl -v --max-time 5 --noproxy 127.0.0.1 http://127.0.0.1:8001/health 2>&1 | tail -20 || true
+    echo
+    echo "-- aurash-backend log since latest unit start --"
+    # journalctl _SYSTEMD_INVOCATION_ID filter scopes us to *this* uvicorn
+    # process — everything before the most recent `systemctl restart` is noise
+    # (SIGTERM 143 cycles from earlier restarts).
+    inv=$(sudo systemctl show aurash-backend.service -p InvocationID --value)
+    if [ -n "$inv" ]; then
+        sudo journalctl _SYSTEMD_INVOCATION_ID="$inv" --no-pager | tail -40
+    else
+        sudo journalctl -u aurash-backend.service -n 40 --no-pager
+    fi
+    exit 1
 fi
 
-echo "!! health check failed — diagnosing"
-echo
-echo "-- proxy env (curl may be tunneling localhost through this) --"
-env | grep -iE '^(http|https|all|no)_proxy=' || echo "  (none set)"
-echo
-echo "-- raw curl trace --"
-curl -v --max-time 5 --noproxy 127.0.0.1 http://127.0.0.1:8001/health 2>&1 | tail -20 || true
-echo
-echo "-- aurash-backend log since latest unit start --"
-# journalctl _SYSTEMD_INVOCATION_ID filter scopes us to *this* uvicorn
-# process — everything before the most recent `systemctl restart` is noise
-# (SIGTERM 143 cycles from earlier restarts).
-inv=$(sudo systemctl show aurash-backend.service -p InvocationID --value)
-if [ -n "$inv" ]; then
-    sudo journalctl _SYSTEMD_INVOCATION_ID="$inv" --no-pager | tail -40
-else
-    sudo journalctl -u aurash-backend.service -n 40 --no-pager
-fi
-exit 1
+# Frontend build — runs only after the backend restarted + passed health
+# (deploy ordering: backend first, then frontend). nginx serves frontend/dist
+# as static assets, so a fresh `tsc -b && vite build` is what ships UI changes;
+# deploy.sh was historically backend-only. pnpm resolves via the nvm bin on PATH.
+echo "== building frontend"
+cd "$ROOT/frontend"
+pnpm install
+pnpm build
+echo "== frontend built — deploy complete"
