@@ -1,4 +1,4 @@
-# LabNotes — Backend
+# xju-feiyue — Backend
 
 FastAPI + SQLAlchemy 2 (async) + Postgres. Mirrors the API contract in
 `../BACKEND_SPEC.md` so the frontend can switch from its mock dispatch table

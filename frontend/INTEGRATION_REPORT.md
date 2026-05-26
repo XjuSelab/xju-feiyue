@@ -1,4 +1,4 @@
-# LabNotes Frontend — Integration Report
+# xju-feiyue Frontend — Integration Report
 
 > 交付报告。涵盖 5 轮的成果、与 spec 的偏差、性能 / 测试 / 一致性指标、遗留 issue
 > 以及下一阶段建议。本文档与 `docs/architecture.md` 和 `docs/design-decisions.md`

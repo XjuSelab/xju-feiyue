@@ -74,7 +74,7 @@ _LEADING_H1_RE = re.compile(r"\A#\s+[^\n]*\n+", re.DOTALL)
 def strip_html_chrome(text: str) -> str:
     """Drop <style> / <script> blocks (giscus widget, MkDocs counter CSS, etc.)
     that the upstream wiki uses for layout but that have no place inside a
-    plain LabNotes article."""
+    plain xju-feiyue article."""
     text = _SCRIPT_RE.sub("", text)
     text = _STYLE_RE.sub("", text)
     return text

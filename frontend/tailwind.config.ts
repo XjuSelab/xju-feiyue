@@ -17,7 +17,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // === LabNotes business tokens (hex/rgba via CSS vars) ===
+        // === xju-feiyue business tokens (hex/rgba via CSS vars) ===
         bg: 'var(--color-bg)',
         'bg-subtle': 'var(--color-bg-subtle)',
         'bg-hover': 'var(--bg-hover)',

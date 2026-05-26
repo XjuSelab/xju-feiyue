@@ -1,4 +1,4 @@
-# LabNotes — Frontend
+# xju-feiyue — Frontend
 
 Notion-style minimal shell + Claude-style prose container for browsing & writing
 seven categories of research notes. Mock-only data layer with a contract-frozen

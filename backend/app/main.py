@@ -1,4 +1,4 @@
-"""LabNotes API entrypoint.
+"""xju-feiyue API entrypoint.
 
 Routes registered here mirror BACKEND_SPEC.md §2 exactly. JSON wire format
 is camelCase (see app/schemas/_base.py).
@@ -32,7 +32,7 @@ SCHOOLS_DATA_DIR = _resolve_schools_data_dir()
 
 # 24h between scans — drift is rare and a one-day worst-case is fine.
 AUTHOR_SYNC_INTERVAL_SECONDS = 24 * 60 * 60
-_log = logging.getLogger("labnotes.author_sync")
+_log = logging.getLogger("xju_feiyue.author_sync")
 
 
 async def _author_sync_loop() -> None:
@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):  # noqa: ARG001 - signature required
         await schools_holder.dispose()
 
 
-app = FastAPI(title="LabNotes API", version="1.0", lifespan=lifespan)
+app = FastAPI(title="xju-feiyue API", version="1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

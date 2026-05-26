@@ -17,14 +17,9 @@ import { StatesSection } from './sections/StatesSection'
  */
 export function DesignSystemPage() {
   return (
-    <div
-      data-page="design-system"
-      className="min-h-screen bg-bg text-text"
-    >
+    <div data-page="design-system" className="min-h-screen bg-bg text-text">
       <header className="border-b border-border bg-bg/80 px-6 py-4 backdrop-blur">
-        <h1 className="font-serif text-2xl font-semibold">
-          LabNotes · Design System
-        </h1>
+        <h1 className="font-serif text-2xl font-semibold">xju-feiyue · Design System</h1>
         <p className="text-sm text-text-muted">
           Round 2 — tokens / shadcn / prose-claude reference page
         </p>

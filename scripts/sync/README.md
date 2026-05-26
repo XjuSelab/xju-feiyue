@@ -1,67 +1,87 @@
 # labnotes-sync
 
-Encrypts the runtime state that doesn't belong in git — the local sqlite DB
-(`backend/labnotes.db`) and `.env.local` files — and mirrors it to a private
-Hugging Face Dataset so the same state can be restored on a fresh machine.
+Mirrors everything that lives **outside git** — the runtime sqlite DB, uploaded
+files (avatars + note images), `.env.local` secrets, and the schools advisor
+reference data — to **one private Hugging Face Dataset** (`xju-feiyue-data`), so
+a fresh machine can be restored losslessly with `git clone` + one pull.
 
-Source code lives in `scripts/sync/`; everyday commands run from the repo
-root via `make`.
+Source lives in `scripts/sync/`; everyday commands run from the repo root via
+`make`. (The tool keeps its `labnotes-sync` name and `~/.config/labnotes-sync`
+config dir for continuity.)
 
 ## What gets synced
 
-| Artifact | Local path | In dataset as |
-|---|---|---|
-| sqlite DB | `backend/labnotes.db` | `data/labnotes.db` (VACUUM INTO snapshot) |
-| backend env | `backend/.env.local` | tar + age → `secrets.age` |
-| frontend env | `frontend/.env.local` | tar + age → `secrets.age` |
-| metadata | (generated) | `manifest.json` |
+One dataset, two namespaces — each side mirrors only its own prefix so they
+never clobber each other:
 
-The HF dataset is a strict mirror — each `make sync-push` rewrites all three
-files in one commit (`upload_folder(delete_patterns="*")`), so old artifacts
-don't accumulate.
+| Namespace | Artifact | Local path | In dataset as | Form |
+|---|---|---|---|---|
+| `state/` | sqlite DB | `backend/labnotes.db` | `state/labnotes.db` | VACUUM INTO snapshot (plain) |
+| `state/` | uploads | `backend/uploads/` | `state/uploads.tar` | deterministic tar (plain) |
+| `state/` | secrets | `backend/.env.local`, `frontend/.env.local` | `state/secrets.age` | tar + age (encrypted) |
+| `state/` | metadata | (generated) | `state/manifest.json` | sha256 + size per file |
+| `schools/` | advisor DB | `backend/data/schools/schools.sqlite` | `schools/schools.sqlite` | plain (regenerable by claw) |
+| `schools/` | claw manifest | `backend/data/schools/manifest.json` | `schools/manifest.json` | plain |
+
+`sync-*` drives `state/` (cron-friendly); `schools-*` drives `schools/`; `data-*`
+does both. The DB is uploaded **plain** — privacy relies on the dataset being
+private. Only `.env.local` (JWT/API keys) is age-encrypted.
 
 ## Why HF Dataset
 
-- Private datasets are free, git-LFS underneath, well-supported by the
-  `huggingface_hub` SDK
-- Single command on a fresh machine: `git clone && make sync-bootstrap && make sync-pull`
-- No S3 / IAM setup, no VPN, no rsync (which is forbidden in this repo —
-  see `MEMORY.md`)
+- Private datasets are free, git-LFS underneath (handles the ~20MB schools blob
+  that timed out on a normal `git push`), well-supported by `huggingface_hub`.
+- One command on a fresh machine — see "Fresh-machine restore" below.
+- No S3/IAM, no VPN, no rsync (forbidden in this repo — see `MEMORY.md`).
 
 ## First-time setup (per machine)
 
-1. Install OS deps: `sudo apt install age bsdextrautils sqlite3` (the
-   `script` tool comes from `bsdextrautils` on Debian/Ubuntu)
-2. Make sure `uv` is on `PATH` (`~/.local/bin/uv`)
-3. Log in to Hugging Face once:
+1. OS deps: `sudo apt install age bsdextrautils sqlite3`
+2. `uv` on `PATH` (`~/.local/bin/uv`)
+3. HF login (token with **write** scope):
    ```
    uv run --project scripts/sync python -m huggingface_hub.commands.huggingface_cli login
    ```
-   Use a token with **write** scope.
-4. Run bootstrap:
-   ```
-   make sync-bootstrap
-   ```
-   It will:
-   - verify deps and HF token
-   - prompt twice for an age passphrase (saved 0600 to
-     `~/.config/labnotes-sync/age.passphrase` — back this up to a password
-     manager, you cannot decrypt without it)
-   - prompt for `repo_id` (default: `<your-hf-user>/labnotes-state`) and a
-     machine label
-   - `create_repo(private=True, exist_ok=True)`
+4. `make sync-bootstrap` — verifies deps + token, prompts twice for an age
+   passphrase (saved 0600 to `~/.config/labnotes-sync/age.passphrase` — back it
+   up, it's irrecoverable), prompts for `repo_id` (default
+   `<your-hf-user>/xju-feiyue-data`) + a machine label, then
+   `create_repo(private=True, exist_ok=True)`.
 
 ## Daily use
 
 ```
-make sync-push       # snapshot + encrypt + upload (mirror commit)
-make sync-pull       # download + verify sha256 + restore (with .bak.<ts>)
-make sync-status     # print last manifest from HF, no upload
+make sync-push        # snapshot DB + tar uploads + encrypt secrets → state/  (mirror)
+make sync-pull        # restore state/ (DB + uploads + secrets), .bak.<ts> kept
+make sync-status      # last state/ manifest summary
+make schools-push     # mirror local schools data → schools/
+make schools-pull     # restore schools/ → backend/data/schools/
+make schools-status   # last schools/ manifest summary
+make data-push        # sync-push + schools-push
+make data-pull        # sync-pull + schools-pull
 ```
 
-`sync-pull` defaults to non-destructive: any existing local file is renamed
-to `<file>.bak.<UTC-stamp>` before being overwritten. Pass `--force` to
-skip the y/N prompt (used by bootstrap-style flows).
+`sync-pull` is non-destructive: existing local files are renamed to
+`<file>.bak.<UTC-stamp>` before overwrite (`--force` skips the prompt).
+
+## Fresh-machine restore
+
+```
+git clone <repo> && cd <repo>
+make sync-bootstrap                       # HF login + same age passphrase + repo_id
+make data-pull                            # DB + uploads + secrets + schools, all at once
+cd backend && uv sync && uv run alembic upgrade head   # alembic is idempotent
+```
+
+The DB stores absolute `https://winbeau.top/uploads/...` URLs, so restoring
+`backend/uploads/` to the same path is what keeps avatars/images from 404'ing.
+
+## Adding future state (extension interface)
+
+`push`/`pull` are registry-driven: they iterate `config.py::ARTIFACTS` and
+dispatch on `kind` (`db_snapshot` / `dir_tar` / `encrypted_tar`). To back up a
+new piece of runtime state, append one `Artifact(...)` entry — no change to
+push.py/pull.py. A new kind needs one handler branch in each.
 
 ## Background sync
 
@@ -69,54 +89,45 @@ skip the y/N prompt (used by bootstrap-style flows).
 make sync-cron-install
 ```
 
-Adds a `*/30 * * * *` entry that runs `make sync-push-quiet`, logging to
-`~/.cache/labnotes-sync.log`. The script is idempotent — re-run it any time
-to update the entry.
+Adds a `*/30 * * * *` entry running `make sync-push-quiet` (state/ only —
+schools is claw/manual-driven), logging to `~/.cache/labnotes-sync.log`.
+Idempotent. WSL: `sudo service cron start` after install.
 
-WSL caveat: cron isn't enabled by default. After install, run:
-```
-sudo service cron start
-```
-(or set up a systemd-user timer instead, if you prefer).
-
-To remove the cron entry:
-```
-crontab -l | grep -v 'make sync-push-quiet' | crontab -
-```
+Remove: `crontab -l | grep -v 'make sync-push-quiet' | crontab -`
 
 ## Debugging
 
 ```
-make sync-status                                   # last push summary
+make sync-status                                   # last state/ push summary
+make schools-status                                # last schools/ push summary
 tail -f ~/.cache/labnotes-sync.log                 # cron output
 cat ~/.cache/labnotes-sync.alert 2>/dev/null       # set after consecutive cron failures
 ```
 
-If push fails with HTTP 401, your HF token expired:
-```
-uv run --project scripts/sync python -m huggingface_hub.commands.huggingface_cli login
-```
+HTTP 401 on push → token expired, re-run the `huggingface_cli login` above.
 
 ## Layout
 
 ```
 scripts/sync/
 ├── pyproject.toml      # uv subproject (huggingface_hub + rich)
-├── config.py           # path constants + on-disk config loader
-├── _common.py          # snapshot / age / sha256 / manifest / flock
+├── config.py           # paths, ARTIFACTS registry, on-disk config loader
+├── _common.py          # snapshot / dir-tar / age / sha256 / manifest / flock
 ├── bootstrap.py        # one-shot setup
-├── push.py             # snapshot → encrypt → upload
-├── pull.py             # download → verify → decrypt → restore
+├── push.py             # state/: registry → snapshot/tar/encrypt → upload (mirror)
+├── pull.py             # state/: download → verify → restore
+├── schools.py          # schools/: push / pull / status
+├── selftest.py         # helper roundtrip checks (no HF/age)
 ├── cron_install.sh     # idempotent crontab installer
 └── README.md           # this file
 ```
 
 ## Constraints
 
-- **No automatic two-way merge.** Manifest records `pushed_by` so a stale
-  pull is visible, but the pattern assumes one writer at a time.
+- **No automatic two-way merge.** `manifest.pushed_by` gives a soft warning; the
+  pattern assumes one writer at a time. **huawei2 is the writer of `state/`** —
+  `deploy.sh` only pulls `schools/`, never DB/uploads (that would overwrite the
+  live DB with a staler snapshot). `state/` is pulled only on a fresh restore.
 - **Passphrase is irrecoverable.** Lose it → encrypted secrets are gone.
-- **Single private dataset per user.** That's HF's free-tier limit.
-- **WSL ↔ VPS code sync still goes through GitHub push/pull.** This system
-  is exclusively for state (DB + secrets); the codebase itself is
-  managed by git, per `MEMORY.md`.
+- **WSL ↔ VPS code sync still goes through GitHub push/pull** — this system is
+  only for data (DB + uploads + secrets + schools).

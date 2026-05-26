@@ -125,6 +125,65 @@ def snapshot_db(src: Path, dst: Path) -> tuple[bool, str]:
     return True, note
 
 
+# ---------- directory archive (plain tar) -----------------------------------
+
+
+def archive_dir(src_dir: Path, dst_tar: Path) -> int:
+    """Deterministic tar of ``src_dir`` → ``dst_tar``.
+
+    `--sort=name` + `--mtime=@0` + zeroed owner make the archive reproducible:
+    unchanged content yields an identical sha256, so HF (and cron) skip the
+    re-upload. Members are stored as ``<dirname>/...`` (relative to the parent),
+    so ``extract_dir`` can recreate the directory verbatim. A missing or empty
+    source still produces a valid archive. Returns the number of regular files.
+    """
+    dst_tar.parent.mkdir(parents=True, exist_ok=True)
+    if dst_tar.exists():
+        dst_tar.unlink()
+    if not src_dir.exists():
+        # Empty tar so the artifact stays uniform downstream (omitted handled by caller).
+        subprocess.run(["tar", "-cf", str(dst_tar), "-T", "/dev/null"], check=True)
+        return 0
+    subprocess.run(
+        [
+            "tar",
+            "--sort=name",
+            "--mtime=@0",
+            "--owner=0",
+            "--group=0",
+            "--numeric-owner",
+            "-cf",
+            str(dst_tar),
+            "-C",
+            str(src_dir.parent),
+            src_dir.name,
+        ],
+        check=True,
+    )
+    return _tar_file_count(dst_tar)
+
+
+def extract_dir(src_tar: Path, dst_dir: Path) -> int:
+    """Restore a dir archived by ``archive_dir``; move-aside any existing dst.
+
+    The existing ``dst_dir`` is renamed to ``<name>.bak.<UTC-stamp>`` before
+    extraction (non-destructive, matching pull.py's DB/secrets behaviour).
+    Returns the number of regular files restored.
+    """
+    if dst_dir.exists():
+        stamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        dst_dir.rename(dst_dir.with_name(f"{dst_dir.name}.bak.{stamp}"))
+    dst_dir.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["tar", "-xf", str(src_tar), "-C", str(dst_dir.parent)], check=True)
+    dst_dir.mkdir(parents=True, exist_ok=True)  # empty-archive case
+    return _tar_file_count(src_tar)
+
+
+def _tar_file_count(tar_path: Path) -> int:
+    listing = subprocess.run(["tar", "-tf", str(tar_path)], capture_output=True, check=True)
+    return sum(1 for ln in listing.stdout.decode().splitlines() if ln and not ln.endswith("/"))
+
+
 # ---------- age encryption --------------------------------------------------
 
 
@@ -421,6 +480,8 @@ __all__ = [
     "sha256_of",
     "humanize_bytes",
     "snapshot_db",
+    "archive_dir",
+    "extract_dir",
     "encrypt_secrets",
     "decrypt_secrets",
     "encrypt_decrypt_roundtrip",

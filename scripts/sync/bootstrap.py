@@ -137,14 +137,15 @@ def setup_config_and_repo() -> SyncConfig:
         if keep == "y":
             return cfg
 
-    # Suggest "<hf_user>/labnotes-state" if we can read the username.
-    default_repo = "your-hf-username/labnotes-state"
+    # Suggest "<hf_user>/xju-feiyue-data" if we can read the username. This one
+    # dataset holds both the state/ mirror and the schools/ namespace.
+    default_repo = "your-hf-username/xju-feiyue-data"
     try:
         from huggingface_hub import whoami
 
         info = whoami()
         if info and info.get("name"):
-            default_repo = f"{info['name']}/labnotes-state"
+            default_repo = f"{info['name']}/xju-feiyue-data"
     except Exception:  # noqa: BLE001
         pass
 

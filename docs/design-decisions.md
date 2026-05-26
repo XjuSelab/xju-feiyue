@@ -1,4 +1,4 @@
-# Design Decisions — LabNotes Frontend
+# Design Decisions — xju-feiyue Frontend
 
 > 5 轮交付中真正影响走向的决策记录。每条记录格式：**决策 → 理由 → 拒绝的备选**。
 > 只记录现在还在影响代码的决策；纯实现细节不记录。

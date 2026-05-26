@@ -17,10 +17,25 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # What gets snapshotted. Keep these aligned with the plan.
 DB_PATH = REPO_ROOT / "backend" / "labnotes.db"
+# Uploaded files (avatars + note images). The DB stores absolute
+# https://winbeau.top/uploads/... URLs into these, so they must be restored to
+# the same path or images 404 after a DB restore.
+UPLOADS_DIR = REPO_ROOT / "backend" / "uploads"
 SECRETS_PATHS = [
     Path("backend/.env.local"),
     Path("frontend/.env.local"),
 ]
+
+# Schools advisor reference data. Large (~20MB sqlite), not secret, regenerable
+# by supervisor-claw → kept out of git and synced plain (no age). It shares the
+# one dataset (repo_id from SyncConfig) under the `schools/` namespace, separate
+# from the `state/` runtime mirror. Integrity is checked against claw's own
+# manifest.json (schools_sqlite_sha256).
+SCHOOLS_DATA_DIR = REPO_ROOT / "backend" / "data" / "schools"
+SCHOOLS_SQLITE = SCHOOLS_DATA_DIR / "schools.sqlite"
+SCHOOLS_MANIFEST = SCHOOLS_DATA_DIR / "manifest.json"
+SCHOOLS_FILES = ["schools.sqlite", "manifest.json"]  # local filenames
+SCHOOLS_PREFIX = "schools"  # dataset namespace
 
 # Per-user state. Both are 0600 and must NOT be committed or uploaded.
 USER_CFG_DIR = Path(
@@ -34,16 +49,48 @@ LOCK_FILE = Path.home() / ".cache" / "labnotes-sync.lock"
 LOG_FILE = Path.home() / ".cache" / "labnotes-sync.log"
 ALERT_FILE = Path.home() / ".cache" / "labnotes-sync.alert"
 
-# Layout inside the HF Dataset.
-DATASET_DB_PATH = "data/labnotes.db"
-DATASET_SECRETS_PATH = "secrets.age"
-DATASET_MANIFEST_PATH = "manifest.json"
+# Layout inside the one HF Dataset. Runtime state lives under `state/`, schools
+# data under `schools/` (see SCHOOLS_PREFIX) — each push mirrors only its own
+# prefix (delete_patterns scoped) so the two never clobber each other.
+STATE_PREFIX = "state"
+DATASET_DB_PATH = "state/labnotes.db"
+DATASET_UPLOADS_PATH = "state/uploads.tar"
+DATASET_SECRETS_PATH = "state/secrets.age"
+DATASET_MANIFEST_PATH = "state/manifest.json"
 MANIFEST_SCHEMA_VERSION = 1
+
+
+@dataclass(slots=True, frozen=True)
+class Artifact:
+    """One synced item. push/pull dispatch on `kind` — add a new artifact (a
+    future feature's state) by appending one entry to ARTIFACTS below.
+
+    kind:
+      db_snapshot   — sqlite VACUUM INTO snapshot of `source` (plain)
+      dir_tar       — deterministic tar of the `source` directory (plain)
+      encrypted_tar — tar + age of SECRETS_PATHS (`source` is None)
+    """
+
+    name: str
+    kind: str
+    dataset_path: str
+    source: Path | None
+    sensitive: bool = True
+
+
+# The state mirror's contents, in push order. The runtime DB + uploaded files
+# + secrets — everything a fresh machine needs that isn't in git or the schools
+# dataset. Extend here.
+ARTIFACTS: list[Artifact] = [
+    Artifact("db", "db_snapshot", DATASET_DB_PATH, DB_PATH),
+    Artifact("uploads", "dir_tar", DATASET_UPLOADS_PATH, UPLOADS_DIR),
+    Artifact("secrets", "encrypted_tar", DATASET_SECRETS_PATH, None),
+]
 
 
 @dataclass(slots=True)
 class SyncConfig:
-    repo_id: str  # e.g. "winbeau/labnotes-state"
+    repo_id: str  # e.g. "winbeau/xju-feiyue-data"
     machine_id: str  # human-readable label, lands in manifest.pushed_by
 
     @classmethod

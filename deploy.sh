@@ -32,6 +32,16 @@ if [ "$DRY_RUN" = "1" ]; then
     exit 0
 fi
 
+# Schools reference data lives out-of-band on the xju-feiyue-data HF dataset
+# (git no longer carries the ~20MB sqlite). Refresh it best-effort: if HF auth
+# or network is unavailable we keep serving the existing working-tree copy, and
+# the backend hot-reloads on mtime once the file lands. Never fail the deploy.
+if make schools-pull-force; then
+    echo "== schools data refreshed from HF"
+else
+    echo "!! schools data pull skipped (HF auth/network?) — serving existing copy"
+fi
+
 cd backend
 /home/winbeau/.local/bin/uv sync --quiet
 /home/winbeau/.local/bin/uv run alembic upgrade head

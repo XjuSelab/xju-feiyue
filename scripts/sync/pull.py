@@ -20,19 +20,19 @@ from rich.console import Console
 
 from _common import (
     decrypt_secrets,
+    extract_dir,
     file_lock,
     humanize_bytes,
     read_manifest,
     sha256_of,
 )
 from config import (
-    DATASET_DB_PATH,
+    ARTIFACTS,
     DATASET_MANIFEST_PATH,
-    DATASET_SECRETS_PATH,
-    DB_PATH,
     MANIFEST_SCHEMA_VERSION,
     REPO_ROOT,
     SECRETS_PATHS,
+    STATE_PREFIX,
     SyncConfig,
 )
 
@@ -86,11 +86,8 @@ def cmd_pull(cfg: SyncConfig, *, force: bool) -> int:
                     repo_id=cfg.repo_id,
                     repo_type="dataset",
                     local_dir=str(stage),
-                    allow_patterns=[
-                        DATASET_MANIFEST_PATH,
-                        f"{DATASET_DB_PATH.split('/')[0]}/*",
-                        DATASET_SECRETS_PATH,
-                    ],
+                    # Only the state/ namespace — schools/ is pulled by schools.py.
+                    allow_patterns=[f"{STATE_PREFIX}/*"],
                 )
             except HfHubHTTPError as e:
                 err(f"snapshot_download failed: {e}")
@@ -153,51 +150,57 @@ def cmd_pull(cfg: SyncConfig, *, force: bool) -> int:
                     info("aborted by user")
                     return 0
 
-            # ---- secrets ----
-            secrets_meta = files_meta.get(DATASET_SECRETS_PATH)
-            if isinstance(secrets_meta, dict) and not secrets_meta.get("omitted"):
-                # Move-aside existing local copies first so decrypt can write
-                # cleanly even if files are present.
-                for rel in SECRETS_PATHS:
-                    local = REPO_ROOT / rel
-                    if local.exists():
-                        bak = _move_aside(local)
-                        if bak:
-                            info(f"  • backed up {rel} → {bak.name}")
-                restored = decrypt_secrets(stage / DATASET_SECRETS_PATH, REPO_ROOT)
-                # Tighten permissions on .env.local files since they hold creds.
-                for rel in restored:
-                    p = REPO_ROOT / rel
-                    if p.exists():
-                        try:
-                            p.chmod(0o600)
-                        except OSError:
-                            pass
-                info(
-                    f"[green]✓[/green] secrets restored: "
-                    f"{', '.join(str(p) for p in restored)}"
-                )
+            # ---- restore (registry-driven, dispatch on kind) ----
+            for art in ARTIFACTS:
+                meta = files_meta.get(art.dataset_path)
+                if not isinstance(meta, dict) or meta.get("omitted"):
+                    continue
+                src = stage / art.dataset_path
 
-            # ---- DB ----
-            db_meta = files_meta.get(DATASET_DB_PATH)
-            if isinstance(db_meta, dict) and not db_meta.get("omitted"):
-                src = stage / DATASET_DB_PATH
-                bak = _move_aside(DB_PATH)
-                if bak:
-                    info(f"  • backed up backend/labnotes.db → {bak.name}")
-                DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src, DB_PATH)
-                size = DB_PATH.stat().st_size
-                try:
-                    users, notes = _verify_db_readable(DB_PATH)
+                if art.kind == "db_snapshot":
+                    assert art.source is not None
+                    bak = _move_aside(art.source)
+                    if bak:
+                        info(f"  • backed up {art.source.name} → {bak.name}")
+                    art.source.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src, art.source)
+                    size = art.source.stat().st_size
+                    try:
+                        users, notes = _verify_db_readable(art.source)
+                        info(
+                            f"[green]✓[/green] {art.name} restored ({humanize_bytes(size)}, "
+                            f"{users} users, {notes} notes)"
+                        )
+                    except (subprocess.CalledProcessError, RuntimeError, FileNotFoundError) as e:
+                        info(
+                            f"[yellow]![/yellow] {art.name} restored ({humanize_bytes(size)}) "
+                            f"but readback failed: {e}"
+                        )
+
+                elif art.kind == "dir_tar":
+                    assert art.source is not None
+                    n = extract_dir(src, art.source)  # move-asides existing dir internally
+                    info(f"[green]✓[/green] {art.name} restored ({n} files → {art.source})")
+
+                elif art.kind == "encrypted_tar":
+                    # Move-aside existing local copies so decrypt writes cleanly.
+                    for rel in SECRETS_PATHS:
+                        local = REPO_ROOT / rel
+                        if local.exists():
+                            bak = _move_aside(local)
+                            if bak:
+                                info(f"  • backed up {rel} → {bak.name}")
+                    restored = decrypt_secrets(src, REPO_ROOT)
+                    for rel in restored:  # tighten perms — these hold creds
+                        p = REPO_ROOT / rel
+                        if p.exists():
+                            try:
+                                p.chmod(0o600)
+                            except OSError:
+                                pass
                     info(
-                        f"[green]✓[/green] DB restored ({humanize_bytes(size)}, "
-                        f"{users} users, {notes} notes)"
-                    )
-                except (subprocess.CalledProcessError, RuntimeError, FileNotFoundError) as e:
-                    info(
-                        f"[yellow]![/yellow] DB restored ({humanize_bytes(size)}) "
-                        f"but readback failed: {e}"
+                        f"[green]✓[/green] {art.name} restored: "
+                        f"{', '.join(str(p) for p in restored)}"
                     )
 
             info(

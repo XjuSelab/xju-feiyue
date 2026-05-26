@@ -99,7 +99,7 @@ def fetch_chunk(page_id: str, cursor_stack: list) -> dict:
         headers={
             "content-type": "application/json",
             "accept": "*/*",
-            "user-agent": "labnotes-notion-pull/1.0",
+            "user-agent": "xju-feiyue-notion-pull/1.0",
         },
         method="POST",
     )

@@ -1,5 +1,5 @@
 """Read scripts/xju_wiki_raw/_bodies/<slug>.body.md + _index.json and write
-content/notes/xju-<slug>.md (markdown body + LabNotes YAML frontmatter).
+content/notes/xju-<slug>.md (markdown body + xju-feiyue YAML frontmatter).
 
 Author: 孙海洋 (XJU 学长). Categorized as `course`. nav-section + course
 keyword become the primary tags.

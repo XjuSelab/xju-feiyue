@@ -1,6 +1,6 @@
 """Clone (or fast-forward) the upstream xju-course-wiki repo into
 scripts/xju_wiki_raw/ and write _index.json for the 17 course folders we want
-to import into LabNotes.
+to import into xju-feiyue.
 
 Source: https://github.com/SunSeaLucky/xju-course-wiki (孙海洋 学长 的 XJU 课程 wiki)
 

@@ -1,4 +1,4 @@
-# LabNotes Frontend — Architecture
+# xju-feiyue Frontend — Architecture
 
 > 生产级 React 应用，全 mock 但保留「未来切真后端零改动」的能力。
 > 本文档描述应用整体架构、数据流、路由与组件分层。

@@ -1,7 +1,7 @@
 [project]
 name = "labnotes-sync"
 version = "0.1.0"
-description = "Sync LabNotes runtime state (sqlite + .env.local) to a private HF Dataset."
+description = "Sync xju-feiyue data (sqlite + uploads + .env.local + schools) to a private HF Dataset."
 requires-python = ">=3.11"
 dependencies = [
   "huggingface_hub>=0.27",

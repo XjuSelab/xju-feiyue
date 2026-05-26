@@ -1,4 +1,4 @@
-# LabNotes — Backend Spec (v1)
+# xju-feiyue — Backend Spec (v1)
 
 This document is the authoritative API contract that the frontend
 (`frontend/src/api/`) expects. The frontend currently runs on an in-process

@@ -15,6 +15,7 @@ from pathlib import Path
 from rich.console import Console
 
 from _common import (
+    archive_dir,
     build_manifest,
     encrypt_secrets,
     file_lock,
@@ -26,11 +27,10 @@ from _common import (
 )
 from config import (
     ALERT_FILE,
-    DATASET_DB_PATH,
+    ARTIFACTS,
     DATASET_MANIFEST_PATH,
-    DATASET_SECRETS_PATH,
-    DB_PATH,
     REPO_ROOT,
+    STATE_PREFIX,
     SyncConfig,
 )
 
@@ -62,9 +62,10 @@ def upload_with_retries(
                 folder_path=str(folder_path),
                 repo_id=repo_id,
                 repo_type="dataset",
-                # `delete_patterns="*"` makes the upload a mirror — old files
-                # not in the staging dir are removed in the same commit.
-                delete_patterns="*",
+                # Scoped mirror: only `state/*` remote files absent from the
+                # staging dir are removed — the `schools/` namespace (pushed by
+                # schools.py) is left untouched in the same shared dataset.
+                delete_patterns=[f"{STATE_PREFIX}/*"],
                 commit_message=commit_message,
             )
             return
@@ -91,7 +92,7 @@ def cmd_status(cfg: SyncConfig) -> int:
         path = hf_hub_download(
             repo_id=cfg.repo_id,
             repo_type="dataset",
-            filename="manifest.json",
+            filename=DATASET_MANIFEST_PATH,
         )
     except EntryNotFoundError:
         console.print("[yellow]no manifest yet — push hasn't run on this dataset[/yellow]")
@@ -132,53 +133,73 @@ def cmd_push(cfg: SyncConfig, *, quiet: bool) -> int:
             staging = Path(td)
             files_meta: dict[str, dict[str, object]] = {}
 
-            # ---- DB snapshot (skip-with-warning if missing) ----
-            db_dst = staging / DATASET_DB_PATH
-            if DB_PATH.exists():
-                used_fallback, note = snapshot_db(DB_PATH, db_dst)
-                files_meta[DATASET_DB_PATH] = {
-                    "size": db_dst.stat().st_size,
-                    "sha256": sha256_of(db_dst),
-                    "method": note,
-                }
-                info(
-                    f"  • db snapshot {humanize_bytes(db_dst.stat().st_size)} "
-                    f"({note})",
-                    quiet=quiet,
-                )
-                if used_fallback:
+            # Registry-driven: each ARTIFACT produces one staged file under its
+            # dataset_path + one files_meta entry. Add future state by appending
+            # to config.ARTIFACTS — no change here.
+            for art in ARTIFACTS:
+                dst = staging / art.dataset_path
+                dst.parent.mkdir(parents=True, exist_ok=True)
+
+                if art.kind == "db_snapshot":
+                    if art.source is None or not art.source.exists():
+                        files_meta[art.dataset_path] = {"omitted": True, "reason": "missing"}
+                        info(f"  • {art.name} [yellow]skipped[/yellow] (missing)", quiet=quiet)
+                        continue
+                    used_fallback, note = snapshot_db(art.source, dst)
+                    files_meta[art.dataset_path] = {
+                        "size": dst.stat().st_size,
+                        "sha256": sha256_of(dst),
+                        "method": note,
+                    }
                     info(
-                        "    [yellow]used cp fallback — DB may not be transactionally consistent[/yellow]",
+                        f"  • {art.name} snapshot {humanize_bytes(dst.stat().st_size)} ({note})",
                         quiet=quiet,
                     )
-            else:
-                files_meta[DATASET_DB_PATH] = {"omitted": True, "reason": "missing"}
-                info(
-                    f"  • db snapshot [yellow]skipped[/yellow] ({DB_PATH} missing)",
-                    quiet=quiet,
-                )
+                    if used_fallback:
+                        info(
+                            "    [yellow]used cp fallback — DB may not be transactionally consistent[/yellow]",
+                            quiet=quiet,
+                        )
 
-            # ---- secrets encrypt ----
-            secrets_dst = staging / DATASET_SECRETS_PATH
-            try:
-                included = encrypt_secrets(REPO_ROOT, secrets_dst)
-                files_meta[DATASET_SECRETS_PATH] = {
-                    "size": secrets_dst.stat().st_size,
-                    "sha256": sha256_of(secrets_dst),
-                    "members": [str(p) for p in included],
-                }
-                info(
-                    f"  • secrets encrypted {humanize_bytes(secrets_dst.stat().st_size)} "
-                    f"({len(included)} files)",
-                    quiet=quiet,
-                )
-            except RuntimeError as e:
-                # No .env.local present; record and continue.
-                files_meta[DATASET_SECRETS_PATH] = {"omitted": True, "reason": str(e)}
-                info(f"  • secrets [yellow]skipped[/yellow] ({e})", quiet=quiet)
+                elif art.kind == "dir_tar":
+                    if art.source is None or not art.source.exists():
+                        files_meta[art.dataset_path] = {"omitted": True, "reason": "missing"}
+                        info(f"  • {art.name} [yellow]skipped[/yellow] (missing)", quiet=quiet)
+                        continue
+                    n = archive_dir(art.source, dst)
+                    files_meta[art.dataset_path] = {
+                        "size": dst.stat().st_size,
+                        "sha256": sha256_of(dst),
+                        "files": n,
+                    }
+                    info(
+                        f"  • {art.name} archived {humanize_bytes(dst.stat().st_size)} ({n} files)",
+                        quiet=quiet,
+                    )
+
+                elif art.kind == "encrypted_tar":
+                    try:
+                        included = encrypt_secrets(REPO_ROOT, dst)
+                        files_meta[art.dataset_path] = {
+                            "size": dst.stat().st_size,
+                            "sha256": sha256_of(dst),
+                            "members": [str(p) for p in included],
+                        }
+                        info(
+                            f"  • {art.name} encrypted {humanize_bytes(dst.stat().st_size)} "
+                            f"({len(included)} files)",
+                            quiet=quiet,
+                        )
+                    except RuntimeError as e:
+                        files_meta[art.dataset_path] = {"omitted": True, "reason": str(e)}
+                        info(f"  • {art.name} [yellow]skipped[/yellow] ({e})", quiet=quiet)
+
+                else:  # pragma: no cover — guards a malformed registry entry
+                    err(f"unknown artifact kind: {art.kind!r}")
+                    return 2
 
             if all(v.get("omitted") for v in files_meta.values()):
-                err("nothing to push — both DB and secrets are missing")
+                err("nothing to push — every artifact is missing")
                 return 2
 
             # ---- manifest ----
