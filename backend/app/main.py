@@ -69,6 +69,7 @@ async def _author_sync_loop() -> None:
 
 async def _conf_crawl_loop(conf_holder) -> None:  # type: ignore[type-arg]
     interval = settings.conf_crawl_interval_hours * 3600
+    first_run = True
     while True:
         if not settings.deepseek_api_key:
             _crawl_log.warning("conf_crawl: DEEPSEEK_API_KEY not set, skipping")
@@ -82,10 +83,12 @@ async def _conf_crawl_loop(conf_holder) -> None:  # type: ignore[type-arg]
                 base_url=settings.deepseek_base_url,
                 model=settings.deepseek_model,
                 dry_run=settings.deepseek_dry_run,
+                full_scan=first_run,
             )
+            first_run = False
             if result.get("found", 0):
                 await conf_holder.force_reload()
-                _crawl_log.info("conf_crawl: %s", result)
+            _crawl_log.info("conf_crawl: %s", {k: v for k, v in result.items() if k != "results"})
         except Exception:  # noqa: BLE001
             _crawl_log.exception("conf_crawl: cycle failed")
         await asyncio.sleep(interval)
