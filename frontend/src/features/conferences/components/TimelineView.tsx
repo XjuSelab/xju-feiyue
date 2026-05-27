@@ -36,9 +36,12 @@ function relWord(conf: Conference): string {
 }
 
 export function TimelineView({ rows }: { rows: Conference[] }) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
   const withDl: Dated[] = rows
     .filter((r) => !!r.deadline)
     .map((r) => ({ conf: r, d: new Date(`${r.deadline}T23:59:59`) }))
+    .filter((r) => r.d >= today)
   withDl.sort((a, b) => a.d.getTime() - b.d.getTime())
 
   const groups = new Map<string, Dated[]>()
