@@ -71,8 +71,9 @@ async def conferences_reload(
 
 @router.post("/admin/conferences/crawl", response_model=CrawlResult)
 async def conferences_crawl(
-    limit: int = Query(default=20, ge=1, le=230),
+    limit: int = Query(default=230, ge=1, le=230),
     dry_run: bool = Query(default=False),
+    full_scan: bool = Query(default=False),
     _admin: User = Depends(require_admin),
     holder: ConferencesEngineHolder = Depends(_get_holder),
 ) -> CrawlResult:
@@ -87,6 +88,7 @@ async def conferences_crawl(
         model=settings.deepseek_model,
         limit=limit,
         dry_run=dry_run,
+        full_scan=full_scan,
     )
     if result.get("found", 0) and not dry_run:
         await holder.force_reload()

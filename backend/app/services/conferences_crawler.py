@@ -156,8 +156,13 @@ def crawl_sync(
     model: str,
     limit: int | None = None,
     dry_run: bool = False,
+    full_scan: bool = False,
 ) -> dict[str, Any]:
-    """One crawl cycle (blocking). Returns a summary dict."""
+    """One crawl cycle (blocking). Returns a summary dict.
+
+    full_scan=True ignores crawl_state/next_check_at and processes ALL rows
+    (used for the first deploy to cover all 230 conferences).
+    """
     sqlite_path = data_dir / "conferences.sqlite"
     manifest_path = data_dir / "manifest.json"
 
@@ -168,19 +173,22 @@ def crawl_sync(
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     conn = sqlite3.connect(sqlite_path)
 
-    # Select due rows
-    sql = (
-        "SELECT id, abbr, name_full, field, tier, homepage, cycle, "
-        "       deadline, crawl_state, target_year "
-        "FROM conferences "
-        "WHERE crawl_state != 'closed' AND next_check_at IS NOT NULL "
-        "AND next_check_at <= ? ORDER BY next_check_at ASC"
-    )
-    if limit:
-        sql += f" LIMIT {limit}"
-    rows = conn.execute(sql, (now_iso,)).fetchall()
     cols = ["id", "abbr", "name_full", "field", "tier", "homepage",
             "cycle", "deadline", "crawl_state", "target_year"]
+    col_sql = ", ".join(cols)
+
+    if full_scan:
+        sql = f"SELECT {col_sql} FROM conferences ORDER BY rowid"
+    else:
+        sql = (
+            f"SELECT {col_sql} FROM conferences "
+            "WHERE crawl_state != 'closed' AND next_check_at IS NOT NULL "
+            "AND next_check_at <= ? ORDER BY next_check_at ASC"
+        )
+    if limit:
+        sql += f" LIMIT {limit}"
+
+    rows = conn.execute(sql, () if full_scan else (now_iso,)).fetchall()
     due = [dict(zip(cols, r)) for r in rows]
 
     if not due:
@@ -202,9 +210,14 @@ def crawl_sync(
         page_text = _fetch_page(homepage) if homepage else None
 
         if not page_text:
+            target = c.get("target_year") or today.year + 1
             page_text = (
-                f"(No webpage content available for {abbr}. "
-                "Set found=false if you cannot provide info.)"
+                f"(No webpage was fetched for {abbr} — {c['name_full']}. "
+                f"Based on your training knowledge of this conference, provide "
+                f"any reliable info about the {target} edition: submission "
+                f"deadline, location, dates, acceptance rate. Set confidence "
+                f"based on how certain you are; use found=false only if you "
+                f"truly have no information.)"
             )
 
         extracted = _ask_deepseek(client, model, c, page_text)

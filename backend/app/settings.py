@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     # often the loop wakes up to check for due rows (per-conf frequency is
     # controlled by crawl_state: unannounced=1d, announced=5d, closed=stop).
     conf_crawl_enabled: bool = True
-    conf_crawl_interval_hours: int = 6
+    conf_crawl_interval_hours: int = 72
 
     @property
     def cors_origin_list(self) -> list[str]:
