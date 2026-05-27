@@ -23,6 +23,7 @@ dependencies = [
   "python-multipart>=0.0.9",
   "pillow>=10",
   "pypinyin>=0.51",
+  "ddgs>=7.0",
 ]
 
 [dependency-groups]

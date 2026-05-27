@@ -67,7 +67,7 @@ Extract a JSON object with these fields:
 - accepted: integer|null — accepted count if mentioned
 - acceptance_rate: float|null — rate as percentage if mentioned
 
-Only extract what the text explicitly contains. Do not hallucinate dates."""
+IMPORTANT: Only extract info for the {target_year} edition. Do not return dates from previous years. If the text only contains info for older editions, set found=false. Do not hallucinate."""
 
 
 class _TextExtractor(HTMLParser):
@@ -106,6 +106,54 @@ def _fetch_page(url: str) -> str | None:
         return text[:PAGE_MAX_CHARS] if len(text) >= 50 else None
     except Exception:
         return None
+
+
+def _search_and_fetch(abbr: str, name_full: str, target_year: int) -> str | None:
+    """DuckDuckGo search for CFP info, fetch top results, return combined text."""
+    try:
+        from ddgs import DDGS
+        query = f'{abbr} {target_year} "{name_full}" call for papers deadline'
+        hits = DDGS().text(query, max_results=3)
+        if not hits:
+            return None
+    except Exception as e:
+        _log.debug("DDG search failed for %s: %s", abbr, e)
+        return None
+
+    parts: list[str] = []
+    for hit in hits:
+        parts.append(f"[{hit.get('title', '')}] {hit.get('body', '')}")
+        url = hit.get("href")
+        if url:
+            page = _fetch_page(url)
+            if page:
+                parts.append(page)
+    combined = "\n---\n".join(parts)
+    return combined[:PAGE_MAX_CHARS] if combined else None
+
+
+def _gather_context(conf: dict, today: date) -> tuple[str, str]:
+    """Gather webpage context for a conference. Returns (page_text, source_label)."""
+    abbr = conf["abbr"]
+    homepage = conf.get("homepage")
+    target = conf.get("target_year") or today.year + 1
+
+    # 1. Try homepage
+    page = _fetch_page(homepage) if homepage else None
+    if page:
+        return page, f"homepage {homepage}"
+
+    # 2. Fall back to web search
+    searched = _search_and_fetch(abbr, conf["name_full"], target)
+    if searched:
+        return searched, "web search"
+
+    # 3. Last resort: let DeepSeek use its knowledge (low confidence expected)
+    return (
+        f"(No webpage or search results for {abbr} — {conf['name_full']}. "
+        f"If you have reliable knowledge about the {target} edition, provide it. "
+        f"Otherwise set found=false.)"
+    ), "knowledge only"
 
 
 def _ask_deepseek(
@@ -215,19 +263,9 @@ def crawl_sync(
 
     for c in due:
         abbr = c["abbr"]
-        homepage = c.get("homepage")
-        page_text = _fetch_page(homepage) if homepage else None
 
-        if not page_text:
-            target = c.get("target_year") or today.year + 1
-            page_text = (
-                f"(No webpage was fetched for {abbr} — {c['name_full']}. "
-                f"Based on your training knowledge of this conference, provide "
-                f"any reliable info about the {target} edition: submission "
-                f"deadline, location, dates, acceptance rate. Set confidence "
-                f"based on how certain you are; use found=false only if you "
-                f"truly have no information.)"
-            )
+        page_text, source = _gather_context(c, today)
+        _log.debug("conf_crawl: %s source=%s len=%d", abbr, source, len(page_text))
 
         extracted = _ask_deepseek(client, model, c, page_text)
         if not extracted:
