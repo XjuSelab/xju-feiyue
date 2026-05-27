@@ -4,6 +4,7 @@ import { LayoutGrid } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { CATEGORIES } from '@/lib/categories'
 import { cn } from '@/lib/cn'
+import { useHotNotes, useLatestNotes, useMostLikedNotes } from '@/api'
 
 const HOVER_OPEN_DELAY_MS = 200
 const HOVER_CLOSE_DELAY_MS = 150
@@ -208,24 +209,61 @@ function PanelContent({ onPick, mobile = false }: { onPick: () => void; mobile?:
         </Link>
       </div>
 
-      {!mobile && (
-        <div className="grid grid-cols-3 gap-6 border-t border-border pt-6">
-          <BottomList title="本周热门" />
-          <BottomList title="高赞收藏" />
-          <BottomList title="最新发布" />
-        </div>
-      )}
+      {!mobile && <BottomLists onPick={onPick} />}
     </div>
   )
 }
 
-function BottomList({ title }: { title: string }) {
+function BottomLists({ onPick }: { onPick: () => void }) {
+  const hot = useHotNotes()
+  const liked = useMostLikedNotes()
+  const latest = useLatestNotes()
+
+  return (
+    <div className="grid grid-cols-3 gap-6 border-t border-border pt-6">
+      <BottomCol title="本周热门" notes={hot.data} onPick={onPick} />
+      <BottomCol title="高赞收藏" notes={liked.data} onPick={onPick} />
+      <BottomCol title="最新发布" notes={latest.data} onPick={onPick} />
+    </div>
+  )
+}
+
+function BottomCol({
+  title,
+  notes,
+  onPick,
+}: {
+  title: string
+  notes: { id: string; title: string; likes: number; comments: number }[] | undefined
+  onPick: () => void
+}) {
   return (
     <div>
       <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-faint">
         {title}
       </h4>
-      <p className="text-xs text-text-muted">R4 home-agent 接通 useNotes 后展示</p>
+      {notes ? (
+        <ul className="space-y-1.5">
+          {notes.slice(0, 5).map((n) => (
+            <li key={n.id}>
+              <Link
+                to={`/note/${n.id}`}
+                onClick={onPick}
+                className="block truncate text-[13px] text-text-muted transition hover:text-text"
+                title={n.title}
+              >
+                {n.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-4 w-3/4 animate-pulse rounded bg-bg-subtle" />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
