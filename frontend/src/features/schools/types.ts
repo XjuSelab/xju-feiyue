@@ -15,7 +15,7 @@ export type SchoolCode =
   | 'hitsz'
   | 'xjtu'
   | 'pkusz'
-  | 'thusz'
+  | 'thsz'
   | (string & {})
 export type GroupCode = 'top2' | 'hwu' | 'c9' | 'all'
 export type Reputation = 'positive' | 'neutral' | 'negative' | 'unknown'

@@ -24,7 +24,7 @@ export const C9_SCHOOLS: SchoolCode[] = [
 ]
 
 export const SCHOOL_GROUPS: SchoolGroup[] = [
-  { code: 'top2', label: 'Top2', schools: ['tsinghua', 'pku', 'thusz', 'pkusz'] },
+  { code: 'top2', label: 'Top2', schools: ['tsinghua', 'pku', 'thsz', 'pkusz'] },
   { code: 'hwu', label: '华五', schools: ['fudan', 'sjtu', 'nju', 'zju', 'ustc'] },
   { code: 'c9', label: 'C9 高校', schools: C9_SCHOOLS },
   // "高校信息" 的 chips 在运行时由 SchoolsPage 从 /schools/meta 拼出来
@@ -44,7 +44,7 @@ export const SCHOOLS: Partial<Record<SchoolCode, School>> = {
   hit: { code: 'hit', name_cn: '哈尔滨工业大学', short: '哈工大', city: '哈尔滨' },
   hitsz: { code: 'hitsz', name_cn: '哈尔滨工业大学（深圳）', short: '哈工深', city: '深圳' },
   pkusz: { code: 'pkusz', name_cn: '北京大学深圳研究生院', short: '北大深圳', city: '深圳' },
-  thusz: { code: 'thusz', name_cn: '清华大学深圳国际研究生院', short: '清华深圳', city: '深圳' },
+  thsz: { code: 'thsz', name_cn: '清华大学深圳国际研究生院', short: '清华深圳', city: '深圳' },
   xjtu: { code: 'xjtu', name_cn: '西安交通大学', short: '西交', city: '西安' },
 }
 
