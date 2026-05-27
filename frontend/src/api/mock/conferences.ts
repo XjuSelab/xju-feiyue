@@ -1,7 +1,7 @@
 import { registerMock } from '../client'
 import { CCF_CONFS } from '@/features/conferences/data'
 
-registerMock('GET', '/conferences', async () => ({
+registerMock('GET', '/conferences/list', async () => ({
   conferences: CCF_CONFS,
   count: CCF_CONFS.length,
   manifest: {

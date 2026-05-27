@@ -44,7 +44,7 @@ async def _session_for(holder: ConferencesEngineHolder) -> AsyncSession:
     return AsyncSession(engine, expire_on_commit=False)
 
 
-@router.get("/conferences", response_model=ConferencesOut)
+@router.get("/conferences/list", response_model=ConferencesOut)
 async def conferences_list(
     holder: ConferencesEngineHolder = Depends(_get_holder),
 ) -> ConferencesOut:

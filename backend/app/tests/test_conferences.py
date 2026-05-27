@@ -27,7 +27,7 @@ def _conferences_holder():
 
 class TestList:
     async def test_returns_all_rows(self, client):
-        r = await client.get("/conferences")
+        r = await client.get("/conferences/list")
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["count"] == 230
@@ -35,13 +35,13 @@ class TestList:
         assert body["manifest"]["conferences_sqlite_sha256"]
 
     async def test_row_shape(self, client):
-        body = (await client.get("/conferences")).json()
+        body = (await client.get("/conferences/list")).json()
         for c in body["conferences"]:
             assert c["id"] and c["abbr"] and c["name_full"]
             assert c["tier"] in ("A", "B", "C")
 
     async def test_acceptance_stats_seeded(self, client):
-        body = (await client.get("/conferences")).json()
+        body = (await client.get("/conferences/list")).json()
         cvpr = next(c for c in body["conferences"] if c["abbr"] == "CVPR")
         assert cvpr["submissions"] == 11532
         assert cvpr["acceptance_rate"] == 23.6
@@ -59,6 +59,6 @@ class TestDataMissing:
         empty = tmp_path / "no-conferences"
         empty.mkdir()
         init_holder(empty)
-        r = await client.get("/conferences")
+        r = await client.get("/conferences/list")
         assert r.status_code == 503
         assert r.json()["detail"] == "conferences data not ready"

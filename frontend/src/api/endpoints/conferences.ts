@@ -11,7 +11,7 @@ function authHeaders(): Record<string, string> {
 export async function getConferences(): Promise<ConferencesOut> {
   return request({
     method: 'GET',
-    path: '/conferences',
+    path: '/conferences/list',
     schema: ConferencesOutSchema,
     headers: authHeaders(),
   })
