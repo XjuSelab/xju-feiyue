@@ -11,7 +11,7 @@ config dir for continuity.)
 
 ## What gets synced
 
-One dataset, two namespaces — each side mirrors only its own prefix so they
+One dataset, three namespaces — each side mirrors only its own prefix so they
 never clobber each other:
 
 | Namespace | Artifact | Local path | In dataset as | Form |
@@ -22,9 +22,11 @@ never clobber each other:
 | `state/` | metadata | (generated) | `state/manifest.json` | sha256 + size per file |
 | `schools/` | advisor DB | `backend/data/schools/schools.sqlite` | `schools/schools.sqlite` | plain (regenerable by claw) |
 | `schools/` | claw manifest | `backend/data/schools/manifest.json` | `schools/manifest.json` | plain |
+| `conferences/` | conference DB | `backend/data/conferences/conferences.sqlite` | `conferences/conferences.sqlite` | plain (seed / R3 crawler) |
+| `conferences/` | seed manifest | `backend/data/conferences/manifest.json` | `conferences/manifest.json` | plain |
 
-`sync-*` drives `state/` (cron-friendly); `schools-*` drives `schools/`; `data-*`
-does both. The DB is uploaded **plain** — privacy relies on the dataset being
+`sync-*` drives `state/`; `schools-*` drives `schools/`; `conf-*` drives
+`conferences/`; `data-*` does all three. The DB is uploaded **plain** — privacy relies on the dataset being
 private. Only `.env.local` (JWT/API keys) is age-encrypted.
 
 ## Why HF Dataset
@@ -57,8 +59,11 @@ make sync-status      # last state/ manifest summary
 make schools-push     # mirror local schools data → schools/
 make schools-pull     # restore schools/ → backend/data/schools/
 make schools-status   # last schools/ manifest summary
-make data-push        # sync-push + schools-push
-make data-pull        # sync-pull + schools-pull
+make conf-push        # mirror local conferences data → conferences/
+make conf-pull        # restore conferences/ → backend/data/conferences/
+make conf-status      # last conferences/ manifest summary
+make data-push        # sync-push + schools-push + conf-push
+make data-pull        # sync-pull + schools-pull + conf-pull
 ```
 
 `sync-pull` is non-destructive: existing local files are renamed to

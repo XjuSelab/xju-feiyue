@@ -37,6 +37,14 @@ SCHOOLS_MANIFEST = SCHOOLS_DATA_DIR / "manifest.json"
 SCHOOLS_FILES = ["schools.sqlite", "manifest.json"]  # local filenames
 SCHOOLS_PREFIX = "schools"  # dataset namespace
 
+# CCF conferences reference data. Same pattern as schools: read-only sqlite +
+# manifest, synced plain under the `conferences/` namespace in the same dataset.
+CONFERENCES_DATA_DIR = REPO_ROOT / "backend" / "data" / "conferences"
+CONFERENCES_SQLITE = CONFERENCES_DATA_DIR / "conferences.sqlite"
+CONFERENCES_MANIFEST = CONFERENCES_DATA_DIR / "manifest.json"
+CONFERENCES_FILES = ["conferences.sqlite", "manifest.json"]
+CONFERENCES_PREFIX = "conferences"
+
 # Per-user state. Both are 0600 and must NOT be committed or uploaded.
 USER_CFG_DIR = Path(
     os.environ.get("LABNOTES_SYNC_CONFIG_DIR", str(Path.home() / ".config" / "labnotes-sync"))

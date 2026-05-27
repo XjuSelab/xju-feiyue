@@ -10,6 +10,7 @@
 
 .PHONY: sync-bootstrap sync-push sync-push-quiet sync-pull sync-status sync-cron-install \
         schools-push schools-pull schools-pull-force schools-status \
+        conf-push conf-pull conf-pull-force conf-status \
         data-push data-pull
 
 SYNC_DIR := scripts/sync
@@ -47,10 +48,24 @@ schools-pull-force:
 schools-status:
 	$(SYNC_RUN)/schools.py status
 
-# --- umbrella: all data (state/ + schools/) ---------------------------------
+# --- conferences reference data (conferences/ namespace) --------------------
+
+conf-push:
+	$(SYNC_RUN)/conferences.py push
+
+conf-pull:
+	$(SYNC_RUN)/conferences.py pull
+
+conf-pull-force:
+	$(SYNC_RUN)/conferences.py pull --force --quiet
+
+conf-status:
+	$(SYNC_RUN)/conferences.py status
+
+# --- umbrella: all data (state/ + schools/ + conferences/) ------------------
 
 data-push:
-	$(MAKE) sync-push && $(MAKE) schools-push
+	$(MAKE) sync-push && $(MAKE) schools-push && $(MAKE) conf-push
 
 data-pull:
-	$(MAKE) sync-pull && $(MAKE) schools-pull
+	$(MAKE) sync-pull && $(MAKE) schools-pull && $(MAKE) conf-pull

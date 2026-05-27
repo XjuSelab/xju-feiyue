@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     # file is attached read-only by app/db/schools_engine.py. Missing files
     # don't block boot — /schools/* simply returns 503 until present.
     schools_data_dir: str = "data/schools"
+    conferences_data_dir: str = "data/conferences"
 
     @property
     def cors_origin_list(self) -> list[str]:

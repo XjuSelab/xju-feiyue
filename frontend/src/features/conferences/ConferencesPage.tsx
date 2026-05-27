@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { ExternalLink, Info } from 'lucide-react'
+import { getConferences } from '@/api/endpoints/conferences'
 import { CCF_CONFS } from './data'
 import { applyFilters } from './filter'
 import { applySort, smartSort } from './sort'
 import {
   BLANK_FILTERS,
   DEFAULT_SORT,
+  type Conference,
   type ConfView,
   type FieldId,
   type FilterState,
@@ -16,23 +19,34 @@ import { FilterBar } from './components/FilterBar'
 import { ConfTable } from './components/ConfTable'
 import { TimelineView } from './components/TimelineView'
 
+const CONF_STALE_MS = 30 * 60_000
+
 export function ConferencesPage() {
   const [field, setField] = useState<FieldId | 'all'>('all')
   const [filters, setFilters] = useState<FilterState>(BLANK_FILTERS)
   const [sort, setSort] = useState<SortState>(DEFAULT_SORT)
   const [view, setView] = useState<ConfView>('table')
 
-  // 各领域会议数（忽略筛选，只统计全量）——field tab 角标用。
+  const confQuery = useQuery({
+    queryKey: ['conferences'],
+    queryFn: getConferences,
+    staleTime: CONF_STALE_MS,
+  })
+  const allConfs: Conference[] = confQuery.data?.conferences ?? CCF_CONFS
+
   const countsByField = useMemo(() => {
     const m: Record<string, number> = {}
-    for (const c of CCF_CONFS) m[c.field] = (m[c.field] || 0) + 1
+    for (const c of allConfs) m[c.field] = (m[c.field] || 0) + 1
     return m
-  }, [])
-  const totalAll = CCF_CONFS.length
+  }, [allConfs])
+  const totalAll = allConfs.length
 
-  const rows = useMemo(() => applyFilters(CCF_CONFS, field, filters), [field, filters])
+  const rows = useMemo(
+    () => applyFilters(allConfs, field, filters),
+    [allConfs, field, filters],
+  )
   const sortedRows = useMemo(() => {
-    if (view === 'timeline') return rows // 时间线自己按 deadline 排
+    if (view === 'timeline') return rows
     return sort.key === 'smart' ? smartSort(rows) : applySort(rows, sort)
   }, [rows, sort, view])
 

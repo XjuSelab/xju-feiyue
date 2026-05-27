@@ -7,8 +7,9 @@ import { NoteSchema, type Note, type ListNotesQuery } from '../schemas/note'
 import { AIComposeRequestSchema, type AIComposeMode } from '../schemas/ai'
 import { computeDiff } from '@/features/editor/ai/diffEngine'
 import notesFixture from './notes.json'
-// Side-effect import: schools.ts calls registerMock at module load.
+// Side-effect imports: registerMock at module load.
 import './schools'
+import './conferences'
 
 // ============== auth ==============
 

@@ -43,6 +43,12 @@ else
     echo "!! schools data pull skipped (HF auth/network?) — serving existing copy"
 fi
 
+if make conf-pull-force; then
+    echo "== conferences data refreshed from HF"
+else
+    echo "!! conferences data pull skipped (HF auth/network?) — serving existing copy"
+fi
+
 cd backend
 /home/winbeau/.local/bin/uv sync --quiet
 /home/winbeau/.local/bin/uv run alembic upgrade head

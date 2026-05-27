@@ -13,9 +13,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from app.db.conferences_engine import init_holder as init_conferences_holder
 from app.db.schools_engine import init_holder as init_schools_holder
 from app.db.session import AsyncSessionLocal
-from app.routes import admin, ai, auth, drafts, interactions, notes, schools, uploads
+from app.routes import (
+    admin,
+    ai,
+    auth,
+    conferences,
+    drafts,
+    interactions,
+    notes,
+    schools,
+    uploads,
+)
 from app.services.author_sync import repair
 from app.settings import settings
 
@@ -23,12 +34,13 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 UPLOAD_DIR = BACKEND_DIR / "uploads"
 
 
-def _resolve_schools_data_dir() -> Path:
-    p = Path(settings.schools_data_dir)
+def _resolve_data_dir(value: str) -> Path:
+    p = Path(value)
     return p if p.is_absolute() else BACKEND_DIR / p
 
 
-SCHOOLS_DATA_DIR = _resolve_schools_data_dir()
+SCHOOLS_DATA_DIR = _resolve_data_dir(settings.schools_data_dir)
+CONFERENCES_DATA_DIR = _resolve_data_dir(settings.conferences_data_dir)
 
 # 24h between scans — drift is rare and a one-day worst-case is fine.
 AUTHOR_SYNC_INTERVAL_SECONDS = 24 * 60 * 60
@@ -58,6 +70,8 @@ async def lifespan(app: FastAPI):  # noqa: ARG001 - signature required
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     schools_holder = init_schools_holder(SCHOOLS_DATA_DIR)
     await schools_holder.boot()
+    conf_holder = init_conferences_holder(CONFERENCES_DATA_DIR)
+    await conf_holder.boot()
     task = asyncio.create_task(_author_sync_loop()) if settings.author_sync_enabled else None
     try:
         yield
@@ -67,6 +81,7 @@ async def lifespan(app: FastAPI):  # noqa: ARG001 - signature required
             with contextlib.suppress(asyncio.CancelledError):
                 await task
         await schools_holder.dispose()
+        await conf_holder.dispose()
 
 
 app = FastAPI(title="xju-feiyue API", version="1.0", lifespan=lifespan)
@@ -92,6 +107,7 @@ app.include_router(interactions.router)
 app.include_router(ai.router)
 app.include_router(admin.router)
 app.include_router(schools.router)
+app.include_router(conferences.router)
 
 
 @app.get("/health", tags=["meta"])
