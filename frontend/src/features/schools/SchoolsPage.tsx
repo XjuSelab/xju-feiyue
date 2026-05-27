@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { C9_SCHOOLS, SCHOOL_GROUPS } from './data'
 
-const C9_SET = new Set<SchoolCode>(C9_SCHOOLS)
+const PINNED_SET = new Set<SchoolCode>([
+  ...C9_SCHOOLS,
+  ...SCHOOL_GROUPS.find((g) => g.code === 'top2')!.schools,
+])
 import {
   BLANK_FILTERS,
   DEFAULT_SORT,
@@ -84,7 +87,7 @@ export function SchoolsPage() {
   const dynamicAllSchools = useMemo<SchoolCode[]>(() => {
     const items = metaQuery.data?.schools ?? []
     return items
-      .filter((s) => s.count > 0 && !C9_SET.has(s.code))
+      .filter((s) => s.count > 0 && !PINNED_SET.has(s.code))
       .sort((a, b) => b.count - a.count)
       .map((s) => s.code)
   }, [metaQuery.data])
