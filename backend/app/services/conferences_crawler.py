@@ -227,7 +227,7 @@ def crawl_sync(
 
         found = extracted.get("found", False)
         if found:
-            deadline = extracted.get("deadline")
+            deadline = extracted.get("deadline") or c.get("deadline")
             new_state = _derive_state(deadline, today)
             conn.execute(
                 """UPDATE conferences SET
