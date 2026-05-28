@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
+import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -40,12 +41,34 @@ async def _list(prefix: str) -> int:
         print(f"(no logged-in users with sid starting '{prefix}')")
         return 0
 
-    print(f"{'sid':<12}  {'name':<10}  {'logins':>6}  last")
-    print(f"{'-' * 12}  {'-' * 10}  {'-' * 6}  {'-' * 19}")
-    for sid, name, logins, last in rows:
-        last_s = last.strftime("%Y-%m-%d %H:%M:%S") if last else ""
-        print(f"{sid:<12}  {name:<10}  {logins:>6}  {last_s}")
+    data = [
+        (sid, name, str(logins), last.strftime("%Y-%m-%d %H:%M:%S") if last else "")
+        for sid, name, logins, last in rows
+    ]
+    _print_table(("sid", "name", "logins", "last"), data, aligns=("<", "<", ">", "<"))
     return 0
+
+
+def _dw(s: str) -> int:
+    return sum(2 if unicodedata.east_asian_width(c) in ("W", "F") else 1 for c in s)
+
+
+def _pad(s: str, width: int, align: str) -> str:
+    extra = width - _dw(s)
+    if extra <= 0:
+        return s
+    return (s + " " * extra) if align == "<" else (" " * extra + s)
+
+
+def _print_table(headers, rows, aligns):
+    widths = [
+        max(_dw(h), *(_dw(r[i]) for r in rows)) for i, h in enumerate(headers)
+    ]
+    sep = "  "
+    print(sep.join(_pad(h, w, a) for h, w, a in zip(headers, widths, aligns)))
+    print(sep.join("-" * w for w in widths))
+    for row in rows:
+        print(sep.join(_pad(c, w, a) for c, w, a in zip(row, widths, aligns)))
 
 
 def _parse_args() -> argparse.Namespace:
