@@ -178,9 +178,10 @@ export function isImageFile(f: File): boolean {
 
 const WORD_INFO: FileKindInfo = {
   kind: 'word',
+  // Word 品牌蓝（非 cat-kaggle 的墨绿松石）；图标用任意值精确取色，底座用同色 10% tint。
   label: 'Word',
-  iconColorClass: 'text-cat-kaggle',
-  tileBgClass: 'bg-tag-kaggle',
+  iconColorClass: 'text-[#2b579a]',
+  tileBgClass: 'bg-[#2b579a]/10',
 }
 const EXCEL_INFO: FileKindInfo = {
   kind: 'excel',
