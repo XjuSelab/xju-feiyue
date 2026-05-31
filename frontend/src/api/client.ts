@@ -21,6 +21,26 @@ const baseURL = apiBase ?? ''
  * and need to fall back when mocks are mounted. */
 export const isMockMode = (): boolean => useMock
 export const getApiBase = (): string => baseURL
+
+/**
+ * Re-base a stored upload URL onto the current API origin, keeping only its
+ * path. Upload URLs are persisted *absolute* (built from the backend
+ * `public_base_url`), which can be a different domain than the one the SPA is
+ * actually served on (e.g. winbeau.top vs feiyue.selab.top). A cross-origin
+ * `fetch()` of such a URL is CORS-blocked and the preview hangs forever. Using
+ * `<apiBase><path>` makes the fetch same-origin in prod (apiBase='') and
+ * CORS-allowed in dev (apiBase=localhost:8000). Use for any fetch/<img> of an
+ * uploaded asset; plain navigation (window.open) can keep the absolute URL.
+ */
+export function resolveAssetUrl(url: string): string {
+  try {
+    const u = new URL(url, window.location.origin)
+    return `${baseURL}${u.pathname}${u.search}`
+  } catch {
+    return url
+  }
+}
+
 const MOCK_LATENCY_MS = 200
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'

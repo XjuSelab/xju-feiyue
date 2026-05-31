@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { FileTypeIcon } from '@/components/common/FileTypeIcon'
 import { extOf, previewKind, type PreviewKind } from '@/lib/fileTypes'
+import { resolveAssetUrl } from '@/api/client'
 import { cn } from '@/lib/cn'
 
 /**
@@ -180,7 +181,7 @@ function DownloadButton({
   const onDownload = async () => {
     setBusy(true)
     try {
-      const res = await fetch(url)
+      const res = await fetch(resolveAssetUrl(url))
       if (!res.ok) throw new Error(String(res.status))
       const blob = await res.blob()
       const objectUrl = URL.createObjectURL(blob)

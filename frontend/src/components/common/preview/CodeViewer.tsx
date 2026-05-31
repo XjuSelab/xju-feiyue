@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, Copy, Loader2 } from 'lucide-react'
 import 'highlight.js/styles/github.css'
 
+import { resolveAssetUrl } from '@/api/client'
 import { Button } from '@/components/ui/button'
 
 /**
@@ -41,7 +42,7 @@ export default function CodeViewer({ url, name }: Props) {
     setTruncated(false)
 
     ;(async () => {
-      const res = await fetch(url, { signal: abort.signal })
+      const res = await fetch(resolveAssetUrl(url), { signal: abort.signal })
       if (!res.ok) throw new Error(`文件加载失败（${res.status}）`)
       let text = await res.text()
       if (my !== token.current) return

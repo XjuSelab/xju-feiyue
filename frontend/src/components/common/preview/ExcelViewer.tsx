@@ -5,6 +5,8 @@ import '@js-preview/excel/lib/index.css'
 
 import type { JsExcelPreview } from '@js-preview/excel'
 
+import { resolveAssetUrl } from '@/api/client'
+
 /**
  * ExcelViewer —— @js-preview/excel 表格预览（仅 `.xlsx`，旧版 `.xls` 走降级卡）。
  *
@@ -46,7 +48,7 @@ export default function ExcelViewer({ url, name }: Props) {
     setLoading(true)
 
     ;(async () => {
-      const res = await fetch(url, { signal: abort.signal })
+      const res = await fetch(resolveAssetUrl(url), { signal: abort.signal })
       if (!res.ok) throw new Error(`表格加载失败（${res.status}）`)
       const buf = await res.arrayBuffer()
       if (my !== token.current) return

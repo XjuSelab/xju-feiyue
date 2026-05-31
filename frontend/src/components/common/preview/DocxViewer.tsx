@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, Maximize2, ZoomIn, ZoomOut } from 'lucide-react'
 
+import { resolveAssetUrl } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { usePreviewZoom } from './usePreviewZoom'
 
@@ -47,7 +48,7 @@ export default function DocxViewer({ url, name, fileId }: Props) {
     container.replaceChildren()
 
     ;(async () => {
-      const res = await fetch(url, { signal: abort.signal })
+      const res = await fetch(resolveAssetUrl(url), { signal: abort.signal })
       if (!res.ok) throw new Error(`文档加载失败（${res.status}）`)
       const blob = await res.blob()
       if (my !== token.current) return

@@ -10,6 +10,7 @@ import {
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { Loader2, Maximize2, ZoomIn, ZoomOut } from 'lucide-react'
 
+import { resolveAssetUrl } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { usePreviewZoom } from './usePreviewZoom'
 
@@ -48,7 +49,7 @@ const bufferCache = new Map<string, ArrayBuffer>()
 async function loadBuffer(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
   const cached = bufferCache.get(url)
   if (cached) return cached
-  const res = await fetch(url, { signal })
+  const res = await fetch(resolveAssetUrl(url), { signal })
   if (!res.ok) throw new Error(`PDF 加载失败（${res.status}）`)
   const buf = await res.arrayBuffer()
   bufferCache.set(url, buf)

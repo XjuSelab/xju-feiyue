@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Loader2, Maximize2, ZoomIn, ZoomOut } from 'lucide-react'
 
+import { resolveAssetUrl } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { ZOOM_MAX, ZOOM_MIN, usePreviewZoom } from './usePreviewZoom'
 
@@ -108,7 +109,7 @@ export default function ImageViewer({ url, name, fileId }: Props) {
       >
         <img
           ref={imgRef}
-          src={url}
+          src={resolveAssetUrl(url)}
           alt={name}
           onLoad={onLoad}
           onError={() => setErrored(true)}
