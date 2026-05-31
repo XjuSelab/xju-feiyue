@@ -27,3 +27,9 @@ class AIComposeOut(CamelModel):
     before: str
     after: str
     elapsed_ms: int = Field(ge=0)
+
+
+class GreetingOut(CamelModel):
+    """One-line personalized homepage hello for the current user."""
+
+    text: str

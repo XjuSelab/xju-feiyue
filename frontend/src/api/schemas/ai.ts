@@ -47,3 +47,7 @@ export const AIComposeResponseSchema = z.object({
   elapsedMs: z.number().int().nonnegative(),
 })
 export type AIComposeResponse = z.infer<typeof AIComposeResponseSchema>
+
+/** GET /ai/greeting —— 首页个性化一句话问候（仅登录用户）。 */
+export const GreetingSchema = z.object({ text: z.string() })
+export type Greeting = z.infer<typeof GreetingSchema>

@@ -1,9 +1,28 @@
 import { getApiBase, isMockMode, request } from '../client'
 import {
   AIComposeResponseSchema,
+  GreetingSchema,
   type AIComposeRequest,
   type AIComposeResponse,
+  type Greeting,
 } from '../schemas/ai'
+
+const TOKEN_KEY = 'labnotes.auth.token'
+
+function authHeaders(): Record<string, string> {
+  const t = localStorage.getItem(TOKEN_KEY)
+  return t ? { Authorization: `Bearer ${t}` } : {}
+}
+
+/** GET /ai/greeting —— 首页个性化问候（需登录）。失败/超时由调用方回退到 `Hi`。 */
+export async function getGreeting(): Promise<Greeting> {
+  return request({
+    method: 'GET',
+    path: '/ai/greeting',
+    schema: GreetingSchema,
+    headers: authHeaders(),
+  })
+}
 
 /**
  * R4 editor-agent 实现：mock 后端在 mock/handlers.ts 中按 mode 分派一个
