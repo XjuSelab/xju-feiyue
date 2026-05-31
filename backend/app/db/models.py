@@ -61,6 +61,11 @@ class User(Base):
     # Displayed across the app (cards / detail header / dropdown). Mutable;
     # seeded equal to `name` on first registration.
     nickname: Mapped[str] = mapped_column(String(120), nullable=False)
+    # Greeting form-of-address: derived from the legal name at registration
+    # (interpunct → first segment / ≤2 chars → whole / ≥3 chars → trailing
+    # two), or user-customized. NULL for legacy rows → derived at runtime via
+    # greeting.familiar_name(name). Drives the personalized homepage greeting.
+    preferred_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     avatar: Mapped[str | None] = mapped_column(String(512), nullable=True)
     # Server-generated 160px thumbnail derived from `avatar` on upload.
     # Cards / lists use this so we're not making the browser downsample a

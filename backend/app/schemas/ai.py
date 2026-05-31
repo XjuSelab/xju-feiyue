@@ -29,7 +29,7 @@ class AIComposeOut(CamelModel):
     elapsed_ms: int = Field(ge=0)
 
 
-class GreetingOut(CamelModel):
-    """One-line personalized homepage hello for the current user."""
+class GreetingsOut(CamelModel):
+    """Personalized homepage greeting lines for the current user (3h cached)."""
 
-    text: str
+    greetings: list[str]

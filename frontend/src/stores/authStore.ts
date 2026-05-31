@@ -1,6 +1,8 @@
 import { create, type StateCreator } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import * as authApi from '@/api/endpoints/auth'
+import { getGreetings } from '@/api/endpoints/ai'
+import { writeCache } from '@/features/home/lib/greeting'
 import type { User } from '@/api/schemas/user'
 
 export type AuthMode = 'authed' | 'guest' | 'anon'
@@ -28,6 +30,14 @@ const creator: StateCreator<
     const { user, token } = await authApi.login(sid, password)
     localStorage.setItem(authApi.TOKEN_KEY, token)
     set({ user, token, mode: 'authed' })
+    // Fire-and-forget：每次登录预热当日 3 条问候并写入 sid 缓存（3h TTL）。
+    // 不 await、不阻塞 login、吞掉一切错误——首页有 timeFallback 兜底。
+    // token 已写入 localStorage，authHeaders() 此刻即可用。
+    void getGreetings()
+      .then((r) => {
+        if (r.greetings?.length) writeCache(user.sid, r.greetings)
+      })
+      .catch(() => {})
     return user
   },
   logout: () => {

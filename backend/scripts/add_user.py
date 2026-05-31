@@ -32,6 +32,7 @@ from sqlalchemy import select  # noqa: E402
 from app.db.models import User  # noqa: E402
 from app.db.session import AsyncSessionLocal  # noqa: E402
 from app.services.auth import hash_password  # noqa: E402
+from app.services.greeting import familiar_name  # noqa: E402
 
 DEFAULT_PASSWORD = "123456"
 
@@ -46,13 +47,20 @@ def _validate(sid: str, name: str) -> tuple[str, str]:
     return sid, name
 
 
-async def _upsert(sid: str, name: str, password: str) -> str:
+async def _upsert(
+    sid: str, name: str, password: str, preferred: str | None = None
+) -> str:
+    # Greeting form-of-address: explicit --preferred-name wins, else derive
+    # from the legal name (interpunct/length rules, same as the greeting svc).
+    preferred_name = (preferred or "").strip() or familiar_name(name)
     async with AsyncSessionLocal() as session:
         existing = await session.scalar(select(User).where(User.sid == sid))
         if existing:
             old = existing.nickname
             existing.name = name
             existing.nickname = name
+            # Keep the greeting address in sync with the (possibly new) name.
+            existing.preferred_name = preferred_name
             await session.commit()
             return f"update  sid={sid}  {old!r} → {name!r}  (密码未改)"
         session.add(
@@ -60,6 +68,7 @@ async def _upsert(sid: str, name: str, password: str) -> str:
                 sid=sid,
                 name=name,
                 nickname=name,
+                preferred_name=preferred_name,
                 avatar=None,
                 avatar_thumb=None,
                 bio=None,
@@ -77,6 +86,10 @@ def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="新增 / 刷新一个学生账号")
     p.add_argument("--sid", "-s", help="11 位学号")
     p.add_argument("--name", "-n", help="姓名（同时作为 nickname）")
+    p.add_argument(
+        "--preferred-name",
+        help="问候称呼,默认按真名派生 (仅作用于单条 CLI, 批量恒派生)",
+    )
     p.add_argument(
         "--password",
         "-p",
@@ -113,14 +126,19 @@ def _read_pairs(source: str) -> list[tuple[str, str]]:
 async def _run() -> int:
     args = _parse_args()
 
+    # --preferred-name only applies to the single/CLI path; batch rows always
+    # derive the address from each name (no per-row override syntax).
+    preferred = None
     if args.batch:
         pairs = _read_pairs(args.batch)
     elif args.sid and args.name:
         pairs = [(args.sid, args.name)]
+        preferred = args.preferred_name
     else:
         sid = args.sid or input("学号 sid: ")
         name = args.name or input("姓名 name: ")
         pairs = [(sid, name)]
+        preferred = args.preferred_name
 
     if not pairs:
         print("没有要导入的用户", file=sys.stderr)
@@ -130,7 +148,7 @@ async def _run() -> int:
     for sid, name in pairs:
         try:
             sid, name = _validate(sid, name)
-            print(await _upsert(sid, name, args.password))
+            print(await _upsert(sid, name, args.password, preferred))
         except Exception as e:
             print(f"  ! {sid} {name}: {e}", file=sys.stderr)
             rc = 1

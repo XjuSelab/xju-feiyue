@@ -1,25 +1,55 @@
-import { useQuery } from '@tanstack/react-query'
-import { getGreeting } from '@/api/endpoints/ai'
+import { useEffect, useState } from 'react'
+import { getGreetings } from '@/api/endpoints/ai'
 import { useAuthStore } from '@/stores/authStore'
+import {
+  familiarName,
+  isValidGreeting,
+  readCache,
+  rotate,
+  timeFallback,
+  writeCache,
+} from '@/features/home/lib/greeting'
 
 export function WelcomeSection() {
   const user = useAuthStore((s) => s.user)
   const mode = useAuthStore((s) => s.mode)
 
-  // 登录用户：个性化一句话问候（后端结合 称呼/时间/天气 由模型生成）。
-  // 首次进入还没返回、或调用超时/失败时，heading 回退到简单的 `Hi <昵称>，`，
-  // 问候到达后再无感替换；游客显示站点标语。
-  const greeting = useQuery({
-    queryKey: ['home-greeting'],
-    queryFn: getGreeting,
-    enabled: mode === 'authed' && !!user,
-    staleTime: 30 * 60 * 1000,
-    retry: false,
-    refetchOnWindowFocus: false,
+  // 称呼优先取后端 preferred_name（注册派生 / 用户自定义），为空时本地派生。
+  const addr = user ? (user.preferredName ?? familiarName(user.name)) : null
+
+  // 首屏同步种子：有有效缓存则轮换取一条（回主页换下一条），否则即时本地时段兜底。
+  // 永不出现请求在途空窗，永不闪「Hi 昵称」。
+  const [line, setLine] = useState<string>(() => {
+    if (!user || !addr) return ''
+    const r = rotate(user.sid)
+    if (r && isValidGreeting(r, addr)) return r
+    return timeFallback(addr)
   })
 
+  // 仅当缓存为空/过期时才请求一次（命中缓存靠 login 钩子预热，effect 不发请求）。
+  // 失败全部静默——line 维持本地兜底。
+  useEffect(() => {
+    if (mode !== 'authed' || !user || !addr) return
+    if (readCache(user.sid)) return
+    const sid = user.sid
+    getGreetings()
+      .then((r) => {
+        const valid = r.greetings.filter((g) => isValidGreeting(g, addr))
+        if (!valid.length) return
+        writeCache(sid, valid)
+        const first = rotate(sid)
+        if (first) setLine(first)
+      })
+      .catch(() => {})
+  }, [user, addr, mode])
+
+  // 双保险：缓存里若混入历史退化行，渲染前再过一次校验，退化则回本地兜底。
   const heading = user
-    ? greeting.data?.text || `Hi ${user.nickname}，`
+    ? addr && line && isValidGreeting(line, addr)
+      ? line
+      : addr
+        ? timeFallback(addr)
+        : ''
     : '新疆大学飞跃手册'
 
   return (

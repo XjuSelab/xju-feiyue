@@ -15,6 +15,9 @@ class UserOut(CamelModel):
     sid: str
     name: str
     nickname: str
+    # Greeting form-of-address (derived from name at registration / customized).
+    # NULL on legacy rows → frontend derives via familiarName(name).
+    preferred_name: str | None = None
     avatar: str | None = None
     avatar_thumb: str | None = None
     bio: str | None = None
@@ -57,6 +60,7 @@ class UserMeUpdate(CamelModel):
 
     nickname: str | None = Field(default=None, min_length=1, max_length=120)
     name: str | None = Field(default=None, min_length=1, max_length=120)
+    preferred_name: str | None = Field(default=None, min_length=1, max_length=120)
     bio: str | None = Field(default=None, max_length=2000)
     wechat: str | None = Field(default=None, max_length=64)
     phone: str | None = Field(default=None, max_length=32)

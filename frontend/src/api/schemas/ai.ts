@@ -48,6 +48,6 @@ export const AIComposeResponseSchema = z.object({
 })
 export type AIComposeResponse = z.infer<typeof AIComposeResponseSchema>
 
-/** GET /ai/greeting —— 首页个性化一句话问候（仅登录用户）。 */
-export const GreetingSchema = z.object({ text: z.string() })
-export type Greeting = z.infer<typeof GreetingSchema>
+/** GET /ai/greetings —— 首页个性化问候，每次登录生成 3 条、按 sid 缓存 3h（仅登录用户）。 */
+export const GreetingsSchema = z.object({ greetings: z.array(z.string()) })
+export type Greetings = z.infer<typeof GreetingsSchema>

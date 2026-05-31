@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 
 from app.db.models import User
 from app.deps import get_current_user
-from app.schemas.ai import AIComposeIn, AIComposeOut, GreetingOut
+from app.schemas.ai import AIComposeIn, AIComposeOut, GreetingsOut
 from app.services import ai_compose, greeting
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -18,15 +18,21 @@ async def compose(body: AIComposeIn) -> AIComposeOut:
     return await ai_compose.compose(body)
 
 
-@router.get("/greeting", response_model=GreetingOut)
-async def home_greeting(user: User = Depends(get_current_user)) -> GreetingOut:
-    """One-line personalized homepage hello (logged-in users only).
+@router.get("/greetings", response_model=GreetingsOut)
+async def home_greetings(user: User = Depends(get_current_user)) -> GreetingsOut:
+    """Three personalized homepage greeting lines (logged-in users only).
 
-    Derives the address from the user's legal name, blends in time + locale
-    weather, and has DeepSeek write the line. On model failure this raises 503
-    so the frontend keeps its plain ``Hi <nickname>，`` fallback.
+    Derives the address from the user's legal name, blends in time band +
+    locale weather, and has DeepSeek write the lines (validated + de-duped).
+    Results are cached per-user for 3 hours. Never raises 503: a slow/failed/
+    unconfigured model degrades to local time-band templates, so the frontend
+    always gets fresh lines to rotate through.
     """
-    return GreetingOut(text=await greeting.compose_greeting(user.name))
+    return GreetingsOut(
+        greetings=await greeting.compose_greetings(
+            user.sid, user.name, user.preferred_name, n=3
+        )
+    )
 
 
 @router.post("/compose/stream")

@@ -6,6 +6,8 @@ import { ApiError, registerMock, type MockReq } from '../client'
 import { NoteSchema, type Note, type ListNotesQuery } from '../schemas/note'
 import { AIComposeRequestSchema, type AIComposeMode } from '../schemas/ai'
 import { computeDiff } from '@/features/editor/ai/diffEngine'
+import { periodOf } from '@/features/home/lib/greeting'
+import greetingsRaw from '@/features/home/data/greetings.json'
 import notesFixture from './notes.json'
 // Side-effect imports: registerMock at module load.
 import './schools'
@@ -200,6 +202,17 @@ registerMock('POST', '/notes/images', async () => {
   // Mock dev fixture — placekitten lets us see the inserted image in
   // MarkdownPreview without a backend.
   return { url: 'https://placekitten.com/640/360' }
+})
+
+// GET /ai/greetings —— dev mock：当前时段 + 通用问候取 3 条不重复（名字用中性假名）。
+registerMock('GET', '/ai/greetings', async () => {
+  const data = greetingsRaw as Record<string, string[]>
+  const arr = data[periodOf(new Date().getHours())] ?? []
+  const common = data['通用'] ?? []
+  const pool = [...new Set([...arr, ...common])].map((t) =>
+    t.replace('{名字}', '同学'),
+  )
+  return { greetings: pool.slice(0, 3) }
 })
 
 registerMock('POST', '/ai/compose', async (req: MockReq) => {

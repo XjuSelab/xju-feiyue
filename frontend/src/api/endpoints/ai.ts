@@ -1,10 +1,10 @@
 import { getApiBase, isMockMode, request } from '../client'
 import {
   AIComposeResponseSchema,
-  GreetingSchema,
+  GreetingsSchema,
   type AIComposeRequest,
   type AIComposeResponse,
-  type Greeting,
+  type Greetings,
 } from '../schemas/ai'
 
 const TOKEN_KEY = 'labnotes.auth.token'
@@ -14,12 +14,15 @@ function authHeaders(): Record<string, string> {
   return t ? { Authorization: `Bearer ${t}` } : {}
 }
 
-/** GET /ai/greeting —— 首页个性化问候（需登录）。失败/超时由调用方回退到 `Hi`。 */
-export async function getGreeting(): Promise<Greeting> {
+/**
+ * GET /ai/greetings —— 首页个性化问候（需登录）：每次登录生成 3 条、按 sid 缓存 3h。
+ * 后端永不 503（失败降级为本地模板）；前端另有 timeFallback 兜底，失败由调用方吞错。
+ */
+export async function getGreetings(): Promise<Greetings> {
   return request({
     method: 'GET',
-    path: '/ai/greeting',
-    schema: GreetingSchema,
+    path: '/ai/greetings',
+    schema: GreetingsSchema,
     headers: authHeaders(),
   })
 }

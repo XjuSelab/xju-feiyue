@@ -10,6 +10,8 @@ export const UserSchema = z.object({
   sid: z.string(),
   name: z.string(),
   nickname: z.string(),
+  /** 亲切称呼：注册时按真名派生 / 用户自定义；为空时前端回退 familiarName(name)。 */
+  preferredName: z.string().nullish(),
   avatar: z.string().url().nullish(),
   /** Server-side downscale (~160 px). Prefer this for tiny chips. */
   avatarThumb: z.string().url().nullish(),
@@ -39,6 +41,7 @@ export type LoginRequest = z.infer<typeof LoginRequestSchema>
 export const UserMeUpdateSchema = z.object({
   nickname: z.string().min(1).max(120).optional(),
   name: z.string().min(1).max(120).optional(),
+  preferredName: z.string().min(1).max(120).optional(),
   bio: z.string().max(2000).optional(),
   wechat: z.string().max(64).optional(),
   phone: z.string().max(32).optional(),
