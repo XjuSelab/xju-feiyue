@@ -14,7 +14,9 @@ import { FileTypeIcon } from '@/components/common/FileTypeIcon'
 import { cn } from '@/lib/cn'
 
 import { INDENT_PX, type FlatNode } from '../lib/tree'
-import type { ReorderPosition } from '../types'
+
+/** 落点指示线挂载边：行顶(before) / 行底(after) / 行内首子位置(inside)。 */
+export type DropLineEdge = 'top' | 'bottom' | 'inside'
 
 /**
  * FileTreeItem —— useSortable 递归（扁平）节点行。
@@ -24,8 +26,9 @@ import type { ReorderPosition } from '../types'
  * - `depth * INDENT_PX` 缩进（与 lib/tree.ts projectDrop 的 X 投影对齐）。
  * - ext 图标走共享 FileTypeIcon（文件夹用 folder 模式，open 跟随展开态）。
  * - active 高亮（当前预览文件）。
- * - 三区指示线：before/after 在行顶/底画 0.5px bg-border-strong 横线；inside 整行
- *   ring（dragOver 投影由 FileTree 下传 `dropIndicator`）。
+ * - sortable-tree 投影指示（Notion 蓝 #a5c9f2）：`dropLineEdge` 在行顶/底/内画一条
+ *   ~2px 水平线，左缘按 `dropLineDepth * INDENT_PX` 偏移（落点深度）；`isDropParent`
+ *   时给整行加淡蓝高亮（成为该文件夹首子）。投影由 FileTree 下传。
  * - 右键 ui/context-menu：文件 = 下载/重命名/删除；文件夹 = 上传到此/重命名/删除。
  *   仅 owner 渲染写操作项（下载对所有人可见）。菜单项 onSelect 即键盘等效（Radix 自带）。
  * - 文件夹 hover 浮现 UploadCloud 快捷上传按钮。
@@ -43,8 +46,12 @@ type Props = {
   canWrite: boolean
   /** 是否正被拖拽（半透明）。 */
   isDragging: boolean
-  /** 落点指示（仅当本节点是 dragOver 目标时非 null）。 */
-  dropIndicator: ReorderPosition | null
+  /** 落点指示线挂载边（本行承载时非 null）：top=before / bottom=after / inside=首子。 */
+  dropLineEdge: DropLineEdge | null
+  /** 指示线缩进深度（projectedDepth），左缘 = depth * INDENT_PX。 */
+  dropLineDepth: number
+  /** 本行是否为投影新父文件夹（成为其首/唯一子时整行淡蓝高亮）。 */
+  isDropParent: boolean
   onToggle: (id: string) => void
   onPreview: (node: FlatNode) => void
   onDownload: (node: FlatNode) => void
@@ -59,7 +66,9 @@ export function FileTreeItem({
   expanded,
   canWrite,
   isDragging,
-  dropIndicator,
+  dropLineEdge,
+  dropLineDepth,
+  isDropParent,
   onToggle,
   onPreview,
   onDownload,
@@ -124,14 +133,13 @@ export function FileTreeItem({
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
             active ? 'bg-tag-kaggle/60 text-text' : 'text-text-muted hover:bg-bg-hover',
             (isDragging || dndDragging) && 'opacity-40',
-            // inside：整行 ring 提示「成为该文件夹子节点」。
-            dropIndicator === 'inside' && 'ring-2 ring-inset ring-cat-kaggle',
+            // 投影新父文件夹：整行 Notion 蓝淡高亮 + 细环，提示「成为其子节点」。
+            isDropParent && 'bg-[#a5c9f2]/25 ring-1 ring-inset ring-[#a5c9f2]',
           )}
           data-filetree-item=""
         >
-          {/* before / after：0.5px 横线指示，缩进对齐落点深度。 */}
-          {dropIndicator === 'before' ? <DropLine position="top" /> : null}
-          {dropIndicator === 'after' ? <DropLine position="bottom" /> : null}
+          {/* sortable-tree 投影指示线（Notion 蓝 #a5c9f2，2px），缩进对齐落点深度。 */}
+          {dropLineEdge ? <DropLine edge={dropLineEdge} depth={dropLineDepth} /> : null}
 
           {/* 展开箭头（仅文件夹有子节点时旋转，文件占位对齐）。 */}
           {node.isFolder ? (
@@ -231,15 +239,25 @@ export function FileTreeItem({
   )
 }
 
-/** 同级落点指示横线（0.5px bg-border-strong），顶/底对齐 before/after。 */
-function DropLine({ position }: { position: 'top' | 'bottom' }) {
+/**
+ * sortable-tree 投影指示线（Notion 蓝 #a5c9f2，2px）。
+ * - `edge`：top=before(行顶) / bottom=after(行底) / inside=该文件夹首子位置(行底)。
+ * - `depth`：projectedDepth，左缘 = depth * INDENT_PX + 8（与行 paddingLeft 对齐），
+ *   带一个小圆点锚点，呈 Notion/Outliner 缩进指示风格。
+ */
+function DropLine({ edge, depth }: { edge: DropLineEdge; depth: number }) {
   return (
     <span
       aria-hidden
       className={cn(
-        'pointer-events-none absolute left-0 right-0 z-10 h-[2px] bg-cat-kaggle',
-        position === 'top' ? '-top-px' : '-bottom-px',
+        'pointer-events-none absolute right-1 z-10 flex h-[2px] items-center',
+        // inside 与 after 同样画在行底（成为该夹首子，视觉落在其下沿）。
+        edge === 'top' ? '-top-px' : '-bottom-px',
       )}
-    />
+      style={{ left: depth * INDENT_PX + 8 }}
+    >
+      <span className="h-[6px] w-[6px] shrink-0 rounded-full bg-[#a5c9f2]" />
+      <span className="h-[2px] flex-1 rounded-full bg-[#a5c9f2]" />
+    </span>
   )
 }

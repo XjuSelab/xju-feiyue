@@ -83,7 +83,7 @@ export default function ExcelViewer({ url, name }: Props) {
       <div
         ref={containerRef}
         aria-label={`${name} 表格预览`}
-        className="min-h-0 flex-1 overflow-auto bg-bg-subtle"
+        className="min-h-0 flex-1 overflow-auto bg-transparent"
       />
       {showSpinner && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

@@ -103,7 +103,7 @@ export default function CodeViewer({ url, name }: Props) {
       </div>
 
       {/* 滚动区 */}
-      <div className="min-h-0 flex-1 overflow-auto bg-bg-subtle">
+      <div className="min-h-0 flex-1 overflow-auto bg-transparent">
         <pre className="hljs m-0 p-4 text-xs leading-relaxed">
           <code dangerouslySetInnerHTML={{ __html: html }} />
         </pre>

@@ -1,10 +1,22 @@
 /**
- * 文件树工具 —— 递归树 ↔ 拍平列表 + dnd-kit 拖拽落点投影。
+ * 文件树工具 —— 递归树 ↔ 拍平列表 + dnd-kit 「sortable-tree 投影」式拖拽落点计算。
  *
  * dnd-kit 的 SortableContext 要求一维 items；递归树需先 `flattenTree` 拍平成
- * 带 `depth`/`parentId` 的扁平节点（折叠的文件夹子树整段排除），拖拽时用
- * `projectDrop` 按指针 X（缩进深度）+ Y（三分判 before/after/inside）算出落点，
- * `onDragEnd` 把落点翻成 reorder API 的 `{dragId, dropId, position}`。
+ * 带 `depth`/`parentId` 的扁平节点（折叠的文件夹子树整段排除）。
+ *
+ * 拖拽落点采用 dnd-kit 官方 sortable-tree 的「投影」算法（Notion/Outliner 同款）：
+ * - 用**纵向落点**（over 在去掉 drag 后的列表中的索引）定位插入行 → 得到落点的
+ *   「上一个可见项 prevItem」「下一个可见项 nextItem」；
+ * - 用**水平指针偏移**（`offsetX / INDENT_PX`）算出意图深度 `dragDepth`，再按
+ *   `[minDepth, maxDepth]` clamp 出 `projectedDepth`：
+ *     maxDepth = prevItem 是文件夹 ? prevItem.depth+1 : prevItem ? prevItem.depth : 0
+ *     minDepth = nextItem ? nextItem.depth : 0
+ * - `projectedDepth` 决定**新 parentId**（沿 prevItem 祖先链找到该深度的父）；
+ *   于是 向右拖=进入上方文件夹(nest)、向左拖=退出到更外层(unnest)、纯上下=同级重排，
+ *   **一套投影统一处理 进/出/重排**，不再有 inside 与重排冲突。
+ * - 最后把投影映射回 reorder API 的 `{dragId, dropId, position}`：
+ *   落点是 projectedParent 下某相邻兄弟之间 → 取前/后兄弟作 dropId + before/after；
+ *   落点是某文件夹的首个子位置（含空文件夹）→ inside + dropId=该文件夹。
  *
  * 纯函数、零副作用、零依赖（不 import dnd-kit），方便单测。
  */
@@ -140,10 +152,15 @@ export function countFiles(nodes: MaterialFile[]): number {
 }
 
 /**
- * 落点投影结果：把拖拽位置翻成 reorder API 的 `{dropId, position}`。
- * `null` = 落点无效（拖到自身 / 自身子树 / 无目标）。
+ * 落点投影结果（sortable-tree 投影）。
+ * - `depth`：投影深度，驱动指示线的缩进位置（与渲染 marginLeft 对齐）。
+ * - `parentId`：投影后的新父节点 id（root 为 null）。指示器据此给目标文件夹整行高亮。
+ * - `dropId` / `position`：映射回 reorder API 的落点（`inside` 时 dropId=父文件夹）。
+ * `null` = 落点无效（无目标 / 拖进自身或其子树 / 越界）。
  */
 export type DropProjection = {
+  depth: number
+  parentId: string | null
   dropId: string
   position: ReorderPosition
 } | null
@@ -151,40 +168,129 @@ export type DropProjection = {
 type ProjectArgs = {
   /** 拖拽节点 id。 */
   dragId: string
-  /** 悬停目标节点（FlatNode）。 */
-  over: FlatNode
-  /** 指针在 over 节点矩形内的纵向比例 0..1（顶=0，底=1）。 */
-  overRatio: number
-  /** 完整扁平列表（用于环路守卫上溯祖先）。 */
+  /** 悬停目标节点 id（dnd-kit over.id）；无 over 时传 null。 */
+  overId: string | null
+  /** 指针相对拖起点的水平位移（event.delta.x，向右为正）。 */
+  offsetX: number
+  /** 完整扁平列表（= 渲染顺序，含被拖项）。 */
   flat: FlatNode[]
 }
 
 /**
- * 三区 + 深度投影：
- * - over 是文件夹且指针落在中间带 (25%, 75%) → `inside`（成为其子节点）。
- * - 否则上半 (<50%) → `before`，下半 (>=50%) → `after`（与 over 同级）。
+ * sortable-tree 投影：用纵向落点定位插入行、用水平偏移定意图深度，clamp 出
+ * `projectedDepth` 与新父节点，再映射回 reorder API 的 `{dropId, position}`。
  *
- * 环路守卫（与后端 reorder service 对齐）：当落点会把 dragId 放进自身或其子树
- * （inside 到自身/后代，或 before/after 的同级 parent 在 dragId 子树内）→ 返回 null。
+ * 环路守卫（与后端 reorder service 对齐）：拖一个文件夹时，落点（over / 新父）
+ * 落在该文件夹自身或其子树内 → 返回 null（不触发）。
  */
-export function projectDrop({ dragId, over, overRatio, flat }: ProjectArgs): DropProjection {
-  if (over.id === dragId) return null
+export function projectDrop({ dragId, overId, offsetX, flat }: ProjectArgs): DropProjection {
+  if (overId == null) return null
 
-  const inMiddle = overRatio > 0.25 && overRatio < 0.75
-  let position: ReorderPosition
-  if (over.isFolder && inMiddle) {
-    position = 'inside'
-  } else {
-    position = overRatio < 0.5 ? 'before' : 'after'
+  const dragIndex = flat.findIndex((f) => f.id === dragId)
+  const overIndex = flat.findIndex((f) => f.id === overId)
+  if (dragIndex < 0 || overIndex < 0) return null
+  const dragNode = flat[dragIndex]!
+
+  // 去掉被拖项后的可见列表 = 真正的落点参考序列（与 dnd-kit arrayMove 语义一致）。
+  const items = flat.filter((f) => f.id !== dragId)
+  // over 在去掉 drag 后的列表中的位置：drag 原本在 over 之前则索引左移一位。
+  let insertIndex = items.findIndex((f) => f.id === overId)
+  if (insertIndex < 0) return null
+  if (dragIndex < overIndex) insertIndex += 1
+
+  const prevItem = items[insertIndex - 1] ?? null
+  const nextItem = items[insertIndex] ?? null
+
+  // 水平偏移换算意图深度：以被拖项原深度为基准 + 偏移格数。
+  const dragDepth = dragNode.depth + Math.round(offsetX / INDENT_PX)
+
+  // clamp 边界：上界看 prevItem（文件夹才允许 +1 进入它），下界看 nextItem。
+  const maxDepth = prevItem
+    ? prevItem.isFolder
+      ? prevItem.depth + 1
+      : prevItem.depth
+    : 0
+  const minDepth = nextItem ? nextItem.depth : 0
+  const projectedDepth = Math.max(minDepth, Math.min(dragDepth, maxDepth))
+
+  // 沿 prevItem 祖先链找 projectedDepth 对应的父节点 id。
+  const parentId = resolveParentId(items, prevItem, projectedDepth)
+
+  // 环路守卫：拖文件夹时，新父=自身或其后代 → 非法。
+  if (isDescendantOrSelf(flat, parentId, dragId)) return null
+
+  return toReorderTarget({ items, insertIndex, parentId, projectedDepth })
+}
+
+/**
+ * 沿 prevItem 的祖先链上溯，找 `depth` 这一层对应的父节点 id。
+ * - prevItem 为 null（落在列表首行之前）→ root（null）。
+ * - projectedDepth > prevItem.depth → 成为 prevItem 的子（prevItem 必是文件夹，见 clamp）。
+ * - projectedDepth === prevItem.depth → 与 prevItem 同级，父 = prevItem.parentId。
+ * - projectedDepth < prevItem.depth → 沿 prevItem 父链上溯到该深度的祖先，取其 parentId。
+ */
+function resolveParentId(
+  items: FlatNode[],
+  prevItem: FlatNode | null,
+  projectedDepth: number,
+): string | null {
+  if (!prevItem) return null
+  if (projectedDepth > prevItem.depth) return prevItem.id
+  if (projectedDepth === prevItem.depth) return prevItem.parentId
+
+  const byId = new Map(items.map((f) => [f.id, f]))
+  let cur: FlatNode | null = prevItem
+  const guard = new Set<string>()
+  // 上溯到 depth === projectedDepth 的祖先，该祖先的 parentId 即新父。
+  while (cur && cur.depth > projectedDepth) {
+    if (guard.has(cur.id)) break
+    guard.add(cur.id)
+    cur = cur.parentId ? byId.get(cur.parentId) ?? null : null
   }
+  return cur ? cur.parentId : null
+}
 
-  // 落点的新父节点：inside → over 自身；before/after → over 的 parent。
-  const newParentId = position === 'inside' ? over.id : over.parentId
-
-  // 环路守卫：newParentId 等于 dragId，或沿 parentId 链上溯遇到 dragId → 非法。
-  if (isDescendantOrSelf(flat, newParentId, dragId)) return null
-
-  return { dropId: over.id, position }
+/**
+ * 把「在 items[insertIndex] 处、父为 parentId、深度 projectedDepth」的落点
+ * 映射回 reorder API 的 `{dropId, position}`：
+ * - 落点上方相邻同父兄弟存在 → after 该兄弟；
+ * - 否则落点下方相邻同父兄弟存在 → before 该兄弟；
+ * - 否则成为 parentId 文件夹的首/唯一子 → inside parentId（含空文件夹）；
+ * - parentId 为 root 且找不到任何同父兄弟（理论不达）→ null。
+ */
+function toReorderTarget({
+  items,
+  insertIndex,
+  parentId,
+  projectedDepth,
+}: {
+  items: FlatNode[]
+  insertIndex: number
+  parentId: string | null
+  projectedDepth: number
+}): DropProjection {
+  // 上方最近的同父兄弟（在落点之前）。
+  for (let i = insertIndex - 1; i >= 0; i--) {
+    const node = items[i]!
+    if (node.parentId === parentId) {
+      return { depth: projectedDepth, parentId, dropId: node.id, position: 'after' }
+    }
+    // 越过更浅层（回到更外层）后不可能再有本层兄弟。
+    if (node.depth < projectedDepth) break
+  }
+  // 下方最近的同父兄弟（在落点及之后）。
+  for (let i = insertIndex; i < items.length; i++) {
+    const node = items[i]!
+    if (node.parentId === parentId) {
+      return { depth: projectedDepth, parentId, dropId: node.id, position: 'before' }
+    }
+    if (node.depth < projectedDepth) break
+  }
+  // 无同父兄弟 → 成为 parentId 文件夹的首子（inside）。
+  if (parentId != null) {
+    return { depth: projectedDepth, parentId, dropId: parentId, position: 'inside' }
+  }
+  return null
 }
 
 /**

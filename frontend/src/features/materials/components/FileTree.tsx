@@ -36,9 +36,11 @@ import { FileTreeItem } from './FileTreeItem'
  *
  * 设计（角色清单 + plan-materials-integration.md「前端」）：
  * - 递归树 → `flattenTree`（折叠子树整段排除）→ `SortableContext`(verticalListSortingStrategy)。
- * - 拖拽：`onDragMove` 用「拖拽元素译后矩形中心 Y vs over 矩形」算 overRatio，喂
- *   `projectDrop`（含祖先环路守卫）得 {dropId, position}；落点经 FileTreeItem 画
- *   before/after 0.5px 横线 / inside 整行 ring。`onDragEnd` 翻成 reorder API。
+ * - 拖拽（sortable-tree 投影）：`onDragMove`/`onDragOver` 把 over.id + 水平位移
+ *   `event.delta.x` 喂 `projectDrop`，得 {depth, parentId, dropId, position}。一套投影
+ *   统一处理 进/出/重排（向右拖=进入上方文件夹、向左拖=退出更外层、纯上下=同级重排）。
+ *   投影经 FileTreeItem 画 Notion 蓝（#a5c9f2）水平指示线（缩进按 projectedDepth），
+ *   成为某文件夹首子时给该文件夹整行淡蓝高亮。`onDragEnd` 翻成 reorder API。
  * - sensors：PointerSensor（拖前阈值避免误触）+ KeyboardSensor（sortableKeyboardCoordinates）；
  *   `announcements` aria-live 播报拖拽进度（a11y）。
  * - `role=tree` 容器；空态 / 空夹虚线上传（仅 owner）。
@@ -111,30 +113,22 @@ export function FileTree({
 
   const onDragMove = React.useCallback(
     (e: DragMoveEvent) => {
-      const { active, over } = e
+      const { active, over, delta } = e
       if (!over) {
         setProjection(null)
         return
       }
-      const overNode = flatById.get(String(over.id))
-      if (!overNode) {
-        setProjection(null)
-        return
-      }
-      // 拖拽元素译后矩形中心 Y（回退到 over 中心：纯键盘场景）。
-      const activeRect = active.rect.current.translated
-      const centerY = activeRect
-        ? activeRect.top + activeRect.height / 2
-        : over.rect.top + over.rect.height / 2
-      const overRatio =
-        over.rect.height > 0
-          ? Math.min(1, Math.max(0, (centerY - over.rect.top) / over.rect.height))
-          : 0.5
+      // sortable-tree 投影：纵向落点(over.id) 定插入行，水平位移(delta.x) 定意图深度。
       setProjection(
-        projectDrop({ dragId: String(active.id), over: overNode, overRatio, flat }),
+        projectDrop({
+          dragId: String(active.id),
+          overId: String(over.id),
+          offsetX: delta.x,
+          flat,
+        }),
       )
     },
-    [flat, flatById],
+    [flat],
   )
 
   const finish = React.useCallback(() => {
@@ -227,7 +221,21 @@ export function FileTree({
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <div role="tree" aria-label="文件树" className="py-1.5 pr-1.5">
             {flat.map((node) => {
-              const isOver = projection?.dropId === node.id && activeDragId !== node.id
+              // 该行是否承载落点指示线（before/after）。inside 落点的指示线由父
+              // 文件夹行承载（line=该夹首子位置），同时父行整行高亮。
+              const lineEdge =
+                projection && projection.dropId === node.id && node.id !== activeDragId
+                  ? projection.position === 'before'
+                    ? 'top'
+                    : projection.position === 'after'
+                      ? 'bottom'
+                      : 'inside'
+                  : null
+              // 该行是否为投影的新父文件夹（成为其首/唯一子时整行淡蓝高亮）。
+              const isDropParent =
+                projection != null &&
+                projection.parentId === node.id &&
+                node.id !== activeDragId
               return (
                 <FileTreeItem
                   key={node.id}
@@ -236,7 +244,9 @@ export function FileTree({
                   expanded={!collapsed.has(node.id)}
                   canWrite={canWrite}
                   isDragging={node.id === activeDragId}
-                  dropIndicator={isOver ? (projection?.position ?? null) : null}
+                  dropLineEdge={lineEdge}
+                  dropLineDepth={projection?.depth ?? node.depth}
+                  isDropParent={isDropParent}
                   onToggle={toggle}
                   onPreview={onPreview}
                   onDownload={onDownload}

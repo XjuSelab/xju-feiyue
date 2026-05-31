@@ -105,7 +105,7 @@ export default function ImageViewer({ url, name, fileId }: Props) {
       {/* 滚动区 */}
       <div
         ref={scrollRef}
-        className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-bg-subtle p-4"
+        className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-transparent p-4"
       >
         <img
           ref={imgRef}

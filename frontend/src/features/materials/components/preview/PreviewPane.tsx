@@ -92,7 +92,8 @@ function Viewer({ file, kind }: { file: PreviewTarget; kind: PreviewKind }) {
 
 function CenteredSpinner() {
   return (
-    <div className="flex h-full items-center justify-center bg-bg-subtle">
+    // 内容区背景继承上级（资料 PreviewPane=bg-bg），不再用灰底 bg-bg-subtle。
+    <div className="flex h-full items-center justify-center bg-transparent">
       <Loader2 className="h-8 w-8 animate-spin text-text-muted" />
     </div>
   )
@@ -123,7 +124,8 @@ function UnsupportedCard({
 }) {
   const ext = extOf(file.name) || extOf(file.url)
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 bg-bg-subtle p-8 text-center">
+    // 内容区背景继承上级（资料 PreviewPane=bg-bg），不再用灰底 bg-bg-subtle。
+    <div className="flex h-full flex-col items-center justify-center gap-4 bg-transparent p-8 text-center">
       {failed ? (
         <FileQuestion aria-hidden size={56} strokeWidth={1.25} className="text-text-faint" />
       ) : (

@@ -3,7 +3,6 @@ import {
   GlobalWorkerOptions,
   getDocument,
   type PDFDocumentProxy,
-  type PDFPageProxy,
   type RenderTask,
 } from 'pdfjs-dist'
 // Vite `?url`：把 worker 打成独立资源、返回最终 URL（不进首屏 chunk）。
@@ -15,12 +14,15 @@ import { Button } from '@/components/ui/button'
 import { usePreviewZoom } from './usePreviewZoom'
 
 /**
- * PdfViewer —— pdfjs-dist 多页连续渲染。资料页与写作栏附件预览共用。
+ * PdfViewer —— pdfjs-dist 多页逐页懒加载渲染。资料页与写作栏附件预览共用。
  *
  * 关键实现（plan-materials-integration.md「预览」+ 角色清单）：
  * - worker 用 Vite `?url` import 设 `GlobalWorkerOptions.workerSrc`（本地资源、零外网 CDN）。
  * - cmaps 暂未配置（见下方常量处注释）：仅未内嵌 CJK 字体的 PDF 才需要，先去掉以免打挂渲染。
  * - HiDPI：每页 canvas 按 `outputScale = devicePixelRatio` 放大像素、CSS 尺寸不变，retina 清晰。
+ * - 懒加载：doc 打开后只读每页 base 尺寸建「占位容器」（按 fit*zoom 预算好宽高、避免布局跳动），
+ *   用 IntersectionObserver 监听滚动区，占位进入视口（含 300px rootMargin 预加载）才真正 render
+ *   canvas；离开视口保留已渲染（大文件首屏只渲可见页，不必等全部渲完即可显示）。
  * - 竞态取消：`renderToken` useRef 标记当次渲染批次，缩放/换文件时旧批次 render 任务全部 cancel。
  * - 缓存三级：module 级 ArrayBuffer 缓存（同 url 二次打开零网络）+ per-file zoom（usePreviewZoom）。
  * - 500ms 延迟 spinner：快文件不闪 Loader2。
@@ -56,11 +58,16 @@ async function loadBuffer(url: string, signal: AbortSignal): Promise<ArrayBuffer
   return buf
 }
 
+/** 每页 base（scale=1）尺寸，doc 打开后一次性读取，用于预算占位尺寸。 */
+type PageSize = { width: number; height: number }
+
 export default function PdfViewer({ url, name, fileId }: Props) {
   const { zoom, zoomIn, zoomOut, reset } = usePreviewZoom('pdf', fileId ?? url, 1)
   const [pageCount, setPageCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showSpinner, setShowSpinner] = useState(false)
+  // 每页 base 尺寸（scale=1），与 docRef 同批次产出；用于占位预算。
+  const [pageSizes, setPageSizes] = useState<PageSize[]>([])
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const canvasHostRef = useRef<HTMLDivElement>(null)
@@ -91,13 +98,14 @@ export default function PdfViewer({ url, name, fileId }: Props) {
     return () => ro.disconnect()
   }, [])
 
-  // 打开/换文件：拉 ArrayBuffer → getDocument。
+  // 打开/换文件：拉 ArrayBuffer → getDocument → 读每页 base 尺寸建占位。
   useEffect(() => {
     const token = ++renderToken.current
     const abort = new AbortController()
     let cancelledDoc: PDFDocumentProxy | null = null
     setLoading(true)
     setPageCount(0)
+    setPageSizes([])
 
     ;(async () => {
       const buf = await loadBuffer(url, abort.signal)
@@ -112,7 +120,21 @@ export default function PdfViewer({ url, name, fileId }: Props) {
       }
       docRef.current = doc
       cancelledDoc = doc
+
+      // 仅读每页 base（scale=1）尺寸（不渲染，开销小）→ 占位可立刻按尺寸排版。
+      const sizes: PageSize[] = []
+      for (let i = 1; i <= doc.numPages; i += 1) {
+        if (token !== renderToken.current) return
+        const page = await doc.getPage(i)
+        if (token !== renderToken.current) return
+        const base = page.getViewport({ scale: 1 })
+        sizes.push({ width: base.width, height: base.height })
+      }
+      if (token !== renderToken.current) return
+      setPageSizes(sizes)
       setPageCount(doc.numPages)
+      // 占位已可显示，收起 loading（可见页随后由 IO 渲染）。
+      setLoading(false)
     })().catch((err) => {
       if (abort.signal.aborted) return
       if (token !== renderToken.current) return
@@ -128,38 +150,69 @@ export default function PdfViewer({ url, name, fileId }: Props) {
     }
   }, [url])
 
-  // pageCount / zoom / fitWidth 变化时（重）渲染全部页面到 canvas。
+  // pageSizes / zoom / fitWidth 变化时：重建占位 + 装 IntersectionObserver 懒渲染。
+  // 缩放/适宽变化会重新进入本 effect → 重算所有占位尺寸 + 对可见页重渲。
   useEffect(() => {
     const doc = docRef.current
     const host = canvasHostRef.current
-    if (!doc || !host || pageCount === 0) return
+    const scroller = scrollRef.current
+    if (!doc || !host || !scroller || pageSizes.length === 0) return
 
     const token = ++renderToken.current
     const tasks: RenderTask[] = []
     let disposed = false
-    setLoading(true)
-    host.replaceChildren()
 
     const outputScale = window.devicePixelRatio || 1
+    // 标记每页是否已（开始）渲染，避免 IO 反复触发重渲已渲页。
+    const rendered = new Array<boolean>(pageSizes.length).fill(false)
+    const placeholders: HTMLDivElement[] = []
 
-    const renderPage = async (page: PDFPageProxy, index: number) => {
-      // 基准 viewport（scale=1）→ 适宽系数 × 用户 zoom。
+    host.replaceChildren()
+
+    // 按 base 尺寸 × fit*zoom 预算每页占位的 CSS 宽高（与真实 canvas 一致），避免布局跳动。
+    for (let i = 0; i < pageSizes.length; i += 1) {
+      const size = pageSizes[i]
+      if (!size) continue
+      const fitScale = fitWidth > 0 ? fitWidth / size.width : 1
+      const scale = fitScale * zoom
+      const cssW = Math.floor(size.width * scale)
+      const cssH = Math.floor(size.height * scale)
+
+      const placeholder = document.createElement('div')
+      placeholder.className = 'mx-auto mb-4 shadow-card rounded-sm bg-white'
+      placeholder.style.width = `${cssW}px`
+      placeholder.style.height = `${cssH}px`
+      placeholder.dataset.pageIndex = String(i)
+      placeholder.setAttribute('aria-label', `${name} 第 ${i + 1} 页`)
+      host.appendChild(placeholder)
+      placeholders.push(placeholder)
+    }
+
+    const renderPage = async (index: number) => {
+      if (disposed || token !== renderToken.current) return
+      if (rendered[index]) return
+      rendered[index] = true
+
+      const placeholder = placeholders[index]
+      if (!placeholder) return
+      const page = await doc.getPage(index + 1)
+      if (disposed || token !== renderToken.current) return
+
       const base = page.getViewport({ scale: 1 })
       const fitScale = fitWidth > 0 ? fitWidth / base.width : 1
       const viewport = page.getViewport({ scale: fitScale * zoom })
 
       const canvas = document.createElement('canvas')
-      canvas.className = 'block mx-auto mb-4 shadow-card rounded-sm bg-white'
+      canvas.className = 'block'
       canvas.width = Math.floor(viewport.width * outputScale)
       canvas.height = Math.floor(viewport.height * outputScale)
       canvas.style.width = `${Math.floor(viewport.width)}px`
       canvas.style.height = `${Math.floor(viewport.height)}px`
-      canvas.setAttribute('aria-label', `${name} 第 ${index + 1} 页`)
 
       const ctx = canvas.getContext('2d')
       if (!ctx) return
       if (disposed || token !== renderToken.current) return
-      host.appendChild(canvas)
+      placeholder.replaceChildren(canvas)
 
       const task = page.render({
         canvas,
@@ -178,24 +231,29 @@ export default function PdfViewer({ url, name, fileId }: Props) {
       })
     }
 
-    ;(async () => {
-      for (let i = 1; i <= doc.numPages; i += 1) {
-        if (disposed || token !== renderToken.current) return
-        const page = await doc.getPage(i)
-        if (disposed || token !== renderToken.current) return
-        await renderPage(page, i - 1)
-      }
-      if (!disposed && token === renderToken.current) setLoading(false)
-    })().catch((err) => {
-      if (disposed || token !== renderToken.current) return
-      throw err
-    })
+    // 占位进入视口（含 300px 预加载边距）才渲染该页；离开视口保留已渲染 canvas。
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          const idx = Number((entry.target as HTMLElement).dataset.pageIndex)
+          if (Number.isNaN(idx)) continue
+          void renderPage(idx).catch((err) => {
+            if (disposed || token !== renderToken.current) return
+            throw err
+          })
+        }
+      },
+      { root: scroller, rootMargin: '300px 0px' },
+    )
+    for (const ph of placeholders) io.observe(ph)
 
     return () => {
       disposed = true
+      io.disconnect()
       for (const t of tasks) t.cancel()
     }
-  }, [pageCount, zoom, fitWidth, name])
+  }, [pageSizes, zoom, fitWidth, name])
 
   // 卸载销毁文档。
   useEffect(
@@ -251,7 +309,7 @@ export default function PdfViewer({ url, name, fileId }: Props) {
       </div>
 
       {/* 滚动区 + canvas host */}
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto bg-bg-subtle p-4">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto bg-transparent p-4">
         <div ref={canvasHostRef} className="mx-auto" />
       </div>
 

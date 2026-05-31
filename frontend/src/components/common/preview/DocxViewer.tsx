@@ -119,7 +119,7 @@ export default function DocxViewer({ url, name, fileId }: Props) {
       </div>
 
       {/* 滚动区 */}
-      <div className="min-h-0 flex-1 overflow-auto bg-bg-subtle p-4">
+      <div className="min-h-0 flex-1 overflow-auto bg-transparent p-4">
         <div
           ref={containerRef}
           aria-label={`${name} 文档预览`}

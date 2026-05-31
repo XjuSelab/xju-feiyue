@@ -148,7 +148,7 @@ function UnsupportedCard({
 }) {
   const ext = extOf(name) || extOf(url)
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 bg-bg-subtle p-8 text-center">
+    <div className="flex h-full flex-col items-center justify-center gap-4 bg-transparent p-8 text-center">
       <FileTypeIcon ext={ext} className="size-16" />
       <div className="space-y-1">
         <p className="text-sm font-medium text-text">{name}</p>
