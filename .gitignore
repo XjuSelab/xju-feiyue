@@ -9,6 +9,10 @@ frontend/playwright/screenshots/
 # Local screenshots from manual UI iteration (per-session, regenerable).
 *.png
 
+# Personal transcript PDFs used to test 学分统计 — contain real name/student-id,
+# must never be committed. Drop test PDFs at repo root (e.g. 查看成绩.pdf).
+/*.pdf
+
 # Python bytecode cache.
 __pycache__/
 

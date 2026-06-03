@@ -30,6 +30,9 @@ const NoteDetailPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 )
+const CreditsPage = lazy(() =>
+  import('@/pages/CreditsPage').then((m) => ({ default: m.CreditsPage })),
+)
 
 const DesignSystemPage = import.meta.env.DEV
   ? lazy(() =>
@@ -164,6 +167,16 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
           <PageBoundary>
             <RequireAccess requireAuth>
               <ConferencesPage />
+            </RequireAccess>
+          </PageBoundary>
+        ),
+      },
+      {
+        path: '/credits',
+        element: (
+          <PageBoundary>
+            <RequireAccess requireAuth>
+              <CreditsPage />
             </RequireAccess>
           </PageBoundary>
         ),

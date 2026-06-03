@@ -52,6 +52,7 @@ export function Header() {
         <NavItem to="/materials" label="资料" />
         <NavItem to="/schools" label="高校信息" />
         <NavItem to="/conferences" label="CCF 会议" />
+        <NavItem to="/credits" label="学分统计" />
       </nav>
 
       <form role="search" onSubmit={onSearch} className="ml-auto flex w-60 max-w-full items-center">
