@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         飞跃 · 成绩单一键导入
 // @namespace    https://feiyue.selab.top/
-// @version      1.5.0
+// @version      1.5.1
 // @description  在新疆大学教务系统成绩页加「导入飞跃」悬浮按钮，一键导出成绩单并回传飞跃学分统计，自动出结果。
 // @author       feiyue
 // @match        https://jwxt-443.webvpn.xju.edu.cn:8040/*
@@ -19,7 +19,8 @@
  * 再 no-cors multipart POST 把 PDF 回传到飞跃后端中转端点；随后切回飞跃 /credits 自动解析。
  * 全程用你自己已登录的教务会话，不碰密码。
  *
- * v1.5：悬浮按钮再放大一倍、改 Notion 小圆角方矩形(radius 10px、字号/内距加大)。
+ * v1.5.1：悬浮按钮圆角再收小(6px)。
+ * v1.5：悬浮按钮再放大一倍、改 Notion 小圆角方矩形(字号/内距加大)。
  * v1.4：增 @match feiyue/winbeau，在飞跃站点只自报安装(不注入按钮)，供导入向导检测。
  * v1.3：悬浮按钮改用飞跃站点的 Notion 风格(白底/细边/深色字/飞跃绿 accent)并加大；
  *       状态 default→loading(转圈)→success(绿勾)→error(红叉)，CSS spinner，无外部资源。
@@ -91,7 +92,7 @@
   btn.style.cssText = [
     'position:fixed', 'right:24px', 'bottom:24px', 'z-index:2147483647',
     'display:inline-flex', 'align-items:center', 'gap:14px',
-    'padding:18px 34px', 'border-radius:10px',
+    'padding:18px 34px', 'border-radius:6px',
     'font:' + FONT, 'cursor:pointer',
     'box-shadow:0 8px 28px rgba(15,15,15,.16),0 2px 6px rgba(15,15,15,.10)',
     'transition:background .15s ease,border-color .15s ease,color .15s ease,transform .1s ease',

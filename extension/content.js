@@ -60,7 +60,7 @@
   btn.style.cssText = [
     'position:fixed', 'right:24px', 'bottom:24px', 'z-index:2147483647',
     'display:inline-flex', 'align-items:center', 'gap:14px',
-    'padding:18px 34px', 'border-radius:10px',
+    'padding:18px 34px', 'border-radius:6px',
     'font:' + FONT, 'cursor:pointer',
     'box-shadow:0 8px 28px rgba(15,15,15,.16),0 2px 6px rgba(15,15,15,.10)',
     'transition:background .15s ease,border-color .15s ease,color .15s ease,transform .1s ease',

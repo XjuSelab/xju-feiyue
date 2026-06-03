@@ -21,16 +21,16 @@ import {
 } from '../lib/userscriptManager'
 
 const STATE_STEP: Record<InstallState, number> = { none: 0, manager: 1, ready: 2 }
-const POLL_MS = 1500
+const POLL_MS = 2500
 
 /**
- * 「从教务系统导入」引导向导。打开后**轮询检测**安装进度，自动逐级前进：
- *   ① 没有脚本猫 → 打开脚本猫官网安装
- *   ② 有脚本猫、没导入脚本 → 打开安装「导入飞跃」脚本
- *   ③ 都就绪 → 打开教务系统(webvpn) + 引导登录、点右下角【导入飞跃】按钮
- * 浏览器禁止无手势自动开标签，所以每步给一个按钮（用户点一下打开），检测到装好就自动跳下一步；
- * 篡改猴等无法固定 URL 探测的管理器，给「手动下一步」兜底。
- * 用户回到本页后由 CreditsPage 的可见性轮询自动取回并解析（带动画），向导随之关闭。
+ * 「从教务系统导入」引导向导。检测安装进度并自动逐级前进，但**检测只是加速、绝不阻塞**：
+ *   ① 安装用户脚本管理器(推荐脚本猫,也支持篡改猴/暴力猴)
+ *   ② 安装「导入飞跃」脚本
+ *   ③ 去 WebVPN 导出 + 引导点右下角按钮
+ * 自动前进的可靠信号:脚本猫/暴力猴(fetch 探测静态资源,含 Chrome+Edge 两个商店 ID)、
+ * 我们的脚本自报(window.__feiyueImporterReady)。**篡改猴无法从网页探测** → 每步都给
+ * 「手动下一步」,且文案说明,绝不会卡住。详见 lib/userscriptManager.ts。
  */
 export function ImportWizard({
   open,
@@ -39,13 +39,12 @@ export function ImportWizard({
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
-  /** 用户点「打开教务系统」时调用：开始等待回传（同时仍由可见性轮询兜底）。 */
+  /** 用户点「打开 WebVPN」时调用：开始等待回传（同时仍由可见性轮询兜底）。 */
   onGoExport: () => void
 }) {
-  // null = 检测中；只前进不后退（装好后别因抖动回退）。
+  // null = 首检中；只前进不后退（装好后别因抖动回退）。
   const [state, setState] = useState<InstallState | null>(null)
 
-  // 只前进的状态推进。
   const advance = (to: InstallState) =>
     setState((prev) => (prev && STATE_STEP[to] < STATE_STEP[prev] ? prev : to))
 
@@ -55,29 +54,37 @@ export function ImportWizard({
       return
     }
     let alive = true
-    // 完整探测含 chrome-extension fetch（探不到会在 console 留 net::ERR_FAILED），
-    // 故只在「打开」和「切回本标签页」时跑——用户去装脚本/扩展多在别的标签，切回即重测。
+    // 完整探测含 chrome-extension fetch(探不到会在 console 留 net::ERR,正常)。
     const full = () => {
       void detectInstallState().then((s) => {
         if (alive) advance(s)
       })
     }
-    // 轻量探测只读「自报」(无 fetch、无噪声)，定时跑以便脚本装好即自动进入第三步。
+    // 轻量:只读自报(无 fetch、无噪声)。
     const cheap = () => {
       if (alive && isImporterInstalled()) advance('ready')
     }
     const onVisible = () => {
       if (document.visibilityState === 'visible') full()
     }
+    // 脚本(刚加载)主动自报 → 立即到就绪。
+    const onReady = () => {
+      if (alive) advance('ready')
+    }
     full()
-    const timer = window.setInterval(cheap, POLL_MS)
     document.addEventListener('visibilitychange', onVisible)
     window.addEventListener('focus', onVisible)
+    window.addEventListener('feiyue:importer-ready', onReady)
+    // 定时只读自报(无 fetch、无 console 噪声);管理器的 fetch 探测只在
+    // 打开 / 切回标签页(onVisible) / 脚本自报(onReady)时跑 —— 装脚本猫多在新标签,
+    // 回到本页即 focus 触发探测。装不上自动识别的(篡改猴)有「手动下一步」兜底。
+    const timer = window.setInterval(cheap, POLL_MS)
     return () => {
       alive = false
       window.clearInterval(timer)
       document.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener('focus', onVisible)
+      window.removeEventListener('feiyue:importer-ready', onReady)
     }
   }, [open])
 
@@ -90,7 +97,7 @@ export function ImportWizard({
         <DialogHeader>
           <DialogTitle>从教务系统自动导入成绩单</DialogTitle>
           <DialogDescription>
-            用你已登录的教务会话在网页里导出成绩单并回传，全程不碰密码。按下面的引导走，装好一步自动跳下一步。
+            用你已登录的教务会话在网页里导出成绩单并回传，全程不碰密码。按下面的引导走，装好一步自动跳下一步（也可手动点「下一步」）。
           </DialogDescription>
         </DialogHeader>
 
@@ -98,17 +105,15 @@ export function ImportWizard({
           <Step
             index={0}
             cur={cur}
-            title="安装脚本猫"
+            title="安装用户脚本管理器"
             detecting={state === null}
           >
             <p className="text-text-muted">
-              飞跃用「脚本猫」（也兼容篡改猴 / 暴力猴）在教务系统页注入导出按钮。
+              需要一个用户脚本管理器在教务系统页注入导出按钮。推荐
+              <strong className="text-text">脚本猫</strong>（也支持篡改猴 / 暴力猴）。
             </p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <Button
-                size="sm"
-                onClick={() => openTab(SCRIPTCAT_HOME_URL)}
-              >
+              <Button size="sm" onClick={() => openTab(SCRIPTCAT_HOME_URL)}>
                 <ExternalLink aria-hidden /> 打开脚本猫官网
               </Button>
               <button
@@ -116,15 +121,17 @@ export function ImportWizard({
                 onClick={() => advance('manager')}
                 className="text-xs text-text-faint hover:text-text-muted hover:underline"
               >
-                已装好脚本猫？手动下一步
+                我已装好管理器，下一步
               </button>
             </div>
-            <p className="text-text-faint">装好后这里会自动进入下一步。</p>
+            <p className="text-text-faint">
+              装脚本猫 / 暴力猴会自动识别并跳下一步；用篡改猴请点「下一步」。
+            </p>
           </Step>
 
           <Step index={1} cur={cur} title="安装「导入飞跃」脚本">
             <p className="text-text-muted">
-              点下面按钮，脚本管理器会弹出安装确认，点【安装】即可（以后自动更新）。
+              点下面按钮，管理器会弹出安装确认，点【安装】即可（以后自动更新）。
             </p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <Button
@@ -133,17 +140,17 @@ export function ImportWizard({
                   openTab(new URL(IMPORT_USERJS_URL, location.origin).href)
                 }
               >
-                <Download aria-hidden /> 打开安装脚本
+                <Download aria-hidden /> 安装脚本
               </Button>
               <button
                 type="button"
                 onClick={() => advance('ready')}
                 className="text-xs text-text-faint hover:text-text-muted hover:underline"
               >
-                已安装？手动下一步
+                已安装，下一步
               </button>
             </div>
-            <p className="text-text-faint">安装成功后自动进入下一步。</p>
+            <p className="text-text-faint">安装完成后点「下一步」去导出。</p>
           </Step>
 
           <Step index={2} cur={cur} title="去 WebVPN 导出成绩单">
@@ -152,7 +159,7 @@ export function ImportWizard({
               <li>进入「本科生教学管理」页面；</li>
               <li>
                 点页面<strong className="text-text">右下角</strong>的绿色按钮
-                <span className="mx-1 inline-flex items-center gap-1 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-2 py-0.5 align-middle text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                <span className="mx-1 inline-flex items-center gap-1 rounded-md border border-emerald-600/40 bg-emerald-500/10 px-2 py-0.5 align-middle text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
                   <Download className="size-3" aria-hidden />
                   导入飞跃 · 成绩单
                 </span>
@@ -180,7 +187,7 @@ export function ImportWizard({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
             </span>
-            正在实时检测「脚本猫 / 飞跃脚本」安装状态，装好自动跳下一步…
+            正在自动检测脚本猫 / 暴力猴…装好会自动跳转；用篡改猴的话装好直接点「下一步」。
           </div>
         )}
       </DialogContent>

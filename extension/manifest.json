@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "飞跃 · 成绩单一键导入",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "在新疆大学教务系统成绩页注入「导入飞跃」悬浮按钮，一键导出成绩单并回传到飞跃学分统计。",
   "content_scripts": [
     {
