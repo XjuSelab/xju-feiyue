@@ -10,6 +10,12 @@
 /** webvpn 门户(登录入口；深层 jwxt 链接冷启动会被弹到打不开的 authserver 子域)。 */
 export const JWXT_LOGIN_URL = 'https://webvpn.xju.edu.cn:8040/'
 
+/** 脚本猫官网(下载/安装用户脚本管理器)。 */
+export const SCRIPTCAT_HOME_URL = 'https://scriptcat.org/'
+
+/** 「飞跃导入」用户脚本的安装地址(由飞跃站点静态托管；脚本管理器在场时点开即弹安装)。 */
+export const IMPORT_USERJS_URL = '/import.user.js'
+
 /** 书签把 PDF POST 到的飞跃中转端点(挂在已被 nginx 代理的 /notes 下)。 */
 const STASH_URL = 'https://feiyue.selab.top/notes/transcript-stash'
 

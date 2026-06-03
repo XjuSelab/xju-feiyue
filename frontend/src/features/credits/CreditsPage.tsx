@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { FileText, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -11,45 +11,79 @@ import { parseTranscript } from './lib/parseTranscript'
 import { loadTextItems } from './lib/pdf'
 import { buildReport } from './lib/rules'
 import { fetchStashedTranscript } from './lib/stash'
-import type { CreditReport } from './types'
+import type { CreditReport, ImportPhase } from './types'
+
+const POLL_MS = 2500
+const TIMEOUT_MS = 180_000
 
 /** 学分统计页：上传成绩单 → 解析 → 各模块统计与达标检查。 */
 export function CreditsPage() {
   const [report, setReport] = useState<CreditReport | null>(null)
   const [fileName, setFileName] = useState('')
-  const [loading, setLoading] = useState(false)
+  // parsing：手动上传的解析中（UploadCard 转圈）；phase：自动导入按钮的全程动画状态。
+  const [parsing, setParsing] = useState(false)
+  const [phase, setPhase] = useState<ImportPhase>('idle')
 
-  const handleFile = useCallback(async (file: File) => {
-    setLoading(true)
+  const busyRef = useRef(false) // 取件/解析进行中，防并发双取（取后即删）。
+  const waitingRef = useRef(false) // 主动轮询中（点按钮后）。
+  const deadlineRef = useRef(0)
+
+  // 解析一份 PDF。fromAuto=true 走自动导入动画(received→解析完→idle/error)，
+  // =false 走手动上传(parsing 布尔，错误不影响导入按钮)。
+  const parse = useCallback(async (file: File, fromAuto: boolean) => {
+    if (fromAuto) setPhase('received')
+    else setParsing(true)
     try {
       const pages = await loadTextItems(file)
       const records = parseTranscript(pages)
       if (records.length === 0) {
         toast.error('未找到「通识选修·X模块」记录，请确认上传的是成绩明细 PDF')
+        if (fromAuto) setPhase('error')
         return
       }
       setReport(buildReport(records))
       setFileName(file.name)
       toast.success(`已解析 ${records.length} 门通识选修课程`)
+      if (fromAuto) setPhase('idle')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'PDF 解析失败')
+      if (fromAuto) setPhase('error')
     } finally {
-      setLoading(false)
+      if (!fromAuto) setParsing(false)
     }
   }, [])
 
-  // 进页面 / 切回本标签页(可见或聚焦)时，自动取回后端暂存件（脚本/书签刚回传的成绩单）。
-  // 取后即删，所以重复触发是安全的（无暂存件就 204 空跑）。这样在教务页点完按钮、切回
-  // 本标签页即自动刷出报告，无需脚本另开新标签抢焦点。
+  const onManualFile = useCallback(
+    (file: File) => {
+      void parse(file, false)
+    },
+    [parse],
+  )
+
+  // 取回一次后端暂存件（脚本/书签刚回传的成绩单）；取到→解析。busyRef 防并发双取。
+  const pickup = useCallback(async (): Promise<boolean> => {
+    if (busyRef.current) return false
+    busyRef.current = true
+    try {
+      const file = await fetchStashedTranscript()
+      if (!file) return false
+      waitingRef.current = false // 取到即停主动轮询
+      await parse(file, true)
+      return true
+    } catch {
+      return false
+    } finally {
+      busyRef.current = false
+    }
+  }, [parse])
+
+  // 被动取回：进页面 / 切回本标签页（可见或聚焦）时静默探一次；无暂存件就空跑。
+  // 这样在教务页点完按钮、切回本标签页即「已收到·解析中」动画→出报告，无需脚本另开新标签。
   useEffect(() => {
     let alive = true
     const check = () => {
-      if (document.visibilityState !== 'visible') return
-      fetchStashedTranscript()
-        .then((file) => {
-          if (file && alive) void handleFile(file)
-        })
-        .catch(() => {})
+      if (!alive || document.visibilityState !== 'visible') return
+      void pickup()
     }
     check()
     document.addEventListener('visibilitychange', check)
@@ -59,7 +93,33 @@ export function CreditsPage() {
       document.removeEventListener('visibilitychange', check)
       window.removeEventListener('focus', check)
     }
-  }, [handleFile])
+  }, [pickup])
+
+  // 主动轮询：点「从教务系统自动导入」后，留在本标签页也能等到回传；带超时。
+  const startImport = useCallback(() => {
+    waitingRef.current = true
+    deadlineRef.current = Date.now() + TIMEOUT_MS
+    setPhase('waiting')
+    const tick = async () => {
+      if (!waitingRef.current) return
+      if (Date.now() > deadlineRef.current) {
+        waitingRef.current = false
+        setPhase('error')
+        return
+      }
+      const got = await pickup() // 取到则 pickup 内已停轮询 + 走解析动画
+      if (!got && waitingRef.current) window.setTimeout(tick, POLL_MS)
+    }
+    window.setTimeout(tick, POLL_MS)
+  }, [pickup])
+
+  // 卸载停轮询。
+  useEffect(
+    () => () => {
+      waitingRef.current = false
+    },
+    [],
+  )
 
   return (
     <section
@@ -75,11 +135,15 @@ export function CreditsPage() {
             上传《学生成绩明细》PDF，自动统计通识选修各模块学分并检查是否符合学校要求。解析在本地浏览器完成，成绩数据不会上传。
           </p>
         </div>
-        <AutoImportButton onFile={handleFile} disabled={loading} />
+        <AutoImportButton
+          phase={phase}
+          onStart={startImport}
+          disabled={parsing}
+        />
       </header>
 
       {!report ? (
-        <UploadCard onFile={handleFile} loading={loading} />
+        <UploadCard onFile={onManualFile} loading={parsing} />
       ) : (
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between gap-3">

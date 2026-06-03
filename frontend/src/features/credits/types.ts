@@ -68,6 +68,15 @@ export type ModuleStat = {
   passed: boolean
 }
 
+/**
+ * 「从教务系统自动导入」的全程状态机：
+ * - idle：未在等待；进页面 / 切回标签页仍会静默探一次暂存件。
+ * - waiting：点了按钮，正在主动轮询后端暂存件（转圈）。
+ * - received：已取到回传 PDF，正在解析（转圈，绿色），直到解析返回才结束。
+ * - error：轮询超时 / 取回的 PDF 解析失败（红色，可重试）。
+ */
+export type ImportPhase = 'idle' | 'waiting' | 'received' | 'error'
+
 /** 整份成绩单的通识选修达标报告。 */
 export type CreditReport = {
   records: TranscriptRecord[]
