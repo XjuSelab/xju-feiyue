@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FileText, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { UploadCard } from './components/UploadCard'
 import { parseTranscript } from './lib/parseTranscript'
 import { loadTextItems } from './lib/pdf'
 import { buildReport } from './lib/rules'
+import { fetchStashedTranscript } from './lib/stash'
 import type { CreditReport } from './types'
 
 /** 学分统计页：上传成绩单 → 解析 → 各模块统计与达标检查。 */
@@ -36,6 +37,19 @@ export function CreditsPage() {
       setLoading(false)
     }
   }, [])
+
+  // 进入页面即一次性自动取回后端暂存件（扩展/书签刚回传的成绩单），有就直接解析。
+  useEffect(() => {
+    let alive = true
+    fetchStashedTranscript()
+      .then((file) => {
+        if (file && alive) void handleFile(file)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [handleFile])
 
   return (
     <section

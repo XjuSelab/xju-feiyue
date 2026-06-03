@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Download, ExternalLink, Loader2, RotateCcw } from 'lucide-react'
-import { getApiBase } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
 import { FEIYUE_BOOKMARKLET, JWXT_LOGIN_URL } from '../lib/bookmarklet'
+import { fetchStashedTranscript } from '../lib/stash'
 
 type Phase = 'idle' | 'waiting' | 'pulling' | 'error'
 
 const POLL_MS = 2500
 const TIMEOUT_MS = 180_000
-const STASH_PATH = '/notes/transcript-stash'
-const TOKEN_KEY = 'labnotes.auth.token'
 
 /**
  * 「从教务系统自动导入」（后端中转版）：点击 → 开 webvpn 登录页 + 轮询后端暂存件；
@@ -51,22 +49,17 @@ export function AutoImportButton({
       return
     }
     try {
-      const token = localStorage.getItem(TOKEN_KEY)
-      const res = await fetch(`${getApiBase()}${STASH_PATH}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        cache: 'no-store',
-      })
+      const file = await fetchStashedTranscript()
       if (stopRef.current) return
-      if (res.status === 200) {
-        const buf = await res.arrayBuffer()
+      if (file) {
         stopRef.current = true
         setPhase('pulling')
         setShowHelp(false)
-        onFile(new File([buf], '查看成绩.pdf', { type: 'application/pdf' }))
+        onFile(file)
         window.setTimeout(() => setPhase('idle'), 1500)
         return
       }
-      // 204（暂无）/ 其它瞬时错误 → 继续轮询
+      // 暂无 → 继续轮询
     } catch {
       // 网络抖动 → 继续轮询
     }
@@ -118,10 +111,48 @@ export function AutoImportButton({
 
       {(busy || phase === 'error' || showHelp) && (
         <div className="max-w-xs rounded-lg border border-border bg-bg-subtle p-3 text-left text-xs text-text-muted">
-          <p className="mb-1.5 font-medium text-text">使用步骤</p>
+          <p className="mb-1.5 font-medium text-text">一键导入（首次装一次，零设置）</p>
           <ol className="list-decimal space-y-1 pl-4">
             <li>
-              首次使用：把
+              安装{' '}
+              <a
+                href="https://www.tampermonkey.net/"
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-link hover:underline"
+              >
+                Tampermonkey
+              </a>
+              （浏览器商店一键添加）
+            </li>
+            <li>
+              点{' '}
+              <a
+                href="/import.user.js"
+                className="font-medium text-link hover:underline"
+              >
+                安装「导入飞跃」脚本
+              </a>
+              （会弹出安装，之后自动更新）
+            </li>
+            <li>
+              <a
+                href={JWXT_LOGIN_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-link hover:underline"
+              >
+                登录教务系统
+              </a>
+              ，任意页面右下角点「📥 导入飞跃」→ 本页自动出报告
+            </li>
+          </ol>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-text-faint">
+              不想装扩展？改用书签
+            </summary>
+            <p className="mt-1">
+              把
               <a
                 ref={linkRef}
                 href="#bookmarklet"
@@ -131,28 +162,16 @@ export function AutoImportButton({
                   void navigator.clipboard?.writeText(FEIYUE_BOOKMARKLET)
                 }}
                 className="mx-1 inline-flex items-center gap-1 rounded bg-bg px-1.5 py-0.5 font-medium text-link"
-                title="拖到浏览器书签栏（或点击复制代码）"
+                title="拖到书签栏，或点击复制代码"
               >
                 <ExternalLink className="size-3" aria-hidden />
                 导入飞跃
               </a>
-              拖到书签栏（只需一次）
-            </li>
-            <li>
-              <a
-                href={JWXT_LOGIN_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium text-link hover:underline"
-              >
-                打开教务系统
-              </a>
-              （或用你常用的方式）登录，进「查看成绩」页
-            </li>
-            <li>点书签「导入飞跃」→ 成绩单回传，本页几秒内自动变绿并解析</li>
-          </ol>
+              拖到书签栏，登录教务成绩页后点它即可（效果相同）。
+            </p>
+          </details>
           <p className="mt-2 text-text-faint">
-            全程不碰密码：书签只在你自己已登录的教务系统页面里导出，回传后本页轮询取回。
+            全程不碰密码：只在你自己已登录的教务页面里导出，回传后本页自动取回。
           </p>
         </div>
       )}

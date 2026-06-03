@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "飞跃 · 成绩单一键导入",
+  "version": "1.0.0",
+  "description": "在新疆大学教务系统成绩页注入「导入飞跃」悬浮按钮，一键导出成绩单并回传到飞跃学分统计。",
+  "content_scripts": [
+    {
+      "matches": ["https://jwxt-443.webvpn.xju.edu.cn:8040/*"],
+      "js": ["content.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    }
+  ]
+}
