@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         飞跃 · 成绩单一键导入
 // @namespace    https://feiyue.selab.top/
-// @version      1.1.0
+// @version      1.2.0
 // @description  在新疆大学教务系统成绩页加「📥 导入飞跃」悬浮按钮，一键导出成绩单并回传飞跃学分统计，自动出结果。
 // @author       feiyue
 // @match        https://jwxt-443.webvpn.xju.edu.cn:8040/*
@@ -98,9 +98,9 @@
         return fetch(STASH, { method: 'POST', mode: 'no-cors', body: fd })
       })
       .then(function () {
-        set('✅ 已回传，正在打开飞跃…', '#16a34a')
-        window.open(FEIYUE, '_blank')
-        reset(4000)
+        // 不再自动开新标签(会抢焦点)。切回飞跃「学分统计」标签页即自动刷出报告。
+        set('✅ 已回传，切到飞跃标签页查看', '#16a34a')
+        reset(6000)
       })
       .catch(function (e) {
         set('✗ ' + (e && e.message ? e.message : e), '#dc2626')

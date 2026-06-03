@@ -69,9 +69,9 @@
         return fetch(STASH, { method: 'POST', mode: 'no-cors', body: fd })
       })
       .then(function () {
-        set('✅ 已回传，正在打开飞跃…', '#16a34a')
-        window.open(FEIYUE, '_blank')
-        reset(4000)
+        // 不再自动开新标签(会抢焦点)。切回飞跃「学分统计」标签页即自动刷出报告。
+        set('✅ 已回传，切到飞跃标签页查看', '#16a34a')
+        reset(6000)
       })
       .catch(function (e) { set('✗ ' + (e && e.message ? e.message : e), '#dc2626'); reset(6000) })
   })

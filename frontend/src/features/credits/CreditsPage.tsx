@@ -38,16 +38,26 @@ export function CreditsPage() {
     }
   }, [])
 
-  // 进入页面即一次性自动取回后端暂存件（扩展/书签刚回传的成绩单），有就直接解析。
+  // 进页面 / 切回本标签页(可见或聚焦)时，自动取回后端暂存件（脚本/书签刚回传的成绩单）。
+  // 取后即删，所以重复触发是安全的（无暂存件就 204 空跑）。这样在教务页点完按钮、切回
+  // 本标签页即自动刷出报告，无需脚本另开新标签抢焦点。
   useEffect(() => {
     let alive = true
-    fetchStashedTranscript()
-      .then((file) => {
-        if (file && alive) void handleFile(file)
-      })
-      .catch(() => {})
+    const check = () => {
+      if (document.visibilityState !== 'visible') return
+      fetchStashedTranscript()
+        .then((file) => {
+          if (file && alive) void handleFile(file)
+        })
+        .catch(() => {})
+    }
+    check()
+    document.addEventListener('visibilitychange', check)
+    window.addEventListener('focus', check)
     return () => {
       alive = false
+      document.removeEventListener('visibilitychange', check)
+      window.removeEventListener('focus', check)
     }
   }, [handleFile])
 
