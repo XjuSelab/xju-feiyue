@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         飞跃 · 成绩单一键导入
 // @namespace    https://feiyue.selab.top/
-// @version      1.0.0
+// @version      1.1.0
 // @description  在新疆大学教务系统成绩页加「📥 导入飞跃」悬浮按钮，一键导出成绩单并回传飞跃学分统计，自动出结果。
 // @author       feiyue
 // @match        https://jwxt-443.webvpn.xju.edu.cn:8040/*
@@ -12,13 +12,18 @@
 // ==/UserScript==
 
 /*
- * 用户脚本（Tampermonkey）。@grant none → 运行在页面上下文，行为等同书签：
- * 同源 fetch 教务的 topdf/download，再用 no-cors multipart POST 把 PDF 回传到飞跃后端
- * 中转端点（按学号暂存），随后打开飞跃学分统计页（该页进页面即自动取回解析）。
- * 全程用你自己已登录的教务会话，不碰密码。装一次后自动更新。
+ * 用户脚本(Tampermonkey)。@grant none → 运行在页面上下文，行为等同书签：
+ * 同源 fetch 教务 topdf/download(浏览器自动带上你已登录的会话 cookie，含 HttpOnly 的)，
+ * 再 no-cors multipart POST 把 PDF 回传到飞跃后端中转端点，随后打开飞跃 /credits 自动解析。
+ * 全程用你自己已登录的教务会话，不碰密码。
+ *
+ * v1.1：① 只在顶层框架注入(教务是 frameset，否则每个子框架各冒一个按钮)；
+ *       ② 不再用 document.cookie 读学号(webvpn_username 常为 HttpOnly，JS 读不到 → 误判未登录)，
+ *          改为从 topdf 返回的 `<学号>_时间.pdf` 里取真实学号；kingo.guest 才是真未登录。
  */
 ;(function () {
   'use strict'
+  if (window.top !== window.self) return // 只在顶层框架
   if (window.__feiyueImporter) return
   window.__feiyueImporter = true
 
@@ -40,28 +45,23 @@
   ].join(';')
 
   var busy = false
-  function set(text, bg) {
-    btn.textContent = text
-    if (bg) btn.style.background = bg
-  }
-  function reset(ms) {
-    setTimeout(function () {
-      busy = false
-      set('📥 导入飞跃', '#16a34a')
-    }, ms)
+  function set(text, bg) { btn.textContent = text; if (bg) btn.style.background = bg }
+  function reset(ms) { setTimeout(function () { busy = false; set('📥 导入飞跃', '#16a34a') }, ms) }
+
+  // 入学年级(rxnj)尽力从页面里的学号取前4位，取不到用 2024；「入学以来」基本不依赖它。
+  function guessRxnj() {
+    try {
+      var m = (document.documentElement.innerText || '').match(/\b(20\d{9})\b/)
+      if (m) return m[1].slice(0, 4)
+    } catch (e) {}
+    return '2024'
   }
 
   btn.addEventListener('click', function () {
     if (busy) return
-    var mm = document.cookie.match(/(?:^|; )webvpn_username=(\d+)/)
-    var sid = mm ? mm[1] : ''
-    if (!sid) {
-      set('⚠ 未登录教务系统', '#dc2626')
-      reset(3000)
-      return
-    }
     busy = true
-    var ry = sid.slice(0, 4)
+    var ry = guessRxnj()
+    var sid = ''
     var body =
       'pageurl=student%252Fxscj.stuckcj_data.jsp%253Fsjxz%253Dsjxz1%2526ysyx%253Dyxcj%2526zx%253D1%2526fx%253D1%2526wz%253D0%2526rxnj%253D' +
       ry + '%2526nj%253D' + ry +
@@ -79,9 +79,12 @@
     })
       .then(function (r) { return r.json() })
       .then(function (j) {
-        var parts = (j.result || '').split(';;')
-        var path = parts[1] || parts[0]
-        if (!path) throw new Error(j.message || '生成失败')
+        var path = (j.result || '').split(';;')[1] || ''
+        var m = path.match(/output\/([^/_]+)_\d+\.pdf/)
+        sid = m ? m[1] : ''
+        if (!sid || /guest/i.test(sid)) {
+          throw new Error('未登录教务系统或会话已过期，请先在教务系统登录后再点')
+        }
         return fetch(
           PDF_API + '?method=download&title=' + TITLE + '.pdf&fileSavePath=' + path,
           { credentials: 'include' },
@@ -100,8 +103,8 @@
         reset(4000)
       })
       .catch(function (e) {
-        set('✗ 失败：' + (e && e.message ? e.message : e), '#dc2626')
-        reset(5000)
+        set('✗ ' + (e && e.message ? e.message : e), '#dc2626')
+        reset(6000)
       })
   })
 
