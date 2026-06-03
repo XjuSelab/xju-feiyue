@@ -26,6 +26,7 @@ from app.routes import (
     materials,
     notes,
     schools,
+    transcript,
     uploads,
 )
 from app.services.author_sync import repair
@@ -176,6 +177,7 @@ app.include_router(admin.router)
 app.include_router(schools.router)
 app.include_router(conferences.router)
 app.include_router(materials.router)
+app.include_router(transcript.router)
 
 
 @app.get("/health", tags=["meta"])
