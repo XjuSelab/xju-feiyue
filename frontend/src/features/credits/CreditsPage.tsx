@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FileText, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { AutoImportButton } from './components/AutoImportButton'
 import { CreditSummary } from './components/CreditSummary'
 import { ModuleCard } from './components/ModuleCard'
 import { RequirementChecklist } from './components/RequirementChecklist'
@@ -17,7 +18,7 @@ export function CreditsPage() {
   const [fileName, setFileName] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleFile = async (file: File) => {
+  const handleFile = useCallback(async (file: File) => {
     setLoading(true)
     try {
       const pages = await loadTextItems(file)
@@ -34,18 +35,23 @@ export function CreditsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   return (
     <section
       data-page="credits"
       className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10"
     >
-      <header className="space-y-1">
-        <h1 className="font-serif text-2xl font-semibold text-text">学分统计</h1>
-        <p className="text-sm text-text-muted">
-          上传《学生成绩明细》PDF，自动统计通识选修各模块学分并检查是否符合学校要求。解析在本地浏览器完成，成绩数据不会上传。
-        </p>
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="font-serif text-2xl font-semibold text-text">
+            学分统计
+          </h1>
+          <p className="max-w-2xl text-sm text-text-muted">
+            上传《学生成绩明细》PDF，自动统计通识选修各模块学分并检查是否符合学校要求。解析在本地浏览器完成，成绩数据不会上传。
+          </p>
+        </div>
+        <AutoImportButton onFile={handleFile} disabled={loading} />
       </header>
 
       {!report ? (
