@@ -18,7 +18,10 @@ LOG="$HOME/.cache/labnotes-sync.log"
 # The assignments prefix `make` (an external command — they propagate to it and
 # its uv/python children) rather than `cd` (a regular builtin, where POSIX sh does
 # not guarantee a prefix assignment persists to the following `&&` command).
-ENV_PREFIX="PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+# HF_HUB_DISABLE_PROGRESS_BARS: --quiet silences push.py's own INFO, but
+# huggingface_hub's tqdm bars are separate and would otherwise dribble into the
+# unattended cron log every 30min — keep the log to real errors only.
+ENV_PREFIX="PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin HF_HUB_DISABLE_PROGRESS_BARS=1"
 for v in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY all_proxy ALL_PROXY; do
     if [ -n "${!v:-}" ]; then
         ENV_PREFIX="$ENV_PREFIX ${v}='${!v}'"
