@@ -13,6 +13,14 @@ frontend/playwright/screenshots/
 # must never be committed. Drop test PDFs at repo root (e.g. 查看成绩.pdf).
 /*.pdf
 
+# Class rosters (学号+姓名 = PII) used for batch add_user.py imports. Never commit.
+roster_*.csv
+
+# Claude Code 本地 scratch / 状态(workflow 脚本、settings.local、lock)——不追踪;
+# 但项目级 skill(.claude/skills/)要进 git 供团队复用 / 复跑。
+.claude/*
+!.claude/skills/
+
 # Python bytecode cache.
 __pycache__/
 
