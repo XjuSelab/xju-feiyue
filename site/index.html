@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>新疆大学飞跃手册 · 项目主页</title>
+    <style>
+      :root {
+        --paper:        #f7f6f3;
+        --paper-edge:   #edece9;
+        --ink:          #37352f;
+        --ink-soft:     #5a5852;
+        --ink-faint:    #787774;
+        --rule:         #edece9;
+        --rule-soft:    #f0efe9;
+        --accent:       #0f7b6c;
+        --accent-soft:  #d3ede8;
+        --accent-faint: #edf7f5;
+        --warn:         #b58a40;
+        --warn-soft:    #faf3e0;
+        --code-bg:      #eeede9;
+
+        --stat-a: #0f7b6c;
+        --stat-a-bg: #edf7f5;
+        --stat-b: #5a7fb8;
+        --stat-b-bg: #eef2fb;
+        --stat-c: #7b5fb8;
+        --stat-c-bg: #f3eff9;
+        --stat-d: #b85f5f;
+        --stat-d-bg: #faf0f0;
+        --stat-e: #b8885f;
+        --stat-e-bg: #faf4ec;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { font-size: 16px; }
+
+      body {
+        font-family:
+          "Source Serif 4", "Noto Serif SC", "Source Han Serif SC",
+          "Songti SC", Georgia, "Times New Roman", serif;
+        background: var(--paper);
+        color: var(--ink);
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+        padding: 56px 24px 96px;
+      }
+
+      .doc { max-width: 820px; margin: 0 auto; }
+
+      /* ─── Header ─── */
+      .doc-header {
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 32px;
+        margin-bottom: 48px;
+      }
+      .doc-eyebrow {
+        font-family: ui-monospace, "SF Mono", Menlo, "PingFang SC", monospace;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .mascot {
+        display: inline-block;
+        width: 8px; height: 8px;
+        background: var(--accent);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+      .doc-title {
+        font-family:
+          "Source Serif 4", "Noto Serif SC", "Source Han Serif SC",
+          "Songti SC", Georgia, serif;
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+        color: var(--ink);
+      }
+      .doc-subtitle {
+        font-size: 16px;
+        color: var(--ink-soft);
+        margin-top: 10px;
+        font-style: italic;
+      }
+      .doc-meta {
+        font-family: ui-monospace, "SF Mono", Menlo, "PingFang SC", monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .doc-meta a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid var(--accent-soft);
+      }
+      .doc-meta a:hover { border-bottom-color: var(--accent); }
+
+      /* ─── TL;DR ─── */
+      .tldr {
+        background: var(--accent-faint);
+        border-left: 3px solid var(--accent);
+        border-radius: 0 8px 8px 0;
+        padding: 20px 24px;
+        margin-bottom: 52px;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+      .tldr-label {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      /* ─── Sections ─── */
+      section { margin-bottom: 60px; }
+      h2 {
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -0.005em;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+      }
+      h2 .num {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        flex-shrink: 0;
+      }
+      h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 28px 0 10px;
+        color: var(--ink);
+      }
+      p { margin-bottom: 14px; }
+      a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+      a:hover { border-bottom-color: var(--accent); }
+      code {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 13px;
+        background: var(--code-bg);
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: var(--ink-soft);
+      }
+      ul, ol { margin: 8px 0 16px 22px; }
+      li { margin-bottom: 7px; }
+      strong { font-weight: 700; }
+
+      /* ─── Stats grid ─── */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin: 24px 0 32px;
+      }
+      .stat-card {
+        background: #fff;
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 18px 14px 14px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      }
+      .stat-num {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        line-height: 1.4;
+      }
+      .stat-card.s-a { background: var(--stat-a-bg); border-color: #c6e8e2; }
+      .stat-card.s-a .stat-num { color: var(--stat-a); }
+      .stat-card.s-b { background: var(--stat-b-bg); border-color: #c8d8f0; }
+      .stat-card.s-b .stat-num { color: var(--stat-b); }
+      .stat-card.s-c { background: var(--stat-c-bg); border-color: #d8ccf0; }
+      .stat-card.s-c .stat-num { color: var(--stat-c); }
+      .stat-card.s-d { background: var(--stat-d-bg); border-color: #f0cccc; }
+      .stat-card.s-d .stat-num { color: var(--stat-d); }
+      .stat-card.s-e { background: var(--stat-e-bg); border-color: #f0dcc8; }
+      .stat-card.s-e .stat-num { color: var(--stat-e); }
+
+      /* ─── Timeline ─── */
+      .timeline { position: relative; padding-left: 28px; margin: 28px 0; }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 7px;
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: var(--rule);
+      }
+      .tl-item {
+        position: relative;
+        margin-bottom: 32px;
+      }
+      .tl-item:last-child { margin-bottom: 0; }
+      .tl-dot {
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--paper-edge);
+        border: 2px solid var(--rule);
+      }
+      .tl-item.done .tl-dot {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .tl-date {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+        color: var(--ink-faint);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+      .tl-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 6px;
+        line-height: 1.4;
+      }
+      .tl-body {
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        line-height: 1.65;
+      }
+      .tl-tag {
+        display: inline-block;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: var(--accent-faint);
+        color: var(--accent);
+        border-radius: 4px;
+        padding: 2px 7px;
+        margin-bottom: 6px;
+      }
+
+      /* ─── Contributor cards ─── */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin: 20px 0;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 18px 18px 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      }
+      .card-icon {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .card-icon.amber { color: var(--warn); }
+      .card-name {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: var(--ink);
+      }
+      .card-stat {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        margin-bottom: 10px;
+      }
+      .card-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+
+      /* ─── Feature tags ─── */
+      .feature-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 16px 0 20px;
+      }
+      .ftag {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        background: var(--paper-edge);
+        color: var(--ink-soft);
+        border-radius: 6px;
+        padding: 4px 10px;
+        border: 1px solid var(--rule);
+      }
+
+      /* ─── Bug table ─── */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0 20px;
+        font-size: 13.5px;
+      }
+      th, td {
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--rule-soft);
+        vertical-align: top;
+      }
+      th {
+        font-weight: 600;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-faint);
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper-edge);
+      }
+      tbody tr:hover { background: rgba(0,0,0,0.012); }
+      td.badge {
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        white-space: nowrap;
+      }
+      td.fixed {
+        color: var(--accent);
+        font-weight: 600;
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+      }
+
+      /* ─── Callout ─── */
+      .callout {
+        border: 1px solid var(--rule);
+        background: #fff;
+        border-radius: 8px;
+        padding: 16px 18px;
+        margin: 18px 0 22px;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+      .callout.cite {
+        border-left: 3px solid var(--accent);
+        border-top: none; border-right: none; border-bottom: none;
+        border-radius: 0 8px 8px 0;
+        background: var(--accent-faint);
+        padding-left: 22px;
+        font-style: italic;
+      }
+      .callout-label {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      /* ─── Footer ─── */
+      footer {
+        margin-top: 72px;
+        padding-top: 24px;
+        border-top: 1px solid var(--rule);
+        font-size: 12.5px;
+        color: var(--ink-faint);
+      }
+      footer h4 {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin: 0 0 12px;
+        font-weight: 700;
+      }
+      footer ul { list-style: none; margin-left: 0; }
+      footer li { margin-bottom: 6px; }
+      footer a { color: var(--accent); }
+
+      /* ─── Figure ─── */
+      figure {
+        margin: 24px 0 30px;
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+      }
+      figure svg { display: block; width: 100%; height: auto; }
+      figcaption {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        padding: 10px 16px;
+        border-top: 1px solid var(--rule-soft);
+        background: var(--paper-edge);
+      }
+      figcaption .fig-num { color: var(--accent); margin-right: 10px; font-weight: 700; }
+
+      /* ─── Stack badge row ─── */
+      .stack-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 12px 0 20px;
+      }
+      .stag {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.04em;
+        background: var(--paper-edge);
+        color: var(--ink-soft);
+        border: 1px solid var(--rule);
+        border-radius: 5px;
+        padding: 3px 9px;
+      }
+
+      @media (max-width: 680px) {
+        body { padding: 28px 14px 64px; }
+        .doc-title { font-size: 26px; }
+        .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        .stats-grid .stat-card:nth-child(4),
+        .stats-grid .stat-card:nth-child(5) { grid-column: span 1; }
+        .cards { grid-template-columns: 1fr; }
+        h2 { font-size: 18px; }
+      }
+    </style>
+  </head>
+  <body>
+    <article class="doc">
+
+      <!-- ────── Header ────── -->
+      <header class="doc-header">
+        <div class="doc-eyebrow">
+          <span class="mascot"></span>
+          XJU Feiyue Handbook · Project Page
+        </div>
+        <h1 class="doc-title">新疆大学飞跃手册</h1>
+        <p class="doc-subtitle">为新疆大学学生打造的开放知识社区 &mdash; 笔记、资料、选校、学分，一站直达</p>
+        <div class="doc-meta">
+          <span>STATUS · LIVE IN PRODUCTION</span>
+          <span>DATE · 2026-06-04</span>
+          <span>LIVE · <a href="https://winbeau.top" target="_blank" rel="noopener">winbeau.top</a></span>
+          <span>MIRROR · <a href="https://feiyue.selab.top" target="_blank" rel="noopener">feiyue.selab.top</a></span>
+        </div>
+      </header>
+
+      <!-- ────── TL;DR ────── -->
+      <div class="tldr">
+        <div class="tldr-label">TL;DR</div>
+        新疆大学飞跃手册是一个面向 XJU 在校生的全栈知识平台，覆盖科研笔记、课程资料、选校情报、CCF 会议截止日期与学分达标自检，于 2026-05-09 单日内完成前后端基础架构（由 Claude Opus 4.7 完成 5 轮结构化设计），此后历经 26 天迭代上线十大功能模块。截至 2026-06-04，已有 <strong>108 位注册用户</strong>，累积 <strong>85 篇笔记</strong>、<strong>55 个共享文件</strong>、<strong>41 个点赞</strong>，25 名用户活跃登录，项目代码托管于 <a href="https://winbeau.top" target="_blank" rel="noopener">winbeau.top</a>。
+      </div>
+
+      <!-- ────── Section 01: 项目简介 ────── -->
+      <section>
+        <h2><span class="num">01</span>项目简介</h2>
+        <p>
+          飞跃手册起源于一个简单的需求：让 XJU 学生在申请科研、选择高校、备战竞赛时，能找到来自真实同学、而非碎片化论坛的第一手经验。平台以 <strong>Markdown 长文笔记</strong>为核心，支持 KaTeX 公式、围栏代码块、GFM 表格与评论互动；配套的 <strong>资料库</strong>（/materials）可上传、预览、分类管理课程文件；<strong>高校导师库</strong>（/schools）和 <strong>CCF 会议页</strong>（/conferences）打通选校与科研信息流；<strong>学分统计页</strong>（/credits）更可直接解析教务成绩单 PDF，自动核查通识选修模块达标情况。
+        </p>
+        <p>
+          线上地址：<a href="https://winbeau.top" target="_blank" rel="noopener">https://winbeau.top</a>（主站）&nbsp;&nbsp;/&nbsp;&nbsp;<a href="https://feiyue.selab.top" target="_blank" rel="noopener">https://feiyue.selab.top</a>（团队镜像）
+        </p>
+
+        <div class="feature-list">
+          <span class="ftag">Markdown 笔记</span>
+          <span class="ftag">KaTeX 公式</span>
+          <span class="ftag">AI 润色（DeepSeek）</span>
+          <span class="ftag">资料上传/预览</span>
+          <span class="ftag">高校/导师库</span>
+          <span class="ftag">CCF 会议截止日期</span>
+          <span class="ftag">学分达标检查</span>
+          <span class="ftag">教务一键导入</span>
+          <span class="ftag">点赞 / 评论</span>
+          <span class="ftag">个性化欢迎语</span>
+          <span class="ftag">草稿自动保存</span>
+          <span class="ftag">全文检索</span>
+        </div>
+      </section>
+
+      <!-- ────── Section 02: 规模数据 ────── -->
+      <section>
+        <h2><span class="num">02</span>关键数据</h2>
+        <p style="color:var(--ink-faint);font-family:ui-monospace,monospace;font-size:11px;margin-bottom:16px;letter-spacing:0.06em;text-transform:uppercase;">截至 2026-06-04 · 生产数据库真实统计</p>
+
+        <div class="stats-grid">
+          <div class="stat-card s-a">
+            <div class="stat-num">108</div>
+            <div class="stat-label">注册<br>用户</div>
+          </div>
+          <div class="stat-card s-b">
+            <div class="stat-num">85</div>
+            <div class="stat-label">已发布<br>笔记</div>
+          </div>
+          <div class="stat-card s-c">
+            <div class="stat-num">55</div>
+            <div class="stat-label">共享<br>文件</div>
+          </div>
+          <div class="stat-card s-d">
+            <div class="stat-num">41</div>
+            <div class="stat-label">累计<br>点赞</div>
+          </div>
+          <div class="stat-card s-e">
+            <div class="stat-num">25</div>
+            <div class="stat-label">活跃登录<br>用户</div>
+          </div>
+        </div>
+
+        <p style="font-size:12.5px;color:var(--ink-faint);">资料库（/materials）含 8 门课程下的 55 个文件；登录事件 79 次，去重活跃用户 25 人。</p>
+      </section>
+
+      <!-- ────── Section 03: 技术栈 ────── -->
+      <section>
+        <h2><span class="num">03</span>技术栈</h2>
+        <h3>前端</h3>
+        <div class="stack-row">
+          <span class="stag">React 18</span>
+          <span class="stag">TypeScript 5.6 strict</span>
+          <span class="stag">Vite 5</span>
+          <span class="stag">Tailwind CSS 3.4</span>
+          <span class="stag">shadcn/ui + Radix</span>
+          <span class="stag">TanStack Query v5</span>
+          <span class="stag">Zustand v5</span>
+          <span class="stag">CodeMirror 6</span>
+          <span class="stag">pdfjs-dist</span>
+          <span class="stag">dnd-kit</span>
+          <span class="stag">React Router v6</span>
+          <span class="stag">Playwright E2E</span>
+        </div>
+        <h3>后端</h3>
+        <div class="stack-row">
+          <span class="stag">FastAPI 0.115</span>
+          <span class="stag">SQLAlchemy 2.0</span>
+          <span class="stag">Alembic</span>
+          <span class="stag">Python 3.11</span>
+          <span class="stag">bcrypt + HS256 JWT</span>
+          <span class="stag">DeepSeek API</span>
+          <span class="stag">Pillow</span>
+          <span class="stag">PyYAML</span>
+          <span class="stag">uv</span>
+        </div>
+        <h3>基础设施</h3>
+        <div class="stack-row">
+          <span class="stag">nginx</span>
+          <span class="stag">huawei2 VPS</span>
+          <span class="stag">HuggingFace Dataset</span>
+          <span class="stag">GitHub Actions</span>
+          <span class="stag">Chrome Extension</span>
+          <span class="stag">Tampermonkey/脚本猫</span>
+        </div>
+      </section>
+
+      <!-- ────── Section 04: 版本里程碑 ────── -->
+      <section>
+        <h2><span class="num">04</span>版本里程碑</h2>
+        <p>从 2026-05-09 到 2026-06-04，历经 26 天、182 次提交，完成十大功能里程碑。</p>
+
+        <div class="timeline">
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-09</div>
+            <span class="tl-tag">Phase 1</span>
+            <div class="tl-title">Claude 5-Round 设计与基础脚手架</div>
+            <div class="tl-body">以 Claude Opus 4.7 驱动的「5 轮」设计流程在单日内完成整个前端基础架构：Vite + TS strict + Tailwind v3 + shadcn/ui 脚手架、设计 token 移植、Router v6 + Auth Guard + Mega Menu 布局、四页（home / browse / editor / login）并行产出，以及 72 个单元测试的 QA 收口。整个设计稿由 Claude 直接生成可运行的 CDN React 原型（6036 行），随后转化为完整工程。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-09</div>
+            <span class="tl-tag">Phase 2</span>
+            <div class="tl-title">后端脚手架 + FastAPI / ORM / Auth / Notes / Drafts</div>
+            <div class="tl-body">同日完成后端全栈搭建：FastAPI + SQLAlchemy ORM 建模、bcrypt 鉴权、Alembic 迁移与 seed 数据、notes/drafts CRUD 路由，并附带 42 个单元测试。引入 HuggingFace Dataset 做数据库状态同步（含 age 加密），为私有部署建立数据持久化基础。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-09 ~ 2026-05-10</div>
+            <span class="tl-tag">Phase 3</span>
+            <div class="tl-title">内容导入与品牌重塑 &mdash; LabNotes &rarr; 飞跃手册</div>
+            <div class="tl-body">44 篇 Notion 笔记与 17 篇 xju-course-wiki 课程笔记通过 JSON-first 流水线批量导入；修复 Markdown 渲染、代码块高亮、CJK 标点细节。首页「近 7 日发布」组件演进为点状时间线。2026-05-10 完成品牌切换：LabNotes 正式更名为「新疆大学飞跃手册」。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-11</div>
+            <span class="tl-tag">Phase 4</span>
+            <div class="tl-title">用户系统完善 &mdash; 头像 / 昵称 / IP 审计</div>
+            <div class="tl-body">用学号（sid）替换自增 ID 作主键，增加 Profile 设置页（昵称、联系方式、头像上传及服务端 160px 缩略图生成），记录登录 IP 审计轨迹。大量精力投入 sonner toast 稳定性调试，最终落定 bottom-right + richColors 基线配置。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-12</div>
+            <span class="tl-tag">Phase 5</span>
+            <div class="tl-title">编辑器功能爆发 &mdash; 评论 / AI 摘要 / 图片上传 / 发布流程</div>
+            <div class="tl-body">三模式布局切换（写作/预览/分屏）、评论 MVP（含选段引用与双向跳转高亮）、AI 流式摘要生成（DeepSeek streaming + title-aware）、图片拖拽/粘贴/按钮三通道上传。笔记点赞、编辑/删除及「我的笔记」页（发布 + 草稿分标签）同步上线。首页热门卡片轮播加边缘渐隐效果。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-20 ~ 2026-05-22</div>
+            <span class="tl-tag">Phase 6</span>
+            <div class="tl-title">高校信息页（/schools）上线</div>
+            <div class="tl-body">将「高校信息」原型移植为 /schools 路由，接入 claw v0.4 SQLite 爬虫导出数据，支持 C9 联盟分组 Tab；导师列表支持详情抽屉展示；修复 TypeScript strict 模式三件套兼容（noUncheckedIndexedAccess + exactOptionalPropertyTypes）。数据切换为动态 dataset，任意学校无需前端预注册即可渲染。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-26 ~ 2026-05-27</div>
+            <span class="tl-tag">Phase 7</span>
+            <div class="tl-title">CCF 会议页（/conferences）+ 截稿爬虫</div>
+            <div class="tl-body">新增 /conferences，前端实现领域分组 Tab、级别筛选、时间线视图。后端引入 DeepSeek v4-flash 驱动的截稿爬虫，以 ccfddl.com YAML 为主数据源，DuckDuckGo 联网搜索 + DeepSeek 知识兜底，72h 周期自动全量扫描 230 个会议。同期添加高校拼音/汉字模糊搜索与学校预取。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-31</div>
+            <span class="tl-tag">Phase 8</span>
+            <div class="tl-title">资料页（/materials）+ 文件上传功能</div>
+            <div class="tl-body">实现课程资料文件树展示、dnd-kit 拖拽重排（乐观更新）、PDF 逐页懒加载与缩放平移预览、XHR 真实进度条（含 100% &rarr; 服务端处理中状态）、上传重名自动改名。支持 docx-preview + pdfjs-dist + @js-preview/excel 三类在线预览。课程类型角标（专业/通识/实验）及超管权限控制一并上线。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-05-31</div>
+            <span class="tl-tag">Phase 9</span>
+            <div class="tl-title">首页个性化欢迎语 v1 &rarr; v2</div>
+            <div class="tl-body">v1 由 DeepSeek 结合天气生成；v2 重构为「称呼字段入 users 表 + 44 条外置 greetings.json + 上海时区随机时段兜底」，大幅降低延迟与 API 消耗。DeepSeek 缓存 3h 轮换策略保留作热门词条生成的备用路径，并删除冗余的「Hi 昵称」前缀。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-06-03 ~ 2026-06-04</div>
+            <span class="tl-tag">Phase 10</span>
+            <div class="tl-title">学分统计页（/credits）+ 教务系统一键导入</div>
+            <div class="tl-body">纯前端 pdf.js 解析教务成绩单，自动检查通识选修模块达标情况。「从教务系统自动导入」经历书签 &rarr; 后端中转 &rarr; Tampermonkey 用户脚本三轮方案演进，最终以浏览器扩展/脚本猫为核心，解决 WebVPN CAS 登录跳转与 COOP 跨源限制。配套安装引导向导、全程动画与实时脚本探测（Edge ID + 自报 + 手动兜底）。</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ────── Section 05: 发展历程 ────── -->
+      <section>
+        <h2><span class="num">05</span>发展历程</h2>
+
+        <h3>Day 0：Claude 直出设计稿</h3>
+        <p>
+          2026-05-09 20:20（北京时间），commit <code>1e05990</code> 落地，一次性推入 6036 行代码——一套完整的静态设计稿：四个 HTML 页面、完整 AI diff 引擎（字符级 LCS + 六种润色 mode）、1182 行设计系统 CSS。这些文件由 Claude 直接生成、可在浏览器运行，是后续所有工程化的「图纸」。
+        </p>
+        <p>
+          同日稍早，Claude Opus 4.7 将 5 份实现规格写入 <code>docs/round1.md–round5.md</code>（450 行），定义了把 CDN 原型迁移成真实工程的完整路线：infra 脚手架（Round 1）&rarr; 设计系统（Round 2）&rarr; 路由/Auth（Round 3）&rarr; 四页并行（Round 4）&rarr; QA 收口（Round 5）。Round 4 的四个 subagent 在 08:37–08:49 的 12 分钟内 fan-out 并行完成，Round 5 在 09:04 落地，整个 5 轮在单日内收口。
+        </p>
+
+        <div class="callout cite">
+          winbeau 负责：在浏览器里验证、发现视觉/交互偏差后下精准指令让 Claude 修、内容导入（44 篇 Notion 笔记）、部署与运维（huawei2 VPS + nginx）。Claude 负责：完整设计稿、规格文档、每轮实现代码，以及后续各功能的 PR 级别实现。
+        </div>
+
+        <h3>代表性 Bug 攻坚</h3>
+        <p>26 天迭代中，几处 bug 尤为棘手，留下了深刻的工程经验：</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:160px;">Bug</th>
+              <th>根因</th>
+              <th style="width:90px;">状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>成绩单 PDF 列错位</strong></td>
+              <td>pdf.js 以表头标签 x 坐标划分列边界，但课程名数据左对齐（x≈88）而表头居中（x≈160），导致短课程名归入序号列，整行记录串行。修复：扫描实际课程代码最小 x 值重新划定分界点。</td>
+              <td class="fixed">FIXED</td>
+            </tr>
+            <tr>
+              <td><strong>tmux 双跳 SSH 静默损坏</strong></td>
+              <td>经 WSL→huawei2 双层 pty send-keys 传输 ~1.1 KB base64 长行时，pty 行缓冲翻转 1 字节，head/tail 抽样无法发现。修复：分块传输（每块 ≤300 字符）+ sha256 闸门 + 规范化哈希反验。</td>
+              <td class="fixed">FIXED</td>
+            </tr>
+            <tr>
+              <td><strong>WebVPN Referer 污染 CAS</strong></td>
+              <td><code>window.open(url, '_blank')</code> 把 feiyue.selab.top 带入 Referer，WebVPN 将其拼进 CAS 回调导致登录失败。修复：改用 <code>noreferrer</code> 阻止 Referer 发送。</td>
+              <td class="fixed">FIXED</td>
+            </tr>
+            <tr>
+              <td><strong>sonner toast 不渲染</strong></td>
+              <td>sonner v2 + React 18 StrictMode + Vite HMR + Radix Dialog teardown 组合下，Toaster 的 subscribe-effect 存在 stale gap，Dialog 触发的 toast 恰好落在 gap 里被丢弃。修复：回退到 <code>&lt;Toaster position="bottom-right" richColors /&gt;</code> 基线，不叠加 classNames 重写。</td>
+              <td class="fixed">FIXED</td>
+            </tr>
+            <tr>
+              <td><strong>nginx 路径歧义</strong></td>
+              <td><code>/conferences</code> 同时是 SPA 前端路由和后端 API 路径，<code>try_files</code> 优先返回 <code>index.html</code>，前端 useQuery 拿到 HTML 字符串后 silently fallback 到旧 seed 数据。修复：API 路径改为 <code>/conferences/list</code>，与 SPA 路由不再冲突。</td>
+              <td class="fixed">FIXED</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="font-size:13px;color:var(--ink-faint);">完整 bug 记录见项目 <code>CONTRIBUTING.md</code> 与各 feature memory 文件。</p>
+      </section>
+
+      <!-- ────── Section 06: 架构概览（SVG） ────── -->
+      <section>
+        <h2><span class="num">06</span>架构概览</h2>
+        <figure>
+          <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg"
+               font-family="ui-monospace, Menlo, monospace" font-size="12">
+            <rect width="760" height="320" fill="#fff"/>
+
+            <!-- Browser -->
+            <rect x="20" y="20" width="140" height="280" rx="8" fill="#edf7f5" stroke="#c6e8e2" stroke-width="1.5"/>
+            <text x="90" y="48" text-anchor="middle" font-size="11" font-weight="700" fill="#0f7b6c">BROWSER</text>
+            <line x1="30" y1="56" x2="150" y2="56" stroke="#c6e8e2" stroke-width="1"/>
+            <rect x="32" y="64" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="79" text-anchor="middle" font-size="10" fill="#37352f">React 18 SPA</text>
+            <rect x="32" y="92" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="107" text-anchor="middle" font-size="10" fill="#37352f">TanStack Query</text>
+            <rect x="32" y="120" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="135" text-anchor="middle" font-size="10" fill="#37352f">Zustand auth/draft</text>
+            <rect x="32" y="148" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="163" text-anchor="middle" font-size="10" fill="#37352f">10 Feature modules</text>
+            <rect x="32" y="176" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="191" text-anchor="middle" font-size="10" fill="#37352f">pdfjs-dist</text>
+            <rect x="32" y="204" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="219" text-anchor="middle" font-size="10" fill="#37352f">CodeMirror 6</text>
+            <rect x="32" y="232" width="116" height="22" rx="5" fill="#fff" stroke="#edece9"/>
+            <text x="90" y="247" text-anchor="middle" font-size="10" fill="#37352f">Browser Extension</text>
+
+            <!-- Arrow browser → nginx -->
+            <line x1="160" y1="160" x2="216" y2="160" stroke="#0f7b6c" stroke-width="1.5" marker-end="url(#arr)"/>
+            <text x="188" y="155" text-anchor="middle" font-size="9" fill="#787774">HTTPS</text>
+
+            <!-- nginx -->
+            <rect x="216" y="100" width="120" height="120" rx="8" fill="#f3eff9" stroke="#d8ccf0" stroke-width="1.5"/>
+            <text x="276" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#7b5fb8">NGINX</text>
+            <line x1="226" y1="134" x2="326" y2="134" stroke="#d8ccf0" stroke-width="1"/>
+            <text x="276" y="150" text-anchor="middle" font-size="10" fill="#37352f">frontend/dist</text>
+            <text x="276" y="166" text-anchor="middle" font-size="10" fill="#37352f">static /uploads</text>
+            <text x="276" y="182" text-anchor="middle" font-size="10" fill="#37352f">proxy /api/*</text>
+            <text x="276" y="198" text-anchor="middle" font-size="10" fill="#787774">huawei2 VPS</text>
+
+            <!-- Arrow nginx → FastAPI -->
+            <line x1="336" y1="160" x2="396" y2="160" stroke="#5a7fb8" stroke-width="1.5" marker-end="url(#arr2)"/>
+            <text x="366" y="155" text-anchor="middle" font-size="9" fill="#787774">proxy</text>
+
+            <!-- FastAPI -->
+            <rect x="396" y="60" width="140" height="200" rx="8" fill="#eef2fb" stroke="#c8d8f0" stroke-width="1.5"/>
+            <text x="466" y="86" text-anchor="middle" font-size="11" font-weight="700" fill="#5a7fb8">FASTAPI</text>
+            <line x1="406" y1="94" x2="526" y2="94" stroke="#c8d8f0" stroke-width="1"/>
+            <rect x="408" y="102" width="116" height="20" rx="4" fill="#fff" stroke="#edece9"/>
+            <text x="466" y="116" text-anchor="middle" font-size="10" fill="#37352f">auth / notes / drafts</text>
+            <rect x="408" y="127" width="116" height="20" rx="4" fill="#fff" stroke="#edece9"/>
+            <text x="466" y="141" text-anchor="middle" font-size="10" fill="#37352f">materials / uploads</text>
+            <rect x="408" y="152" width="116" height="20" rx="4" fill="#fff" stroke="#edece9"/>
+            <text x="466" y="166" text-anchor="middle" font-size="10" fill="#37352f">schools / conferences</text>
+            <rect x="408" y="177" width="116" height="20" rx="4" fill="#fff" stroke="#edece9"/>
+            <text x="466" y="191" text-anchor="middle" font-size="10" fill="#37352f">credits / ai / admin</text>
+            <rect x="408" y="202" width="116" height="20" rx="4" fill="#fff" stroke="#edece9"/>
+            <text x="466" y="216" text-anchor="middle" font-size="10" fill="#37352f">SQLAlchemy + Alembic</text>
+            <rect x="408" y="227" width="116" height="22" rx="4" fill="#fff" stroke="#edece9"/>
+            <text x="466" y="242" text-anchor="middle" font-size="10" fill="#37352f">DeepSeek integration</text>
+
+            <!-- Arrow FastAPI → DB -->
+            <line x1="536" y1="160" x2="592" y2="160" stroke="#787774" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+            <!-- DB + HF -->
+            <rect x="592" y="80" width="130" height="80" rx="8" fill="#edf7f5" stroke="#bfe3dc" stroke-width="1.5"/>
+            <text x="657" y="106" text-anchor="middle" font-size="11" font-weight="700" fill="#0f7b6c">SQLITE</text>
+            <line x1="602" y1="114" x2="712" y2="114" stroke="#bfe3dc" stroke-width="1"/>
+            <text x="657" y="130" text-anchor="middle" font-size="10" fill="#37352f">labnotes.db</text>
+            <text x="657" y="145" text-anchor="middle" font-size="10" fill="#787774">单文件 · HF 同步</text>
+
+            <rect x="592" y="180" width="130" height="70" rx="8" fill="#faf4ec" stroke="#f0dcc8" stroke-width="1.5"/>
+            <text x="657" y="206" text-anchor="middle" font-size="11" font-weight="700" fill="#b8885f">HuggingFace</text>
+            <line x1="602" y1="214" x2="712" y2="214" stroke="#f0dcc8" stroke-width="1"/>
+            <text x="657" y="230" text-anchor="middle" font-size="10" fill="#37352f">xju-feiyue-data</text>
+            <text x="657" y="245" text-anchor="middle" font-size="10" fill="#787774">DB + uploads sync</text>
+
+            <!-- Arrowheads -->
+            <defs>
+              <marker id="arr" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#0f7b6c"/>
+              </marker>
+              <marker id="arr2" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#5a7fb8"/>
+              </marker>
+              <marker id="arr3" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#787774"/>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption><span class="fig-num">FIG 1</span>系统架构概览 &middot; Browser &rarr; nginx &rarr; FastAPI &rarr; SQLite / HuggingFace</figcaption>
+        </figure>
+      </section>
+
+      <!-- ────── Section 07: 贡献者 ────── -->
+      <section>
+        <h2><span class="num">07</span>贡献者</h2>
+        <p>飞跃手册由人类与 AI 结对开发：winbeau 负责产品决策与验证，Claude 负责大批量代码实现。</p>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">HUMAN</div>
+            <div class="card-name">winbeau</div>
+            <div class="card-stat">182 commits &nbsp;·&nbsp; 主要贡献者</div>
+            <div class="card-desc">产品需求定义、浏览器实测验证、Playwright 截图核查、精准修改指令、内容导入（44 篇 Notion 笔记）、部署与运维（huawei2 VPS + nginx + GitHub Actions）、双库 push 维护。</div>
+          </div>
+          <div class="card">
+            <div class="card-icon amber">AI PARTNER</div>
+            <div class="card-name">Claude Opus</div>
+            <div class="card-stat">167 co-authored commits &nbsp;·&nbsp; AI 结对</div>
+            <div class="card-desc">
+              完整初始设计稿（6036 行，2026-05-09 day 0）、5 轮工程规格文档（450 行）、各功能 PR 级别实现、bug 根因分析与修复。具体分布：Opus 4.7 &times; 132 commits、Opus 4.8 (1M context) &times; 26 commits、Opus 4.7 (1M context) &times; 9 commits。
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size:13px;color:var(--ink-faint);margin-top:8px;">Co-authored-by 标记在 round1 / round5 等关键 commit 里显式记录 <code>Claude Opus 4.7</code>。</p>
+      </section>
+
+      <!-- ────── Section 08: 致谢 ────── -->
+      <section>
+        <h2><span class="num">08</span>致谢</h2>
+        <ul>
+          <li>
+            <strong>孙海洋（SunSeaLucky）</strong> &mdash; <a href="https://github.com/SunSeaLucky/xju-course-wiki" target="_blank" rel="noopener">xju-course-wiki</a> 的创建者，提供了 17 篇高质量课程笔记作为飞跃手册内容的重要来源之一。
+          </li>
+          <li>
+            <strong>所有笔记贡献者</strong> &mdash; 85 篇已发布笔记背后，是每一位愿意记录并分享求学经历的同学。正是这些第一手内容，让飞跃手册有别于信息孤岛。
+          </li>
+          <li>
+            <strong>XjuSelab 团队</strong> &mdash; <a href="https://feiyue.selab.top" target="_blank" rel="noopener">feiyue.selab.top</a> 提供了团队镜像部署与反馈支持。
+          </li>
+          <li>
+            <strong>开源社区</strong> &mdash; React、FastAPI、shadcn/ui、TanStack Query、pdfjs-dist、dnd-kit、DeepSeek API 等项目构成了飞跃手册的技术基石。
+          </li>
+        </ul>
+      </section>
+
+      <!-- ────── Footer ────── -->
+      <footer>
+        <h4>相关链接</h4>
+        <ul>
+          <li><a href="https://winbeau.top" target="_blank" rel="noopener">winbeau.top</a> &mdash; 生产主站</li>
+          <li><a href="https://feiyue.selab.top" target="_blank" rel="noopener">feiyue.selab.top</a> &mdash; 团队镜像</li>
+          <li><a href="https://github.com/XjuSelab/xju-feiyue" target="_blank" rel="noopener">XjuSelab/xju-feiyue</a> &mdash; 规范库（团队）</li>
+          <li><a href="https://github.com/winbeau/Aurash" target="_blank" rel="noopener">winbeau/Aurash</a> &mdash; 部署源库</li>
+          <li><a href="https://github.com/SunSeaLucky/xju-course-wiki" target="_blank" rel="noopener">SunSeaLucky/xju-course-wiki</a> &mdash; 课程笔记来源（致谢）</li>
+        </ul>
+        <p style="margin-top:20px;font-size:11px;color:var(--ink-faint);">新疆大学飞跃手册 &copy; 2026 &middot; winbeau &amp; Claude Opus &middot; 项目主页由 Claude Code 生成</p>
+      </footer>
+
+    </article>
+  </body>
+</html>
