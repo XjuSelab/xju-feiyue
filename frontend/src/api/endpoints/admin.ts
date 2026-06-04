@@ -4,10 +4,12 @@ import { request } from '../client'
 import {
   AdminStatsSchema,
   AdminUserRowSchema,
+  LoginEventSchema,
   ResetPasswordOutSchema,
   type AdminStats,
   type AdminUserRow,
   type AssignableRole,
+  type LoginEvent,
   type ResetPasswordOut,
   type UserCreate,
 } from '../schemas/admin'
@@ -60,6 +62,17 @@ export async function resetUserPassword(
     path: `/admin/users/${sid}/reset-password`,
     body: password ? { password } : {},
     schema: ResetPasswordOutSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** GET /admin/login-events — recent successful logins (admin+). */
+export async function listLoginEvents(limit = 12): Promise<LoginEvent[]> {
+  return request({
+    method: 'GET',
+    path: '/admin/login-events',
+    query: { limit },
+    schema: z.array(LoginEventSchema),
     headers: authHeaders(),
   })
 }

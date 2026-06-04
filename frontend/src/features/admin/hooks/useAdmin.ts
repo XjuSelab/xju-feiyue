@@ -10,10 +10,17 @@ import {
   createAdminUser,
   getAdminStats,
   listAdminUsers,
+  listLoginEvents,
   resetUserPassword,
   setUserRole,
 } from '@/api/endpoints/admin'
-import type { AdminStats, AdminUserRow, AssignableRole, UserCreate } from '@/api/schemas/admin'
+import type {
+  AdminStats,
+  AdminUserRow,
+  AssignableRole,
+  LoginEvent,
+  UserCreate,
+} from '@/api/schemas/admin'
 
 /**
  * React Query wrappers for the hidden /admin dashboard. Toasts live in the
@@ -28,6 +35,7 @@ const keys = {
   all: ['admin'] as const,
   users: ['admin', 'users'] as const,
   stats: ['admin', 'stats'] as const,
+  logins: ['admin', 'logins'] as const,
 }
 
 function errMsg(e: unknown, fallback: string): string {
@@ -40,6 +48,10 @@ export function useAdminUsers(): UseQueryResult<AdminUserRow[]> {
 
 export function useAdminStats(): UseQueryResult<AdminStats> {
   return useQuery({ queryKey: keys.stats, queryFn: getAdminStats })
+}
+
+export function useLoginEvents(limit = 12): UseQueryResult<LoginEvent[]> {
+  return useQuery({ queryKey: [...keys.logins, limit], queryFn: () => listLoginEvents(limit) })
 }
 
 function useInvalidateAdmin() {

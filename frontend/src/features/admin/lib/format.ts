@@ -32,3 +32,23 @@ export const ROLE_LABEL: Record<Role, string> = {
   admin: '管理员',
   user: '普通用户',
 }
+
+/** Coarse "Browser · OS" from a User-Agent string for the login list. */
+export function deviceLabel(ua: string | null | undefined): string {
+  if (!ua) return '未知设备'
+  const browser =
+    /Edg/.test(ua) ? 'Edge'
+    : /OPR|Opera/.test(ua) ? 'Opera'
+    : /Firefox/.test(ua) ? 'Firefox'
+    : /Chrome|CriOS/.test(ua) ? 'Chrome'
+    : /Safari/.test(ua) ? 'Safari'
+    : '浏览器'
+  const os =
+    /Windows/.test(ua) ? 'Windows'
+    : /iPhone|iPad|iPod/.test(ua) ? 'iOS'
+    : /Mac OS X|Macintosh/.test(ua) ? 'macOS'
+    : /Android/.test(ua) ? 'Android'
+    : /Linux/.test(ua) ? 'Linux'
+    : '其他'
+  return `${browser} · ${os}`
+}

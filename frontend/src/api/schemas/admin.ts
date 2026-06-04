@@ -65,6 +65,19 @@ export const ResetPasswordOutSchema = z.object({
 })
 export type ResetPasswordOut = z.infer<typeof ResetPasswordOutSchema>
 
+/** GET /admin/login-events row — who logged in, when, from where. */
+export const LoginEventSchema = z.object({
+  id: z.number(),
+  sid: z.string(),
+  nickname: z.string(),
+  name: z.string(),
+  ip: z.string(),
+  userAgent: z.string().nullish(),
+  /** ISO-8601 UTC (…Z). */
+  at: z.string(),
+})
+export type LoginEvent = z.infer<typeof LoginEventSchema>
+
 /** POST /admin/users body. */
 export const UserCreateSchema = z.object({
   sid: z.string().regex(/^\d{11}$/, '学号需 11 位纯数字'),

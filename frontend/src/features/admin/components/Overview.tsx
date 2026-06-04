@@ -9,7 +9,12 @@ import { ROLE_LABEL, formatRelative } from '../lib/format'
 import type { Role } from '@/api/schemas/admin'
 import { BarChart, Donut, HBars, type Slice } from './charts'
 import { RoleBadge } from './RoleBadge'
+import { RecentLogins } from './RecentLogins'
 import { StatCard } from './StatCard'
+
+// Fresh, light chart accents (天蓝 sky for logins, fresh emerald for uploads).
+const SKY = '#38bdf8'
+const FRESH_GREEN = '#34d399'
 
 const ROLE_COLOR: Record<string, string> = {
   superadmin: 'var(--cat-research)',
@@ -83,12 +88,12 @@ export function Overview() {
 
         {/* Login activity */}
         <Panel title="近 14 天登录活跃">
-          <BarChart bars={bars} />
+          <BarChart bars={bars} color={SKY} />
         </Panel>
 
         {/* Top uploaders */}
         <Panel title="资料上传 Top 5">
-          <HBars rows={topRows} />
+          <HBars rows={topRows} color={FRESH_GREEN} />
         </Panel>
 
         {/* Recent signups */}
@@ -108,6 +113,9 @@ export function Overview() {
           )}
         </Panel>
       </div>
+
+      {/* 最近登录：具体登录的人 + 设备 / IP / 时间（比登录活跃柱状信息更全）。 */}
+      <RecentLogins />
     </div>
   )
 }
