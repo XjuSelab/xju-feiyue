@@ -6,11 +6,26 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 LOG="$HOME/.cache/labnotes-sync.log"
 
-# Pin a sane PATH so cron's stripped env can still find uv/git/age.
-# `make` itself is /usr/bin/make on Debian/Ubuntu; uv installs to ~/.local/bin.
-PATH_PREFIX="PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+# cron runs with a stripped environment. Bake in everything the push needs:
+#   - PATH so uv/git/age/sqlite3 resolve (uv installs to ~/.local/bin; `make` is
+#     /usr/bin/make on Debian/Ubuntu).
+#   - any proxy vars currently exported: GFW-side hosts (e.g. huawei2) reach
+#     huggingface.co ONLY through a local proxy, and cron has none of it — without
+#     this the push hangs until it times out. Captured verbatim at install time
+#     and single-quoted so cron's /bin/sh doesn't glob `no_proxy`'s `*`. On a
+#     proxy-less host the loop adds nothing. Re-run this installer if the proxy
+#     address ever changes.
+# The assignments prefix `make` (an external command — they propagate to it and
+# its uv/python children) rather than `cd` (a regular builtin, where POSIX sh does
+# not guarantee a prefix assignment persists to the following `&&` command).
+ENV_PREFIX="PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+for v in http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY all_proxy ALL_PROXY; do
+    if [ -n "${!v:-}" ]; then
+        ENV_PREFIX="$ENV_PREFIX ${v}='${!v}'"
+    fi
+done
 
-ENTRY="*/30 * * * * $PATH_PREFIX cd $REPO_ROOT && /usr/bin/env make sync-push-quiet >> $LOG 2>&1"
+ENTRY="*/30 * * * * cd $REPO_ROOT && $ENV_PREFIX make sync-push-quiet >> $LOG 2>&1"
 
 # 1) Pull current crontab (empty if none), 2) drop our prior entry, 3) append fresh.
 # `|| true` guards the read+filter: on a machine with no/empty crontab, `crontab
