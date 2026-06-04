@@ -44,6 +44,15 @@
   --tag-life-bg: rgba(181, 146, 106, 0.12);
   --tag-tool-bg: var(--tag-tools-bg); /* alias for legacy 'tool' singular */
 
+  /* === Admin dashboard chart accents (派生自系统调色板，保持 Notion 体系) ===
+     原图表用 cat-kaggle(#0b6e99)/cat-tools(#0f7b6c) 两个深青调，偏暗偏闷且彼此太近。
+     改用一对协调的冷色「鲜而不跳」：
+     - chart-blue = 系统 link 蓝 (#2383e2)，比 cat-kaggle 更亮更「天蓝」；
+     - chart-teal = cat-tools(#0f7b6c) 同色相提亮版 (H≈171°, L 27%→43%)，与 chart-blue
+       邻近色相、同明度档，成对耐看，仍属系统青绿家族。 */
+  --chart-blue: var(--color-link);
+  --chart-teal: #34a896;
+
   /* === Inline code === */
   --code-inline-bg: rgba(135, 131, 120, 0.15);
   --code-inline-fg: #eb5757;

@@ -12,9 +12,11 @@ import { RoleBadge } from './RoleBadge'
 import { RecentLogins } from './RecentLogins'
 import { StatCard } from './StatCard'
 
-// Fresh, light chart accents (天蓝 sky for logins, fresh emerald for uploads).
-const SKY = '#38bdf8'
-const FRESH_GREEN = '#34d399'
+// Chart accents — system-derived tokens (see tokens.css): link 蓝 for logins,
+// 提亮的 cat-tools 青绿 for uploads. A coordinated cool pair that stays on the
+// Notion palette.
+const LOGIN_BLUE = 'var(--chart-blue)'
+const UPLOAD_TEAL = 'var(--chart-teal)'
 
 const ROLE_COLOR: Record<string, string> = {
   superadmin: 'var(--cat-research)',
@@ -88,12 +90,12 @@ export function Overview() {
 
         {/* Login activity */}
         <Panel title="近 14 天登录活跃">
-          <BarChart bars={bars} color={SKY} />
+          <BarChart bars={bars} color={LOGIN_BLUE} />
         </Panel>
 
         {/* Top uploaders */}
         <Panel title="资料上传 Top 5">
-          <HBars rows={topRows} color={FRESH_GREEN} />
+          <HBars rows={topRows} color={UPLOAD_TEAL} />
         </Panel>
 
         {/* Recent signups */}
