@@ -13,7 +13,7 @@ GitHub Actions 自动重部署。
 - `site/index.html`(自包含单文件 Pages 页)——发展历程/里程碑/规模/架构;经
   `.github/workflows/deploy-pages.yml` 部署到 **https://xjuselab.github.io/xju-feiyue/**
   (Pages 源已是 GitHub Actions,改 `site/**` push 团队库即自动重部署)。
-- `.claude/skills/update-docs/VERSIONS.md`(本目录)——**版本记忆,最新在上,git 追踪**。
+- `skills/update-docs/VERSIONS.md`(本目录)——**版本记忆,最新在上,git 追踪**。
 
 ## 步骤
 
@@ -63,7 +63,7 @@ PYEOF'
 ①无横向溢出 ②时间轴最新在最上 ③数据卡片正确 ④右上角角标在位。参见全局「改完 UI 必 playwright 验」习惯。
 
 ### 8) 提交并部署
-- `git add README.md site/index.html .claude/skills/update-docs/VERSIONS.md`(+ frontend 改动若有)。
+- `git add README.md site/index.html skills/update-docs/VERSIONS.md`(+ frontend 改动若有)。
 - commit(conventional:`docs:` 或 `feat:` 前缀,正文写本版要点)。
 - **推两库**:`git push origin main && git push xju main`(团队库 `XjuSelab/xju-feiyue` + 部署源 `winbeau/Aurash`)。
 - 推 xju 后 `site/**` 改动触发 Actions 重部署 Pages;`gh run list --repo XjuSelab/xju-feiyue --workflow deploy-pages.yml -L1` 看 success。

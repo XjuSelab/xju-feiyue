@@ -16,10 +16,9 @@ frontend/playwright/screenshots/
 # Class rosters (学号+姓名 = PII) used for batch add_user.py imports. Never commit.
 roster_*.csv
 
-# Claude Code 本地 scratch / 状态(workflow 脚本、settings.local、lock)——不追踪;
-# 但项目级 skill(.claude/skills/)要进 git 供团队复用 / 复跑。
-.claude/*
-!.claude/skills/
+# Claude Code 本地目录(workflow 脚本 / settings.local / lock / install.sh 软链来的 skill)——不追踪。
+# 可复用的项目 skill 放在仓库根 skills/(明文追踪),用 skills/install.sh 软链到这里激活。
+.claude/
 
 # Python bytecode cache.
 __pycache__/
