@@ -88,7 +88,11 @@ export function ImportWizard({
     }
   }, [open])
 
-  const openTab = (url: string) => window.open(url, '_blank', 'noopener')
+  // noreferrer：不发 Referer 头（也隐含 noopener）。关键:打开 WebVPN 时若带上
+  // feiyue 的 Referer，WebVPN 会把它塞进 CAS 回调 ?url=https://feiyue.selab.top/，
+  // 而 feiyue 是 WebVPN 外部站点、无法被代理 → 登录页 404/访问失败。去掉 Referer 后
+  // WebVPN 用默认回调，能正常进登录。
+  const openTab = (url: string) => window.open(url, '_blank', 'noreferrer')
   const cur = state ? STATE_STEP[state] : -1
 
   return (
@@ -172,8 +176,8 @@ export function ImportWizard({
             <Button
               size="sm"
               onClick={() => {
+                openTab(JWXT_LOGIN_URL)
                 onGoExport()
-                window.location.href = JWXT_LOGIN_URL
               }}
             >
               <ExternalLink aria-hidden /> 打开 WebVPN
