@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import type { ViewUpdate } from '@codemirror/view'
 import { markdown } from '@codemirror/lang-markdown'
@@ -69,7 +69,28 @@ export function MarkdownEditor({
   selRef.current = onSelectionChange
   readyRef.current = onReady
 
-  const handleChange = useCallback((v: string) => changeRef.current(v), [])
+  // 把 CodeMirror 与「父组件 store 往返」解耦——这是中文全角标点要按两下的真正原因。
+  // 受控用法下，按键 → onChange → 改 store → draft.content → 回传 value，这条 React
+  // 链路是异步的：真实输入法快速合成时，value 会短暂滞后于编辑器 doc，@uiw/react-codemirror
+  // 的 value-sync 便把这份「过期 value」整篇重写回 doc；该事务恰好落在一次进行中的
+  // 输入法合成上，就把合成打断、吞掉刚上屏的字（如 `。`），于是要按第二下。
+  // 解决：给 CodeMirror 喂一个本地镜像 localValue，它只在编辑器自身 onChange 里与 doc
+  // 同步更新（永不滞后于 doc）→ value-sync 在打字期间永远 value===doc、不再触发重写。
+  // 只有「真正的外部变更」（AI 改写 / 载入草稿，即 prop 偏离我们最后上报的值）才推进编辑器。
+  const [localValue, setLocalValue] = useState(value)
+  const lastEmitted = useRef(value)
+  useEffect(() => {
+    if (value !== lastEmitted.current) {
+      lastEmitted.current = value
+      setLocalValue(value)
+    }
+  }, [value])
+
+  const handleChange = useCallback((v: string) => {
+    lastEmitted.current = v
+    setLocalValue(v)
+    changeRef.current(v)
+  }, [])
   const handleCreate = useCallback((view: EditorView) => readyRef.current?.(view), [])
   const handleUpdate = useCallback((v: ViewUpdate) => {
     const cb = selRef.current
@@ -131,7 +152,7 @@ export function MarkdownEditor({
 
   return (
     <CodeMirror
-      value={value}
+      value={localValue}
       onChange={handleChange}
       extensions={extensions}
       basicSetup={BASIC_SETUP}
