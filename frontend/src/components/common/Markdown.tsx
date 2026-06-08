@@ -36,11 +36,21 @@ type Props = {
 // 文本（比如 "config.json"）误判成链接。
 const URL_LIKE = /^https?:\/\/\S+$/i
 
-// 旧版编辑器链接按钮模板是 `[$](url)`，光标停在 `[]` 里，很多作者把链接文本写好
-// 后忘了替换 `url` 占位词，最终保存成 `[https://...](url)`。渲染出来 `<a href="url">`
-// 是相对路径，点了会跳到 /note/url 404。下面这个救场逻辑：href 像占位/空时，
-// 如果可见文本是 URL，就把文本当真正的 href。
-const HREF_PLACEHOLDER = /^(url|URL|#|)$/
+// 占位 / 空 href：编辑器链接按钮可能留下空壳 `[]()`，或作者忘了填网址。这些都
+// 不该渲染成会跳站内 404 / 开空白页的 <a>。覆盖：空串、`#`、`url`/`URL`、以及
+// 裸 scheme `http://` / `https://`（旧链接按钮的占位词）。命中后先尝试用「可见
+// 文本本身就是网址」救场，救不了就退化成纯文本。
+const HREF_PLACEHOLDER = /^(url|#|https?:\/\/|)$/i
+
+// 无 scheme 但长得像主机名的网址：`www.x.com` / `google.com` / `bit.ly/abc`。
+// 作者常忘了写 http(s)://，渲染成相对链接会误跳站内 404。命中后补 https:// 当外链。
+// 要求最后一段是 2–24 位纯字母 TLD；站内绝对路径以 `/` 开头、锚点以 `#` 开头，都
+// 走不到这里。代价：`config.json` 这类会被当成域名（→ https://config.json），但
+// 本站的真实相对资源都走 /uploads 附件或 /note 绝对路径，这种输入本就是坏链。
+const BARE_HOST = /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,24}(\/[^\s]*)?$/i
+
+// 已带 scheme（mailto: / tel: / http: …）则不补 https://。
+const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i
 
 /**
  * Markdown — Claude 风格 prose 容器，渲染 md/gfm/math/raw-html。
@@ -50,25 +60,47 @@ const HREF_PLACEHOLDER = /^(url|URL|#|)$/
  *   样式上色（主题样式由消费侧按需 import，例如 import 'highlight.js/styles/github.css'）
  */
 const components: Components = {
-  a: ({ href, children, ...rest }) => {
-    let resolvedHref = href ?? ''
-    if (HREF_PLACEHOLDER.test(resolvedHref)) {
+  a: ({ href, children, title }) => {
+    let resolved = (href ?? '').trim()
+
+    // 占位 / 空 href：可见文本本身是网址就拿来当目标，否则退化成纯文本——绝不渲染
+    // 成会跳 404 / 开空白页的死链。
+    if (HREF_PLACEHOLDER.test(resolved)) {
       const text = nodeToText(children).trim()
-      if (URL_LIKE.test(text)) resolvedHref = text
+      resolved = URL_LIKE.test(text) ? text : ''
     }
+    if (!resolved) return <>{children}</>
+
+    const titleProp = title ? { title } : {}
+
     // 文档附件链接（`[文件名.ext](/uploads/...)`）渲染成 FileCard（块级、带
     // data-filecard，含预览/下载/新窗口），而非普通 <a>。
-    if (isAttachmentHref(resolvedHref)) {
-      const last = resolvedHref.split('#')[0]?.split('?')[0]?.split('/').pop() ?? ''
+    if (isAttachmentHref(resolved)) {
+      const last = resolved.split('#')[0]?.split('?')[0]?.split('/').pop() ?? ''
       const filename = nodeToText(children).trim() || last
-      return <FileCard href={resolvedHref} filename={filename} />
+      return <FileCard href={resolved} filename={filename} />
     }
-    const external = /^https?:\/\//i.test(resolvedHref)
+
+    // 站内目录锚点（`#标题`）：交给浏览器原生滚动，不当外链。
+    if (resolved.startsWith('#')) {
+      return (
+        <a href={resolved} {...titleProp}>
+          {children}
+        </a>
+      )
+    }
+
+    // 无 scheme 但像主机名 → 补 https:// 当外链（修「www.x.com 误跳站内 404」）。
+    if (!HAS_SCHEME.test(resolved) && BARE_HOST.test(resolved)) {
+      resolved = `https://${resolved}`
+    }
+
+    const external = /^https?:\/\//i.test(resolved)
     return (
       <a
-        href={resolvedHref}
+        href={resolved}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        {...rest}
+        {...titleProp}
       >
         {children}
       </a>

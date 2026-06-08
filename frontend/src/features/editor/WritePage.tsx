@@ -200,16 +200,16 @@ export function WritePage() {
     view.focus()
   }
 
-  // 链接按钮：先前模板是 `[$](url)`，光标停在 `[]` 里，`url` 占位词原样留下；
-  // 用户选中一段文字（甚至 URL 本身）点链接后，常常忽略 `url` 直接保存，
-  // 渲染出来就是 `<a href="url">`，相对路径误跳到 /note/url。改成：
-  //   - 选区是 URL → `[](selection)`，光标落在 `[]` 里让用户填标签
-  //   - 选区是普通文字（或空） → `[selection](https://)`，并把 `https://`
-  //     选中，方便直接粘贴
+  // 链接按钮。光标默认停在 `[]` 里（用户要求：填可见文字优先，而不是落在 `()` 的
+  // 网址占位里）。不再塞 `url` / `https://` 占位词——忘了替换会渲染成跳 404 的死链；
+  // 留空的 `()` 由 Markdown 渲染层兜底成纯文本（见 components/common/Markdown.tsx）。
+  //   - 选区是网址 → `[](网址)`，光标回 `[]` 填可见文字
+  //   - 选区是普通文字 → `[文字]()`，光标落在 `()` 填网址（文字已就位，这是例外）
+  //   - 无选区 → `[]()`，光标停在 `[]` 中间
   const onInsertLink = () => {
     const view = editorViewRef.current
     if (!view) {
-      onContentChange(`${draft.content}[](https://)`)
+      onContentChange(`${draft.content}[]()`)
       return
     }
     const sel = view.state.selection.main
@@ -217,20 +217,19 @@ export function WritePage() {
     const looksLikeUrl = /^https?:\/\/\S+$/i.test(selected.trim())
     let insertText: string
     let anchor: number
-    let head: number
     if (looksLikeUrl) {
       insertText = `[](${selected.trim()})`
       anchor = sel.from + 1
-      head = anchor
-    } else {
-      const urlPlaceholder = 'https://'
-      insertText = `[${selected}](${urlPlaceholder})`
+    } else if (selected) {
+      insertText = `[${selected}]()`
       anchor = sel.from + 1 + selected.length + 2
-      head = anchor + urlPlaceholder.length
+    } else {
+      insertText = `[]()`
+      anchor = sel.from + 1
     }
     view.dispatch({
       changes: { from: sel.from, to: sel.to, insert: insertText },
-      selection: { anchor, head },
+      selection: { anchor },
     })
     view.focus()
   }

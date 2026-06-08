@@ -1,7 +1,19 @@
-import { useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
+import type { ViewUpdate } from '@codemirror/view'
 import { markdown } from '@codemirror/lang-markdown'
 import { isImageFile, isDocFile } from '@/lib/fileTypes'
+
+// 必须是模块级稳定引用。@uiw/react-codemirror 把 basicSetup 列进它 reconfigure
+// effect 的依赖；每次渲染传新对象字面量 → 每次按键都 StateEffect.reconfigure，
+// 期间派发的事务会重绘正在输入法合成中的 DOM，导致中文全角标点要按两下才出
+// （onChange/onUpdate 同理，下面用 ref 稳定化）。
+const BASIC_SETUP = {
+  lineNumbers: false,
+  foldGutter: false,
+  highlightActiveLine: false,
+  highlightActiveLineGutter: false,
+}
 
 type Props = {
   value: string
@@ -46,6 +58,32 @@ export function MarkdownEditor({
   const dropRef = useRef(onDropFiles)
   pasteRef.current = onPasteFiles
   dropRef.current = onDropFiles
+
+  // 父组件每次渲染都给 onChange / onSelectionChange / onReady 传新的内联函数。
+  // 直接透传给 CodeMirror 会进它 reconfigure effect 的依赖 → 每次按键 reconfigure
+  // → 干扰输入法合成（见 BASIC_SETUP 注释）。用 ref 固定回调引用，闭包内读最新值。
+  const changeRef = useRef(onChange)
+  const selRef = useRef(onSelectionChange)
+  const readyRef = useRef(onReady)
+  changeRef.current = onChange
+  selRef.current = onSelectionChange
+  readyRef.current = onReady
+
+  const handleChange = useCallback((v: string) => changeRef.current(v), [])
+  const handleCreate = useCallback((view: EditorView) => readyRef.current?.(view), [])
+  const handleUpdate = useCallback((v: ViewUpdate) => {
+    const cb = selRef.current
+    if (!cb) return
+    if (!v.selectionSet && !v.docChanged) return
+    const sel = v.state.selection.main
+    const text = v.state.doc.sliceString(sel.from, sel.to)
+    let rect: { x: number; y: number } | null = null
+    if (sel.from !== sel.to) {
+      const coords = v.view.coordsAtPos(sel.from)
+      if (coords) rect = { x: coords.left, y: coords.top }
+    }
+    cb({ text, from: sel.from, to: sel.to, rect })
+  }, [])
 
   const extensions = useMemo(
     () => [
@@ -94,30 +132,12 @@ export function MarkdownEditor({
   return (
     <CodeMirror
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       extensions={extensions}
-      basicSetup={{
-        lineNumbers: false,
-        foldGutter: false,
-        highlightActiveLine: false,
-        highlightActiveLineGutter: false,
-      }}
+      basicSetup={BASIC_SETUP}
       className={className}
-      onCreateEditor={(view) => {
-        onReady?.(view)
-      }}
-      onUpdate={(v) => {
-        if (!onSelectionChange) return
-        if (!v.selectionSet && !v.docChanged) return
-        const sel = v.state.selection.main
-        const text = v.state.doc.sliceString(sel.from, sel.to)
-        let rect: { x: number; y: number } | null = null
-        if (sel.from !== sel.to) {
-          const coords = v.view.coordsAtPos(sel.from)
-          if (coords) rect = { x: coords.left, y: coords.top }
-        }
-        onSelectionChange({ text, from: sel.from, to: sel.to, rect })
-      }}
+      onCreateEditor={handleCreate}
+      onUpdate={handleUpdate}
     />
   )
 }
