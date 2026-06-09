@@ -1,0 +1,19 @@
+diff --git a/dist/index.js b/dist/index.js
+index 4eeadda7543ba8f7a245400d7210ee04e45ef2a0..70c267efb1f2a4b779c051100eba379eb7b09956 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -7077,7 +7077,13 @@ class DOMObserver {
+             else
+                 this.flush();
+         });
+-        if (window.EditContext && browser.android && view.constructor.EDIT_CONTEXT !== false &&
++        // PATCH (Aurash): also enable EditContext on DESKTOP Chromium, not just Android.
++        // Works around a Chrome contenteditable+IME bug where Chinese full-width
++        // punctuation (。，！？) needs two presses on Windows + Microsoft Pinyin
++        // (Chromium #521205128). EditContext bypasses the buggy contenteditable
++        // composition path. `window.EditContext` already scopes this to Chromium 121+;
++        // the <126 inverted-selection guard stays. Was: `&& browser.android &&`.
++        if (window.EditContext && view.constructor.EDIT_CONTEXT !== false &&
+             // Chrome <126 doesn't support inverted selections in edit context (#1392)
+             !(browser.chrome && browser.chrome_version < 126)) {
+             this.editContext = new EditContextManager(view);

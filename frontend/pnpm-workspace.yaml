@@ -1,2 +1,4 @@
 allowBuilds:
   esbuild: true
+patchedDependencies:
+  '@codemirror/view': patches/@codemirror__view.patch
