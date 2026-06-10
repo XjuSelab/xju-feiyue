@@ -1,0 +1,390 @@
+/* ==========================================================================
+   /demo — Motion Lab page-scoped styles
+   ----------------------------------------------------------------------------
+   全部动效遵循站内体系：150ms micro / 600ms 入场 / cubic-bezier(0.2,0.8,0.2,1)；
+   颜色只取 tokens.css 变量；滚动联动由 JS rAF 写 CSS 变量（--sp/--pp），
+   本表只消费变量，渲染全走 compositor。文件仅被 DemoPage 引入，自然代码分割。
+   ========================================================================== */
+
+/* === 顶部阅读进度发丝线 === */
+.demo-progress {
+  transform: scaleX(var(--pp, 0));
+  will-change: transform;
+}
+
+/* === §0 Hero — 开场编排（背景 → eyebrow → 标题撕裂(WAAPI) → 副题 → hint） === */
+.demo-hero-bg {
+  background-image:
+    radial-gradient(at 12% 18%, var(--brand-panel-glow-warm), transparent 55%),
+    radial-gradient(at 82% 82%, var(--brand-panel-glow-cool), transparent 60%),
+    radial-gradient(var(--brand-panel-grid) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    24px 24px;
+  animation: demo-bg-in 800ms ease-in both;
+}
+@keyframes demo-bg-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+.demo-hero-eyebrow {
+  animation: demo-rise 400ms cubic-bezier(0.2, 0.8, 0.2, 1) 80ms both;
+}
+.demo-hero-sub {
+  animation: demo-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) 640ms both;
+}
+@keyframes demo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.demo-hero-hint {
+  animation: demo-fade 400ms ease-out 950ms both;
+}
+.demo-hero-hint-bob {
+  animation: demo-bob 2000ms ease-in-out 1350ms infinite;
+}
+@keyframes demo-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes demo-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+/* === 通用滚动入场（SectionShell header）：退出视口立即复位，进入时按 --d 级联 === */
+.demo-rev {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 600ms ease,
+    transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-on] .demo-rev {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: var(--d, 0ms);
+}
+
+/* === §1 SVG 描边书写：dashoffset 扫轮廓，fill 60% 处接力淡入 === */
+.demo-stroke-text {
+  font-family: var(--font-serif);
+  font-size: 96px;
+  font-weight: 600;
+}
+.demo-stroke-ch {
+  fill: var(--color-text);
+  stroke: var(--sc, var(--color-text));
+  stroke-width: 1;
+  paint-order: stroke;
+}
+[data-on] .demo-stroke-ch {
+  stroke-dasharray: 1400;
+  animation: demo-draw 1500ms cubic-bezier(0.45, 0, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 170ms);
+}
+@keyframes demo-draw {
+  0% {
+    stroke-dashoffset: 1400;
+    fill-opacity: 0;
+    stroke-opacity: 1;
+  }
+  55% {
+    fill-opacity: 0;
+  }
+  88% {
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+    stroke-opacity: 0.35;
+  }
+}
+
+/* === §2 视差 + 3D 卡片：三层分工——
+   .demo-par 滚动视差 / .demo-fly 入场 / .demo-card hover，
+   各占独立 transform 通道互不抢插值（同 note-stack-card 的教训）。 === */
+.demo-par {
+  transform: translateY(calc((var(--sp, 0.5) - 0.5) * var(--speed, 0) * 1px));
+  will-change: transform;
+}
+.demo-fly {
+  opacity: 0;
+  transform: translateY(28px);
+}
+[data-on] .demo-fly {
+  animation: demo-fly-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+@keyframes demo-fly-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.demo-card {
+  transform: rotateX(5deg) rotate(var(--rot, 0deg));
+  transition:
+    transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 300ms ease;
+}
+.demo-card:hover {
+  transform: rotateX(0deg) rotate(0deg) translateY(-6px);
+  box-shadow: 0 14px 36px rgba(55, 53, 47, 0.1);
+}
+
+/* === §4 odometer：eyebrow 字距收拢聚焦 + 描述 blur 淡入 === */
+.demo-odo-eyebrow {
+  letter-spacing: 0.3em;
+  transition: letter-spacing 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-on] .demo-odo-eyebrow {
+  letter-spacing: 0.06em;
+}
+.demo-odo-desc {
+  opacity: 0;
+  filter: blur(5px);
+  transition:
+    opacity 800ms ease 450ms,
+    filter 800ms ease 450ms;
+}
+[data-on] .demo-odo-desc {
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* === §5 排版乐器：typed custom properties，松手后 settle 回弹是渐进增强 === */
+@property --pg-fw {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 560;
+}
+@property --pg-ls {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 1.12px;
+}
+@property --pg-lh {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1.15;
+}
+.demo-pg-title {
+  font-weight: var(--pg-fw, 560);
+  letter-spacing: var(--pg-ls, 1.12px);
+  line-height: var(--pg-lh, 1.15);
+}
+.demo-pg-settle {
+  transition:
+    --pg-fw 600ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    --pg-ls 600ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    --pg-lh 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.demo-pg-cross {
+  transition: opacity 300ms ease;
+}
+
+/* === §6 雷达：同心网格内→外弹出；顶点 g 入场 / circle hover 分离通道 === */
+.demo-radar-grid {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transform: scale(0.2);
+  opacity: 0;
+}
+[data-on] .demo-radar-grid {
+  animation: demo-radar-pop 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@keyframes demo-radar-pop {
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.demo-radar-dot-in {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0);
+}
+[data-grown] .demo-radar-dot-in {
+  animation: demo-dot-in 300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+@keyframes demo-dot-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.demo-radar-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+.demo-radar-dot:hover,
+.demo-radar-dot:focus-visible {
+  transform: scale(1.6);
+  outline: none;
+}
+.demo-radar-label {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateY(6px);
+  transition:
+    opacity 500ms ease,
+    transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 60ms + 450ms);
+}
+[data-grown] .demo-radar-label {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateY(0);
+}
+.demo-radar-tip {
+  animation: demo-tip-in 150ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes demo-tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%) translateY(-12px);
+  }
+}
+
+/* === §7 终幕：词层景深视差 + ghost 描边字随滚动「刻」入纸面 + 磁吸 === */
+.demo-depth {
+  transform: translateY(calc((var(--sp, 0.5) - 0.5) * var(--depth, 0) * 1px));
+  will-change: transform;
+}
+.demo-finale-ghost {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--line-strong);
+  /* 终幕是页面末 section，--sp 实际上限 ≈ height/(vh+height) ≈ 0.5+，
+     映射区间据此取 0.18→0.55，滚到底时描边字恰好「刻」入纸面。 */
+  opacity: calc((var(--sp, 0) - 0.18) * 2.7);
+  transform: translateY(calc((var(--sp, 0.5) - 0.5) * -24px));
+}
+.demo-finale-glow {
+  background:
+    radial-gradient(
+      560px circle at var(--gx, 30%) var(--gy, 30%),
+      var(--brand-panel-glow-warm),
+      transparent 70%
+    ),
+    radial-gradient(
+      760px circle at calc(100% - var(--gx, 30%)) calc(100% - var(--gy, 30%)),
+      var(--brand-panel-glow-cool),
+      transparent 75%
+    );
+}
+.demo-magnet {
+  transform: translate(var(--mx, 0px), var(--my, 0px));
+  will-change: transform;
+}
+
+/* === reduced-motion：一键降级为静态终态，对齐 globals.css 既有约定 === */
+@media (prefers-reduced-motion: reduce) {
+  .demo-hero-bg,
+  .demo-hero-eyebrow,
+  .demo-hero-sub,
+  .demo-hero-hint,
+  .demo-hero-hint-bob {
+    animation: none;
+    opacity: 1;
+  }
+  .demo-hero-bg {
+    opacity: 0.85;
+  }
+  .demo-rev,
+  [data-on] .demo-rev {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+  [data-on] .demo-stroke-ch {
+    animation: none;
+    stroke-opacity: 0.35;
+  }
+  .demo-par,
+  .demo-depth {
+    transform: none;
+  }
+  .demo-fly,
+  [data-on] .demo-fly {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .demo-card,
+  .demo-card:hover {
+    transform: none;
+    transition: none;
+  }
+  .demo-odo-eyebrow,
+  [data-on] .demo-odo-eyebrow {
+    transition: none;
+    letter-spacing: 0.06em;
+  }
+  .demo-odo-desc,
+  [data-on] .demo-odo-desc {
+    transition: none;
+    opacity: 1;
+    filter: none;
+  }
+  .demo-pg-settle {
+    transition: none;
+  }
+  .demo-radar-grid,
+  [data-on] .demo-radar-grid {
+    animation: none;
+    transform: scale(1);
+    opacity: 1;
+  }
+  .demo-radar-dot-in,
+  [data-grown] .demo-radar-dot-in {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+  .demo-radar-label {
+    transition: none;
+  }
+  .demo-finale-ghost {
+    opacity: 0.6;
+    transform: none;
+  }
+  .demo-magnet {
+    transform: none;
+  }
+  .demo-progress {
+    transform: scaleX(1);
+  }
+}

@@ -35,6 +35,8 @@ const CreditsPage = lazy(() =>
 )
 // 隐藏管理后台：仅 URL 进入（无导航入口）；页面内按角色守卫，非管理员见 404 视图。
 const AdminPage = lazy(() => import('@/pages/AdminPage').then((m) => ({ default: m.AdminPage })))
+// Motion Lab 动效炫技场：公开访问（同 /browse），无导航入口，URL 直达。
+const DemoPage = lazy(() => import('@/pages/DemoPage').then((m) => ({ default: m.DemoPage })))
 
 const DesignSystemPage = import.meta.env.DEV
   ? lazy(() =>
@@ -110,6 +112,14 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         element: (
           <PageBoundary>
             <BrowsePage />
+          </PageBoundary>
+        ),
+      },
+      {
+        path: '/demo',
+        element: (
+          <PageBoundary>
+            <DemoPage />
           </PageBoundary>
         ),
       },

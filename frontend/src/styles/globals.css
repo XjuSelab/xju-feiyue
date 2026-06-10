@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600&display=swap');
+/* Source Serif 4 / Noto Serif SC 以 wght 区间引入（variable font）：
+   既有 400-700 用法不变（四个静态档合并为一个变量文件），
+   同时让 /demo 排版乐器可在 200-900 间连续插值字重。 */
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@200..900&display=swap');
 
 @import './tokens.css';
 @import './prose-claude.css';
