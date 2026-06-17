@@ -122,10 +122,10 @@ export function MaterialListView({ onOpenResource }: Props) {
     <main className="w-full px-7 pb-24 pt-7 xl:px-10">
       {confirmHost}
 
-      {/* 顶部行：标题+计数（左） / 搜索框 + 最近上传弹出按钮（右，ml-auto）同行并列。
-          窄屏 flex-wrap 优雅换行。 */}
+      {/* 顶部行：标题+计数（左） / 致谢长条（中，flex-1） / 搜索框 + 最近上传（右）。
+          窄屏 flex-wrap 优雅换行（致谢长条 order-last 落到独立整行）。 */}
       <header className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div className="flex items-baseline gap-3">
+        <div className="flex shrink-0 items-baseline gap-3">
           <h1 className="m-0 font-serif text-[28px] font-semibold tracking-[-0.01em] text-text">
             资料
           </h1>
@@ -134,7 +134,10 @@ export function MaterialListView({ onOpenResource }: Props) {
           </span>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        {/* 致谢信息条（白底小圆角细长条；管理员可编辑/隐藏，溢出渐变淡出） */}
+        <MaterialNotice />
+
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {/* 页面级搜索 */}
           <div className="relative w-52 sm:w-64">
             <Search
@@ -154,9 +157,6 @@ export function MaterialListView({ onOpenResource }: Props) {
           <RecentUploads items={recentItems} onPreview={setPreview} />
         </div>
       </header>
-
-      {/* 致谢信息条（Notion 风格长条；管理员可编辑/隐藏） */}
-      <MaterialNotice />
 
       {/* 课程类型筛选选项卡 */}
       <div role="tablist" aria-label="课程类型" className="mb-5 flex flex-wrap items-center gap-1">

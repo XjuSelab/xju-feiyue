@@ -20,9 +20,8 @@ depends_on: str | Sequence[str] | None = None
 
 
 _DEFAULT_CONTENT = (
-    "📚 本页部分课程资料整理自开源仓库 "
-    "https://github.com/XJU-OpenHub/XjuCsMajorResources ，"
-    "由黄耀增学长贡献，特此致谢 🙏"
+    "📚 感谢黄耀增学长贡献课程资料，源自 "
+    "https://github.com/XJU-OpenHub/XjuCsMajorResources 🙏"
 )
 
 
