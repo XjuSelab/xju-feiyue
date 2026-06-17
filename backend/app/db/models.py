@@ -316,3 +316,33 @@ class MaterialFile(Base):
         lazy="raise",
         passive_deletes=True,
     )
+
+
+class MaterialNotice(Base):
+    """The single acknowledgment/credits bar shown on the `/materials` page.
+
+    A singleton (one row, fixed PK ``MaterialNotice.SINGLETON_ID``) holding a
+    short Notion-style note — e.g. crediting a contributed-resource repo. Any
+    logged-in user can *read* it (it renders for everyone when ``visible``);
+    only admins/super-admins (``services.auth.is_admin``) may edit the content
+    or hide it. "Delete" is a soft hide (``visible=False``) so an admin can
+    restore it later without losing the text.
+    """
+
+    __tablename__ = "material_notice"
+
+    # Fixed singleton id — there is only ever one notice row.
+    SINGLETON_ID = "default"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    # Hidden (deleted) when False; the row is kept so a hide is reversible.
+    visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # sid of the last admin who edited/hid it (audit only; nullable).
+    updated_by_sid: Mapped[str | None] = mapped_column(String(11), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )

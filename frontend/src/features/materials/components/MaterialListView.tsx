@@ -20,6 +20,7 @@ const TAG_TABS: ReadonlyArray<{ value: ResourceTag | 'all'; label: string }> = [
 ]
 import { useDeleteResource, useResources } from '../hooks/useMaterials'
 import { MaterialCard } from './MaterialCard'
+import { MaterialNotice } from './MaterialNotice'
 import { RecentUploads, type RecentItem } from './RecentUploads'
 import { ResourceFormDialog } from './ResourceFormDialog'
 import { useConfirm } from './ConfirmDialog'
@@ -153,6 +154,9 @@ export function MaterialListView({ onOpenResource }: Props) {
           <RecentUploads items={recentItems} onPreview={setPreview} />
         </div>
       </header>
+
+      {/* 致谢信息条（Notion 风格长条；管理员可编辑/隐藏） */}
+      <MaterialNotice />
 
       {/* 课程类型筛选选项卡 */}
       <div role="tablist" aria-label="课程类型" className="mb-5 flex flex-wrap items-center gap-1">

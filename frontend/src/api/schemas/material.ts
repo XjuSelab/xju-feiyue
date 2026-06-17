@@ -118,3 +118,24 @@ export type ReorderIn = z.infer<typeof ReorderInSchema>
 
 /** 204 空体端点（reorder / deleteFile / deleteFolder / deleteResource）。 */
 export const NoContentSchema = z.null()
+
+// ---------------------------------------------------------------------------
+// 致谢信息条（资料列表页顶部的 credits bar）
+// ---------------------------------------------------------------------------
+
+/**
+ * GET /materials/notice —— 单例致谢条。`content` 为纯文本（前端把裸 http(s)
+ * 链接渲染成可点击）；`visible=false` = 管理员已隐藏（普通用户不渲染）。
+ */
+export const MaterialNoticeSchema = z.object({
+  content: z.string(),
+  visible: z.boolean(),
+  updateDate: z.string(),
+})
+export type MaterialNotice = z.infer<typeof MaterialNoticeSchema>
+
+/** PUT /materials/notice body（管理员）。 */
+export const NoticeUpdateInSchema = z.object({
+  content: z.string(),
+})
+export type NoticeUpdateIn = z.infer<typeof NoticeUpdateInSchema>

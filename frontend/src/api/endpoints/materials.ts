@@ -4,10 +4,12 @@ import { xhrUpload, type UploadProgress } from '../upload'
 import {
   MaterialFileSchema,
   MaterialFileTreeSchema,
+  MaterialNoticeSchema,
   MaterialResourceListSchema,
   MaterialResourceSchema,
   NoContentSchema,
   type MaterialFile,
+  type MaterialNotice,
   type MaterialResource,
   type ReorderIn,
   type ResourceCreateIn,
@@ -216,6 +218,41 @@ export function uploadUrl(rid: string, folderId?: string | null): string {
   const base = `${getApiBase()}/materials/resources/${rid}/files`
   if (folderId) return `${base}?folderId=${encodeURIComponent(folderId)}`
   return base
+}
+
+// ---------------------------------------------------------------------------
+// 致谢信息条
+// ---------------------------------------------------------------------------
+
+/** GET /materials/notice —— 致谢条（共享读；visible=false 表管理员已隐藏）。 */
+export async function getNotice(): Promise<MaterialNotice> {
+  return request({
+    method: 'GET',
+    path: '/materials/notice',
+    schema: MaterialNoticeSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** PUT /materials/notice —— 设置内容并显示（管理员 only）。 */
+export async function putNotice(content: string): Promise<MaterialNotice> {
+  return request({
+    method: 'PUT',
+    path: '/materials/notice',
+    schema: MaterialNoticeSchema,
+    headers: authHeaders(),
+    body: { content },
+  })
+}
+
+/** DELETE /materials/notice —— 隐藏致谢条（管理员 only，204；内容保留可恢复）。 */
+export async function deleteNotice(): Promise<null> {
+  return request({
+    method: 'DELETE',
+    path: '/materials/notice',
+    schema: NoContentSchema,
+    headers: authHeaders(),
+  })
 }
 
 /** 暴露 authHeaders 供需要原生 fetch（带进度）的 hook 复用，避免重复实现。 */

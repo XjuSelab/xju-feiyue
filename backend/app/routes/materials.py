@@ -14,6 +14,7 @@ path carries its own `/materials` segment (no router `prefix=`) and
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from urllib.parse import quote
 from uuid import uuid4
 
@@ -22,11 +23,13 @@ from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import MaterialFile, MaterialResource, User
+from app.db.models import MaterialFile, MaterialNotice, MaterialResource, User
 from app.deps import get_current_user, get_db, get_optional_user
 from app.schemas.material import (
     FileOut,
     FolderCreateIn,
+    NoticeOut,
+    NoticeUpdateIn,
     RenameIn,
     ReorderIn,
     ResourceCreateIn,
@@ -34,6 +37,7 @@ from app.schemas.material import (
     ResourceUpdateIn,
 )
 from app.services import materials as svc
+from app.services.auth import is_admin
 from app.services.uploads_common import normalize_ext, save_upload
 
 router = APIRouter(tags=["materials"])
@@ -395,3 +399,72 @@ async def download_file(
             "X-Content-Type-Options": "nosniff",
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Acknowledgment notice (the credits bar on the materials list page)
+# ---------------------------------------------------------------------------
+
+def _notice_out(row: MaterialNotice | None) -> NoticeOut:
+    """Map the singleton notice row → wire shape (defensive when missing)."""
+    if row is None:
+        return NoticeOut(content="", visible=False, update_date=datetime.now(timezone.utc))
+    return NoticeOut(content=row.content, visible=row.visible, update_date=row.updated_at)
+
+
+@router.get("/materials/notice", response_model=NoticeOut)
+async def get_notice(
+    db: AsyncSession = Depends(get_db),
+    _user: User | None = Depends(get_optional_user),
+) -> NoticeOut:
+    """The acknowledgment bar (shared read; ``visible=False`` = admin-hidden)."""
+    row = await db.get(MaterialNotice, MaterialNotice.SINGLETON_ID)
+    return _notice_out(row)
+
+
+@router.put("/materials/notice", response_model=NoticeOut)
+async def put_notice(
+    body: NoticeUpdateIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> NoticeOut:
+    """Set the acknowledgment content and show the bar (admin only).
+
+    Doubles as create (first write), edit (later writes), and restore (after a
+    hide) — every successful PUT sets ``visible=True``.
+    """
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="只有管理员可以编辑致谢信息")
+    content = (body.content or "").strip()
+    if not content:
+        raise HTTPException(status_code=422, detail="致谢内容不能为空")
+
+    row = await db.get(MaterialNotice, MaterialNotice.SINGLETON_ID)
+    if row is None:
+        row = MaterialNotice(id=MaterialNotice.SINGLETON_ID)
+        db.add(row)
+    row.content = content
+    row.visible = True
+    row.updated_by_sid = user.sid
+    await db.commit()
+    await db.refresh(row)
+    return _notice_out(row)
+
+
+@router.delete("/materials/notice", status_code=204)
+async def delete_notice(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Hide the acknowledgment bar (admin only).
+
+    A soft hide (``visible=False``) — the text is kept so a later PUT restores
+    it without re-typing.
+    """
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="只有管理员可以删除致谢信息")
+    row = await db.get(MaterialNotice, MaterialNotice.SINGLETON_ID)
+    if row is not None:
+        row.visible = False
+        row.updated_by_sid = user.sid
+        await db.commit()

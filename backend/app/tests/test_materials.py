@@ -829,3 +829,85 @@ async def test_download_folder_400(
     ).json()
     r = await client.get(f"/materials/files/{folder['id']}/download")
     assert r.status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# Acknowledgment notice (the credits bar on the materials list page)
+# ---------------------------------------------------------------------------
+
+async def test_notice_default_empty_when_unset(client: AsyncClient) -> None:
+    """No row yet (tests skip the migration seed) → empty + hidden, shared read."""
+    r = await client.get("/materials/notice")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["content"] == ""
+    assert body["visible"] is False
+    assert "updateDate" in body
+
+
+async def test_put_notice_admin_creates_and_shows(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
+    r = await client.put(
+        "/materials/notice",
+        json={"content": "  致谢 黄耀增学长 https://github.com/XJU-OpenHub/XjuCsMajorResources  "},
+        headers=admin_headers,
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    # content is trimmed; bar becomes visible.
+    assert body["content"].startswith("致谢 黄耀增学长")
+    assert body["visible"] is True
+    # GET reflects it for everyone (shared read).
+    got = (await client.get("/materials/notice")).json()
+    assert got["content"] == body["content"]
+    assert got["visible"] is True
+
+
+async def test_put_notice_requires_auth(client: AsyncClient) -> None:
+    r = await client.put("/materials/notice", json={"content": "x"})
+    assert r.status_code == 401
+
+
+async def test_put_notice_non_admin_403(
+    client: AsyncClient, auth_headers: dict[str, str]
+) -> None:
+    r = await client.put(
+        "/materials/notice", json={"content": "x"}, headers=auth_headers
+    )
+    assert r.status_code == 403
+
+
+async def test_put_notice_blank_422(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
+    r = await client.put(
+        "/materials/notice", json={"content": "   "}, headers=admin_headers
+    )
+    assert r.status_code == 422
+
+
+async def test_delete_notice_hides_but_keeps_content(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
+    await client.put(
+        "/materials/notice", json={"content": "致谢内容"}, headers=admin_headers
+    )
+    r = await client.delete("/materials/notice", headers=admin_headers)
+    assert r.status_code == 204, r.text
+    got = (await client.get("/materials/notice")).json()
+    assert got["visible"] is False
+    # content kept so a later PUT restores without re-typing.
+    assert got["content"] == "致谢内容"
+    # admin PUT restores visibility.
+    r2 = await client.put(
+        "/materials/notice", json={"content": "致谢内容"}, headers=admin_headers
+    )
+    assert r2.json()["visible"] is True
+
+
+async def test_delete_notice_non_admin_403(
+    client: AsyncClient, auth_headers: dict[str, str]
+) -> None:
+    r = await client.delete("/materials/notice", headers=auth_headers)
+    assert r.status_code == 403

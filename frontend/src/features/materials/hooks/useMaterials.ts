@@ -12,10 +12,13 @@ import {
   createResource,
   deleteFile,
   deleteFolder,
+  deleteNotice,
   deleteResource,
   getFiles,
+  getNotice,
   getResource,
   listResources,
+  putNotice,
   renameFile,
   reorder,
   updateResource,
@@ -24,6 +27,7 @@ import {
 import type { UploadProgress } from '@/api/upload'
 import type { MaterialFile, MaterialResource } from '../types'
 import type {
+  MaterialNotice,
   ReorderIn,
   ResourceCreateIn,
   ResourceUpdateIn,
@@ -49,6 +53,7 @@ const keys = {
   resources: (q?: string) => ['materials', 'resources', q ?? ''] as const,
   resource: (rid: string) => ['materials', 'resource', rid] as const,
   files: (rid: string) => ['materials', 'files', rid] as const,
+  notice: ['materials', 'notice'] as const,
 }
 
 function errMsg(e: unknown, fallback: string): string {
@@ -84,6 +89,45 @@ export function useFiles(rid: string | null): UseQueryResult<MaterialFile[]> {
     queryKey: keys.files(rid ?? '__none__'),
     queryFn: () => getFiles(rid as string),
     enabled: rid != null,
+  })
+}
+
+/** 致谢信息条（共享读；visible=false 表已隐藏）。 */
+export function useNotice(): UseQueryResult<MaterialNotice> {
+  return useQuery({
+    queryKey: keys.notice,
+    queryFn: getNotice,
+    staleTime: LIST_STALE_MS,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// 致谢信息条 mutations（管理员）
+// ---------------------------------------------------------------------------
+
+/** PUT 致谢内容（管理员）：新建 / 编辑 / 隐藏后恢复，成功即显示。 */
+export function useUpdateNotice() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (content: string) => putNotice(content),
+    onSuccess: (data) => {
+      qc.setQueryData<MaterialNotice>(keys.notice, data)
+      toast.success('致谢已更新')
+    },
+    onError: (e) => toast.error(errMsg(e, '保存致谢失败')),
+  })
+}
+
+/** DELETE 致谢条（管理员）：软隐藏，内容保留可恢复。 */
+export function useDeleteNotice() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => deleteNotice(),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.notice })
+      toast.success('致谢已隐藏')
+    },
+    onError: (e) => toast.error(errMsg(e, '隐藏致谢失败')),
   })
 }
 

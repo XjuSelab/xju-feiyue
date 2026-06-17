@@ -100,5 +100,29 @@ class ReorderIn(CamelModel):
     position: ReorderPosition
 
 
+# ---------------------------------------------------------------------------
+# Acknowledgment notice (the credits bar on the materials list page)
+# ---------------------------------------------------------------------------
+
+
+class NoticeOut(CamelModel):
+    """The materials-page acknowledgment bar.
+
+    ``content`` is plain text (the client linkifies any bare ``http(s)`` URL).
+    ``visible=False`` means an admin has hidden it — the client renders nothing
+    for regular users, and an "add" affordance for admins.
+    """
+
+    content: str
+    visible: bool
+    update_date: UtcDateTime
+
+
+class NoticeUpdateIn(CamelModel):
+    """Body for PUT /materials/notice (admin only). Sets content + shows it."""
+
+    content: str
+
+
 # Resolve the recursive `FileOut.children` forward reference.
 FileOut.model_rebuild()
