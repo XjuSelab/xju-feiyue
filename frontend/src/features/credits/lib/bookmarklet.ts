@@ -18,7 +18,7 @@ export const SCRIPTCAT_HOME_URL = 'https://scriptcat.org/'
  * 带版本 query 绕过 Cloudflare 4h 缓存，保证向导里点「安装脚本」拿到的是最新版；
  * Tampermonkey 自动更新走 @updateURL(无 query)，二者互不影响。
  */
-export const IMPORT_USERJS_URL = '/feiyue-importer.user.js?v=1.6.0'
+export const IMPORT_USERJS_URL = '/feiyue-importer.user.js?v=1.6.1'
 
 /** 书签把 PDF POST 到的飞跃中转端点(挂在已被 nginx 代理的 /notes 下)。 */
 const STASH_URL = 'https://feiyue.selab.top/notes/transcript-stash'
