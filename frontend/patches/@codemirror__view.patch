@@ -1,5 +1,5 @@
 diff --git a/dist/index.js b/dist/index.js
-index 4eeadda7543ba8f7a245400d7210ee04e45ef2a0..70c267efb1f2a4b779c051100eba379eb7b09956 100644
+index 4eeadda7543ba8f7a245400d7210ee04e45ef2a0..131f59647e5b779f7e377c6de61f8e33ddc0e424 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -7077,7 +7077,13 @@ class DOMObserver {
@@ -17,3 +17,16 @@ index 4eeadda7543ba8f7a245400d7210ee04e45ef2a0..70c267efb1f2a4b779c051100eba379e
              // Chrome <126 doesn't support inverted selections in edit context (#1392)
              !(browser.chrome && browser.chrome_version < 126)) {
              this.editContext = new EditContextManager(view);
+@@ -7582,7 +7588,11 @@ class EditContextManager {
+             }
+             // Work around missed compositionend events. See https://discuss.codemirror.net/t/a/9514
+             if (change.from < change.to && !change.insert.length && view.inputState.composing >= 0 &&
+-                !/[\\p{Alphabetic}\\p{Number}_]/.test(context.text.slice(Math.max(0, e.updateRangeStart - 1), Math.min(context.text.length, e.updateRangeStart + 1))))
++                // PATCH (Aurash): upstream ships a broken regex here — doubled backslash
++                // and no u flag — so it matches a literal char set, not Unicode word chars,
++                // wrongly force-ending CJK IME composition on deletions (k/d/g/j/n/q/s/x/z…).
++                // Restore the intended Unicode property escape. See CM #521205128 / discuss 9514.
++                !/[\p{Alphabetic}\p{Number}_]/u.test(context.text.slice(Math.max(0, e.updateRangeStart - 1), Math.min(context.text.length, e.updateRangeStart + 1))))
+                 this.handlers.compositionend(e);
+         };
+         this.handlers.characterboundsupdate = e => {
