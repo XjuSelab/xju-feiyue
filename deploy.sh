@@ -69,7 +69,7 @@ cd backend
 /home/winbeau/.local/bin/uv sync --quiet
 /home/winbeau/.local/bin/uv run alembic upgrade head
 
-sudo systemctl restart aurash-backend.service
+sudo systemctl restart feiyue-backend.service
 sleep 3
 
 # --noproxy 127.0.0.1: this shell often has http_proxy=http://127.0.0.1:10808
@@ -87,15 +87,15 @@ else
     echo "-- raw curl trace --"
     curl -v --max-time 5 --noproxy 127.0.0.1 http://127.0.0.1:8001/health 2>&1 | tail -20 || true
     echo
-    echo "-- aurash-backend log since latest unit start --"
+    echo "-- feiyue-backend log since latest unit start --"
     # journalctl _SYSTEMD_INVOCATION_ID filter scopes us to *this* uvicorn
     # process — everything before the most recent `systemctl restart` is noise
     # (SIGTERM 143 cycles from earlier restarts).
-    inv=$(sudo systemctl show aurash-backend.service -p InvocationID --value)
+    inv=$(sudo systemctl show feiyue-backend.service -p InvocationID --value)
     if [ -n "$inv" ]; then
         sudo journalctl _SYSTEMD_INVOCATION_ID="$inv" --no-pager | tail -40
     else
-        sudo journalctl -u aurash-backend.service -n 40 --no-pager
+        sudo journalctl -u feiyue-backend.service -n 40 --no-pager
     fi
     exit 1
 fi
