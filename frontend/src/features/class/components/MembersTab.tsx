@@ -1,7 +1,7 @@
+import { CommitteeBadge } from '@/components/common/CommitteeBadge'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { resolveAssetUrl } from '@/api/client'
 
 import { useClassMembers } from '../hooks/useClass'
@@ -29,11 +29,7 @@ export function MembersTab() {
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="truncate text-sm font-medium text-text">{m.nickname}</span>
-              {m.isClassCommittee && (
-                <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                  班委
-                </Badge>
-              )}
+              {m.isClassCommittee && <CommitteeBadge title={m.committeeTitle} />}
             </div>
             <div className="truncate text-xs text-text-faint">{m.sid}</div>
           </div>

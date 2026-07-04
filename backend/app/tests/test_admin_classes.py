@@ -121,11 +121,18 @@ async def test_set_committee(client: AsyncClient, class_setup, login) -> None:
 
     r = await client.post(
         "/admin/users/20240001002/committee",
-        json={"isClassCommittee": True},
+        json={"isClassCommittee": True, "committeeTitle": "团支书"},
         headers=admin,
     )
     assert r.status_code == 200, r.text
     assert r.json()["isClassCommittee"] is True
+    assert r.json()["committeeTitle"] == "团支书"
+
+    # 职务名称随成员列表下发（着色徽标数据源）。
+    member_headers = await login("20240001003")
+    members = (await client.get("/classes/me/members", headers=member_headers)).json()
+    by_sid = {m["sid"]: m for m in members}
+    assert by_sid["20240001002"]["committeeTitle"] == "团支书"
 
     # The flag actually grants roll-call powers.
     member = await login("20240001002")
@@ -133,13 +140,14 @@ async def test_set_committee(client: AsyncClient, class_setup, login) -> None:
         await client.post("/classes/me/rollcalls", json={}, headers=member)
     ).status_code == 201
 
-    # …and can be revoked.
+    # …and can be revoked (title cleared with the flag).
     r = await client.post(
         "/admin/users/20240001002/committee",
         json={"isClassCommittee": False},
         headers=admin,
     )
     assert r.json()["isClassCommittee"] is False
+    assert r.json()["committeeTitle"] is None
 
 
 async def test_admin_user_rows_carry_class_fields(

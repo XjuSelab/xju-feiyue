@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, GraduationCap, Users } from 'lucide-react'
 
+import { CommitteeBadge } from '@/components/common/CommitteeBadge'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
@@ -74,7 +75,7 @@ export function ClassPage() {
           {me.classFullName}
         </h1>
         <Badge variant="secondary">{me.classShortName}</Badge>
-        {me.isClassCommittee && <Badge>班委</Badge>}
+        {me.isClassCommittee && <CommitteeBadge title={me.committeeTitle} className="text-xs" />}
         <span className="ml-auto inline-flex items-center gap-1.5 text-sm text-text-muted">
           <Users size={15} strokeWidth={1.75} aria-hidden />
           {me.memberCount} 名成员

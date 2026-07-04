@@ -108,6 +108,7 @@ async def list_users(
             User.created_at,
             User.class_id,
             User.is_class_committee,
+            User.committee_title,
             StudentClass.short_name.label("class_short_name"),
             func.coalesce(note_counts.c.c, 0).label("note_count"),
             func.coalesce(mat_counts.c.c, 0).label("material_count"),
@@ -134,6 +135,7 @@ async def list_users(
             class_id=r.class_id,
             class_short_name=r.class_short_name,
             is_class_committee=r.is_class_committee,
+            committee_title=r.committee_title,
             last_login_at=r.last_login_at,
             created_at=r.created_at,
         )
@@ -308,6 +310,7 @@ async def _user_row(db: AsyncSession, target: User) -> AdminUserRow:
         class_id=target.class_id,
         class_short_name=target.class_short_name,
         is_class_committee=target.is_class_committee,
+        committee_title=target.committee_title,
         last_login_at=last_login_at,
         created_at=target.created_at,
     )
@@ -551,6 +554,7 @@ async def set_user_class(
     target.class_id = body.class_id
     if body.class_id is None:
         target.is_class_committee = False
+        target.committee_title = None
     await db.commit()
     await db.refresh(target)
     return await _user_row(db, target)
@@ -563,13 +567,21 @@ async def set_user_committee(
     _admin: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> AdminUserRow:
-    """Toggle the 班委 flag — only meaningful for users who have a class."""
+    """Toggle the 班委 flag (+ 职务名称) — only for users who have a class.
+
+    Setting the flag stores the display title (省略 → 通用「班委」由前端
+    fallback，存 NULL)；clearing the flag always clears the title.
+    """
     target = await db.get(User, sid)
     if not target:
         raise HTTPException(status_code=404, detail="用户不存在")
     if body.is_class_committee and target.class_id is None:
         raise HTTPException(status_code=400, detail="请先为该用户设置班级")
     target.is_class_committee = body.is_class_committee
+    if body.is_class_committee:
+        target.committee_title = (body.committee_title or "").strip() or None
+    else:
+        target.committee_title = None
     await db.commit()
     await db.refresh(target)
     return await _user_row(db, target)

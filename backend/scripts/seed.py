@@ -151,6 +151,7 @@ async def main() -> None:
                     password_hash=hash_password(u["password"]),
                     class_id=demo_class.id if u.get("in_class") else None,
                     is_class_committee=bool(u.get("committee")),
+                    committee_title="班长" if u.get("committee") else None,
                 )
             )
         await session.flush()

@@ -33,7 +33,7 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { cn } from '@/lib/cn'
 
-import { Badge } from '@/components/ui/badge'
+import { CommitteeBadge } from '@/components/common/CommitteeBadge'
 
 import { useAdminUsers, useSetRole, useSetUserCommittee } from '../hooks/useAdmin'
 import { formatDate, formatRelative } from '../lib/format'
@@ -42,6 +42,7 @@ import { RoleBadge } from './RoleBadge'
 import { ResetPasswordDialog } from './ResetPasswordDialog'
 import { ImportUserDialog } from './ImportUserDialog'
 import { SetClassDialog } from './SetClassDialog'
+import { SetCommitteeDialog } from './SetCommitteeDialog'
 
 /**
  * User-management table. Actions are rendered per the *actor's* privileges so
@@ -68,6 +69,9 @@ export function UsersTab({
   const [roleTarget, setRoleTarget] = React.useState<AdminUserRow | null>(null)
   const [classTarget, setClassTarget] = React.useState<AdminUserRow | null>(null)
   const [committeeTarget, setCommitteeTarget] = React.useState<AdminUserRow | null>(null)
+  const [cancelCommitteeTarget, setCancelCommitteeTarget] = React.useState<AdminUserRow | null>(
+    null,
+  )
 
   const rows = React.useMemo(() => {
     const all = data ?? []
@@ -163,11 +167,7 @@ export function UsersTab({
                       {u.classShortName ? (
                         <span className="inline-flex items-center gap-1.5 text-text-muted">
                           {u.classShortName}
-                          {u.isClassCommittee ? (
-                            <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                              班委
-                            </Badge>
-                          ) : null}
+                          {u.isClassCommittee ? <CommitteeBadge title={u.committeeTitle} /> : null}
                         </span>
                       ) : (
                         <span className="text-text-faint">—</span>
@@ -199,21 +199,18 @@ export function UsersTab({
                               设置班级
                             </DropdownMenuItem>
                             {u.classShortName ? (
+                              <DropdownMenuItem className="gap-2" onSelect={() => setCommitteeTarget(u)}>
+                                <Star className="size-4" />
+                                {u.isClassCommittee ? '修改班委职务' : '设为班委'}
+                              </DropdownMenuItem>
+                            ) : null}
+                            {u.isClassCommittee ? (
                               <DropdownMenuItem
-                                className={cn('gap-2', u.isClassCommittee && 'text-cat-research')}
-                                onSelect={() => setCommitteeTarget(u)}
+                                className="gap-2 text-cat-research"
+                                onSelect={() => setCancelCommitteeTarget(u)}
                               >
-                                {u.isClassCommittee ? (
-                                  <>
-                                    <StarOff className="size-4" />
-                                    取消班委
-                                  </>
-                                ) : (
-                                  <>
-                                    <Star className="size-4" />
-                                    设为班委
-                                  </>
-                                )}
+                                <StarOff className="size-4" />
+                                取消班委
                               </DropdownMenuItem>
                             ) : null}
                             {reset ? (
@@ -277,41 +274,40 @@ export function UsersTab({
         }}
       />
 
-      {/* 设/撤班委 confirmation */}
-      <AlertDialog
+      {/* 设为班委 / 修改职务（职务名称 + 着色预览） */}
+      <SetCommitteeDialog
+        user={committeeTarget}
         open={committeeTarget != null}
-        onOpenChange={(o) => (!o ? setCommitteeTarget(null) : undefined)}
+        onOpenChange={(o) => {
+          if (!o) setCommitteeTarget(null)
+        }}
+      />
+
+      {/* 取消班委 confirmation */}
+      <AlertDialog
+        open={cancelCommitteeTarget != null}
+        onOpenChange={(o) => (!o ? setCancelCommitteeTarget(null) : undefined)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-serif">
-              {committeeTarget?.isClassCommittee ? '取消班委？' : '设为班委？'}
-            </AlertDialogTitle>
+            <AlertDialogTitle className="font-serif">取消班委？</AlertDialogTitle>
             <AlertDialogDescription>
-              {committeeTarget?.isClassCommittee ? (
-                <>
-                  将取消 <strong>{committeeTarget?.nickname}</strong> 的班委身份，TA
-                  将无法再发起点名或审批小组申请。
-                </>
-              ) : (
-                <>
-                  将授予 <strong>{committeeTarget?.nickname}</strong> 班委身份（
-                  {committeeTarget?.classShortName}）：可发起点名、勾选到点、审批本班小组的加入申请。
-                </>
-              )}
+              将取消 <strong>{cancelCommitteeTarget?.nickname}</strong>（
+              {cancelCommitteeTarget?.committeeTitle ?? '班委'}）的班委身份，TA
+              将无法再发起点名或审批小组申请。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (committeeTarget) {
+                if (cancelCommitteeTarget) {
                   setCommittee.mutate({
-                    sid: committeeTarget.sid,
-                    isClassCommittee: !committeeTarget.isClassCommittee,
+                    sid: cancelCommitteeTarget.sid,
+                    isClassCommittee: false,
                   })
                 }
-                setCommitteeTarget(null)
+                setCancelCommitteeTarget(null)
               }}
             >
               确定

@@ -123,6 +123,10 @@ class User(Base):
     is_class_committee: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("0"), default=False
     )
+    # 班委职务名称 (班长 / 团支书 / 学习委员 …) — display only; the boolean
+    # above stays the single source of truth for permissions. Set/cleared
+    # together with the flag by the admin endpoint.
+    committee_title: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

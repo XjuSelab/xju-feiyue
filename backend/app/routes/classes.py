@@ -51,6 +51,7 @@ async def get_my_class(
         class_full_name=user.class_full_name,
         class_short_name=user.class_short_name,
         is_class_committee=user.is_class_committee,
+        committee_title=user.committee_title,
         member_count=await svc.count_class_members(db, user.class_id),
     )
 

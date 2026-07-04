@@ -24,6 +24,8 @@ class ClassMeOut(CamelModel):
     class_full_name: str | None = None
     class_short_name: str | None = None
     is_class_committee: bool = False
+    # 自己的班委职务名称（页头徽标）；非班委 / legacy 班委为 None。
+    committee_title: str | None = None
     member_count: int = 0
 
 
@@ -35,6 +37,8 @@ class ClassMemberOut(CamelModel):
     name: str
     avatar_thumb: str | None = None
     is_class_committee: bool = False
+    # 班委职务名称 (班长 / 团支书 / …)；驱动成员列表的着色徽标。
+    committee_title: str | None = None
 
 
 class RollCallCreateIn(CamelModel):

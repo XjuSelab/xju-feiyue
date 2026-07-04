@@ -19,6 +19,8 @@ export const ClassMeSchema = z.object({
   classFullName: z.string().nullish(),
   classShortName: z.string().nullish(),
   isClassCommittee: z.boolean(),
+  /** 自己的班委职务名称（班长 / 团支书 / …）；非班委为 null。 */
+  committeeTitle: z.string().nullish(),
   memberCount: z.number(),
 })
 export type ClassMe = z.infer<typeof ClassMeSchema>
@@ -29,6 +31,8 @@ export const ClassMemberSchema = z.object({
   name: z.string(),
   avatarThumb: z.string().url().nullish(),
   isClassCommittee: z.boolean(),
+  /** 班委职务名称 —— 驱动着色徽标（班长/团支书红，其余橙）。 */
+  committeeTitle: z.string().nullish(),
 })
 export type ClassMember = z.infer<typeof ClassMemberSchema>
 export const ClassMemberListSchema = z.array(ClassMemberSchema)

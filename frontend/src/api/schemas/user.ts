@@ -33,6 +33,8 @@ export const UserSchema = z.object({
   classShortName: z.string().nullish(),
   /** 班委标记 —— 可发起点名 / 审批小组申请（仅本班内生效）。 */
   isClassCommittee: z.boolean().nullish(),
+  /** 班委职务名称（班长 / 团支书 / …）；display only。 */
+  committeeTitle: z.string().nullish(),
 })
 export type User = z.infer<typeof UserSchema>
 

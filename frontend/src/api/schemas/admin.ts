@@ -28,6 +28,8 @@ export const AdminUserRowSchema = z.object({
   classShortName: z.string().nullish(),
   /** 班委标记（按班级生效的点名/审批权限）。 */
   isClassCommittee: z.boolean().nullish(),
+  /** 班委职务名称（班长 / 团支书 / …）。 */
+  committeeTitle: z.string().nullish(),
   /** ISO-8601 UTC (…Z) or null. */
   lastLoginAt: z.string().nullish(),
   createdAt: z.string().nullish(),

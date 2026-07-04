@@ -32,6 +32,7 @@ class AdminUserRow(CamelModel):
     class_id: int | None = None
     class_short_name: str | None = None
     is_class_committee: bool = False
+    committee_title: str | None = None
     last_login_at: UtcDateTime | None = None
     created_at: UtcDateTime | None = None
 
@@ -100,9 +101,15 @@ class SetClassIn(CamelModel):
 
 
 class SetCommitteeIn(CamelModel):
-    """POST /admin/users/{sid}/committee — toggle the 班委 flag."""
+    """POST /admin/users/{sid}/committee — toggle the 班委 flag.
+
+    ``committee_title`` (班长 / 团支书 / 学习委员 …) is display-only and only
+    meaningful when setting the flag; omitted → generic「班委」. Clearing the
+    flag always clears the title.
+    """
 
     is_class_committee: bool
+    committee_title: str | None = Field(default=None, max_length=32)
 
 
 # --- /admin/stats ----------------------------------------------------------

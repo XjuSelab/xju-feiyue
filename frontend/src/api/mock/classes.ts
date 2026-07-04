@@ -16,15 +16,16 @@ type MockMember = {
   name: string
   avatarThumb: string | null
   isClassCommittee: boolean
+  committeeTitle: string | null
 }
 
 const MEMBERS: MockMember[] = [
-  { sid: '20211010001', nickname: '测试同学', name: '测试同学', avatarThumb: null, isClassCommittee: true },
-  { sid: '20211010002', nickname: '张三', name: '张三', avatarThumb: null, isClassCommittee: false },
-  { sid: '20211010003', nickname: '李四', name: '李四', avatarThumb: null, isClassCommittee: false },
-  { sid: '20211010004', nickname: '王五', name: '王五', avatarThumb: null, isClassCommittee: false },
-  { sid: '20211010005', nickname: '赵六', name: '赵六', avatarThumb: null, isClassCommittee: false },
-  { sid: '20211010006', nickname: '孙七', name: '孙七', avatarThumb: null, isClassCommittee: false },
+  { sid: '20211010001', nickname: '测试同学', name: '测试同学', avatarThumb: null, isClassCommittee: true, committeeTitle: '班长' },
+  { sid: '20211010002', nickname: '张三', name: '张三', avatarThumb: null, isClassCommittee: false, committeeTitle: null },
+  { sid: '20211010003', nickname: '李四', name: '李四', avatarThumb: null, isClassCommittee: false, committeeTitle: null },
+  { sid: '20211010004', nickname: '王五', name: '王五', avatarThumb: null, isClassCommittee: false, committeeTitle: null },
+  { sid: '20211010005', nickname: '赵六', name: '赵六', avatarThumb: null, isClassCommittee: false, committeeTitle: null },
+  { sid: '20211010006', nickname: '孙七', name: '孙七', avatarThumb: null, isClassCommittee: false, committeeTitle: null },
 ]
 
 const memberOf = (sid: string): MockMember =>
@@ -34,6 +35,7 @@ const memberOf = (sid: string): MockMember =>
     name: sid,
     avatarThumb: null,
     isClassCommittee: false,
+    committeeTitle: null,
   }
 
 let seq = 1
@@ -354,6 +356,7 @@ registerMock('GET', '/classes/me', async () => ({
   classFullName: '计算机科学与技术24-3',
   classShortName: '计算机24-3',
   isClassCommittee: true,
+  committeeTitle: '班长',
   memberCount: MEMBERS.length,
 }))
 

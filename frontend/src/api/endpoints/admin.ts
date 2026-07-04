@@ -141,15 +141,17 @@ export async function setUserClass(sid: string, classId: number | null): Promise
   })
 }
 
-/** POST /admin/users/{sid}/committee — 设/撤班委（须已有班级）。 */
+/** POST /admin/users/{sid}/committee — 设/撤班委（须已有班级）。
+ * `committeeTitle`（班长 / 团支书 / …）仅在设班委时有意义；撤销自动清空。 */
 export async function setUserCommittee(
   sid: string,
   isClassCommittee: boolean,
+  committeeTitle?: string,
 ): Promise<AdminUserRow> {
   return request({
     method: 'POST',
     path: `/admin/users/${sid}/committee`,
-    body: { isClassCommittee },
+    body: committeeTitle ? { isClassCommittee, committeeTitle } : { isClassCommittee },
     schema: AdminUserRowSchema,
     headers: authHeaders(),
   })

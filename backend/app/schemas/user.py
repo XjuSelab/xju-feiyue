@@ -37,6 +37,8 @@ class UserOut(CamelModel):
     class_short_name: str | None = None
     # 班委 flag — roll-call / group-approval powers within the user's class.
     is_class_committee: bool = False
+    # 班委职务名称 (班长 / 团支书 / …) — display only; NULL on legacy 班委.
+    committee_title: str | None = None
 
     @computed_field(alias="isAdmin")  # type: ignore[prop-decorator]
     @property

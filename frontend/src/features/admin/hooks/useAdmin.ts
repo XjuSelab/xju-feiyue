@@ -149,13 +149,22 @@ export function useSetUserCommittee() {
   const qc = useQueryClient()
   const invalidate = useInvalidateAdmin()
   return useMutation({
-    mutationFn: ({ sid, isClassCommittee }: { sid: string; isClassCommittee: boolean }) =>
-      setUserCommittee(sid, isClassCommittee),
+    mutationFn: ({
+      sid,
+      isClassCommittee,
+      committeeTitle,
+    }: {
+      sid: string
+      isClassCommittee: boolean
+      committeeTitle?: string | undefined
+    }) => setUserCommittee(sid, isClassCommittee, committeeTitle),
     onSuccess: (row) => {
       invalidate()
       void qc.invalidateQueries({ queryKey: keys.classes })
       toast.success(
-        row.isClassCommittee ? `已将 ${row.nickname} 设为班委` : `已取消 ${row.nickname} 的班委`,
+        row.isClassCommittee
+          ? `已将 ${row.nickname} 设为${row.committeeTitle ?? '班委'}`
+          : `已取消 ${row.nickname} 的班委`,
       )
     },
     onError: (e) => toast.error(errMsg(e, '设置班委失败')),

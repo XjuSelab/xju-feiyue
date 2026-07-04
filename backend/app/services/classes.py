@@ -74,6 +74,7 @@ def member_to_out(user: User) -> ClassMemberOut:
         name=user.name,
         avatar_thumb=user.avatar_thumb,
         is_class_committee=user.is_class_committee,
+        committee_title=user.committee_title,
     )
 
 
