@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
@@ -22,6 +22,7 @@ from app.deps import get_current_user, get_db
 from app.schemas.classes import (
     ClassMemberOut,
     ClassMeOut,
+    MemberCommitteeIn,
     RollCallCreateIn,
     RollCallDetailOut,
     RollCallRecordIn,
@@ -30,6 +31,7 @@ from app.schemas.classes import (
     RollCallUpdateIn,
 )
 from app.services import classes as svc
+from app.services.auth import is_superadmin
 
 router = APIRouter(tags=["classes"])
 
@@ -64,6 +66,44 @@ async def list_members(
     class_id = svc.ensure_in_class(user)
     members = await svc.list_class_members(db, class_id)
     return [svc.member_to_out(m) for m in members]
+
+
+@router.post("/classes/me/members/{sid}/committee", response_model=ClassMemberOut)
+async def set_member_committee(
+    sid: str,
+    body: MemberCommitteeIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ClassMemberOut:
+    """班内设置班委（成员卡片右键入口）。
+
+    权限阶梯：
+    - 超级管理员：任意设置/撤销，包括授予「班长」；
+    - 本班「班长」：可设/撤普通班委，但不能授予「班长」职务，也不能动
+      现任班长（含自己的班长身份）—— 班长人选始终由超管定夺；
+    - 其他人（含普通班委）：403。
+    """
+    class_id = svc.ensure_in_class(user)
+    actor_is_super = is_superadmin(user)
+    if not (actor_is_super or svc.is_banzhang_of(user, class_id)):
+        raise HTTPException(status_code=403, detail="仅班长或超级管理员可设置班委")
+
+    target = await db.get(User, sid)
+    if not target or target.class_id != class_id:
+        raise HTTPException(status_code=404, detail="该同学不在本班级")
+
+    title = (body.committee_title or "").strip() or None
+    if not actor_is_super:
+        if title == svc.BANZHANG_TITLE:
+            raise HTTPException(status_code=403, detail="「班长」职务须由超级管理员设置")
+        if target.committee_title == svc.BANZHANG_TITLE:
+            raise HTTPException(status_code=403, detail="班长身份须由超级管理员调整")
+
+    target.is_class_committee = body.is_class_committee
+    target.committee_title = title if body.is_class_committee else None
+    await db.commit()
+    await db.refresh(target)
+    return svc.member_to_out(target)
 
 
 # ---------------------------------------------------------------------------

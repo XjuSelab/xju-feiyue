@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Plus, UsersRound } from 'lucide-react'
+import { Plus, UserX, UsersRound } from 'lucide-react'
 
+import { resolveAssetUrl } from '@/api/client'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
-import { useGroups } from '../../hooks/useGroups'
+import { useGroups, useUnassignedMembers } from '../../hooks/useGroups'
 import { CreateGroupDialog } from './CreateGroupDialog'
 import { GroupCard } from './GroupCard'
 
@@ -15,6 +17,7 @@ import { GroupCard } from './GroupCard'
  */
 export function GroupsTab() {
   const { data: groups, isLoading, isError, refetch } = useGroups(true)
+  const { data: unassigned } = useUnassignedMembers(true)
   const [createOpen, setCreateOpen] = useState(false)
 
   if (isLoading) return <LoadingSkeleton preset="paragraph" count={2} />
@@ -48,6 +51,35 @@ export function GroupsTab() {
             <GroupCard key={g.id} group={g} />
           ))}
         </ul>
+      )}
+
+      {/* 未进组名单 —— 组卡片下方；全员进组后自动隐藏。 */}
+      {unassigned && unassigned.length > 0 && (
+        <section
+          aria-label="未进组同学"
+          className="mt-6 rounded-lg border border-dashed border-border p-4"
+        >
+          <div className="mb-3 flex items-center gap-2">
+            <UserX size={15} aria-hidden className="text-text-muted" />
+            <h3 className="m-0 text-sm font-semibold text-text">未进组同学</h3>
+            <span className="text-xs text-text-faint">{unassigned.length} 人</span>
+          </div>
+          <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+            {unassigned.map((m) => (
+              <li
+                key={m.sid}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-subtle py-0.5 pl-0.5 pr-2.5 text-xs text-text"
+                title={m.sid}
+              >
+                <Avatar className="size-5">
+                  {m.avatarThumb && <AvatarImage src={resolveAssetUrl(m.avatarThumb)} alt="" />}
+                  <AvatarFallback className="text-[9px]">{m.nickname.slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                {m.nickname}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <CreateGroupDialog open={createOpen} onOpenChange={setCreateOpen} />

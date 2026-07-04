@@ -362,6 +362,21 @@ registerMock('GET', '/classes/me', async () => ({
 
 registerMock('GET', '/classes/me/members', async () => MEMBERS)
 
+registerMock('POST', '/classes/me/members/:sid/committee', async (req) => {
+  const sid = seg(req, 3)
+  const body = req.body as { isClassCommittee: boolean; committeeTitle?: string }
+  const m = MEMBERS.find((x) => x.sid === sid)
+  if (!m) throw new ApiError('该同学不在本班级', 404, req.path)
+  m.isClassCommittee = body.isClassCommittee
+  m.committeeTitle = body.isClassCommittee ? (body.committeeTitle?.trim() || null) : null
+  return m
+})
+
+registerMock('GET', '/classes/me/groups/unassigned', async () => {
+  const inGroup = new Set(groups.flatMap((g) => [...g.members.keys()]))
+  return MEMBERS.filter((m) => !inGroup.has(m.sid))
+})
+
 registerMock('POST', '/classes/me/rollcalls', async (req) => {
   const body = req.body as { title?: string } | undefined
   const rc: MockRollcall = {

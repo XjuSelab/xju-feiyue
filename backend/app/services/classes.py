@@ -56,6 +56,16 @@ def ensure_committee(user: User, class_id: int) -> None:
         raise HTTPException(status_code=403, detail="仅班委可执行此操作")
 
 
+# 班长 title — the only committee title with in-class committee-management
+# powers (assigning it, and touching a holder, stays superadmin-only).
+BANZHANG_TITLE = "班长"
+
+
+def is_banzhang_of(user: User, class_id: int) -> bool:
+    """True iff the user is this class's 班长 (title-bearing committee)."""
+    return is_committee_of(user, class_id) and user.committee_title == BANZHANG_TITLE
+
+
 # ---------------------------------------------------------------------------
 # Members
 # ---------------------------------------------------------------------------

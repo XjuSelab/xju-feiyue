@@ -42,8 +42,9 @@ from app.schemas.group import (
     JoinRequestOut,
     TaskAssigneeOut,
 )
+from app.schemas.classes import ClassMemberOut
 from app.services.auth import is_admin
-from app.services.classes import is_committee_of
+from app.services.classes import is_committee_of, member_to_out
 from app.services.materials import human_size
 from app.settings import settings
 
@@ -90,6 +91,21 @@ def ensure_group_manager(group: Group, user: User) -> None:
     if group.leader_sid == user.sid or is_committee_of(user, group.class_id) or is_admin(user):
         return
     raise HTTPException(status_code=403, detail="仅组长或班委可执行此操作")
+
+
+async def unassigned_members_out(db: AsyncSession, class_id: int) -> list[ClassMemberOut]:
+    """Class members without a live-group membership, ordered by sid."""
+    in_group = (
+        select(GroupMember.sid)
+        .join(Group, Group.id == GroupMember.group_id)
+        .where(Group.class_id == class_id, Group.deleted == False)  # noqa: E712
+    )
+    stmt = (
+        select(User)
+        .where(User.class_id == class_id, User.sid.not_in(in_group))
+        .order_by(User.sid)
+    )
+    return [member_to_out(u) for u in (await db.execute(stmt)).scalars().all()]
 
 
 async def user_group_in_class(db: AsyncSession, class_id: int, sid: str) -> Group | None:

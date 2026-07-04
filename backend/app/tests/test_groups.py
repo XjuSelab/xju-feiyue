@@ -75,6 +75,23 @@ async def test_one_live_group_per_user(client: AsyncClient, class_setup, login) 
     assert r.status_code == 201
 
 
+async def test_unassigned_members_list(client: AsyncClient, class_setup, login) -> None:
+    """未进组名单：随建组/入组实时收缩，全班未建组时为全员。"""
+    member = await login("20240001002")
+    sids = [m["sid"] for m in (await client.get("/classes/me/groups/unassigned", headers=member)).json()]
+    assert sids == ["20240001001", "20240001002", "20240001003", "20240001004"]
+
+    await create_group(client, member)  # member1 建组 → 移出名单
+    sids = [m["sid"] for m in (await client.get("/classes/me/groups/unassigned", headers=member)).json()]
+    assert sids == ["20240001001", "20240001003", "20240001004"]
+
+    # 解散后回到名单。
+    gid = (await client.get("/classes/me/groups", headers=member)).json()[0]["id"]
+    await client.delete(f"/groups/{gid}", headers=member)
+    sids = [m["sid"] for m in (await client.get("/classes/me/groups/unassigned", headers=member)).json()]
+    assert "20240001002" in sids
+
+
 async def test_group_list_and_cross_class_isolation(
     client: AsyncClient, class_setup, login
 ) -> None:

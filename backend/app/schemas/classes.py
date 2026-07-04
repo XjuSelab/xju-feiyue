@@ -89,3 +89,15 @@ class RollCallRecordIn(CamelModel):
     """PUT /classes/me/rollcalls/{id}/records/{sid} — one checkbox click."""
 
     present: bool
+
+
+class MemberCommitteeIn(CamelModel):
+    """POST /classes/me/members/{sid}/committee — 班内设置班委.
+
+    Actor must be superadmin OR the class's 班长; assigning the 班长 title
+    itself (and touching an existing 班长) is superadmin-only — see the
+    route for the full rule set.
+    """
+
+    is_class_committee: bool
+    committee_title: str | None = Field(default=None, max_length=32)

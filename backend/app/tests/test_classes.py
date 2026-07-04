@@ -295,3 +295,89 @@ async def test_rollcall_classless_403(client: AsyncClient, class_setup, login) -
 @pytest.mark.parametrize("path", ["/classes/me/members", "/classes/me/rollcalls"])
 async def test_unauthenticated_401(client: AsyncClient, path: str) -> None:
     assert (await client.get(path)).status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# 班内设置班委（成员右键入口）
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+async def super_in_class(db_session: AsyncSession, class_setup) -> models.User:
+    """The bootstrap super-admin (settings.admin_sid) as a demo-class member."""
+    user = models.User(
+        sid="20241401231",  # settings.admin_sid → 运行时恒为 superadmin
+        name="超管同学",
+        nickname="超管同学",
+        password_hash=hash_password("123456"),
+        class_id=class_setup["demo_class"].id,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    return user
+
+
+async def test_member_committee_permission_ladder(
+    client: AsyncClient, class_setup, super_in_class, login
+) -> None:
+    superadmin = await login("20241401231")
+    member = await login("20240001002")
+    generic_committee = await login("20240001001")  # 班委甲：无职务，非班长
+
+    url = "/classes/me/members/{sid}/committee"
+
+    # 普通成员 / 无「班长」职务的班委：403。
+    body = {"isClassCommittee": True, "committeeTitle": "学习委员"}
+    assert (
+        await client.post(url.format(sid="20240001003"), json=body, headers=member)
+    ).status_code == 403
+    assert (
+        await client.post(url.format(sid="20240001003"), json=body, headers=generic_committee)
+    ).status_code == 403
+
+    # 超管授予 班委甲「班长」。
+    r = await client.post(
+        url.format(sid="20240001001"),
+        json={"isClassCommittee": True, "committeeTitle": "班长"},
+        headers=superadmin,
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["committeeTitle"] == "班长"
+
+    banzhang = generic_committee  # 同一账号，现在是班长
+    # 班长可设普通班委职务…
+    r = await client.post(
+        url.format(sid="20240001002"),
+        json={"isClassCommittee": True, "committeeTitle": "学习委员"},
+        headers=banzhang,
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["committeeTitle"] == "学习委员"
+
+    # …但不能授予「班长」，也不能动现任班长。
+    r = await client.post(
+        url.format(sid="20240001003"),
+        json={"isClassCommittee": True, "committeeTitle": "班长"},
+        headers=banzhang,
+    )
+    assert r.status_code == 403
+    r = await client.post(
+        url.format(sid="20240001001"),
+        json={"isClassCommittee": False},
+        headers=banzhang,
+    )
+    assert r.status_code == 403
+
+    # 班长可撤销普通班委（职务随之清空）。
+    r = await client.post(
+        url.format(sid="20240001002"), json={"isClassCommittee": False}, headers=banzhang
+    )
+    assert r.status_code == 200
+    assert r.json()["isClassCommittee"] is False
+    assert r.json()["committeeTitle"] is None
+
+    # 目标必须是本班同学。
+    r = await client.post(
+        url.format(sid="20240002001"), json=body, headers=superadmin
+    )
+    assert r.status_code == 404

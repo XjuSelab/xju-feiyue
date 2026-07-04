@@ -25,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import GroupFile, GroupJoinRequest, GroupTask, User
 from app.deps import get_current_user, get_db
+from app.schemas.classes import ClassMemberOut
 from app.schemas.group import (
     GroupCreateIn,
     GroupDetailOut,
@@ -72,6 +73,16 @@ async def list_groups(
     """All live groups of the caller's class, with viewer-relative fields."""
     class_id = classes_svc.ensure_in_class(user)
     return await svc.groups_out(db, class_id, user)
+
+
+@router.get("/classes/me/groups/unassigned", response_model=list[ClassMemberOut])
+async def list_unassigned_members(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[ClassMemberOut]:
+    """未进组名单 — class members not in any live group (小组 tab 底部)."""
+    class_id = classes_svc.ensure_in_class(user)
+    return await svc.unassigned_members_out(db, class_id)
 
 
 @router.post("/classes/me/groups", response_model=GroupOut, status_code=201)

@@ -1,6 +1,7 @@
 import { request } from '../client'
 import {
   ClassMemberListSchema,
+  ClassMemberSchema,
   ClassMeSchema,
   RollcallDetailSchema,
   RollcallListSchema,
@@ -124,6 +125,24 @@ export async function deleteRollcall(id: string): Promise<null> {
     path: `/classes/me/rollcalls/${id}`,
     schema: NoContentSchema,
     headers: authHeaders(),
+  })
+}
+
+/**
+ * POST /classes/me/members/{sid}/committee —— 班内设置班委（成员右键入口）。
+ * 权限：超管任意；班长可设普通班委（「班长」职务与现任班长仅超管可动）。
+ */
+export async function setMemberCommittee(
+  sid: string,
+  isClassCommittee: boolean,
+  committeeTitle?: string,
+): Promise<ClassMember> {
+  return request({
+    method: 'POST',
+    path: `/classes/me/members/${sid}/committee`,
+    schema: ClassMemberSchema,
+    headers: authHeaders(),
+    body: committeeTitle ? { isClassCommittee, committeeTitle } : { isClassCommittee },
   })
 }
 

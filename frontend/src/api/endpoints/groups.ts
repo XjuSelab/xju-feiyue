@@ -1,6 +1,7 @@
 import { getApiBase, isMockMode, request } from '../client'
 import { xhrUpload, type UploadProgress } from '../upload'
 import {
+  ClassMemberListSchema,
   GroupDetailSchema,
   GroupFileListSchema,
   GroupListSchema,
@@ -9,6 +10,7 @@ import {
   GroupTaskSchema,
   JoinRequestListSchema,
   JoinRequestSchema,
+  type ClassMember,
   type Group,
   type GroupCreateIn,
   type GroupDetail,
@@ -41,6 +43,16 @@ export async function listGroups(): Promise<Group[]> {
     method: 'GET',
     path: '/classes/me/groups',
     schema: GroupListSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** GET /classes/me/groups/unassigned —— 未进组同学名单（小组 tab 底部）。 */
+export async function listUnassignedMembers(): Promise<ClassMember[]> {
+  return request({
+    method: 'GET',
+    path: '/classes/me/groups/unassigned',
+    schema: ClassMemberListSchema,
     headers: authHeaders(),
   })
 }

@@ -15,6 +15,7 @@ import {
   getGroup,
   listGroups,
   listJoinRequests,
+  listUnassignedMembers,
   rejectJoinRequest,
   removeGroupMember,
   transferLeader,
@@ -22,6 +23,7 @@ import {
   uploadGroupLogo,
 } from '@/api/endpoints/groups'
 import type {
+  ClassMember,
   Group,
   GroupCreateIn,
   GroupDetail,
@@ -36,6 +38,16 @@ export function useGroups(enabled: boolean): UseQueryResult<Group[]> {
   return useQuery({
     queryKey: classKeys.groups,
     queryFn: listGroups,
+    enabled,
+  })
+}
+
+/** 未进组同学名单（小组 tab 底部）。key 以 classKeys.groups 为前缀，
+ * 任何小组变动的 invalidate 都会连带刷新。 */
+export function useUnassignedMembers(enabled: boolean): UseQueryResult<ClassMember[]> {
+  return useQuery({
+    queryKey: [...classKeys.groups, 'unassigned'],
+    queryFn: listUnassignedMembers,
     enabled,
   })
 }

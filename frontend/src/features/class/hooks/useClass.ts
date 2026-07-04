@@ -1,8 +1,14 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryResult,
+} from '@tanstack/react-query'
+import { toast } from 'sonner'
 
-import { getClassMe, listClassMembers } from '@/api/endpoints/classes'
+import { getClassMe, listClassMembers, setMemberCommittee } from '@/api/endpoints/classes'
 import type { ClassMe, ClassMember } from '@/api/schemas/class'
-import { classKeys } from './keys'
+import { classKeys, errMsg } from './keys'
 
 const STALE_MS = 60_000
 
@@ -22,5 +28,32 @@ export function useClassMembers(enabled: boolean): UseQueryResult<ClassMember[]>
     queryFn: listClassMembers,
     enabled,
     staleTime: STALE_MS,
+  })
+}
+
+/** 班内设置班委（成员右键）—— 超管任意；班长可设普通班委。 */
+export function useSetMemberCommittee() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      sid,
+      isClassCommittee,
+      committeeTitle,
+    }: {
+      sid: string
+      isClassCommittee: boolean
+      committeeTitle?: string | undefined
+    }) => setMemberCommittee(sid, isClassCommittee, committeeTitle),
+    onSuccess: (member) => {
+      void qc.invalidateQueries({ queryKey: classKeys.members })
+      // 自己的班委状态也可能变（页头徽标）。
+      void qc.invalidateQueries({ queryKey: classKeys.me })
+      toast.success(
+        member.isClassCommittee
+          ? `已将 ${member.nickname} 设为${member.committeeTitle ?? '班委'}`
+          : `已取消 ${member.nickname} 的班委`,
+      )
+    },
+    onError: (e) => toast.error(errMsg(e, '设置班委失败')),
   })
 }
