@@ -15,7 +15,10 @@ Backs the new `/class` 班级空间 module:
   - `group_files` (flat list, uploads/groups/<gid>/) / `group_tasks` +
     `group_task_assignees` (Gantt task assignment).
 
-users columns are added via batch_alter_table so the new FK is SQLite-safe.
+users columns are plain ADD COLUMN (NO batch_alter_table / table rebuild —
+under the app's global PRAGMA foreign_keys=ON a rebuild's DROP TABLE would
+cascade-delete every users-referencing row; see the comment in upgrade()).
+The users.class_id FK therefore only exists on metadata-created databases.
 No data backfill — class assignment happens via scripts/add_user.py
 --class-full/--class-short or the /admin UI.
 """
@@ -46,23 +49,24 @@ def upgrade() -> None:
         ),
     )
 
-    with op.batch_alter_table("users") as batch:
-        batch.add_column(sa.Column("class_id", sa.Integer(), nullable=True))
-        batch.add_column(
-            sa.Column(
-                "is_class_committee",
-                sa.Boolean(),
-                nullable=False,
-                server_default=sa.text("0"),
-            )
-        )
-        batch.create_foreign_key(
-            "fk_users_class_id_classes",
-            "classes",
-            ["class_id"],
-            ["id"],
-            ondelete="SET NULL",
-        )
+    # Plain ADD COLUMN（无表重建）。绝不能在这里用 batch_alter_table：SQLite
+    # 的 batch 模式会「建新表→拷数据→DROP 旧表→改名」，而 app/db/base.py 给
+    # **所有**连接（含 alembic 的）开了 PRAGMA foreign_keys=ON —— FK 开启时
+    # DROP TABLE users 会执行隐式 DELETE FROM，触发全部 ON DELETE CASCADE，
+    # 把 notes/materials 等引用 users 的表整体级联清空（2026-07-04 生产事故，
+    # 已从 HF 快照恢复）。代价是存量库的 users.class_id 没有表级 FK 约束——
+    # 可接受：删除班级受 /admin/classes 的「仍有成员则 409」保护，SET NULL
+    # 语义在应用层永远不会触发；测试/新库走 metadata.create_all 仍带 FK。
+    op.add_column("users", sa.Column("class_id", sa.Integer(), nullable=True))
+    op.add_column(
+        "users",
+        sa.Column(
+            "is_class_committee",
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.text("0"),
+        ),
+    )
     op.create_index("ix_users_class_id", "users", ["class_id"])
 
     op.create_table(
@@ -307,8 +311,8 @@ def downgrade() -> None:
     op.drop_index("ix_roll_call_sessions_class_id", table_name="roll_call_sessions")
     op.drop_table("roll_call_sessions")
     op.drop_index("ix_users_class_id", table_name="users")
-    with op.batch_alter_table("users") as batch:
-        batch.drop_constraint("fk_users_class_id_classes", type_="foreignkey")
-        batch.drop_column("is_class_committee")
-        batch.drop_column("class_id")
+    # 与 upgrade 对称：原生 DROP COLUMN（SQLite ≥3.35），绝不 batch 重建 users
+    # —— 见 upgrade 中的事故注释。
+    op.drop_column("users", "is_class_committee")
+    op.drop_column("users", "class_id")
     op.drop_table("classes")
