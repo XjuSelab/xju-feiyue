@@ -51,6 +51,7 @@ export function Header() {
         <MegaMenu />
         <NavItem to="/write" label="写作" />
         <NavItem to="/materials" label="资料" />
+        <NavItem to="/class" label="班级" />
         <NavItem to="/schools" label="高校信息" />
         <NavItem to="/conferences" label="CCF 会议" />
         <NavItem to="/credits" label="学分统计" />

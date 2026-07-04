@@ -192,6 +192,16 @@ export function ProfileSettingsDialog({ open, onOpenChange }: Props) {
               <Input id="settings-sid" value={user.sid} disabled readOnly />
             </div>
             <div className="space-y-1">
+              <Label htmlFor="settings-class">班级</Label>
+              <Input
+                id="settings-class"
+                value={user.classFullName ?? '未设置'}
+                disabled
+                readOnly
+                title="班级由管理员设置"
+              />
+            </div>
+            <div className="space-y-1">
               <Label htmlFor="settings-nickname">昵称</Label>
               <Input
                 id="settings-nickname"

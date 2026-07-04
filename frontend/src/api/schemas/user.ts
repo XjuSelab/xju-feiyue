@@ -25,6 +25,14 @@ export const UserSchema = z.object({
   isAdmin: z.boolean().nullish(),
   /** 仅 superadmin（后端 computed）。可增删管理员。nullish 向后兼容。 */
   isSuperAdmin: z.boolean().nullish(),
+  /** 班级 id（classes 表 FK；管理员设置，用户只读）。nullish 向后兼容。 */
+  classId: z.number().nullish(),
+  /** 班级全名（如 计算机科学与技术24-3）；未分配为 null。 */
+  classFullName: z.string().nullish(),
+  /** 班级简名（如 计算机24-3）；未分配为 null。 */
+  classShortName: z.string().nullish(),
+  /** 班委标记 —— 可发起点名 / 审批小组申请（仅本班内生效）。 */
+  isClassCommittee: z.boolean().nullish(),
 })
 export type User = z.infer<typeof UserSchema>
 

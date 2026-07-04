@@ -1,5 +1,15 @@
 import * as React from 'react'
-import { KeyRound, MoreHorizontal, Search, Shield, ShieldOff, UserPlus } from 'lucide-react'
+import {
+  GraduationCap,
+  KeyRound,
+  MoreHorizontal,
+  Search,
+  Shield,
+  ShieldOff,
+  Star,
+  StarOff,
+  UserPlus,
+} from 'lucide-react'
 
 import {
   AlertDialog,
@@ -23,12 +33,15 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { cn } from '@/lib/cn'
 
-import { useAdminUsers, useSetRole } from '../hooks/useAdmin'
+import { Badge } from '@/components/ui/badge'
+
+import { useAdminUsers, useSetRole, useSetUserCommittee } from '../hooks/useAdmin'
 import { formatDate, formatRelative } from '../lib/format'
 import type { AdminUserRow } from '@/api/schemas/admin'
 import { RoleBadge } from './RoleBadge'
 import { ResetPasswordDialog } from './ResetPasswordDialog'
 import { ImportUserDialog } from './ImportUserDialog'
+import { SetClassDialog } from './SetClassDialog'
 
 /**
  * User-management table. Actions are rendered per the *actor's* privileges so
@@ -47,11 +60,14 @@ export function UsersTab({
 }) {
   const { data, isPending, isError, error, refetch } = useAdminUsers()
   const setRole = useSetRole()
+  const setCommittee = useSetUserCommittee()
 
   const [q, setQ] = React.useState('')
   const [resetTarget, setResetTarget] = React.useState<AdminUserRow | null>(null)
   const [importOpen, setImportOpen] = React.useState(false)
   const [roleTarget, setRoleTarget] = React.useState<AdminUserRow | null>(null)
+  const [classTarget, setClassTarget] = React.useState<AdminUserRow | null>(null)
+  const [committeeTarget, setCommitteeTarget] = React.useState<AdminUserRow | null>(null)
 
   const rows = React.useMemo(() => {
     const all = data ?? []
@@ -110,6 +126,7 @@ export function UsersTab({
               <tr className="border-b border-border bg-bg-subtle text-left text-xs text-text-muted">
                 <th className="px-3 py-2 font-medium">用户</th>
                 <th className="px-3 py-2 font-medium">角色</th>
+                <th className="hidden px-3 py-2 font-medium md:table-cell">班级</th>
                 <th className="hidden px-3 py-2 text-right font-medium sm:table-cell">笔记</th>
                 <th className="hidden px-3 py-2 text-right font-medium sm:table-cell">资料</th>
                 <th className="hidden px-3 py-2 font-medium md:table-cell">最近登录</th>
@@ -121,7 +138,8 @@ export function UsersTab({
               {rows.map((u) => {
                 const reset = canReset(u)
                 const role = canChangeRole(u)
-                const hasActions = reset || role
+                // 班级/班委由任意管理员设置（后端 require_admin），操作列始终可用。
+                const hasActions = true
                 return (
                   <tr key={u.sid} className="border-b border-border last:border-0 hover:bg-bg-subtle/60">
                     <td className="px-3 py-2">
@@ -140,6 +158,20 @@ export function UsersTab({
                     </td>
                     <td className="px-3 py-2">
                       <RoleBadge role={u.role} />
+                    </td>
+                    <td className="hidden px-3 py-2 md:table-cell">
+                      {u.classShortName ? (
+                        <span className="inline-flex items-center gap-1.5 text-text-muted">
+                          {u.classShortName}
+                          {u.isClassCommittee ? (
+                            <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                              班委
+                            </Badge>
+                          ) : null}
+                        </span>
+                      ) : (
+                        <span className="text-text-faint">—</span>
+                      )}
                     </td>
                     <td className="hidden px-3 py-2 text-right tabular-nums text-text-muted sm:table-cell">
                       {u.noteCount}
@@ -162,6 +194,28 @@ export function UsersTab({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="gap-2" onSelect={() => setClassTarget(u)}>
+                              <GraduationCap className="size-4" />
+                              设置班级
+                            </DropdownMenuItem>
+                            {u.classShortName ? (
+                              <DropdownMenuItem
+                                className={cn('gap-2', u.isClassCommittee && 'text-cat-research')}
+                                onSelect={() => setCommitteeTarget(u)}
+                              >
+                                {u.isClassCommittee ? (
+                                  <>
+                                    <StarOff className="size-4" />
+                                    取消班委
+                                  </>
+                                ) : (
+                                  <>
+                                    <Star className="size-4" />
+                                    设为班委
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                            ) : null}
                             {reset ? (
                               <DropdownMenuItem className="gap-2" onSelect={() => setResetTarget(u)}>
                                 <KeyRound className="size-4" />
@@ -197,7 +251,7 @@ export function UsersTab({
               })}
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-sm text-text-faint">
+                  <td colSpan={8} className="px-3 py-10 text-center text-sm text-text-faint">
                     没有匹配的用户
                   </td>
                 </tr>
@@ -215,6 +269,56 @@ export function UsersTab({
         }}
       />
       <ImportUserDialog open={importOpen} onOpenChange={setImportOpen} />
+      <SetClassDialog
+        user={classTarget}
+        open={classTarget != null}
+        onOpenChange={(o) => {
+          if (!o) setClassTarget(null)
+        }}
+      />
+
+      {/* 设/撤班委 confirmation */}
+      <AlertDialog
+        open={committeeTarget != null}
+        onOpenChange={(o) => (!o ? setCommitteeTarget(null) : undefined)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif">
+              {committeeTarget?.isClassCommittee ? '取消班委？' : '设为班委？'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {committeeTarget?.isClassCommittee ? (
+                <>
+                  将取消 <strong>{committeeTarget?.nickname}</strong> 的班委身份，TA
+                  将无法再发起点名或审批小组申请。
+                </>
+              ) : (
+                <>
+                  将授予 <strong>{committeeTarget?.nickname}</strong> 班委身份（
+                  {committeeTarget?.classShortName}）：可发起点名、勾选到点、审批本班小组的加入申请。
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (committeeTarget) {
+                  setCommittee.mutate({
+                    sid: committeeTarget.sid,
+                    isClassCommittee: !committeeTarget.isClassCommittee,
+                  })
+                }
+                setCommitteeTarget(null)
+              }}
+            >
+              确定
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Promote / demote confirmation */}
       <AlertDialog open={roleTarget != null} onOpenChange={(o) => (!o ? setRoleTarget(null) : undefined)}>

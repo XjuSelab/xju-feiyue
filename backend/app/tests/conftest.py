@@ -45,7 +45,10 @@ async def db_engine():
 
 @pytest_asyncio.fixture
 async def session_factory(db_engine):
-    return async_sessionmaker(bind=db_engine, expire_on_commit=False)
+    # autoflush=False mirrors the prod AsyncSessionLocal (db/session.py) — a
+    # test-only autoflush=True would mask missing explicit flushes (a SELECT
+    # mid-transaction silently flushing parent rows before child INSERTs).
+    return async_sessionmaker(bind=db_engine, expire_on_commit=False, autoflush=False)
 
 
 @pytest_asyncio.fixture
@@ -101,6 +104,73 @@ async def authed_token(client: AsyncClient, demo_user: models.User) -> str:
 @pytest_asyncio.fixture
 async def auth_headers(authed_token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {authed_token}"}
+
+
+@pytest_asyncio.fixture
+def login(client: AsyncClient):
+    """Headers factory: login as any seeded sid (password 123456)."""
+
+    async def _login(sid: str) -> dict[str, str]:
+        r = await client.post("/auth/login", json={"sid": sid, "password": "123456"})
+        assert r.status_code == 200, r.text
+        return {"Authorization": f"Bearer {r.json()['token']}"}
+
+    return _login
+
+
+@pytest_asyncio.fixture
+async def demo_class(db_session: AsyncSession) -> models.StudentClass:
+    clazz = models.StudentClass(
+        full_name="计算机科学与技术24-3", short_name="计算机24-3"
+    )
+    db_session.add(clazz)
+    await db_session.commit()
+    await db_session.refresh(clazz)
+    return clazz
+
+
+@pytest_asyncio.fixture
+async def class_setup(db_session: AsyncSession, demo_class: models.StudentClass) -> dict:
+    """The /class-module cast: a demo class + a second class + edge accounts.
+
+    demo class (计算机24-3): committee (班委甲) + member1/member2 + admin_member
+    (site admin who is also a class member — exercises the admin override).
+    other class (信安24-2): other_committee (cross-class isolation).
+    classless: no class assigned. admin: site admin *without* a class.
+    All passwords 123456 (use the `login` fixture).
+    """
+    from app.services.auth import hash_password
+
+    pwd = hash_password("123456")
+    other_class = models.StudentClass(full_name="信息安全24-2", short_name="信安24-2")
+    db_session.add(other_class)
+    await db_session.flush()
+
+    def mk(sid: str, name: str, class_id: int | None = None, *, committee: bool = False,
+           role: str = "user") -> models.User:
+        return models.User(
+            sid=sid,
+            name=name,
+            nickname=name,
+            password_hash=pwd,
+            class_id=class_id,
+            is_class_committee=committee,
+            role=role,
+        )
+
+    users = {
+        "committee": mk("20240001001", "班委甲", demo_class.id, committee=True),
+        "member1": mk("20240001002", "成员乙", demo_class.id),
+        "member2": mk("20240001003", "成员丙", demo_class.id),
+        "admin_member": mk("20240001004", "管理同学", demo_class.id, role="admin"),
+        "other_committee": mk("20240002001", "外班班委", other_class.id, committee=True),
+        "classless": mk("20240003001", "无班级"),
+        "admin": mk("20240009001", "管理员", role="admin"),
+    }
+    for u in users.values():
+        db_session.add(u)
+    await db_session.commit()
+    return {"demo_class": demo_class, "other_class": other_class, **users}
 
 
 @pytest_asyncio.fixture

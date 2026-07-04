@@ -66,6 +66,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fastapi import HTTPException, UploadFile
+from PIL import Image
 
 # ---------------------------------------------------------------------------
 # Limits
@@ -186,6 +187,22 @@ def normalize_ext(filename: str | None) -> str:
     if not filename:
         return ""
     return Path(filename).suffix.lower()
+
+
+def make_thumbnail(data: bytes, out_path: Path, px: int = 160) -> None:
+    """Decode an uploaded image, downscale to `px` long-edge, write JPEG.
+
+    Shared by user avatars (routes/auth.py) and group logos
+    (routes/groups.py). Raises ``PIL.UnidentifiedImageError`` on undecodable
+    bytes — callers translate that into their 400. 160 px covers 2x DPR on an
+    80 px chip and weighs only ~5 KB as JPEG.
+    """
+    img = Image.open(io.BytesIO(data))
+    img.load()  # force decode now so bad files raise here, not later
+    if img.mode not in ("RGB", "L"):
+        img = img.convert("RGB")
+    img.thumbnail((px, px))
+    img.save(out_path, "JPEG", quality=85, optimize=True)
 
 
 def sniff_magic(ext: str, head_bytes: bytes) -> bool:

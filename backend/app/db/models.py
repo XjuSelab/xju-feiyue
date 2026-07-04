@@ -7,11 +7,12 @@ type, but using strings keeps SQLite-fallback workable for tests.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
+    Date,
     DateTime,
     ForeignKey,
     Integer,
@@ -19,6 +20,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -51,6 +53,29 @@ CATEGORY_VALUES = (
     "tools",
     "life",
 )
+
+
+class StudentClass(Base):
+    """A 班级 (administrative class) — the scoping unit for roll-call and groups.
+
+    The product spec asks for "two class-name columns on users"; we honor that
+    on the wire (``UserOut.classFullName`` / ``classShortName``) but normalize
+    storage into this table so a class rename is a 1-row update instead of a
+    multi-table string sweep, and so roll-call sessions / groups can anchor to
+    a stable FK. Rows are admin-managed (roster import / /admin UI); regular
+    users never create or edit classes.
+    """
+
+    __tablename__ = "classes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    # 班级全名 — 专业全称 + 年级-班号, e.g. 计算机科学与技术24-3.
+    full_name: Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
+    # 班级简名 — 惯用简称, e.g. 计算机24-3 (roster CSVs already use this form).
+    short_name: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class User(Base):
@@ -86,12 +111,39 @@ class User(Base):
     role: Mapped[str] = mapped_column(
         String(16), nullable=False, server_default="user", default="user"
     )
+    # 班级 membership — admin-managed (roster import / /admin UI); NULL until
+    # assigned. ondelete='SET NULL': deleting a class detaches its students.
+    class_id: Mapped[int | None] = mapped_column(
+        ForeignKey("classes.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    # 班委 (class committee) flag — grants roll-call / group-approval powers
+    # *within the user's own class only* (services.classes.is_committee_of).
+    # Orthogonal to the site-wide `role` tier; admin-managed. Cleared whenever
+    # the user's class is cleared (a committee member of no class is nonsense).
+    is_class_committee: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("0"), default=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     notes: Mapped[list[Note]] = relationship(back_populates="author", lazy="raise")
     drafts: Mapped[list[Draft]] = relationship(back_populates="owner", lazy="raise")
+    # Eager (joined) so the flattened name properties below are always safe to
+    # read wherever a User was *loaded* from the DB (get/select). Instances
+    # mutated in-session must `await db.refresh(user)` before serializing —
+    # refresh re-runs the mapper's eager loaders.
+    clazz: Mapped[StudentClass | None] = relationship(lazy="joined")
+
+    @property
+    def class_full_name(self) -> str | None:
+        """班级全名, flattened for UserOut — the wire keeps the two-field shape."""
+        return self.clazz.full_name if self.clazz else None
+
+    @property
+    def class_short_name(self) -> str | None:
+        """班级简名, flattened for UserOut."""
+        return self.clazz.short_name if self.clazz else None
 
 
 class Note(Base):
@@ -345,4 +397,221 @@ class MaterialNotice(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+    )
+
+
+class RollCallSession(Base):
+    """One 点名 (roll-call) run for a class.
+
+    Creating a session snapshots the class roster into `RollCallRecord` rows
+    (present=False) so history reflects the membership *as of that day* —
+    students who join the class later don't retroactively appear absent.
+    `closed_at` marks "点名完成" but is informational: committee members may
+    keep editing records afterwards (fix-ups are a requirement).
+    """
+
+    __tablename__ = "roll_call_sessions"
+
+    # uuid hex (no dashes) PK — same convention as Note/MaterialResource.
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        ForeignKey("classes.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    created_by_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class RollCallRecord(Base):
+    """Per-student presence flag inside a roll-call session.
+
+    Composite PK (session_id, sid) — the Like pattern. Each checkbox click is
+    a single-row upsert (PUT), never a bulk sheet save, so two committee
+    members checking concurrently can't overwrite each other and SQLite write
+    transactions stay tiny.
+    """
+
+    __tablename__ = "roll_call_records"
+
+    session_id: Mapped[str] = mapped_column(
+        ForeignKey("roll_call_sessions.id", ondelete="CASCADE"), primary_key=True
+    )
+    sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    present: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Which committee member last toggled this record (audit only; nullable).
+    checked_by_sid: Mapped[str | None] = mapped_column(String(11), nullable=True)
+
+
+class Group(Base):
+    """A 小组 (student group) inside a class.
+
+    `leader_sid` (组长) is denormalized for fast permission checks; the leader
+    also has a `GroupMember` row with role='leader' (kept consistent in the
+    service). `deleted` is a soft-delete flag (materials pattern); physical
+    files under uploads/groups/<gid>/ are unlinked at delete time.
+
+    Name uniqueness among *live* groups of a class is enforced in the service
+    (not a DB constraint — soft-deleted rows must not block name reuse).
+    """
+
+    __tablename__ = "groups"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        ForeignKey("classes.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    # Group logo — original + server-generated 160px thumbnail (avatar pattern).
+    logo: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    logo_thumb: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # 简要介绍 shown in the group space; editable by leader/班委.
+    intro: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    leader_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
+    )
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+
+class GroupMember(Base):
+    """Membership row — composite PK (group_id, sid).
+
+    A user may be in at most one *live* group per class (course-project team
+    semantics; enforced in the service, relaxable by deleting one check).
+    """
+
+    __tablename__ = "group_members"
+
+    group_id: Mapped[str] = mapped_column(
+        ForeignKey("groups.id", ondelete="CASCADE"), primary_key=True
+    )
+    sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    # 'leader' | 'member' — mirrors Group.leader_sid for the leader row.
+    role: Mapped[str] = mapped_column(String(16), nullable=False, default="member")
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class GroupJoinRequest(Base):
+    """申请加入 — pending until the 组长 or a 班委 decides.
+
+    At most one *pending* request per (group, sid) (service-enforced).
+    Approval adds the member and auto-rejects the applicant's other pending
+    requests in the same class, in the same transaction.
+    """
+
+    __tablename__ = "group_join_requests"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    group_id: Mapped[str] = mapped_column(
+        ForeignKey("groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
+    )
+    message: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # 'pending' | 'approved' | 'rejected'
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="pending")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    decided_by_sid: Mapped[str | None] = mapped_column(String(11), nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class GroupFile(Base):
+    """A file uploaded into a group space — flat list (no folder tree).
+
+    MaterialFile minus the tree columns: a ~5-person group space doesn't need
+    folders, and dropping them removes the whole rename/reorder/cycle-guard
+    endpoint surface. Disk layout: uploads/groups/<gid>/<ts>-<rand>.<ext>.
+    """
+
+    __tablename__ = "group_files"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    group_id: Mapped[str] = mapped_column(
+        ForeignKey("groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    ext: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    mime: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    size_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    storage_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    uploaded_by_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
+    )
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class GroupTask(Base):
+    """A Gantt-chart task inside a group space.
+
+    Date-only start/end (inclusive); assignees live in `GroupTaskAssignee`
+    (association table, not a JSON list — clean "my tasks" queries + FK
+    integrity on SQLite).
+    """
+
+    __tablename__ = "group_tasks"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    group_id: Mapped[str] = mapped_column(
+        ForeignKey("groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    # Inclusive — a one-day task has start_date == end_date.
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    # 'todo' | 'doing' | 'done'
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="todo")
+    # 0-100 (validated in the schema layer).
+    progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_by_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+
+class GroupTaskAssignee(Base):
+    """Task ↔ member assignment — composite PK (task_id, sid)."""
+
+    __tablename__ = "group_task_assignees"
+
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("group_tasks.id", ondelete="CASCADE"), primary_key=True
+    )
+    sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
     )

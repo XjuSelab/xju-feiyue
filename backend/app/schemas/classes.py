@@ -1,0 +1,87 @@
+"""Pydantic schemas for the /classes/* domain (班级空间 + 点名).
+
+Wire format is camelCase (CamelModel). Mirrors frontend
+src/api/schemas/class.ts. All regular-user endpoints are scoped to *my*
+class (derived from the JWT user's ``class_id``) — no class ids appear in
+user-facing URLs, so no cross-class access is even expressible.
+"""
+
+from __future__ import annotations
+
+from pydantic import Field
+
+from app.schemas._base import CamelModel, UtcDateTime
+
+
+class ClassMeOut(CamelModel):
+    """GET /classes/me — the caller's class, or all-null when unassigned.
+
+    Deliberately 200-with-nulls (not 404) for classless users so the frontend
+    renders a friendly "联系管理员" empty state instead of an error path.
+    """
+
+    class_id: int | None = None
+    class_full_name: str | None = None
+    class_short_name: str | None = None
+    is_class_committee: bool = False
+    member_count: int = 0
+
+
+class ClassMemberOut(CamelModel):
+    """A classmate row — no contact fields (NoteAuthorOut ethos)."""
+
+    sid: str
+    nickname: str
+    name: str
+    avatar_thumb: str | None = None
+    is_class_committee: bool = False
+
+
+class RollCallCreateIn(CamelModel):
+    """POST /classes/me/rollcalls — optional label like 「软件工程第3周」."""
+
+    title: str | None = Field(default=None, max_length=120)
+
+
+class RollCallUpdateIn(CamelModel):
+    """PATCH /classes/me/rollcalls/{id} — partial; omitted = unchanged.
+
+    ``closed=True`` stamps ``closed_at`` (完成点名); ``closed=False`` reopens.
+    Records stay editable either way — closing is informational.
+    """
+
+    title: str | None = Field(default=None, max_length=120)
+    closed: bool | None = None
+
+
+class RollCallSummaryOut(CamelModel):
+    """History-list row: who ran it, when, and the 出勤 x/y counts."""
+
+    id: str
+    title: str | None = None
+    created_by_sid: str
+    created_by_nickname: str
+    created_at: UtcDateTime
+    closed_at: UtcDateTime | None = None
+    present_count: int
+    total_count: int
+
+
+class RollCallRecordOut(CamelModel):
+    sid: str
+    nickname: str
+    avatar_thumb: str | None = None
+    present: bool
+    checked_at: UtcDateTime | None = None
+
+
+class RollCallDetailOut(RollCallSummaryOut):
+    """Summary + the full per-member checkbox roster."""
+
+    records: list[RollCallRecordOut] = Field(default_factory=list)
+
+
+class RollCallRecordIn(CamelModel):
+    """PUT /classes/me/rollcalls/{id}/records/{sid} — one checkbox click."""
+
+    present: bool

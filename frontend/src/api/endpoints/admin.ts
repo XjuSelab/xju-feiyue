@@ -2,10 +2,13 @@ import { z } from 'zod'
 
 import { request } from '../client'
 import {
+  AdminClassSchema,
   AdminStatsSchema,
   AdminUserRowSchema,
   LoginEventSchema,
   ResetPasswordOutSchema,
+  type AdminClass,
+  type AdminClassCreate,
   type AdminStats,
   type AdminUserRow,
   type AssignableRole,
@@ -13,6 +16,7 @@ import {
   type ResetPasswordOut,
   type UserCreate,
 } from '../schemas/admin'
+import { NoContentSchema } from '../schemas/material'
 
 // Local auth-header helper (same TOKEN_KEY convention as other endpoint files).
 const TOKEN_KEY = 'labnotes.auth.token'
@@ -86,6 +90,66 @@ export async function setUserRole(
     method: 'POST',
     path: `/admin/users/${sid}/role`,
     body: { role },
+    schema: AdminUserRowSchema,
+    headers: authHeaders(),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// 班级管理
+// ---------------------------------------------------------------------------
+
+/** GET /admin/classes — 全部班级 + 学生/班委计数（admin+）。 */
+export async function listAdminClasses(): Promise<AdminClass[]> {
+  return request({
+    method: 'GET',
+    path: '/admin/classes',
+    schema: z.array(AdminClassSchema),
+    headers: authHeaders(),
+  })
+}
+
+/** POST /admin/classes — 新建班级（重名 409）。 */
+export async function createAdminClass(body: AdminClassCreate): Promise<AdminClass> {
+  return request({
+    method: 'POST',
+    path: '/admin/classes',
+    body,
+    schema: AdminClassSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** DELETE /admin/classes/{id} — 删除空班级（仍有成员/小组 409）。 */
+export async function deleteAdminClass(classId: number): Promise<null> {
+  return request({
+    method: 'DELETE',
+    path: `/admin/classes/${classId}`,
+    schema: NoContentSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** POST /admin/users/{sid}/class — 设置/清除用户班级（清除同时摘班委）。 */
+export async function setUserClass(sid: string, classId: number | null): Promise<AdminUserRow> {
+  return request({
+    method: 'POST',
+    path: `/admin/users/${sid}/class`,
+    body: { classId },
+    schema: AdminUserRowSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** POST /admin/users/{sid}/committee — 设/撤班委（须已有班级）。 */
+export async function setUserCommittee(
+  sid: string,
+  isClassCommittee: boolean,
+): Promise<AdminUserRow> {
+  return request({
+    method: 'POST',
+    path: `/admin/users/${sid}/committee`,
+    body: { isClassCommittee },
     schema: AdminUserRowSchema,
     headers: authHeaders(),
   })

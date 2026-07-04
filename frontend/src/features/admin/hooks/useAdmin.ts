@@ -7,14 +7,20 @@ import {
 import { toast } from 'sonner'
 
 import {
+  createAdminClass,
   createAdminUser,
   getAdminStats,
+  listAdminClasses,
   listAdminUsers,
   listLoginEvents,
   resetUserPassword,
+  setUserClass,
+  setUserCommittee,
   setUserRole,
 } from '@/api/endpoints/admin'
 import type {
+  AdminClass,
+  AdminClassCreate,
   AdminStats,
   AdminUserRow,
   AssignableRole,
@@ -36,6 +42,7 @@ const keys = {
   users: ['admin', 'users'] as const,
   stats: ['admin', 'stats'] as const,
   logins: ['admin', 'logins'] as const,
+  classes: ['admin', 'classes'] as const,
 }
 
 function errMsg(e: unknown, fallback: string): string {
@@ -96,6 +103,62 @@ export function useSetRole() {
       )
     },
     onError: (e) => toast.error(errMsg(e, '修改角色失败')),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// 班级管理
+// ---------------------------------------------------------------------------
+
+export function useAdminClasses(enabled = true): UseQueryResult<AdminClass[]> {
+  return useQuery({ queryKey: keys.classes, queryFn: listAdminClasses, enabled })
+}
+
+export function useCreateClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: AdminClassCreate) => createAdminClass(body),
+    onSuccess: (row) => {
+      void qc.invalidateQueries({ queryKey: keys.classes })
+      toast.success(`已创建班级 ${row.shortName}`)
+    },
+    onError: (e) => toast.error(errMsg(e, '创建班级失败')),
+  })
+}
+
+export function useSetUserClass() {
+  const qc = useQueryClient()
+  const invalidate = useInvalidateAdmin()
+  return useMutation({
+    mutationFn: ({ sid, classId }: { sid: string; classId: number | null }) =>
+      setUserClass(sid, classId),
+    onSuccess: (row) => {
+      invalidate()
+      void qc.invalidateQueries({ queryKey: keys.classes })
+      toast.success(
+        row.classShortName
+          ? `已将 ${row.nickname} 加入 ${row.classShortName}`
+          : `已移除 ${row.nickname} 的班级`,
+      )
+    },
+    onError: (e) => toast.error(errMsg(e, '设置班级失败')),
+  })
+}
+
+export function useSetUserCommittee() {
+  const qc = useQueryClient()
+  const invalidate = useInvalidateAdmin()
+  return useMutation({
+    mutationFn: ({ sid, isClassCommittee }: { sid: string; isClassCommittee: boolean }) =>
+      setUserCommittee(sid, isClassCommittee),
+    onSuccess: (row) => {
+      invalidate()
+      void qc.invalidateQueries({ queryKey: keys.classes })
+      toast.success(
+        row.isClassCommittee ? `已将 ${row.nickname} 设为班委` : `已取消 ${row.nickname} 的班委`,
+      )
+    },
+    onError: (e) => toast.error(errMsg(e, '设置班委失败')),
   })
 }
 

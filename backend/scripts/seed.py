@@ -21,12 +21,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.db import models  # noqa: E402,F401 - register on Base.metadata
 from app.db.base import Base  # noqa: E402
-from app.db.models import Note, User  # noqa: E402
+from app.db.models import Note, StudentClass, User  # noqa: E402
 from app.db.session import AsyncSessionLocal, engine  # noqa: E402
 from app.services.auth import hash_password  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTES_DIR = REPO_ROOT / "content" / "notes"
+
+# Demo 班级 for the /class module (matches roster_cs24-3.csv). Members carry
+# "in_class": True below; the e2e login account doubles as 班委 so the
+# playwright roll-call / group specs can drive committee-only actions.
+DEMO_CLASS = {"full_name": "计算机科学与技术24-3", "short_name": "计算机24-3"}
 
 # nickname is the user-visible handle; cards / note details render it.
 # password values land in cleartext in this file on purpose — local-dev only.
@@ -40,6 +45,7 @@ USERS: list[dict] = [
         "wechat": None,
         "phone": None,
         "email": None,
+        "in_class": True,
     },
     {
         "sid": "20222004210",
@@ -50,6 +56,41 @@ USERS: list[dict] = [
         "wechat": None,
         "phone": None,
         "email": None,
+    },
+    # e2e / demo accounts — the playwright specs log in as 20211010001.
+    {
+        "sid": "20211010001",
+        "name": "测试同学",
+        "nickname": "测试同学",
+        "password": "123456",
+        "bio": None,
+        "wechat": None,
+        "phone": None,
+        "email": None,
+        "in_class": True,
+        "committee": True,
+    },
+    {
+        "sid": "20241401998",
+        "name": "张演示",
+        "nickname": "张演示",
+        "password": "123456",
+        "bio": None,
+        "wechat": None,
+        "phone": None,
+        "email": None,
+        "in_class": True,
+    },
+    {
+        "sid": "20241401999",
+        "name": "李演示",
+        "nickname": "李演示",
+        "password": "123456",
+        "bio": None,
+        "wechat": None,
+        "phone": None,
+        "email": None,
+        "in_class": True,
     },
 ]
 
@@ -92,6 +133,10 @@ async def main() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as session:
+        demo_class = StudentClass(**DEMO_CLASS)
+        session.add(demo_class)
+        await session.flush()
+
         for u in USERS:
             session.add(
                 User(
@@ -104,6 +149,8 @@ async def main() -> None:
                     phone=u.get("phone"),
                     email=u.get("email"),
                     password_hash=hash_password(u["password"]),
+                    class_id=demo_class.id if u.get("in_class") else None,
+                    is_class_committee=bool(u.get("committee")),
                 )
             )
         await session.flush()

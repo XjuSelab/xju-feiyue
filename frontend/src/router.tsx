@@ -33,6 +33,10 @@ const ProfilePage = lazy(() =>
 const CreditsPage = lazy(() =>
   import('@/pages/CreditsPage').then((m) => ({ default: m.CreditsPage })),
 )
+const ClassPage = lazy(() => import('@/pages/ClassPage').then((m) => ({ default: m.ClassPage })))
+const GroupSpacePage = lazy(() =>
+  import('@/pages/GroupSpacePage').then((m) => ({ default: m.GroupSpacePage })),
+)
 // 隐藏管理后台：仅 URL 进入（无导航入口）；页面内按角色守卫，非管理员见 404 视图。
 const AdminPage = lazy(() => import('@/pages/AdminPage').then((m) => ({ default: m.AdminPage })))
 // Motion Lab 动效炫技场：公开访问（同 /browse），无导航入口，URL 直达。
@@ -189,6 +193,27 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
           <PageBoundary>
             <RequireAccess requireAuth>
               <CreditsPage />
+            </RequireAccess>
+          </PageBoundary>
+        ),
+      },
+      {
+        path: '/class',
+        element: (
+          <PageBoundary>
+            <RequireAccess requireAuth>
+              <ClassPage />
+            </RequireAccess>
+          </PageBoundary>
+        ),
+      },
+      {
+        // 小组内空间：可分享的持久 URL（组员互相粘贴），与 /write/:draftId 同款平级子路由。
+        path: '/class/groups/:gid',
+        element: (
+          <PageBoundary>
+            <RequireAccess requireAuth>
+              <GroupSpacePage />
             </RequireAccess>
           </PageBoundary>
         ),

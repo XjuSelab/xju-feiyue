@@ -28,6 +28,10 @@ class AdminUserRow(CamelModel):
     avatar_thumb: str | None = None
     note_count: int = 0
     material_count: int = 0
+    # 班级 (flattened from the classes table) + 班委 flag — admin-managed.
+    class_id: int | None = None
+    class_short_name: str | None = None
+    is_class_committee: bool = False
     last_login_at: UtcDateTime | None = None
     created_at: UtcDateTime | None = None
 
@@ -40,6 +44,8 @@ class UserCreateIn(CamelModel):
     preferred_name: str | None = Field(default=None, min_length=1, max_length=120)
     # Optional initial password; falls back to the shared default (123456).
     password: str | None = Field(default=None, min_length=6, max_length=128)
+    # Optional 班级 assignment at import time (must reference an existing row).
+    class_id: int | None = None
 
 
 class ResetPasswordIn(CamelModel):
@@ -58,6 +64,45 @@ class SetRoleIn(CamelModel):
     """POST /admin/users/{sid}/role — promote/demote (super-admin only)."""
 
     role: AssignableRole
+
+
+# --- 班级 management ---------------------------------------------------------
+
+
+class AdminClassOut(CamelModel):
+    """One row in the admin class list (with usage counts for safe delete)."""
+
+    id: int
+    full_name: str
+    short_name: str
+    student_count: int = 0
+    committee_count: int = 0
+
+
+class ClassCreateIn(CamelModel):
+    """POST /admin/classes — e.g. 计算机科学与技术24-3 / 计算机24-3."""
+
+    full_name: str = Field(min_length=1, max_length=120)
+    short_name: str = Field(min_length=1, max_length=64)
+
+
+class ClassUpdateIn(CamelModel):
+    """PATCH /admin/classes/{id} — the rename path; users/groups follow via FK."""
+
+    full_name: str | None = Field(default=None, min_length=1, max_length=120)
+    short_name: str | None = Field(default=None, min_length=1, max_length=64)
+
+
+class SetClassIn(CamelModel):
+    """POST /admin/users/{sid}/class — null clears (and drops the 班委 flag)."""
+
+    class_id: int | None = None
+
+
+class SetCommitteeIn(CamelModel):
+    """POST /admin/users/{sid}/committee — toggle the 班委 flag."""
+
+    is_class_committee: bool
 
 
 # --- /admin/stats ----------------------------------------------------------

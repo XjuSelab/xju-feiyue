@@ -1,7 +1,6 @@
 """Auth + profile-settings routes."""
 from __future__ import annotations
 
-import io
 import secrets
 import time
 from pathlib import Path
@@ -16,7 +15,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from PIL import Image, UnidentifiedImageError
+from PIL import UnidentifiedImageError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,6 +33,7 @@ from app.services.auth import (
     hash_password,
     verify_password,
 )
+from app.services.uploads_common import make_thumbnail
 from app.settings import settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -51,16 +51,6 @@ MAX_AVATAR_BYTES = 2 * 1024 * 1024  # 2 MB
 # Thumbnail long-edge in CSS pixels; 160 covers 2 × DPR on the 80 px chip,
 # stays sharp on a retina screen, and weighs only ~5 KB as JPEG.
 AVATAR_THUMB_PX = 160
-
-
-def _make_thumbnail(data: bytes, out_path: Path) -> None:
-    """Decode an uploaded avatar, downscale, and write JPEG to `out_path`."""
-    img = Image.open(io.BytesIO(data))
-    img.load()  # force decode now so bad files raise here, not later
-    if img.mode not in ("RGB", "L"):
-        img = img.convert("RGB")
-    img.thumbnail((AVATAR_THUMB_PX, AVATAR_THUMB_PX))
-    img.save(out_path, "JPEG", quality=85, optimize=True)
 
 
 @router.post("/login", response_model=LoginOut)
@@ -142,7 +132,7 @@ async def upload_avatar(
     thumb_path = AVATAR_DIR / thumb_name
     out_path.write_bytes(data)
     try:
-        _make_thumbnail(data, thumb_path)
+        make_thumbnail(data, thumb_path, AVATAR_THUMB_PX)
     except UnidentifiedImageError as e:
         out_path.unlink(missing_ok=True)
         raise HTTPException(status_code=400, detail="无法解析图片") from e

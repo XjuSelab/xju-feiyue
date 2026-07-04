@@ -12,6 +12,7 @@ import notesFixture from './notes.json'
 // Side-effect imports: registerMock at module load.
 import './schools'
 import './conferences'
+import './classes'
 
 // ============== auth ==============
 

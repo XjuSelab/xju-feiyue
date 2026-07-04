@@ -29,6 +29,14 @@ class UserOut(CamelModel):
     # users.role column; legacy/absent → 'user'. Drives the hidden /admin
     # dashboard + material-management UI on the frontend.
     role: str = "user"
+    # 班级 — flattened from the classes table via User.class_full_name /
+    # class_short_name properties (the wire keeps the two-field shape the
+    # product spec asked for). Admin-managed; NULL until assigned.
+    class_id: int | None = None
+    class_full_name: str | None = None
+    class_short_name: str | None = None
+    # 班委 flag — roll-call / group-approval powers within the user's class.
+    is_class_committee: bool = False
 
     @computed_field(alias="isAdmin")  # type: ignore[prop-decorator]
     @property

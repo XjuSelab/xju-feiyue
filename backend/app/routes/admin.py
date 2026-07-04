@@ -22,17 +22,30 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import LoginEvent, MaterialFile, MaterialResource, Note, User
+from app.db.models import (
+    Group,
+    LoginEvent,
+    MaterialFile,
+    MaterialResource,
+    Note,
+    StudentClass,
+    User,
+)
 from app.deps import get_db, require_admin, require_superadmin
 from app.schemas._base import CamelModel, UtcDateTime
 from app.schemas.admin import (
+    AdminClassOut,
     AdminStats,
     AdminUserRow,
+    ClassCreateIn,
+    ClassUpdateIn,
     DayCount,
     RecentSignup,
     ResetPasswordIn,
     ResetPasswordOut,
     RoleCount,
+    SetClassIn,
+    SetCommitteeIn,
     SetRoleIn,
     TopUploader,
     UserCreateIn,
@@ -93,10 +106,14 @@ async def list_users(
             User.phone,
             User.avatar_thumb,
             User.created_at,
+            User.class_id,
+            User.is_class_committee,
+            StudentClass.short_name.label("class_short_name"),
             func.coalesce(note_counts.c.c, 0).label("note_count"),
             func.coalesce(mat_counts.c.c, 0).label("material_count"),
             last_login.c.ts.label("last_login_at"),
         )
+        .outerjoin(StudentClass, StudentClass.id == User.class_id)
         .outerjoin(note_counts, note_counts.c.sid == User.sid)
         .outerjoin(mat_counts, mat_counts.c.sid == User.sid)
         .outerjoin(last_login, last_login.c.sid == User.sid)
@@ -114,6 +131,9 @@ async def list_users(
             avatar_thumb=r.avatar_thumb,
             note_count=r.note_count,
             material_count=r.material_count,
+            class_id=r.class_id,
+            class_short_name=r.class_short_name,
+            is_class_committee=r.is_class_committee,
             last_login_at=r.last_login_at,
             created_at=r.created_at,
         )
@@ -246,6 +266,53 @@ async def stats(
 # ---------------------------------------------------------------------------
 
 
+async def _get_class_or_400(db: AsyncSession, class_id: int) -> StudentClass:
+    clazz = await db.get(StudentClass, class_id)
+    if clazz is None:
+        raise HTTPException(status_code=400, detail="班级不存在")
+    return clazz
+
+
+async def _user_row(db: AsyncSession, target: User) -> AdminUserRow:
+    """Assemble a single `AdminUserRow` (counts + last login) for a user.
+
+    Used by the single-user mutation endpoints (role / class / 班委) so they
+    all return the same row shape `list_users` produces.
+    """
+    note_count = (
+        await db.execute(select(func.count(Note.id)).where(Note.author_sid == target.sid))
+    ).scalar_one()
+    material_count = (
+        await db.execute(
+            select(func.count(MaterialResource.id)).where(
+                MaterialResource.owner_sid == target.sid,
+                MaterialResource.deleted == False,  # noqa: E712
+            )
+        )
+    ).scalar_one()
+    last_login_at = (
+        await db.execute(
+            select(func.max(LoginEvent.created_at)).where(LoginEvent.user_sid == target.sid)
+        )
+    ).scalar_one()
+    return AdminUserRow(
+        sid=target.sid,
+        name=target.name,
+        nickname=target.nickname,
+        role=effective_role(target),
+        email=target.email,
+        phone=target.phone,
+        avatar_thumb=target.avatar_thumb,
+        note_count=note_count,
+        material_count=material_count,
+        class_id=target.class_id,
+        class_short_name=target.class_short_name,
+        is_class_committee=target.is_class_committee,
+        last_login_at=last_login_at,
+        created_at=target.created_at,
+    )
+
+
 @router.post("/users", response_model=AdminUserRow, status_code=201)
 async def create_user(
     body: UserCreateIn,
@@ -255,6 +322,8 @@ async def create_user(
     existing = await db.get(User, body.sid)
     if existing:
         raise HTTPException(status_code=409, detail=f"学号 {body.sid} 已存在")
+    if body.class_id is not None:
+        await _get_class_or_400(db, body.class_id)
     name = body.name.strip()
     preferred = (body.preferred_name or "").strip() or familiar_name(name)
     user = User(
@@ -264,23 +333,14 @@ async def create_user(
         preferred_name=preferred,
         password_hash=hash_password(body.password or DEFAULT_PASSWORD),
         role="user",
+        class_id=body.class_id,
     )
     db.add(user)
     await db.commit()
+    # refresh re-runs the mapper's eager loaders, so `clazz` (lazy="joined")
+    # is loaded and the flattened class-name fields are safe to read.
     await db.refresh(user)
-    return AdminUserRow(
-        sid=user.sid,
-        name=user.name,
-        nickname=user.nickname,
-        role="user",
-        email=user.email,
-        phone=user.phone,
-        avatar_thumb=user.avatar_thumb,
-        note_count=0,
-        material_count=0,
-        last_login_at=None,
-        created_at=user.created_at,
-    )
+    return await _user_row(db, user)
 
 
 # ---------------------------------------------------------------------------
@@ -334,34 +394,185 @@ async def set_role(
     target.role = body.role
     await db.commit()
     await db.refresh(target)
+    return await _user_row(db, target)
 
-    note_count = (
-        await db.execute(select(func.count(Note.id)).where(Note.author_sid == sid))
+
+# ---------------------------------------------------------------------------
+# 班级 management (admin+)
+# ---------------------------------------------------------------------------
+
+
+async def _class_rows(db: AsyncSession) -> list[AdminClassOut]:
+    student_counts = (
+        select(User.class_id.label("cid"), func.count().label("c"))
+        .where(User.class_id.is_not(None))
+        .group_by(User.class_id)
+        .subquery()
+    )
+    committee_counts = (
+        select(User.class_id.label("cid"), func.count().label("c"))
+        .where(User.class_id.is_not(None), User.is_class_committee == True)  # noqa: E712
+        .group_by(User.class_id)
+        .subquery()
+    )
+    stmt = (
+        select(
+            StudentClass,
+            func.coalesce(student_counts.c.c, 0).label("students"),
+            func.coalesce(committee_counts.c.c, 0).label("committee"),
+        )
+        .outerjoin(student_counts, student_counts.c.cid == StudentClass.id)
+        .outerjoin(committee_counts, committee_counts.c.cid == StudentClass.id)
+        .order_by(StudentClass.id)
+    )
+    return [
+        AdminClassOut(
+            id=clazz.id,
+            full_name=clazz.full_name,
+            short_name=clazz.short_name,
+            student_count=int(students),
+            committee_count=int(committee),
+        )
+        for clazz, students, committee in (await db.execute(stmt)).all()
+    ]
+
+
+async def _assert_class_names_free(
+    db: AsyncSession, full_name: str, short_name: str, *, exclude_id: int | None = None
+) -> None:
+    """409 before the DB unique constraint turns a dup into a 500."""
+    conds = [(StudentClass.full_name == full_name) | (StudentClass.short_name == short_name)]
+    if exclude_id is not None:
+        conds.append(StudentClass.id != exclude_id)
+    stmt = select(StudentClass.id).where(*conds).limit(1)
+    if (await db.execute(stmt)).first() is not None:
+        raise HTTPException(status_code=409, detail="已存在同名班级")
+
+
+@router.get("/classes", response_model=list[AdminClassOut])
+async def list_classes(
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> list[AdminClassOut]:
+    return await _class_rows(db)
+
+
+@router.post("/classes", response_model=AdminClassOut, status_code=201)
+async def create_class(
+    body: ClassCreateIn,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> AdminClassOut:
+    full_name = body.full_name.strip()
+    short_name = body.short_name.strip()
+    if not full_name or not short_name:
+        raise HTTPException(status_code=422, detail="班级名称不能为空")
+    await _assert_class_names_free(db, full_name, short_name)
+    clazz = StudentClass(full_name=full_name, short_name=short_name)
+    db.add(clazz)
+    await db.commit()
+    await db.refresh(clazz)
+    return AdminClassOut(
+        id=clazz.id,
+        full_name=clazz.full_name,
+        short_name=clazz.short_name,
+        student_count=0,
+        committee_count=0,
+    )
+
+
+@router.patch("/classes/{class_id}", response_model=AdminClassOut)
+async def update_class(
+    class_id: int,
+    body: ClassUpdateIn,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> AdminClassOut:
+    """Rename a class — users/groups/roll-calls follow via the FK (1-row edit)."""
+    clazz = await db.get(StudentClass, class_id)
+    if clazz is None:
+        raise HTTPException(status_code=404, detail="班级不存在")
+    payload = body.model_dump(exclude_unset=True)
+    full_name = (payload.get("full_name") or clazz.full_name).strip()
+    short_name = (payload.get("short_name") or clazz.short_name).strip()
+    if not full_name or not short_name:
+        raise HTTPException(status_code=422, detail="班级名称不能为空")
+    await _assert_class_names_free(db, full_name, short_name, exclude_id=class_id)
+    clazz.full_name = full_name
+    clazz.short_name = short_name
+    await db.commit()
+    rows = await _class_rows(db)
+    return next(r for r in rows if r.id == class_id)
+
+
+@router.delete("/classes/{class_id}", status_code=204)
+async def delete_class(
+    class_id: int,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Delete an *empty* class — 409 while students or live groups reference it.
+
+    (Roll-call history dies with the class via FK CASCADE, which is fine once
+    no student references it.)
+    """
+    clazz = await db.get(StudentClass, class_id)
+    if clazz is None:
+        raise HTTPException(status_code=404, detail="班级不存在")
+    students = (
+        await db.execute(select(func.count()).select_from(User).where(User.class_id == class_id))
     ).scalar_one()
-    material_count = (
+    live_groups = (
         await db.execute(
-            select(func.count(MaterialResource.id)).where(
-                MaterialResource.owner_sid == sid,
-                MaterialResource.deleted == False,  # noqa: E712
-            )
+            select(func.count())
+            .select_from(Group)
+            .where(Group.class_id == class_id, Group.deleted == False)  # noqa: E712
         )
     ).scalar_one()
-    last_login_at = (
-        await db.execute(select(func.max(LoginEvent.created_at)).where(LoginEvent.user_sid == sid))
-    ).scalar_one()
-    return AdminUserRow(
-        sid=target.sid,
-        name=target.name,
-        nickname=target.nickname,
-        role=effective_role(target),
-        email=target.email,
-        phone=target.phone,
-        avatar_thumb=target.avatar_thumb,
-        note_count=note_count,
-        material_count=material_count,
-        last_login_at=last_login_at,
-        created_at=target.created_at,
-    )
+    if students or live_groups:
+        raise HTTPException(status_code=409, detail="班级仍有成员或小组，无法删除")
+    await db.delete(clazz)
+    await db.commit()
+
+
+@router.post("/users/{sid}/class", response_model=AdminUserRow)
+async def set_user_class(
+    sid: str,
+    body: SetClassIn,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> AdminUserRow:
+    """Assign / clear a user's 班级. Clearing also drops the 班委 flag."""
+    target = await db.get(User, sid)
+    if not target:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    if body.class_id is not None:
+        await _get_class_or_400(db, body.class_id)
+    target.class_id = body.class_id
+    if body.class_id is None:
+        target.is_class_committee = False
+    await db.commit()
+    await db.refresh(target)
+    return await _user_row(db, target)
+
+
+@router.post("/users/{sid}/committee", response_model=AdminUserRow)
+async def set_user_committee(
+    sid: str,
+    body: SetCommitteeIn,
+    _admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> AdminUserRow:
+    """Toggle the 班委 flag — only meaningful for users who have a class."""
+    target = await db.get(User, sid)
+    if not target:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    if body.is_class_committee and target.class_id is None:
+        raise HTTPException(status_code=400, detail="请先为该用户设置班级")
+    target.is_class_committee = body.is_class_committee
+    await db.commit()
+    await db.refresh(target)
+    return await _user_row(db, target)
 
 
 # ---------------------------------------------------------------------------

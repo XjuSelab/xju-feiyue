@@ -23,11 +23,33 @@ export const AdminUserRowSchema = z.object({
   avatarThumb: z.string().url().nullish(),
   noteCount: z.number(),
   materialCount: z.number(),
+  /** 班级（管理员设置）；未分配为 null。 */
+  classId: z.number().nullish(),
+  classShortName: z.string().nullish(),
+  /** 班委标记（按班级生效的点名/审批权限）。 */
+  isClassCommittee: z.boolean().nullish(),
   /** ISO-8601 UTC (…Z) or null. */
   lastLoginAt: z.string().nullish(),
   createdAt: z.string().nullish(),
 })
 export type AdminUserRow = z.infer<typeof AdminUserRowSchema>
+
+/** GET /admin/classes row — 班级 + 使用计数（守护删除）。 */
+export const AdminClassSchema = z.object({
+  id: z.number(),
+  fullName: z.string(),
+  shortName: z.string(),
+  studentCount: z.number(),
+  committeeCount: z.number(),
+})
+export type AdminClass = z.infer<typeof AdminClassSchema>
+
+/** POST /admin/classes body. */
+export const AdminClassCreateSchema = z.object({
+  fullName: z.string().trim().min(1, '班级全名不能为空').max(120),
+  shortName: z.string().trim().min(1, '班级简名不能为空').max(64),
+})
+export type AdminClassCreate = z.infer<typeof AdminClassCreateSchema>
 
 export const RoleCountSchema = z.object({ role: z.string(), count: z.number() })
 export const DayCountSchema = z.object({ date: z.string(), count: z.number() })
