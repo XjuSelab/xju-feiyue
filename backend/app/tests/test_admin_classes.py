@@ -161,6 +161,80 @@ async def test_admin_user_rows_carry_class_fields(
     assert by_sid["20240003001"]["classShortName"] is None
 
 
+# ---------------------------------------------------------------------------
+# 删除账户（硬删，超管专属）
+# ---------------------------------------------------------------------------
+
+
+async def test_delete_user_permissions_and_cascade(
+    client: AsyncClient, class_setup, login, db_session
+) -> None:
+    from app.db import models
+    from app.services.auth import hash_password
+
+    # bootstrap 超管（settings.admin_sid）+ 一个 role 超管作被保护目标。
+    db_session.add(
+        models.User(
+            sid="20241401231",
+            name="超管",
+            nickname="超管",
+            password_hash=hash_password("123456"),
+            class_id=class_setup["demo_class"].id,
+        )
+    )
+    db_session.add(
+        models.User(
+            sid="20240009002",
+            name="另一超管",
+            nickname="另一超管",
+            password_hash=hash_password("123456"),
+            role="superadmin",
+        )
+    )
+    await db_session.commit()
+
+    superadmin = await login("20241401231")
+    plain_admin = await login("20240009001")
+    member = await login("20240001002")
+
+    # 普通用户 404（整个 /admin 面不可见）；普通管理员 403（须超管）。
+    assert (await client.delete("/admin/users/20240001003", headers=member)).status_code == 404
+    assert (
+        await client.delete("/admin/users/20240001003", headers=plain_admin)
+    ).status_code == 403
+    # 不能删自己 / 不能删超管。
+    assert (
+        await client.delete("/admin/users/20241401231", headers=superadmin)
+    ).status_code == 400
+    assert (
+        await client.delete("/admin/users/20240009002", headers=superadmin)
+    ).status_code == 403
+
+    # 目标先留下点数据：建组（任组长）+ 一次点名记录里有 TA。
+    target = await login("20240001003")
+    committee = await login("20240001001")
+    await client.post("/classes/me/groups", json={"name": "将消失的组"}, headers=target)
+    await client.post("/classes/me/rollcalls", json={}, headers=committee)
+
+    # 硬删 → 204；账户消失（登录失败）、成员列表收缩、其小组随之删除。
+    r = await client.delete("/admin/users/20240001003", headers=superadmin)
+    assert r.status_code == 204
+    r = await client.post(
+        "/auth/login", json={"sid": "20240001003", "password": "123456"}
+    )
+    assert r.status_code == 401
+    sids = [m["sid"] for m in (await client.get("/classes/me/members", headers=member)).json()]
+    assert "20240001003" not in sids
+    groups = (await client.get("/classes/me/groups", headers=member)).json()
+    assert all(g["name"] != "将消失的组" for g in groups)
+    # 点名详情不再包含该成员。
+    history = (await client.get("/classes/me/rollcalls", headers=member)).json()
+    detail = (
+        await client.get(f"/classes/me/rollcalls/{history[0]['id']}", headers=member)
+    ).json()
+    assert all(rec["sid"] != "20240001003" for rec in detail["records"])
+
+
 async def test_create_user_with_class(client: AsyncClient, class_setup, login) -> None:
     admin = await login("20240009001")
     cid = class_setup["demo_class"].id

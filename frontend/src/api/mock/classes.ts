@@ -372,6 +372,14 @@ registerMock('POST', '/classes/me/members/:sid/committee', async (req) => {
   return m
 })
 
+registerMock('DELETE', '/admin/users/:sid', async (req) => {
+  const sid = req.path.split('/')[3] ?? ''
+  const i = MEMBERS.findIndex((m) => m.sid === sid)
+  if (i >= 0) MEMBERS.splice(i, 1)
+  for (const g of groups) g.members.delete(sid)
+  return null
+})
+
 registerMock('GET', '/classes/me/groups/unassigned', async () => {
   const inGroup = new Set(groups.flatMap((g) => [...g.members.keys()]))
   return MEMBERS.filter((m) => !inGroup.has(m.sid))

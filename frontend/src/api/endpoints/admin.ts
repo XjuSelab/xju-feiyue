@@ -95,6 +95,17 @@ export async function setUserRole(
   })
 }
 
+/** DELETE /admin/users/{sid} — 硬删账户（超管专属；级联清笔记/资料/文件/
+ * 点名记录/小组关系，其任组长的小组随之删除）。不可恢复。 */
+export async function deleteAdminUser(sid: string): Promise<null> {
+  return request({
+    method: 'DELETE',
+    path: `/admin/users/${sid}`,
+    schema: NoContentSchema,
+    headers: authHeaders(),
+  })
+}
+
 // ---------------------------------------------------------------------------
 // 班级管理
 // ---------------------------------------------------------------------------

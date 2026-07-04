@@ -19,11 +19,12 @@ from datetime import datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import (
     Group,
+    GroupFile,
     LoginEvent,
     MaterialFile,
     MaterialResource,
@@ -31,6 +32,8 @@ from app.db.models import (
     StudentClass,
     User,
 )
+from app.services import groups as groups_svc
+from app.services import materials as materials_svc
 from app.deps import get_db, require_admin, require_superadmin
 from app.schemas._base import CamelModel, UtcDateTime
 from app.schemas.admin import (
@@ -344,6 +347,68 @@ async def create_user(
     # is loaded and the flattened class-name fields are safe to read.
     await db.refresh(user)
     return await _user_row(db, user)
+
+
+# ---------------------------------------------------------------------------
+# Delete an account (superadmin only — hard delete, cascades wipe content)
+# ---------------------------------------------------------------------------
+
+
+@router.delete("/users/{sid}", status_code=204)
+async def delete_user(
+    sid: str,
+    actor: User = Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Hard-delete an account (超管专属；班级成员右键入口).
+
+    DB FK cascades (PRAGMA foreign_keys=ON) wipe the user's notes / drafts /
+    likes / comments / login events / material resources / roll-call records
+    (and sessions they created) / group memberships / uploads — plus any
+    *group they lead* (leader_sid CASCADE deletes the whole group row). Disk
+    blobs are unlinked best-effort BEFORE the row cascade removes the
+    pointers. Irreversible; self / super-admins are protected.
+    """
+    if sid == actor.sid:
+        raise HTTPException(status_code=400, detail="不能删除自己的账户")
+    target = await db.get(User, sid)
+    if not target:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    if effective_role(target) == "superadmin":
+        raise HTTPException(status_code=403, detail="不能删除超级管理员")
+
+    # --- best-effort disk cleanup（行没了指针就没了，先删文件） ---------
+    # 1. 其名下资料资源的全部物理文件。
+    mat_files = (
+        await db.execute(
+            select(MaterialFile)
+            .join(MaterialResource, MaterialResource.id == MaterialFile.resource_id)
+            .where(MaterialResource.owner_sid == sid)
+        )
+    ).scalars()
+    for node in mat_files:
+        materials_svc._unlink_storage(node)
+    # 2. TA 上传的组内文件 + TA 任组长的小组的全部文件（组随人级联删除）。
+    grp_files = (
+        await db.execute(
+            select(GroupFile)
+            .join(Group, Group.id == GroupFile.group_id)
+            .where((GroupFile.uploaded_by_sid == sid) | (Group.leader_sid == sid))
+        )
+    ).scalars()
+    for gfile in grp_files:
+        groups_svc._unlink_storage(gfile)
+    # 3. 头像原图 + 缩略图（URL 尾段即 uploads/avatars/ 下的文件名）。
+    for url in (target.avatar, target.avatar_thumb):
+        if url and "/uploads/avatars/" in url:
+            fname = url.rsplit("/", 1)[-1]
+            if fname and "/" not in fname and ".." not in fname:
+                (groups_svc.UPLOAD_ROOT / "avatars" / fname).unlink(missing_ok=True)
+
+    # Core DELETE（绕过 ORM 级联机制 —— User.notes/drafts 是 lazy="raise"，
+    # session.delete 会尝试加载它们；DB 级 CASCADE 已覆盖全部子表）。
+    await db.execute(delete(User).where(User.sid == sid))
+    await db.commit()
 
 
 # ---------------------------------------------------------------------------

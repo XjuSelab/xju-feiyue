@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Star, StarOff } from 'lucide-react'
+import { Star, StarOff, Trash2 } from 'lucide-react'
 
 import { resolveAssetUrl } from '@/api/client'
 import type { ClassMember } from '@/api/schemas/class'
@@ -21,11 +21,17 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { useAuthStore } from '@/stores/authStore'
 
-import { useClassMe, useClassMembers, useSetMemberCommittee } from '../hooks/useClass'
+import {
+  useClassMe,
+  useClassMembers,
+  useDeleteMemberAccount,
+  useSetMemberCommittee,
+} from '../hooks/useClass'
 import { SetMemberCommitteeDialog } from './SetMemberCommitteeDialog'
 
 /**
@@ -39,9 +45,11 @@ export function MembersTab() {
   const { data: me } = useClassMe()
   const user = useAuthStore((s) => s.user)
   const setCommittee = useSetMemberCommittee()
+  const deleteAccount = useDeleteMemberAccount()
 
   const [editTarget, setEditTarget] = useState<ClassMember | null>(null)
   const [cancelTarget, setCancelTarget] = useState<ClassMember | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ClassMember | null>(null)
 
   const isSuperAdmin = user?.isSuperAdmin === true
   const isBanzhang = me?.committeeTitle === '班长'
@@ -49,6 +57,8 @@ export function MembersTab() {
   // 非超管不能动现任班长（含自己）。
   const canTouch = (m: ClassMember) =>
     canManage && (isSuperAdmin || m.committeeTitle !== '班长')
+  // 删除账户：仅超管，且不能删自己（超管账户后端另有保护）。
+  const canDelete = (m: ClassMember) => isSuperAdmin && m.sid !== user?.sid
 
   if (isLoading) return <LoadingSkeleton preset="paragraph" count={2} />
   if (isError || !members) {
@@ -83,17 +93,19 @@ export function MembersTab() {
             </li>
           )
 
-          if (!canTouch(m)) return card
+          if (!canTouch(m) && !canDelete(m)) return card
 
           return (
             <ContextMenu key={m.sid}>
               <ContextMenuTrigger asChild>{card}</ContextMenuTrigger>
               <ContextMenuContent>
-                <ContextMenuItem className="gap-2" onSelect={() => setEditTarget(m)}>
-                  <Star className="size-4" />
-                  {m.isClassCommittee ? '修改班委职务' : '设为班委'}
-                </ContextMenuItem>
-                {m.isClassCommittee && (
+                {canTouch(m) && (
+                  <ContextMenuItem className="gap-2" onSelect={() => setEditTarget(m)}>
+                    <Star className="size-4" />
+                    {m.isClassCommittee ? '修改班委职务' : '设为班委'}
+                  </ContextMenuItem>
+                )}
+                {canTouch(m) && m.isClassCommittee && (
                   <ContextMenuItem
                     className="gap-2 text-cat-research"
                     onSelect={() => setCancelTarget(m)}
@@ -101,6 +113,18 @@ export function MembersTab() {
                     <StarOff className="size-4" />
                     取消班委
                   </ContextMenuItem>
+                )}
+                {canDelete(m) && (
+                  <>
+                    {canTouch(m) && <ContextMenuSeparator />}
+                    <ContextMenuItem
+                      className="gap-2 text-cat-research"
+                      onSelect={() => setDeleteTarget(m)}
+                    >
+                      <Trash2 className="size-4" />
+                      删除账户
+                    </ContextMenuItem>
+                  </>
                 )}
               </ContextMenuContent>
             </ContextMenu>
@@ -116,6 +140,41 @@ export function MembersTab() {
         }}
         allowBanzhang={isSuperAdmin}
       />
+
+      {/* 删除账户 —— 硬删，二次确认写明后果。 */}
+      <AlertDialog
+        open={deleteTarget != null}
+        onOpenChange={(o) => (!o ? setDeleteTarget(null) : undefined)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif">
+              删除 {deleteTarget?.nickname} 的账户？
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              将从数据库<strong>永久删除</strong>该账户（{deleteTarget?.sid}
+              ），其笔记、资料、上传文件、点名记录与小组关系一并清除；若 TA
+              是组长，小组也会随之删除。此操作不可恢复。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteTarget) {
+                  deleteAccount.mutate({
+                    sid: deleteTarget.sid,
+                    nickname: deleteTarget.nickname,
+                  })
+                }
+                setDeleteTarget(null)
+              }}
+            >
+              永久删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={cancelTarget != null}

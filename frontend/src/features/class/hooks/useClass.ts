@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import { deleteAdminUser } from '@/api/endpoints/admin'
 import { getClassMe, listClassMembers, setMemberCommittee } from '@/api/endpoints/classes'
 import type { ClassMe, ClassMember } from '@/api/schemas/class'
 import { classKeys, errMsg } from './keys'
@@ -55,5 +56,19 @@ export function useSetMemberCommittee() {
       )
     },
     onError: (e) => toast.error(errMsg(e, '设置班委失败')),
+  })
+}
+
+/** 删除账户（硬删，超管专属）—— 班级空间成员右键入口。 */
+export function useDeleteMemberAccount() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ sid }: { sid: string; nickname: string }) => deleteAdminUser(sid),
+    onSuccess: (_data, vars) => {
+      // 成员/点名/小组/未进组全都可能受级联影响，整域对账。
+      void qc.invalidateQueries({ queryKey: classKeys.all })
+      toast.success(`已删除 ${vars.nickname} 的账户`)
+    },
+    onError: (e) => toast.error(errMsg(e, '删除账户失败')),
   })
 }
