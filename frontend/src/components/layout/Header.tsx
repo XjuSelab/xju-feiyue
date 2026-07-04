@@ -51,7 +51,7 @@ export function Header() {
         <MegaMenu />
         <NavItem to="/write" label="写作" />
         <NavItem to="/materials" label="资料" />
-        <NavItem to="/class" label="班级" />
+        {/* 班级空间（/class）无导航入口，仅 URL 直达 —— 与 /admin 同策略。 */}
         <NavItem to="/schools" label="高校信息" />
         <NavItem to="/conferences" label="CCF 会议" />
         <NavItem to="/credits" label="学分统计" />

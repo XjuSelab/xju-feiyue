@@ -198,6 +198,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         ),
       },
       {
+        // 班级空间：无导航按钮，仅 URL 直达（同 /admin 策略）；页面内按班级归属渲染。
         path: '/class',
         element: (
           <PageBoundary>

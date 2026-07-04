@@ -16,7 +16,8 @@ async function login(page: Page) {
   await page.fill('#login-sid', SID)
   await page.fill('#login-password', PASSWORD)
   await page.locator('#login-password').press('Enter')
-  await page.getByRole('link', { name: '班级' }).waitFor({ timeout: 15_000 })
+  // /class 无导航入口（URL 直达），以账户菜单出现为登录完成信号。
+  await page.getByRole('button', { name: '账户菜单' }).waitFor({ timeout: 15_000 })
 }
 
 test('点名：发起 → 勾选 → 完成 → 历史缺勤展示 → 删除', async ({ page }) => {

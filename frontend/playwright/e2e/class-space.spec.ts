@@ -21,7 +21,8 @@ async function login(page: Page) {
   await page.fill('#login-sid', SID)
   await page.fill('#login-password', PASSWORD)
   await page.locator('#login-password').press('Enter')
-  await page.getByRole('link', { name: '班级' }).waitFor({ timeout: 15_000 })
+  // /class 无导航入口（URL 直达），以账户菜单出现为登录完成信号。
+  await page.getByRole('button', { name: '账户菜单' }).waitFor({ timeout: 15_000 })
 }
 
 /** 解散当前用户名下的存活小组（上次失败运行的残留），保证建组不 409。 */
