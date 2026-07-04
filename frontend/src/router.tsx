@@ -97,6 +97,29 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     ),
     errorElement: <RouteError />,
   },
+  // 班级空间：AppShell 之外的独立页面（无主站导航栏/页脚），仅 URL 直达。
+  {
+    path: '/class',
+    element: (
+      <PageBoundary>
+        <RequireAccess requireAuth>
+          <ClassPage />
+        </RequireAccess>
+      </PageBoundary>
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    path: '/class/groups/:gid',
+    element: (
+      <PageBoundary>
+        <RequireAccess requireAuth>
+          <GroupSpacePage />
+        </RequireAccess>
+      </PageBoundary>
+    ),
+    errorElement: <RouteError />,
+  },
   {
     element: <AppShell />,
     errorElement: <RouteError />,
@@ -193,28 +216,6 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
           <PageBoundary>
             <RequireAccess requireAuth>
               <CreditsPage />
-            </RequireAccess>
-          </PageBoundary>
-        ),
-      },
-      {
-        // 班级空间：无导航按钮，仅 URL 直达（同 /admin 策略）；页面内按班级归属渲染。
-        path: '/class',
-        element: (
-          <PageBoundary>
-            <RequireAccess requireAuth>
-              <ClassPage />
-            </RequireAccess>
-          </PageBoundary>
-        ),
-      },
-      {
-        // 小组内空间：可分享的持久 URL（组员互相粘贴），与 /write/:draftId 同款平级子路由。
-        path: '/class/groups/:gid',
-        element: (
-          <PageBoundary>
-            <RequireAccess requireAuth>
-              <GroupSpacePage />
             </RequireAccess>
           </PageBoundary>
         ),

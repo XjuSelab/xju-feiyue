@@ -53,7 +53,8 @@ export function RollcallSession({ id, isCommittee, onExit }: Props) {
 
   return (
     <section aria-label="点名中">
-      <div className="sticky top-14 z-10 mb-4 flex flex-wrap items-center gap-3 border-b border-border bg-bg/95 py-3 backdrop-blur">
+      {/* 独立页面（无主站 56px 头部），sticky 直接吸顶。 */}
+      <div className="sticky top-0 z-10 mb-4 flex flex-wrap items-center gap-3 border-b border-border bg-bg/95 py-3 backdrop-blur">
         <Button variant="ghost" size="sm" onClick={onExit}>
           <ArrowLeft size={15} aria-hidden className="mr-1" />
           返回

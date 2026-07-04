@@ -1,5 +1,5 @@
-import { useSearchParams } from 'react-router-dom'
-import { GraduationCap, Users } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, GraduationCap, Users } from 'lucide-react'
 
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
@@ -13,9 +13,24 @@ import { RollcallTab } from './components/rollcall/RollcallTab'
 import { useClassMe } from './hooks/useClass'
 
 /**
- * /class —— 班级空间。三个 tab：小组（默认）/ 点名 / 成员；`?tab=` 同步到
- * URL（点名可深链）。未分配班级 → 空态（班级由管理员统一设置）。
+ * /class —— 班级空间。AppShell 之外的独立页面（无主站导航栏），仅 URL
+ * 直达；顶部只留一条「返回 Feiyue」极简链接。三个 tab：小组（默认）/
+ * 点名 / 成员；`?tab=` 同步到 URL（点名可深链）。未分配班级 → 空态。
  */
+function BackToSiteBar() {
+  return (
+    <div className="mb-4">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1.5 text-sm text-text-muted transition hover:text-text"
+      >
+        <ArrowLeft size={14} aria-hidden />
+        返回 Feiyue
+      </Link>
+    </div>
+  )
+}
+
 export function ClassPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = searchParams.get('tab') ?? 'groups'
@@ -24,6 +39,7 @@ export function ClassPage() {
   if (isLoading) {
     return (
       <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
+        <BackToSiteBar />
         <LoadingSkeleton preset="paragraph" count={3} />
       </main>
     )
@@ -31,6 +47,7 @@ export function ClassPage() {
   if (isError || !me) {
     return (
       <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
+        <BackToSiteBar />
         <ErrorState title="班级信息加载失败" message="请稍后重试。" onRetry={() => void refetch()} />
       </main>
     )
@@ -39,6 +56,7 @@ export function ClassPage() {
   if (!me.classFullName) {
     return (
       <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
+        <BackToSiteBar />
         <EmptyState
           icon={GraduationCap}
           title="你还没有加入班级"
@@ -50,6 +68,7 @@ export function ClassPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
+      <BackToSiteBar />
       <header className="mb-5 flex flex-wrap items-center gap-3">
         <h1 className="m-0 font-serif text-[28px] font-semibold tracking-[-0.01em] text-text">
           {me.classFullName}
