@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 720" width="1040" height="720">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/>
+    </marker>
+  </defs>
+
+  <!-- ============================================================
+       网格规划（不重叠）
+       标题:            x520  y40
+       注册用户(实体):  x40  y80  w150 h54   center(115,107)
+       管理员(实体):    x850 y80  w150 h54   center(925,107)
+       匿名访客(实体):  x40  y196 w150 h54   center(115,223)
+       AI审核服务(实体):x850 y196 w160 h54   center(930,223)
+       P0(加工):        x400 y200 w240 h90   center(520,245)
+                        top y=200(x400-640) bottom y=290 left x=400 right x=640
+       数据存储 y=620 h=40:
+         D1 x40  c105 | D2 x206 c271 | D3 x372 c437
+         D4 x538 c603 | D5 x704 c769 | D6 x870 c935
+       P0边连接点: top(445,485,555,595) left(210,240,265) right(210,240,265)
+                   bottom(420,437,603,620)
+       ============================================================ -->
+
+  <!-- ================= 连线（先画，形状白底盖住端点） ================= -->
+
+  <!--P0 <-> 数据存储：竖直连线，两端箭头，无标注 -->
+  <!-- D1 -> 左折入 P0 底边(420,290) -->
+  <path d="M105,620 V290 H420" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <!-- D2 -> 折入 P0 左侧(400,265) -->
+  <path d="M271,620 V265 H400" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <!-- D3 -> 竖直入 P0 底边(437,290) -->
+  <path d="M437,620 V290" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <!-- D4 -> 竖直入 P0 底边(603,290) -->
+  <path d="M603,620 V290" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <!-- D5 -> 折入 P0 右侧(640,265) -->
+  <path d="M769,620 V265 H640" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <!-- D6 -> 折入 P0 底边(620,290) -->
+  <path d="M935,620 V290 H620" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+
+  <!--注册用户 <-> P0（两条平行线错开） -->
+  <!-- 注册用户 -> P0 顶边(445,200) : 横 y=100 再竖 -->
+  <path d="M190,100 H445 V200" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- P0 -> 注册用户 : 顶边(485,200) 竖到 y=128 再横回实体 -->
+  <path d="M485,200 V128 H190" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+  <!--匿名访客 <-> P0 -->
+  <!-- 匿名访客 -> P0 左侧(400,210) -->
+  <path d="M190,210 H400" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- P0 -> 匿名访客 左侧(400,240) -->
+  <path d="M400,240 H190" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+  <!--管理员 <-> P0 -->
+  <!-- 管理员 -> P0 顶边(595,200) -->
+  <path d="M850,100 H595 V200" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- P0 -> 管理员 : 顶边(555,200) 竖到 y=128 再横到实体 -->
+  <path d="M555,200 V128 H850" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+  <!--AI 审核服务 <-> P0 -->
+  <!-- P0 -> AI 审核服务 右侧(640,210) -->
+  <path d="M640,210 H850" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- AI 审核服务 -> P0 右侧(640,240) -->
+  <path d="M850,240 H640" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+  <!-- ================= 外部实体（矩形） ================= -->
+  <rect x="40" y="80" width="150" height="54" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="115" y="112" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">注册用户</text>
+
+  <rect x="850" y="80" width="150" height="54" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="925" y="112" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">管理员</text>
+
+  <rect x="40" y="196" width="150" height="54" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="115" y="228" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">匿名访客</text>
+
+  <rect x="850" y="196" width="160" height="54" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="930" y="228" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">AI 审核服务</text>
+
+  <!-- ================= 中央加工 P0（圆角矩形） ================= -->
+  <rect x="400" y="200" width="240" height="90" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" fill="#1a1a1a">
+    <tspan x="520" y="236" font-size="12">P0</tspan>
+    <tspan x="520" y="260" font-size="14">笔记与社区互动子系统</tspan>
+  </text>
+
+  <!-- ================= 数据存储（右侧开口矩形） ================= -->
+  <!-- D1 草稿库 : x40 -->
+  <path d="M170,620 L40,620 L40,660 L170,660" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="105" y="645" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D1 草稿库</text>
+  <!-- D2 笔记库 : x206 -->
+  <path d="M336,620 L206,620 L206,660 L336,660" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="271" y="645" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D2 笔记库</text>
+  <!-- D3 互动库 : x372 -->
+  <path d="M502,620 L372,620 L372,660 L502,660" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="437" y="645" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D3 互动库</text>
+  <!-- D4 评论库 : x538 -->
+  <path d="M668,620 L538,620 L538,660 L668,660" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="603" y="645" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D4 评论库</text>
+  <!-- D5 治理库 : x704 -->
+  <path d="M834,620 L704,620 L704,660 L834,660" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="769" y="645" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D5 治理库</text>
+  <!-- D6 成长库 : x870 -->
+  <path d="M1000,620 L870,620 L870,660 L1000,660" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="935" y="645" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D6 成长库</text>
+
+  <!-- ================= 数据流标注（12px，白底描边避免压线） ================= -->
+  <!-- 注册用户 <-> P0 -->
+  <text x="317" y="92" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">写作/评论/表态/举报/签到请求</text>
+  <text x="337" y="144" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">信息流/详情/等级信息</text>
+  <!-- 匿名访客 <-> P0 -->
+  <text x="295" y="203" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">浏览检索请求</text>
+  <text x="295" y="256" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">公开笔记与评论</text>
+  <!-- 管理员 <-> P0 -->
+  <text x="722" y="92" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">裁决指令</text>
+  <text x="702" y="144" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">举报工单队列</text>
+  <!-- AI 审核服务 <-> P0 -->
+  <text x="745" y="203" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">待审内容</text>
+  <text x="745" y="256" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">分类结论</text>
+
+  <!-- ================= 图标题 ================= -->
+</svg>

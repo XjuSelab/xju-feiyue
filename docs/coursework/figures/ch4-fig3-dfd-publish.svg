@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 660" width="1080" height="660">
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/>
+    </marker>
+  </defs>
+
+  <!-- =========================================================
+       网格规划（x,y,w,h）
+       注册用户  40,240,120,90     AI 服务   880,40,140,56
+       P1.1 编辑与自动保存   190,100,170,64
+       P1.2 发布前校验       380,255,180,64
+       P1.3 AI 摘要生成      460,140,170,64
+       P1.4 首段截断兜底     460,320,170,64
+       P1.5 创建笔记并删除草稿 720,180,210,64
+       P1.6 AI 内容分类（异步）720,410,210,80
+       D1 草稿库  190,460,170,56
+       D2 笔记库  720,300,180,56
+       D5 治理库  720,540,180,56
+       ========================================================= -->
+
+  <!-- ================= 连线（先画，形状白底盖住穿过的线） ================= -->
+  <!-- C1 注册用户 -> P1.1 : 顶出上折右入 -->
+  <path d="M100,240 V132 H190" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C2 P1.1 -> D1 : 直下（P1.2 偏右不挡） -->
+  <path d="M275,164 V460" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C3 注册用户 -> P1.2 : 平入 -->
+  <path d="M160,285 H380" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C4 D1 -> P1.2 : 右出上折入底 -->
+  <path d="M360,488 H420 V319" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C5 P1.2 -> 注册用户 : 缺失项错误提示（返回） -->
+  <path d="M380,310 H160" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C6 P1.2 -> P1.3 : 校验通过·摘要为空 -->
+  <path d="M470,255 V204" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C7 P1.2 -> P1.5 : 校验通过·已有摘要（折线绕行，不穿 P1.3） -->
+  <path d="M560,290 H670 V210 H720" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C8 P1.3 -> AI 服务 : 摘要生成请求 -->
+  <path d="M530,140 V66 H880" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C9 AI 服务 -> P1.3 : 一句话简介（平行错开） -->
+  <path d="M880,80 H560 V140" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C10 P1.3 -> P1.4 : 超时/失败（虚线降级） -->
+  <path d="M545,204 V320" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#arr)"/>
+  <!-- C11 P1.4 -> P1.5 : 兜底摘要 -->
+  <path d="M630,352 H680 V225 H720" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C12 P1.3 -> P1.5 : AI 摘要 -->
+  <path d="M630,192 H720" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C13 P1.5 -> D2 : 新笔记 -->
+  <path d="M810,244 V300" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C14 P1.5 -> D1 : 删除草稿（长折线沿画布下方绕回左侧） -->
+  <path d="M720,240 H700 V635 H275 V516" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <!-- C15 P1.5 -> P1.6 : 正文送审（异步，虚线，绕 D2 右侧） -->
+  <path d="M930,220 H955 V445 H930" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#arr)"/>
+  <!-- C16 P1.6 -> AI 服务 : 审查请求（虚线） -->
+  <path d="M930,455 H985 V96" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#arr)"/>
+  <!-- C17 AI 服务 -> P1.6 : 分类结论（虚线） -->
+  <path d="M1005,96 V470 H930" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#arr)"/>
+  <!-- C18 P1.6 -> D5 : 审查结论 -->
+  <path d="M810,490 V540" stroke="#1a1a1a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+  <!-- ================= 外部实体（矩形） ================= -->
+  <rect x="40" y="240" width="120" height="90" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="100" y="291" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">注册用户</text>
+
+  <rect x="880" y="40" width="140" height="56" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="950" y="74" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">AI 服务</text>
+
+  <!-- ================= 加工（圆角矩形，编号在名称上一行） ================= -->
+  <rect x="190" y="100" width="170" height="64" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="275" y="125" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">P1.1</text>
+  <text x="275" y="146" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">编辑与自动保存</text>
+
+  <rect x="380" y="255" width="180" height="64" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="470" y="281" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">P1.2</text>
+  <text x="470" y="302" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">发布前校验</text>
+
+  <rect x="460" y="140" width="170" height="64" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="545" y="165" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">P1.3</text>
+  <text x="545" y="186" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">AI 摘要生成</text>
+
+  <rect x="460" y="320" width="170" height="64" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="545" y="345" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">P1.4</text>
+  <text x="545" y="366" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">首段截断兜底</text>
+
+  <rect x="720" y="180" width="210" height="64" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="825" y="205" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">P1.5</text>
+  <text x="825" y="226" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">创建笔记并删除草稿</text>
+
+  <rect x="720" y="410" width="210" height="80" rx="18" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="825" y="438" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">P1.6</text>
+  <text x="825" y="462" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">AI 内容分类（异步）</text>
+
+  <!-- ================= 数据存储（右侧开口矩形：上、左、下三边） ================= -->
+  <path d="M360,460 L190,460 L190,516 L360,516" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="275" y="493" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D1 草稿库</text>
+
+  <path d="M900,300 L720,300 L720,356 L900,356" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="810" y="333" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D2 笔记库</text>
+
+  <path d="M900,540 L720,540 L720,596 L900,596" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+  <text x="810" y="573" text-anchor="middle" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="14" fill="#1a1a1a">D5 治理库</text>
+
+  <!-- ================= 数据流标注（白底描边，避免压线） ================= -->
+  <text x="118" y="188" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">编辑内容</text>
+  <text x="283" y="345" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">草稿</text>
+  <text x="230" y="279" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">发布请求</text>
+  <text x="250" y="326" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">缺失项错误提示</text>
+  <text x="478" y="232" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">校验通过·摘要为空</text>
+  <text x="625" y="282" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">校验通过·已有摘要</text>
+  <text x="705" y="60" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">摘要生成请求</text>
+  <text x="700" y="94" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">一句话简介</text>
+  <text x="675" y="185" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">AI 摘要</text>
+  <text x="655" y="344" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">兜底摘要</text>
+  <text x="553" y="268" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">超时/失败</text>
+  <text x="818" y="278" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">新笔记</text>
+  <text x="455" y="628" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">删除草稿</text>
+  <text x="990" y="224" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">正文送审（异步）</text>
+  <text x="995" y="300" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">审查请求</text>
+  <text x="1010" y="395" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">分类结论</text>
+  <text x="818" y="520" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">审查结论</text>
+  <text x="428" y="415" text-anchor="start" paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" font-family="'Noto Sans CJK SC','Microsoft YaHei','SimSun',sans-serif" font-size="12" fill="#1a1a1a">草稿</text>
+</svg>
