@@ -9,6 +9,7 @@
 | skill | 作用 |
 |---|---|
 | **update-docs** | 更新 `README.md` 与 GitHub Pages 发展历程页 `site/index.html`:读版本记忆(`update-docs/VERSIONS.md`)、依据最近 git 提交与对话归纳本次更新、置顶写新版本记录、刷新真实规模数据、推两库自动部署。 |
+| **xju-docx** | 按《新疆大学本科毕业论文(设计)规范及格式要求》生成/规范化/校验/润色论文 docx:框架生成器(封面+目录域+GB8567 九章骨架)、Word97 .doc 提取器(免 LibreOffice)、python-docx 排版库(三级标题/分节页码/三线表)、25 项格式机检器、规范速查表。 |
 
 ## 安装 / 激活
 
