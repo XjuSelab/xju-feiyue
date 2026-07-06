@@ -22,21 +22,21 @@
 |---|---|---|
 | `routes/notes.py` | 笔记列表查询（游标分页/分类/标签/搜索/排序）、详情、编辑与删除 | 陶语涵 |
 | `routes/drafts.py` | 草稿创建、更新与发布（唯一建笔记路径） | 陶语涵 |
-| `routes/interactions.py` | 笔记点赞/点踩、收藏、评论（含锚点/楼中楼/图片）、评论赞/踩、举报、拉黑 | 陶语涵 |
+| `routes/interactions.py` | 笔记点赞/点踩、收藏、评论（含锚点/楼中楼/图片）、评论赞/踩；举报与拉黑尚未实现接口 | 陶语涵 |
 | `routes/ai.py` | AI 选段润色（一次性）、流式摘要生成 | 陶语涵 |
 | `routes/collections.py` | 合集 CRUD、合集内笔记管理、合集侧栏数据查询 | 陶语涵 |
 | `routes/auth.py` | 登录/注册/个人信息、每日签到、经验流水、收藏列表 | 石建华 |
 | `services/notes.py` | 笔记列表查询、详情、编辑、删除；分类/标签/搜索/排序逻辑 | 陶语涵 |
 | `services/comments.py` | 评论创建（含锚点/图片/楼中楼）、评论列表组装（两层树）、评论删除（级联） | 陶语涵 |
 | `services/ai_compose.py` | AI 润色、流式摘要生成（含降级兜底） | 陶语涵 |
-| `services/interactions.py` | 点赞/点踩互斥、收藏幂等、举报创建、拉黑管理 | 陶语涵 |
-| `services/collections.py` | 合集 CRUD、笔记加入/移出校验（归属/草稿/权限） | 陶语涵 |
-| `services/growth.py` | 签到幂等校验、经验加减与等级升级（对称扣回） | 石建华 |
+| `routes/interactions.py` | 点赞/点踩互斥、收藏幂等、评论创建与评论表态；举报和拉黑当前未实现 | 陶语涵 |
+| `routes/collections.py` | 合集 CRUD、笔记加入/移出校验（归属/草稿/权限） | 陶语涵 |
+| `routes/auth.py` | 签到幂等校验、经验发放、等级计算与经验流水查询 | 石建华 |
 | `NoteDetailPage.tsx` | 笔记详情展示、赞/踩/收藏按钮组、锚点评论与楼中楼回复、合集侧拉栏 | 陶语涵 |
 | `WritePage.tsx` | 草稿编辑与自动保存、AI 润色工具条与差异对照、AI 摘要流式展示、发布 | 陶语涵 |
 | `BrowsePage.tsx` | 信息流浏览、分类/标签/搜索过滤、排序切换、游标分页 | 陶语涵 |
 | `ProfilePage.tsx` | 个人中心：已发布/草稿/收藏/合集 Tab、签到入口、经验等级展示 | 陶语涵 |
-| `AdminPage.tsx` | 管理后台：举报工单队列、AI 审查结论查看、人工裁决操作 | 石建华 |
+| `AdminPage.tsx` | 管理后台：用户、登录、资料库等管理能力；举报工单队列尚未接入 | 石建华 |
 
 ## 3．设计说明
 
@@ -64,7 +64,7 @@
 | 返回值 | 名称 | 数据类型 |
 | | `CommentOut` | `CommentOut` |
 | 功能描述 | 创建一条笔记评论或楼内回复 |
-| 算法描述 | 1. 校验笔记存在且状态为 visible；2. 若 parent_id 非空，校验父评论存在且为顶层评论（parent_id is NULL），禁止三层嵌套；3. 校验 images 列表长度 ≤ 9，每项为有效 URL；4. 生成 UUID 作为评论 ID；5. 构造 Comment 对象，设置 note_id / author_sid / content / parent_id / reply_to_sid / images / anchor_*；6. INSERT 入库；7. 异步触发 AI 审查分类；8. 返回 CommentOut |
+| 算法描述 | 1. 校验笔记存在且状态为 visible；2. 若 parent_id 非空，校验父评论存在且为顶层评论（parent_id is NULL），禁止三层嵌套；3. 校验 images 列表长度 ≤ 9，每项为有效 URL；4. 生成 UUID 作为评论 ID；5. 构造 Comment 对象，设置 note_id / author_sid / content / parent_id / reply_to_sid / images / anchor_*；6. INSERT 入库；7. 当前代码未触发 AI 审查分类；8. 返回 CommentOut |
 | 输入 | note_id: 目标笔记 ID；author_sid: 当前登录用户学号；content: 评论文本；parent_id: 父评论 ID（顶层为 None）；reply_to_sid: @ 目标用户学号；images: 图片 URL 列表；anchor_*: 锚点信息 |
 | 输出 | 新创建的评论对象（含 id、created_at） |
 | 存储分配 | 1 条 comments 表记录 |
@@ -90,9 +90,9 @@
 | 存储分配 | 无额外存储 |
 | 测试要点 | 1. 空笔记返回空列表；2. 分页游标正确位移；3. 楼中楼只展示前 3 条；4. 被隐藏（pending）评论不返回 |
 
-### 3.2 services/interactions 模块
+### 3.2 routes/interactions 模块
 
-互动服务负责笔记表态（赞/踩）的互斥逻辑、收藏幂等、举报创建与拉黑管理。
+互动路由负责笔记表态（赞/踩）的互斥逻辑、收藏幂等、评论创建与评论表态。当前代码尚未实现举报创建与拉黑管理接口。
 
 #### 3.2.1 笔记点赞/点踩互斥函数 toggle_interaction
 
@@ -107,14 +107,14 @@
 | | `action` | `"add" \| "remove"` |
 | 返回值 | 名称 | 数据类型 |
 | | 更新后的点赞数、用户当前状态 | `NoteReactionOut` |
-| 功能描述 | 添加/取消笔记点赞或点踩，自动维护赞踩互斥关系，并对称发放/扣回作者经验 |
-| 算法描述 | 赞：1. 检查 dislike 表——若存在点踩记录，先 DELETE，再 INSERT like；2. 若已点赞（重复 add）：幂等返回，不报错；3. 首次点赞时 INSERT like 并给作者 +5 经验；4. remove 时 DELETE like 并给作者 -5 经验（对称扣回） |
+| 功能描述 | 添加/取消笔记点赞或点踩，自动维护赞踩互斥关系；当前实现不因点赞/点踩发放或扣回作者经验 |
+| 算法描述 | 赞：1. 检查 dislike 表——若存在点踩记录，先 DELETE；2. 若尚未点赞，则 INSERT like；3. 若已点赞（重复 add），幂等返回，不报错。取消赞时 DELETE like。点踩逻辑对称：先移除 like，再按需 INSERT note_dislikes；取消踩时 DELETE note_dislikes |
 | 输入 | note_id: 笔记ID；user_sid: 用户学号；action: 添加/取消 |
 | 输出 | 点赞总数、用户当前赞/踩状态 |
 | 存储分配 | 1 条 likes 或 note_dislikes 记录 + 1 条 xp_events 记录 |
-| 测试要点 | 1. 点赞自动取消点踩；2. 点踩自动取消点赞；3. 重复操作幂等；4. 取消时经验扣回对称；5. 踩计数管理员可见、前端不展示 |
+| 测试要点 | 1. 点赞自动取消点踩；2. 点踩自动取消点赞；3. 重复操作幂等；4. 取消时对应记录删除；5. 前端不公开展示踩计数 |
 
-### 3.3 services/collections 模块
+### 3.3 routes/collections 模块
 
 合集服务负责合集 CRUD 与笔记归属管理。
 
@@ -150,9 +150,9 @@
 | 算法描述 | 1. 在 collection_entries 中查找 note_id → 获取 collection_id；2. 若无归属返回 null；3. 查询该合集下全部 entry（含 note 联查），按 sort_order 排序；4. 组装返回数据，标记当前笔记位置 |
 | 测试要点 | 1. 未归属合集返回 null；2. 同合集笔记按序排列；3. 当前笔记高亮标记正确 |
 
-### 3.4 services/growth 模块
+### 3.4 routes/auth 签到与经验模块
 
-成长服务负责每日签到幂等校验与经验结算。
+认证路由中的签到与经验接口负责每日签到幂等校验、经验发放、等级计算和经验流水查询。
 
 #### 3.4.1 每日签到 checkin
 
@@ -178,7 +178,7 @@
 - 锚点引用高亮（点击引用片段 → 页面滚动到原文位置并高亮）
 - 评论图片九宫格展示（点击大图预览）
 - 评论点赞/点踩按钮（互斥切换）
-- 评论举报入口（弹出举报类型选择面板）
+- 评论举报入口为后续扩展项（当前代码未实现举报提交接口）
 - 评论删除（评论作者 / 笔记作者可见删除按钮）
 
 状态管理：使用 TanStack Query 管理评论数据，点赞/点踩/删除使用 optimistic 更新。
@@ -205,7 +205,7 @@
 
 **图 6-x 信息流浏览页界面**（/browse 路由）：左侧为分类/标签筛选侧栏；顶部为搜索栏与排序切换；中部为笔记卡片网格（2 列布局，封面图 + 标题 + 摘要 + 作者 + 互动计数）；底部为游标分页"加载更多"。
 
-**图 6-x 笔记详情页界面**（/note/:id 路由）：正文区（Markdown 渲染，支持代码高亮与图表）；操作栏（点赞/点踩/收藏按钮组 + 举报/拉黑菜单 + 合集侧栏入口）；评论区（锚点引用高亮、楼中楼折叠、九宫格图片）；合集侧拉栏（右侧 Drawer）。
+**图 6-x 笔记详情页界面**（/note/:id 路由）：正文区（Markdown 渲染，支持代码高亮与图表）；操作栏（点赞/点踩/收藏按钮组 + 合集侧栏入口）；评论区（锚点引用高亮、楼中楼折叠、九宫格图片）；合集侧拉栏（右侧 Drawer）。举报/拉黑菜单为后续治理扩展项。
 
 ### 合集域
 
@@ -213,7 +213,7 @@
 
 ### 治理域
 
-**图 6-x 举报工单管理界面**（/admin 路由举报 Tab）：工单列表（按状态/时间排序）；工单详情（目标内容快照 + AI 审查结论 + 置信度）；裁决按钮（删除内容/驳回举报）。
+**图 6-x 举报工单管理界面**（规划项）：当前管理后台未接入举报 Tab，后续实现时应提供工单列表、目标内容快照、AI 审查结论、置信度与人工裁决按钮。
 
 ### 成长域
 
@@ -239,23 +239,22 @@
 
 #### 点赞/点踩互斥
 
-核心逻辑（`services/interactions.py`）：
+核心逻辑（`routes/interactions.py`）：
 ```
 add_like:
   1. DELETE FROM note_dislikes WHERE (note_id, user_sid)  -- 先取消点踩
   2. INSERT INTO likes ... ON CONFLICT DO NOTHING         -- 幂等
-  3. INSERT INTO xp_events (note_liked, +5, 作者)
-  4. UPDATE users SET exp += 5 WHERE sid = 作者 sid
+  3. 不写入 xp_events
 
 remove_like:
   1. DELETE FROM likes WHERE (note_id, user_sid)
   2. INSERT INTO xp_events (note_unliked, -5, 作者)
-  3. UPDATE users SET exp -= 5 WHERE sid = 作者 sid
+  3. 不扣回经验
 ```
 
 #### 合集归属校验
 
-核心逻辑（`services/collections.py::add_note_to_collection`）：
+核心逻辑（`routes/collections.py::add_collection_entry`）：
 ```
 1. 校验合集存在且 owner = current_user
 2. 校验笔记存在且 status = 'visible' 且 author_sid = current_user
@@ -273,7 +272,7 @@ remove_like:
 2. FLAT 递归渲染：
    - 每条顶层评论渲染 <TopCommentCard>
      - 内容 + 锚点引用 + 九宫格图片
-     - 赞/踩按钮 + 回复按钮 + 举报菜单
+     - 赞/踩按钮 + 回复按钮（举报菜单为后续扩展项）
      - <ReplyList> 折叠：查询 replies（前 3 条）
        - 每条回复：<ReplyCard>（含 @mention）
        - "展开全部"按钮 → 加载子评论分页
@@ -302,7 +301,7 @@ remove_like:
 | `test_note_reactions.py` | 点赞互斥、点踩互斥、赞踩互斥 | like → auto-remove dislike；重复 like 幂等；取消时计数递减 |
 | `test_comment_replies.py` | 楼中楼创建、三层嵌套拒绝、顶层删除级联 | parent_id 约束校验；级联删除原子性 |
 | `test_collections.py` | 合集 CRUD、加入笔记三重校验、唯一归属 | 非本人、草稿、重复归属均报错 |
-| `test_checkin.py` | 签到幂等、经验发放、连续天数 | 同日重复签到幂等；经验值增减对称 |
+| `test_checkin.py` | 签到幂等、经验发放、连续天数 | 同日重复签到幂等；首次签到写入 +5 经验 |
 
 ## 6．核心顺序图
 
@@ -316,13 +315,13 @@ remove_like:
 
 图 6-2 草稿发布与 AI 摘要降级顺序图
 
-### 6.2 举报—AI 审查—人工裁决顺序图
+### 6.2 举报—AI 审查—人工裁决规划顺序图
 
-（图 6-3）用户点击举报 → 前端弹出举报面板选择类型 → POST /reports → 后端创建工单 → 返回"已受理" → 异步送 AI 审查 → AI 返回 {label, confidence, reason} → 高置信自动隐藏目标内容 → 管理员打开举报队列 → 查看工单 + AI 结论 → 裁决删除/恢复 → 更新工单状态。
+（图 6-3）该链路为后续治理能力设计，当前代码尚未实现。规划流程为：用户点击举报 → 前端弹出举报面板选择类型 → POST /reports → 后端创建工单 → 返回"已受理" → 异步送 AI 审查 → AI 返回 {label, confidence, reason} → 高置信自动隐藏目标内容 → 管理员打开举报队列 → 查看工单 + AI 结论 → 裁决删除/恢复 → 更新工单状态。
 
 〔此处插入图 6-3 —— 源文件 figures/ch6-fig6-seq-report-review.drawio〕
 
-图 6-3 举报—AI 审查—人工裁决顺序图
+图 6-3 举报—AI 审查—人工裁决规划顺序图
 
 ### 6.3 合集侧栏加载顺序图
 
@@ -352,7 +351,7 @@ remove_like:
 
 ### 7.3 举报工单状态图
 
-（图 6-7）举报工单状态迁移：pending（待处理）→ ai_flagged（AI 已标记）→ resolved（已裁决删除/隐藏） / dismissed（驳回恢复）。
+（图 6-7）举报工单状态迁移为规划项：pending（待处理）→ ai_flagged（AI 已标记）→ resolved（已裁决删除/隐藏） / dismissed（驳回恢复）。
 
 〔此处插入图 6-7 —— 源文件 figures/ch6-fig-report-state.drawio〕
 
