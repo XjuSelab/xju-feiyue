@@ -28,8 +28,8 @@ async function login(page: Page) {
 /** 解散当前用户名下的存活小组（上次失败运行的残留），保证建组不 409。 */
 async function dissolveOwnGroupIfAny(page: Page) {
   for (let i = 0; i < 3; i++) {
-    await page.goto('/class')
-    await page.getByRole('tab', { name: '小组' }).waitFor({ timeout: 15_000 })
+    await page.goto('/class?tab=groups')
+    await page.getByRole('link', { name: '返回 Feiyue' }).waitFor({ timeout: 15_000 })
     await page.waitForTimeout(600)
     const enter = page.getByRole('link', { name: /进入小组/ }).first()
     if ((await enter.count()) === 0) return
@@ -43,7 +43,7 @@ async function dissolveOwnGroupIfAny(page: Page) {
 }
 
 async function enterOwnGroup(page: Page) {
-  await page.goto('/class')
+  await page.goto('/class?tab=groups')
   const enter = page.getByRole('link', { name: /进入小组/ }).first()
   await enter.waitFor({ timeout: 15_000 })
   await enter.click()
@@ -77,7 +77,7 @@ test('小组：创建 → 进入空间 → 改简介并持久', async ({ page })
   await login(page)
   await dissolveOwnGroupIfAny(page)
 
-  await page.goto('/class')
+  await page.goto('/class?tab=groups')
   await page.getByRole('button', { name: '创建小组' }).first().click()
   const dialog = page.getByRole('dialog').filter({ hasText: '创建小组' })
   await dialog.getByLabel('组名').fill(GROUP_NAME)
@@ -188,6 +188,6 @@ test('清理：解散小组', async ({ page }) => {
   test.setTimeout(60_000)
   await login(page)
   await dissolveOwnGroupIfAny(page)
-  await page.goto('/class')
+  await page.goto('/class?tab=groups')
   await expect(page.getByRole('link', { name: /进入小组/ })).toHaveCount(0, { timeout: 15_000 })
 })

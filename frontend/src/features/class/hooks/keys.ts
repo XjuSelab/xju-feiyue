@@ -3,6 +3,7 @@ export const classKeys = {
   all: ['class'] as const,
   me: ['class', 'me'] as const,
   members: ['class', 'members'] as const,
+  missions: ['class', 'missions'] as const,
   rollcalls: ['class', 'rollcalls'] as const,
   rollcall: (id: string) => ['class', 'rollcall', id] as const,
   groups: ['class', 'groups'] as const,

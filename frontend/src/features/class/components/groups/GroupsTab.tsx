@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, UserX, UsersRound } from 'lucide-react'
+import { Download, Plus, UserX, UsersRound } from 'lucide-react'
 
 import { resolveAssetUrl } from '@/api/client'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -8,17 +8,25 @@ import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
+import { useExportClassGroups } from '../../hooks/useMissions'
 import { useGroups, useUnassignedMembers } from '../../hooks/useGroups'
 import { CreateGroupDialog } from './CreateGroupDialog'
 import { GroupCard } from './GroupCard'
 
+type Props = {
+  /** 班委 —— 显示「导出班级分组信息」按钮（后端二次强制）。 */
+  isCommittee?: boolean
+}
+
 /**
- * 小组 tab —— 卡片网格。已入组用户不再显示「创建小组」（一人一组）。
+ * 小组 tab —— 分组任务的全局概览（所有组卡片网格）。已入组用户不再显示
+ * 「创建小组」（一人一组）；班委额外可「导出班级分组信息」为 .docx。
  */
-export function GroupsTab() {
+export function GroupsTab({ isCommittee = false }: Props) {
   const { data: groups, isLoading, isError, refetch } = useGroups(true)
   const { data: unassigned } = useUnassignedMembers(true)
   const [createOpen, setCreateOpen] = useState(false)
+  const exportGroups = useExportClassGroups()
 
   if (isLoading) return <LoadingSkeleton preset="paragraph" count={2} />
   if (isError || !groups) {
@@ -29,12 +37,25 @@ export function GroupsTab() {
 
   return (
     <section aria-label="小组">
-      {!inGroup && (
-        <div className="mb-4">
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus size={15} aria-hidden className="mr-1.5" />
-            创建小组
-          </Button>
+      {(!inGroup || isCommittee) && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {!inGroup && (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus size={15} aria-hidden className="mr-1.5" />
+              创建小组
+            </Button>
+          )}
+          {isCommittee && (
+            <Button
+              variant="outline"
+              className="ml-auto"
+              onClick={() => exportGroups.mutate()}
+              disabled={exportGroups.isPending}
+            >
+              <Download size={15} aria-hidden className="mr-1.5" />
+              {exportGroups.isPending ? '导出中…' : '导出班级分组信息'}
+            </Button>
+          )}
         </div>
       )}
 

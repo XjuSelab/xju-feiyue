@@ -91,6 +91,46 @@ class RollCallRecordIn(CamelModel):
     present: bool
 
 
+class MissionOut(CamelModel):
+    """A 分组任务 (grouping mission) — the top layer of the /class space.
+
+    ``is_active`` marks the 进行中 mission (at most one per class). Every class
+    member reads these; 班委 create/edit/activate them.
+    """
+
+    id: str
+    title: str
+    description: str = ""
+    is_active: bool = False
+    created_by_sid: str
+    created_at: UtcDateTime
+    updated_at: UtcDateTime
+
+
+class MissionCreateIn(CamelModel):
+    """POST /classes/me/missions — new 分组任务.
+
+    ``active`` (default True) sets it as the 进行中 mission on creation, unsetting
+    any prior active one — the common case is "start a new round of grouping".
+    """
+
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=4000)
+    active: bool = True
+
+
+class MissionUpdateIn(CamelModel):
+    """PATCH /classes/me/missions/{id} — partial; omitted = unchanged.
+
+    ``active=True`` makes this the 进行中 mission (unsets the others); ``active``
+    is never accepted as False here — deactivate by activating another mission.
+    """
+
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=4000)
+    active: bool | None = None
+
+
 class MemberCommitteeIn(CamelModel):
     """POST /classes/me/members/{sid}/committee — 班内设置班委.
 

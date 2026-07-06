@@ -20,9 +20,10 @@ from fastapi import HTTPException
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import RollCallRecord, RollCallSession, User
+from app.db.models import ClassMission, RollCallRecord, RollCallSession, User
 from app.schemas.classes import (
     ClassMemberOut,
+    MissionOut,
     RollCallDetailOut,
     RollCallRecordOut,
     RollCallSummaryOut,
@@ -91,6 +92,95 @@ def member_to_out(user: User) -> ClassMemberOut:
 async def count_class_members(db: AsyncSession, class_id: int) -> int:
     stmt = select(func.count()).select_from(User).where(User.class_id == class_id)
     return int((await db.execute(stmt)).scalar_one())
+
+
+# ---------------------------------------------------------------------------
+# 分组任务 (missions) — the top layer of the /class space
+# ---------------------------------------------------------------------------
+
+
+def mission_to_out(m: ClassMission) -> MissionOut:
+    return MissionOut(
+        id=m.id,
+        title=m.title,
+        description=m.description,
+        is_active=m.is_active,
+        created_by_sid=m.created_by_sid,
+        created_at=m.created_at,
+        updated_at=m.updated_at,
+    )
+
+
+async def list_missions(db: AsyncSession, class_id: int) -> list[ClassMission]:
+    """A class's missions, active first then newest — a class has only a few."""
+    stmt = (
+        select(ClassMission)
+        .where(ClassMission.class_id == class_id)
+        .order_by(ClassMission.is_active.desc(), ClassMission.created_at.desc())
+    )
+    return list((await db.execute(stmt)).scalars().all())
+
+
+async def get_mission_or_404(
+    db: AsyncSession, mission_id: str, class_id: int
+) -> ClassMission:
+    """Fetch a mission *of this class* or 404 (cross-class = unseen)."""
+    m = await db.get(ClassMission, mission_id)
+    if not m or m.class_id != class_id:
+        raise HTTPException(status_code=404, detail="分组任务不存在")
+    return m
+
+
+async def _clear_active(db: AsyncSession, class_id: int, keep_id: str | None) -> None:
+    """Unset 进行中 on every other mission of the class (single-active invariant)."""
+    stmt = select(ClassMission).where(
+        ClassMission.class_id == class_id,
+        ClassMission.is_active == True,  # noqa: E712
+    )
+    for other in (await db.execute(stmt)).scalars().all():
+        if other.id != keep_id:
+            other.is_active = False
+
+
+async def create_mission(
+    db: AsyncSession, class_id: int, actor: User, title: str, description: str, active: bool
+) -> ClassMission:
+    """Create a 分组任务; when ``active`` it becomes the sole 进行中 one."""
+    m = ClassMission(
+        id=uuid4().hex,
+        class_id=class_id,
+        title=title.strip(),
+        description=(description or "").strip(),
+        is_active=active,
+        created_by_sid=actor.sid,
+    )
+    if active:
+        await _clear_active(db, class_id, keep_id=None)
+    db.add(m)
+    await db.commit()
+    await db.refresh(m)
+    return m
+
+
+async def update_mission(
+    db: AsyncSession,
+    m: ClassMission,
+    *,
+    title: str | None,
+    description: str | None,
+    active: bool | None,
+) -> ClassMission:
+    """Partial update; ``active=True`` makes this the sole 进行中 mission."""
+    if title is not None:
+        m.title = title.strip()
+    if description is not None:
+        m.description = description.strip()
+    if active is True:
+        await _clear_active(db, m.class_id, keep_id=m.id)
+        m.is_active = True
+    await db.commit()
+    await db.refresh(m)
+    return m
 
 
 # ---------------------------------------------------------------------------

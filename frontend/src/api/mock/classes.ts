@@ -118,10 +118,21 @@ type MockTask = {
   updatedAt: string
 }
 
+type MockMission = {
+  id: string
+  title: string
+  description: string
+  isActive: boolean
+  createdBySid: string
+  createdAt: string
+  updatedAt: string
+}
+
 const groups: MockGroup[] = []
 const joinRequests: MockJoinRequest[] = []
 const files: MockFile[] = []
 const tasks: MockTask[] = []
+const missions: MockMission[] = []
 
 // --- 预置数据 ---------------------------------------------------------------
 
@@ -220,6 +231,16 @@ function seed() {
     url: null,
     uploadedBySid: ME,
     createdAt: nowIso(),
+  })
+
+  missions.push({
+    id: nextId('mission'),
+    title: '软件工程课程设计 · 第一次分组',
+    description: '按兴趣自由组队（3–5 人），选定课设选题并推选组长。',
+    isActive: true,
+    createdBySid: ME,
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
   })
 
   const rc: MockRollcall = {
@@ -436,6 +457,55 @@ registerMock('PATCH', '/classes/me/rollcalls/:id', async (req) => {
 registerMock('DELETE', '/classes/me/rollcalls/:id', async (req) => {
   const i = rollcalls.findIndex((x) => x.id === seg(req, 3))
   if (i >= 0) rollcalls.splice(i, 1)
+  return null
+})
+
+// ---------------------------------------------------------------------------
+// 分组任务（mission）
+// ---------------------------------------------------------------------------
+
+const missionSorted = () =>
+  [...missions].sort((a, b) => {
+    if (a.isActive !== b.isActive) return a.isActive ? -1 : 1
+    return b.createdAt.localeCompare(a.createdAt)
+  })
+
+registerMock('GET', '/classes/me/missions', async () => missionSorted())
+
+registerMock('POST', '/classes/me/missions', async (req) => {
+  const body = req.body as { title: string; description?: string; active?: boolean }
+  const active = body.active ?? true
+  if (active) missions.forEach((m) => (m.isActive = false))
+  const m: MockMission = {
+    id: nextId('mission'),
+    title: body.title.trim(),
+    description: body.description?.trim() ?? '',
+    isActive: active,
+    createdBySid: ME,
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+  }
+  missions.push(m)
+  return m
+})
+
+registerMock('PATCH', '/classes/me/missions/:id', async (req) => {
+  const m = missions.find((x) => x.id === seg(req, 4))
+  if (!m) throw new ApiError('分组任务不存在', 404, req.path)
+  const body = req.body as { title?: string; description?: string; active?: true }
+  if (body.title !== undefined) m.title = body.title.trim()
+  if (body.description !== undefined) m.description = body.description.trim()
+  if (body.active === true) {
+    missions.forEach((x) => (x.isActive = false))
+    m.isActive = true
+  }
+  m.updatedAt = nowIso()
+  return m
+})
+
+registerMock('DELETE', '/classes/me/missions/:id', async (req) => {
+  const i = missions.findIndex((x) => x.id === seg(req, 4))
+  if (i >= 0) missions.splice(i, 1)
   return null
 })
 

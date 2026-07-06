@@ -619,3 +619,40 @@ class GroupTaskAssignee(Base):
     sid: Mapped[str] = mapped_column(
         ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
     )
+
+
+class ClassMission(Base):
+    """A 分组任务 (grouping mission) at the top of the /class space.
+
+    A class runs one *active* mission at a time (设为进行中); over a term it may
+    have several in sequence (a fresh round of grouping each time). Missions are
+    class-scoped labels — groups are NOT partitioned per mission yet, so switching
+    the active mission only re-frames the UI, it doesn't re-shuffle groups. At most
+    one row per class has ``is_active=True`` (service-enforced, mirrors the roll-call
+    single-writer ethos). 学委/班委 manage them; every member reads them.
+    """
+
+    __tablename__ = "class_missions"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        ForeignKey("classes.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    # 进行中 flag — at most one True per class (unset the old one when setting a new).
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("0"), default=False, index=True
+    )
+    created_by_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )

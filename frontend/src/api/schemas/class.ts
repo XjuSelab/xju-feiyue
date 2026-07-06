@@ -38,6 +38,39 @@ export type ClassMember = z.infer<typeof ClassMemberSchema>
 export const ClassMemberListSchema = z.array(ClassMemberSchema)
 
 // ---------------------------------------------------------------------------
+// 分组任务（mission）—— /class 顶层
+// ---------------------------------------------------------------------------
+
+/** GET /classes/me/missions —— 班级分组任务；`isActive` 标记进行中（每班至多一个）。 */
+export const MissionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  isActive: z.boolean(),
+  createdBySid: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+export type Mission = z.infer<typeof MissionSchema>
+export const MissionListSchema = z.array(MissionSchema)
+
+export const MissionCreateInSchema = z.object({
+  title: z.string().trim().min(1, '任务标题不能为空').max(255, '任务标题最长 255 字'),
+  description: z.string().max(4000, '任务描述最长 4000 字').optional(),
+  /** 建任务即设为进行中（默认 true）—— 会自动取消上一个进行中任务。 */
+  active: z.boolean().optional(),
+})
+export type MissionCreateIn = z.infer<typeof MissionCreateInSchema>
+
+export const MissionUpdateInSchema = z.object({
+  title: z.string().trim().min(1).max(255).optional(),
+  description: z.string().max(4000).optional(),
+  /** 仅 `true` 有意义：设为进行中（取消其余）；停用请改设别的任务为进行中。 */
+  active: z.literal(true).optional(),
+})
+export type MissionUpdateIn = z.infer<typeof MissionUpdateInSchema>
+
+// ---------------------------------------------------------------------------
 // 点名（roll-call）
 // ---------------------------------------------------------------------------
 

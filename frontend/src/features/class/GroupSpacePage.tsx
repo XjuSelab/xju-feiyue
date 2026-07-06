@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Lock } from 'lucide-react'
 
@@ -6,6 +7,7 @@ import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/authStore'
 
+import { ClassNavbar } from './components/ClassNavbar'
 import { GanttPanel } from './components/gantt/GanttPanel'
 import { GroupFilesPanel } from './components/group-space/GroupFilesPanel'
 import { GroupHeader } from './components/group-space/GroupHeader'
@@ -27,14 +29,14 @@ export function GroupSpacePage() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
+      <GroupLayout>
         <LoadingSkeleton preset="paragraph" count={3} />
-      </main>
+      </GroupLayout>
     )
   }
   if (isError || !group) {
     return (
-      <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
+      <GroupLayout>
         <ErrorState
           title="小组加载失败"
           message="小组不存在，或你不在该小组所在的班级。"
@@ -48,7 +50,7 @@ export function GroupSpacePage() {
             </Link>
           </Button>
         </div>
-      </main>
+      </GroupLayout>
     )
   }
 
@@ -59,16 +61,7 @@ export function GroupSpacePage() {
   const canManage = group.myRole === 'leader' || isCommittee || isAdmin
 
   return (
-    <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">
-      <div className="mb-4">
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/class">
-            <ArrowLeft size={14} aria-hidden className="mr-1" />
-            返回班级空间
-          </Link>
-        </Button>
-      </div>
-
+    <GroupLayout crumb={group.name}>
       <GroupHeader group={group} canManage={canManage} currentSid={user?.sid ?? ''} />
 
       <div className="mt-6 flex flex-col gap-6">
@@ -87,6 +80,15 @@ export function GroupSpacePage() {
           </section>
         )}
       </div>
-    </main>
+    </GroupLayout>
+  )
+}
+
+function GroupLayout({ crumb, children }: { crumb?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="min-h-screen">
+      <ClassNavbar crumb={crumb} />
+      <main className="mx-auto max-w-5xl px-6 pb-24 pt-7">{children}</main>
+    </div>
   )
 }

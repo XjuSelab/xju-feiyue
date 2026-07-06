@@ -13,16 +13,21 @@ The top-level prefix `/classes` matches the `/materials` style: no router
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import User
+from app.db.models import StudentClass, User
 from app.deps import get_current_user, get_db
+from app.services.class_export import build_class_groups_docx
 from app.schemas.classes import (
     ClassMemberOut,
     ClassMeOut,
     MemberCommitteeIn,
+    MissionCreateIn,
+    MissionOut,
+    MissionUpdateIn,
     RollCallCreateIn,
     RollCallDetailOut,
     RollCallRecordIn,
@@ -104,6 +109,100 @@ async def set_member_committee(
     await db.commit()
     await db.refresh(target)
     return svc.member_to_out(target)
+
+
+# ---------------------------------------------------------------------------
+# 分组任务 (missions) — top layer of the /class space
+# ---------------------------------------------------------------------------
+
+
+@router.get("/classes/me/missions", response_model=list[MissionOut])
+async def list_missions(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[MissionOut]:
+    """Every class member sees the mission list (active first)."""
+    class_id = svc.ensure_in_class(user)
+    return [svc.mission_to_out(m) for m in await svc.list_missions(db, class_id)]
+
+
+@router.post("/classes/me/missions", response_model=MissionOut, status_code=201)
+async def create_mission(
+    body: MissionCreateIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> MissionOut:
+    """Create a 分组任务 (班委/admin); ``active`` sets it as 进行中."""
+    class_id = svc.ensure_in_class(user)
+    svc.ensure_committee(user, class_id)
+    m = await svc.create_mission(
+        db, class_id, user, body.title, body.description or "", body.active
+    )
+    return svc.mission_to_out(m)
+
+
+@router.patch("/classes/me/missions/{mission_id}", response_model=MissionOut)
+async def update_mission(
+    mission_id: str,
+    body: MissionUpdateIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> MissionOut:
+    """Rename / re-describe / 设为进行中 a mission (班委/admin)."""
+    class_id = svc.ensure_in_class(user)
+    svc.ensure_committee(user, class_id)
+    m = await svc.get_mission_or_404(db, mission_id, class_id)
+    m = await svc.update_mission(
+        db, m, title=body.title, description=body.description, active=body.active
+    )
+    return svc.mission_to_out(m)
+
+
+@router.delete("/classes/me/missions/{mission_id}", status_code=204)
+async def delete_mission(
+    mission_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Hard-delete a 分组任务 (班委/admin)."""
+    class_id = svc.ensure_in_class(user)
+    svc.ensure_committee(user, class_id)
+    m = await svc.get_mission_or_404(db, mission_id, class_id)
+    await db.delete(m)
+    await db.commit()
+
+
+# ---------------------------------------------------------------------------
+# 导出班级分组信息 (.docx)
+# ---------------------------------------------------------------------------
+
+
+DOCX_MEDIA_TYPE = (
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+)
+
+
+@router.get("/classes/me/groups/export")
+async def export_class_groups(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Download the 课程设计选题一览表 .docx of every group (班委/admin)."""
+    class_id = svc.ensure_in_class(user)
+    svc.ensure_committee(user, class_id)
+    clazz = user.clazz or await db.get(StudentClass, class_id)
+    if clazz is None:
+        raise HTTPException(status_code=404, detail="班级不存在")
+
+    data = await build_class_groups_docx(db, clazz, class_id)
+    # RFC 5987 filename* for the Chinese basename; ASCII fallback keeps old clients happy.
+    stem = f"{clazz.short_name or '班级'}_工程项目开发综合实践题目汇总.docx"
+    disposition = f"attachment; filename=groups.docx; filename*=UTF-8''{quote(stem)}"
+    return Response(
+        content=data,
+        media_type=DOCX_MEDIA_TYPE,
+        headers={"Content-Disposition": disposition},
+    )
 
 
 # ---------------------------------------------------------------------------
