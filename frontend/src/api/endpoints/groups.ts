@@ -1,4 +1,4 @@
-import { getApiBase, isMockMode, request } from '../client'
+import { getApiBase, isMockMode, request, resolveAssetUrl } from '../client'
 import { xhrUpload, type UploadProgress } from '../upload'
 import {
   ClassMemberListSchema,
@@ -22,7 +22,7 @@ import {
   type TaskUpdateIn,
 } from '../schemas/class'
 import { NoContentSchema } from '../schemas/material'
-import { classAuthHeaders as authHeaders } from './classes'
+import { classAuthHeaders as authHeaders, triggerBlobDownload } from './classes'
 
 /**
  * /groups/* 端点封装 —— 小组生命周期、申请加入、组内空间（文件 + 甘特任务）。
@@ -253,6 +253,34 @@ export async function deleteGroupFile(gid: string, fileId: string): Promise<null
 /** 下载端点绝对 URL（attachment + nosniff 由后端响应头保证）。 */
 export function groupFileDownloadUrl(gid: string, fileId: string): string {
   return `${getApiBase()}/groups/${gid}/files/${fileId}/download`
+}
+
+/**
+ * 下载组内文件 —— fetch→blob→a[download]（FilePreviewDialog 同款）。
+ *
+ * 为什么不用 `<a href>` 直连：认证端点靠 `Authorization` header 鉴权，而浏览器
+ * 的 `<a>` 导航不带该 header（token 在 localStorage，只有 fetch 才带）→ 后端
+ * 401「未登录」。这里优先 fetch 公开静态 `url`（nginx 直供、无需鉴权），缺失时
+ * 回退到认证端点并显式带上 auth header；两条路径都用 blob + `a[download]=name`
+ * 强制下载而非在浏览器里打开。
+ */
+export async function downloadGroupFile(
+  gid: string,
+  file: { id: string; name: string; url?: string | null | undefined },
+): Promise<void> {
+  const publicUrl = file.url ? resolveAssetUrl(file.url) : null
+  const res = publicUrl
+    ? await fetch(publicUrl)
+    : await fetch(groupFileDownloadUrl(gid, file.id), { headers: authHeaders() })
+  if (!res.ok) {
+    // 兜底：公开 url 直接开新窗口（同源触发下载）；认证端点无法用导航兜底。
+    if (publicUrl) {
+      window.open(publicUrl, '_blank', 'noopener,noreferrer')
+      return
+    }
+    throw new Error(res.status === 401 ? '未登录或无权限' : `下载失败（${res.status}）`)
+  }
+  triggerBlobDownload(await res.blob(), file.name)
 }
 
 /** 上传端点绝对 URL（供 xhrUpload 使用）。 */
