@@ -1,0 +1,28 @@
+<mxfile host="app.diagrams.net" agent="draw.io">
+  <diagram name="发布-摘要降级-顺序图" id="seq-publish">
+    <mxGraphModel dx="40892" dy="29680" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ll-user" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=none;dashed=1;strokeWidth=1;fontSize=10;" />
+        <mxCell id="ll-fe" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=none;dashed=1;strokeWidth=1;" />
+        <mxCell id="ll-be" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=none;dashed=1;strokeWidth=1;" />
+        <mxCell id="ll-ai" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=none;dashed=1;strokeWidth=1;" />
+        <mxCell id="ll-db" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=none;dashed=1;strokeWidth=1;" />
+        <mxCell id="m1" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;strokeWidth=1;fontSize=9;" />
+        <mxCell id="m2" edge="1" parent="1" style="html=1;fontSize=9;" />
+        <mxCell id="m3" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;fontSize=9;strokeWidth=1;" />
+        <mxCell id="m4" edge="1" parent="1" style="html=1;fontSize=9;" />
+        <mxCell id="m5" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;fontSize=9;strokeWidth=1;" />
+        <mxCell id="m6" edge="1" parent="1" style="fontSize=9;strokeWidth=1;" />
+        <mxCell id="m7" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;fontSize=9;strokeWidth=1;" />
+        <mxCell id="m8" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;fontSize=9;strokeWidth=1;dashed=1;" />
+        <mxCell id="m9" edge="1" parent="1" style="endArrow=open;html=1;endFill=0;fontSize=9;strokeWidth=1;dashed=1;" />
+        <mxCell id="m10" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;fontSize=9;strokeWidth=1;" />
+        <mxCell id="m11" edge="1" parent="1" style="endArrow=open;html=1;endFill=0;fontSize=9;strokeWidth=1;dashed=1;" />
+        <mxCell id="m12" edge="1" parent="1" style="html=1;fontSize=9;" />
+        <mxCell id="m13" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;fontSize=9;strokeWidth=1;dashed=1;" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

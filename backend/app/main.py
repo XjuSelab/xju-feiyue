@@ -20,6 +20,7 @@ from app.routes import (
     admin,
     ai,
     auth,
+    collections,
     conferences,
     drafts,
     interactions,
@@ -172,6 +173,7 @@ app.include_router(notes.router)
 app.include_router(uploads.router)
 app.include_router(drafts.router)
 app.include_router(interactions.router)
+app.include_router(collections.router)
 app.include_router(ai.router)
 app.include_router(admin.router)
 app.include_router(schools.router)

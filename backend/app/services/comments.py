@@ -17,7 +17,7 @@ async def list_comments(
     cursor: str | None,
     limit: int,
 ) -> tuple[list[Comment], str | None]:
-    """Cursor-paginated comment list for one note, newest first.
+    """Cursor-paginated visible comments for one note, newest first.
 
     Cursor = the previous page's last comment id. We over-fetch by one row to
     detect whether the next page exists without a separate COUNT query.
@@ -26,10 +26,13 @@ async def list_comments(
 
     stmt = (
         select(Comment)
-        .where(Comment.note_id == note_id)
+        .where(Comment.note_id == note_id, Comment.status == "visible")
         .order_by(Comment.created_at.desc(), Comment.id.desc())
         .limit(capped_limit + 1)
-        .options(selectinload(Comment.author))
+        .options(
+            selectinload(Comment.author),
+            selectinload(Comment.reply_to),
+        )
     )
 
     if cursor:

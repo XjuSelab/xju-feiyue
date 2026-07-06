@@ -30,9 +30,14 @@ class NoteOut(CamelModel):
     author: NoteAuthorOut
     created_at: UtcDateTime
     likes: int = Field(ge=0)
+    dislikes: int = Field(default=0, ge=0)
+    favorites: int = Field(default=0, ge=0)
     comments: int = Field(ge=0)
     read_minutes: int = Field(ge=1)
+    status: str = "visible"
     liked_by_me: bool = False
+    disliked_by_me: bool = False
+    favorited_by_me: bool = False
 
 
 class NoteUpdateIn(CamelModel):

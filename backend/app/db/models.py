@@ -7,12 +7,14 @@ type, but using strings keeps SQLite-fallback workable for tests.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
+    Date,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     String,
@@ -86,12 +88,15 @@ class User(Base):
     role: Mapped[str] = mapped_column(
         String(16), nullable=False, server_default="user", default="user"
     )
+    exp: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
+    level: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     notes: Mapped[list[Note]] = relationship(back_populates="author", lazy="raise")
     drafts: Mapped[list[Draft]] = relationship(back_populates="owner", lazy="raise")
+    collections: Mapped[list[Collection]] = relationship(back_populates="owner", lazy="raise")
 
 
 class Note(Base):
@@ -111,6 +116,9 @@ class Note(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )
     read_minutes: Mapped[int] = mapped_column(nullable=False, default=1)
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="visible", default="visible", index=True
+    )
 
     author: Mapped[User] = relationship(back_populates="notes", lazy="joined")
     # passive_deletes=True: rely on DB-level ondelete='CASCADE' instead of
@@ -174,7 +182,17 @@ class Comment(Base):
     author_sid: Mapped[str] = mapped_column(
         ForeignKey("users.sid", ondelete="CASCADE"), nullable=False
     )
+    parent_id: Mapped[str | None] = mapped_column(
+        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    reply_to_sid: Mapped[str | None] = mapped_column(
+        ForeignKey("users.sid", ondelete="SET NULL"), nullable=True
+    )
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    images: Mapped[list[str]] = mapped_column(StringList(), nullable=False, default=list)
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="visible", default="visible", index=True
+    )
     # Optional anchor — when present, the comment quotes a span of the note's
     # rendered body. Offsets index into the rendered DOM textContent stream
     # (kept for future highlight-restoration; MVP only uses anchor_text).
@@ -186,7 +204,202 @@ class Comment(Base):
     )
 
     note: Mapped[Note] = relationship(back_populates="comments", lazy="raise")
-    author: Mapped[User] = relationship(lazy="joined")
+    author: Mapped[User] = relationship(foreign_keys=[author_sid], lazy="joined")
+    reply_to: Mapped[User | None] = relationship(foreign_keys=[reply_to_sid], lazy="joined")
+    parent: Mapped[Comment | None] = relationship(
+        back_populates="replies",
+        remote_side=[id],
+        lazy="raise",
+    )
+    replies: Mapped[list[Comment]] = relationship(
+        back_populates="parent",
+        lazy="raise",
+        passive_deletes=True,
+    )
+
+
+class NoteDislike(Base):
+    __tablename__ = "note_dislikes"
+    __table_args__ = (
+        UniqueConstraint("note_id", "user_sid", name="uq_note_dislikes_note_user"),
+    )
+
+    note_id: Mapped[str] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class Favorite(Base):
+    __tablename__ = "favorites"
+    __table_args__ = (
+        UniqueConstraint("note_id", "user_sid", name="uq_favorites_note_user"),
+    )
+
+    note_id: Mapped[str] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class CommentReaction(Base):
+    __tablename__ = "comment_reactions"
+    __table_args__ = (
+        UniqueConstraint("comment_id", "user_sid", name="uq_comment_reactions_comment_user"),
+    )
+
+    comment_id: Mapped[str] = mapped_column(
+        ForeignKey("comments.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    kind: Mapped[str] = mapped_column(String(16), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class Report(Base):
+    __tablename__ = "reports"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    reporter_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
+    )
+    target_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    target_note_id: Mapped[str | None] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    target_comment_id: Mapped[str | None] = mapped_column(
+        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    target_snapshot: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    reason: Mapped[str] = mapped_column(String(32), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="pending", default="pending", index=True
+    )
+    ai_label: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    ai_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ai_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    resolution_action: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    resolution_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    resolved_by_sid: Mapped[str | None] = mapped_column(
+        ForeignKey("users.sid", ondelete="SET NULL"), nullable=True
+    )
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+
+class Block(Base):
+    __tablename__ = "blocks"
+    __table_args__ = (
+        UniqueConstraint("blocker_sid", "blocked_sid", name="uq_blocks_blocker_blocked"),
+    )
+
+    blocker_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    blocked_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class CheckIn(Base):
+    __tablename__ = "check_ins"
+
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
+    )
+    checkin_date: Mapped[date] = mapped_column(Date, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class XpEvent(Base):
+    __tablename__ = "xp_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
+    )
+    source_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    delta: Mapped[int] = mapped_column(Integer, nullable=False)
+    ref_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    ref_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+
+
+class Collection(Base):
+    __tablename__ = "collections"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    owner_sid: Mapped[str] = mapped_column(
+        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    owner: Mapped[User] = relationship(back_populates="collections", lazy="joined")
+    entries: Mapped[list[CollectionEntry]] = relationship(
+        back_populates="collection", lazy="raise", passive_deletes=True
+    )
+
+
+class CollectionEntry(Base):
+    __tablename__ = "collection_entries"
+    __table_args__ = (
+        UniqueConstraint("note_id", name="uq_collection_entries_note_unique"),
+    )
+
+    collection_id: Mapped[str] = mapped_column(
+        ForeignKey("collections.id", ondelete="CASCADE"), primary_key=True
+    )
+    note_id: Mapped[str] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE"), primary_key=True
+    )
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    collection: Mapped[Collection] = relationship(back_populates="entries", lazy="raise")
+    note: Mapped[Note] = relationship(lazy="joined")
 
 
 class LoginEvent(Base):

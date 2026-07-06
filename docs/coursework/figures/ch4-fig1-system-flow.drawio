@@ -1,59 +1,11 @@
-<mxfile host="app.diagrams.net" type="device">
-  <diagram id="fig1" name="图4-1 系统流程图">
-    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+<mxfile host="app.diagrams.net" agent="Cline editable SVG converter">
+  <diagram id="67facdf6ab24" name="Page-1">
+    <mxGraphModel dx="6900" dy="4138" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="960" pageHeight="1100" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <!--
-          布局网格（x,y,w,h）：
-          n1 用户浏览器        360, 40,200,60   (center x=460)
-          n2 管理员浏览器      600, 40,200,60   (center x=700)
-          n3 nginx（宽）       340,170,480,64   (span 340-820, center 580)
-          n4 FastAPI 后端      410,300,340,80   (center 580, right edge 750)
-          n6 AI 服务           800,305,300,70   (left edge 800, right 1100)
-          n5 SQLite 圆柱       470,460,220,100  (center 580)
-          连线：
-          e1 n1->n3 HTTPS (entryX=0.25) ; e2 n2->n3 HTTPS (entryX=0.75)
-          e3 n3->n4 反代127.0.0.1 (center) ; e4 n4->n5 读写 (center)
-          e5 n4<->n6 上 双向实线 润色/摘要(同步) y=0.35
-          e6 n4<->n6 下 双向虚线 审查分类(异步)   y=0.70
-        -->
-        <mxCell id="n1" value="用户浏览器&lt;br&gt;React 18 单页应用" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a1a1a;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="360" y="40" width="200" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n2" value="管理员浏览器&lt;br&gt;举报队列页面" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a1a1a;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="600" y="40" width="200" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n3" value="nginx&lt;br&gt;静态资源直出 + API 反向代理" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a1a1a;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="340" y="170" width="480" height="64" as="geometry"/>
-        </mxCell>
-        <mxCell id="n4" value="FastAPI 后端&lt;br&gt;路由层 → 服务层 → 数据层" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a1a1a;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="410" y="300" width="340" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n6" value="AI 服务（OpenAI 兼容）&lt;br&gt;DeepSeek 占位 → Gemma4 12B 微调" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a1a1a;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="800" y="305" width="300" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n5" value="SQLite 主库&lt;br&gt;笔记/评论/互动/治理/成长" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#1a1a1a;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="470" y="460" width="220" height="100" as="geometry"/>
-        </mxCell>
-        <mxCell id="e1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1a1a1a;endArrow=classic;endFill=1;fontSize=12;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="n1" target="n3">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="e2" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1a1a1a;endArrow=classic;endFill=1;fontSize=12;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="n2" target="n3">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="e3" value="反代 127.0.0.1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1a1a1a;endArrow=classic;endFill=1;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="n3" target="n4">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="e4" value="读写" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1a1a1a;endArrow=classic;endFill=1;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="n4" target="n5">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="e5" value="润色/摘要（同步）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1a1a1a;endArrow=classic;endFill=1;startArrow=classic;startFill=1;fontSize=12;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="n4" target="n6">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="e6" value="审查分类（异步）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1a1a1a;endArrow=classic;endFill=1;startArrow=classic;startFill=1;dashed=1;fontSize=12;exitX=1;exitY=0.7;entryX=0;entryY=0.7;" edge="1" parent="1" source="n4" target="n6">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="7NQvzS2FYTOKPPAXCNmb-285" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;strokeWidth=1;dashed=1;" />
+        <mxCell id="7NQvzS2FYTOKPPAXCNmb-288" edge="1" parent="1" style="endArrow=block;html=1;endFill=1;strokeWidth=1;dashed=1;" />
       </root>
     </mxGraphModel>
   </diagram>

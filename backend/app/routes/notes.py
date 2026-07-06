@@ -18,7 +18,11 @@ from app.schemas.note import (
 from app.services import ai_compose
 from app.services.notes import (
     count_comments,
+    count_dislikes,
+    count_favorites,
     count_likes,
+    disliked_by_user,
+    favorited_by_user,
     liked_by_user,
     list_notes,
     read_minutes_from,
@@ -96,15 +100,30 @@ async def get_one(
     db: AsyncSession = Depends(get_db),
     user: User | None = Depends(get_optional_user),
 ) -> NoteOut:
-    stmt = select(Note).where(Note.id == id).options(selectinload(Note.author))
+    stmt = (
+        select(Note)
+        .where(Note.id == id, Note.status == "visible")
+        .options(selectinload(Note.author))
+    )
     note = (await db.execute(stmt)).scalar_one_or_none()
     if not note:
         raise HTTPException(status_code=404, detail="笔记不存在")
     likes = await count_likes(db, [id])
+    dislikes = await count_dislikes(db, [id])
+    favorites = await count_favorites(db, [id])
     comments = await count_comments(db, [id])
     liked_ids = await liked_by_user(db, user.sid if user else None, [id])
+    disliked_ids = await disliked_by_user(db, user.sid if user else None, [id])
+    favorited_ids = await favorited_by_user(db, user.sid if user else None, [id])
     return to_note_out(
-        note, likes.get(id, 0), comments.get(id, 0), id in liked_ids
+        note,
+        likes.get(id, 0),
+        comments.get(id, 0),
+        id in liked_ids,
+        dislikes=dislikes.get(id, 0),
+        favorites=favorites.get(id, 0),
+        disliked_by_me=id in disliked_ids,
+        favorited_by_me=id in favorited_ids,
     )
 
 
@@ -153,10 +172,21 @@ async def update_note(
     await db.refresh(note)
 
     likes = await count_likes(db, [note_id])
+    dislikes = await count_dislikes(db, [note_id])
+    favorites = await count_favorites(db, [note_id])
     comments = await count_comments(db, [note_id])
     liked_ids = await liked_by_user(db, user.sid, [note_id])
+    disliked_ids = await disliked_by_user(db, user.sid, [note_id])
+    favorited_ids = await favorited_by_user(db, user.sid, [note_id])
     return to_note_out(
-        note, likes.get(note_id, 0), comments.get(note_id, 0), note_id in liked_ids
+        note,
+        likes.get(note_id, 0),
+        comments.get(note_id, 0),
+        note_id in liked_ids,
+        dislikes=dislikes.get(note_id, 0),
+        favorites=favorites.get(note_id, 0),
+        disliked_by_me=note_id in disliked_ids,
+        favorited_by_me=note_id in favorited_ids,
     )
 
 
@@ -171,6 +201,5 @@ async def delete_note(
         raise HTTPException(status_code=404, detail="笔记不存在")
     if note.author_sid != user.sid:
         raise HTTPException(status_code=403, detail="只能删除自己的笔记")
-    # CASCADE on Like.note_id / Comment.note_id cleans up children automatically.
     await db.delete(note)
     await db.commit()

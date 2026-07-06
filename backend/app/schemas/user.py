@@ -1,14 +1,13 @@
 """Mirrors frontend src/api/schemas/user.ts.
 
 UserOut is the public+private profile shape — phone/email/wechat are
-only ever returned for the current user (PrivilegeS).  When a note's
+only ever returned for the current user (PrivilegeS). When a note's
 author is embedded, we use NoteAuthorOut (sid + nickname + avatar) so
 we never leak contact info via /notes responses.
 """
-
 from pydantic import Field, computed_field
 
-from app.schemas._base import CamelModel
+from app.schemas._base import CamelModel, UtcDateTime
 from app.settings import settings
 
 
@@ -29,6 +28,8 @@ class UserOut(CamelModel):
     # users.role column; legacy/absent → 'user'. Drives the hidden /admin
     # dashboard + material-management UI on the frontend.
     role: str = "user"
+    exp: int = 0
+    level: int = 0
 
     @computed_field(alias="isAdmin")  # type: ignore[prop-decorator]
     @property
@@ -85,3 +86,22 @@ class PasswordChangeIn(CamelModel):
 
     current_password: str = Field(min_length=1)
     new_password: str = Field(min_length=6, max_length=128)
+
+
+class CheckInOut(CamelModel):
+    checked_in_date: str
+    streak: int = Field(ge=1)
+    gained_exp: int = Field(ge=0)
+    exp: int = Field(ge=0)
+    level: int = Field(ge=0)
+    already_checked_in: bool = False
+
+
+class XpEventOut(CamelModel):
+    id: int
+    source_type: str
+    delta: int
+    ref_type: str | None = None
+    ref_id: str | None = None
+    note: str | None = None
+    created_at: UtcDateTime
