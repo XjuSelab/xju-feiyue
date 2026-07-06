@@ -51,6 +51,7 @@ type Props = {
 }
 
 type ViewMode = 'list' | 'card'
+type CardGroupBy = 'ext' | 'uploader'
 const SORT_KEYS: SortKey[] = ['newest', 'oldest', 'name', 'size']
 
 /**
@@ -63,6 +64,7 @@ export function GroupFilesPanel({ gid, currentSid, canManage }: Props) {
   const deleteFile = useDeleteGroupFile(gid)
 
   const [view, setView] = useState<ViewMode>('list')
+  const [cardGroupBy, setCardGroupBy] = useState<CardGroupBy>('ext')
   const [search, setSearch] = useState('')
   const [extFilter, setExtFilter] = useState('all')
   const [uploaderFilter, setUploaderFilter] = useState('all')
@@ -245,16 +247,23 @@ export function GroupFilesPanel({ gid, currentSid, canManage }: Props) {
           </ul>
         )
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
+          {/* 单一分组维度选择框（左上）—— 遵循单一筛选原则 */}
+          <Select value={cardGroupBy} onValueChange={(v) => setCardGroupBy(v as CardGroupBy)}>
+            <SelectTrigger className="h-8 w-auto min-w-[7rem]" aria-label="卡片分组方式">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ext">按格式</SelectItem>
+              <SelectItem value="uploader">按上传者</SelectItem>
+            </SelectContent>
+          </Select>
           <FileAccordion
-            title="按格式"
-            groups={byExt}
-            renderRow={(f) => <FileRow key={f.id} {...rowProps(f)} />}
-          />
-          <FileAccordion
-            title="按上传者"
-            groups={byUploader}
-            renderRow={(f) => <FileRow key={f.id} {...rowProps(f)} hideUploader />}
+            key={cardGroupBy}
+            groups={cardGroupBy === 'ext' ? byExt : byUploader}
+            renderRow={(f) => (
+              <FileRow key={f.id} {...rowProps(f)} hideUploader={cardGroupBy === 'uploader'} />
+            )}
           />
         </div>
       )}

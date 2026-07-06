@@ -267,6 +267,42 @@
 }
 
 /* ==========================================================================
+   .scrollbar-notion — Notion 风滚动条（可复用）
+   ----------------------------------------------------------------------------
+   细、圆头、透明轨道；默认隐形，悬停滚动区才淡入一根胶囊状滑块，滑块本身
+   悬停再加深。3px 透明边 + background-clip:padding-box 造出内缩留白（Notion
+   同款胶囊感）。Firefox 用 scrollbar-width/-color 近似。
+   ========================================================================== */
+.scrollbar-notion::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scrollbar-notion::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-notion::-webkit-scrollbar-thumb {
+  background: transparent;
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+.scrollbar-notion:hover::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  background-clip: padding-box;
+}
+.scrollbar-notion::-webkit-scrollbar-thumb:hover {
+  background: var(--line-strong);
+  background-clip: padding-box;
+}
+.scrollbar-notion {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.scrollbar-notion:hover {
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* ==========================================================================
    docx-preview viewer — override render-time injected wrapper styling
    ----------------------------------------------------------------------------
    docx-preview 在渲染时往容器内注入一段 <style>，其中 `.docx-wrapper{background:gray}`
