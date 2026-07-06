@@ -248,9 +248,12 @@ export function GroupFilesPanel({ gid, currentSid, canManage }: Props) {
         )
       ) : (
         <div className="flex flex-col gap-3">
-          {/* 单一分组维度选择框（左上）—— 遵循单一筛选原则 */}
+          {/* 单一分组维度选择框（左上）—— 小巧、轻量；遵循单一筛选原则 */}
           <Select value={cardGroupBy} onValueChange={(v) => setCardGroupBy(v as CardGroupBy)}>
-            <SelectTrigger className="h-8 w-auto min-w-[7rem]" aria-label="卡片分组方式">
+            <SelectTrigger
+              className="h-6 w-auto gap-1 self-start rounded-md border-0 bg-transparent px-1.5 text-xs font-normal text-text-muted shadow-none hover:bg-bg-subtle hover:text-text [&_svg]:size-3 [&_svg]:opacity-70"
+              aria-label="卡片分组方式"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

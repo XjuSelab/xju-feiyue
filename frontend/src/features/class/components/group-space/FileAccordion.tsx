@@ -25,14 +25,14 @@ export function FileAccordion({ groups, renderRow }: Props) {
   if (groups.length === 0) return null
 
   return (
-    <div className="flex gap-2.5">
+    <div className="flex min-h-[11rem] gap-2.5">
       {groups.map((g) => {
         if (g.key === active?.key) {
           return (
             <section
               key={g.key}
               aria-label={g.label}
-              className="flex min-w-0 flex-1 flex-col rounded-xl border border-border bg-bg"
+              className="flex min-w-0 flex-1 flex-col rounded-xl border border-border bg-bg shadow-card"
             >
               <header className="flex items-center gap-2 px-3 py-2.5">
                 <span className="truncate text-sm font-semibold text-text">{g.label}</span>
@@ -52,14 +52,14 @@ export function FileAccordion({ groups, renderRow }: Props) {
             aria-label={`展开 ${g.label}（${g.count} 个）`}
             title={`${g.label} · ${g.count} 个`}
             className={cn(
-              'flex w-14 shrink-0 flex-col items-center gap-3 rounded-xl border border-border bg-bg-subtle py-4',
+              'flex w-14 shrink-0 flex-col items-center gap-3 rounded-xl border border-border bg-bg py-4',
               'text-text-muted transition hover:border-border-strong hover:text-text',
             )}
           >
             <span className="min-h-0 flex-1 overflow-hidden text-sm font-medium tracking-wide [text-orientation:upright] [writing-mode:vertical-rl]">
               {g.label}
             </span>
-            <span className="shrink-0 rounded-full bg-bg px-1.5 text-[10px] tabular-nums text-text-faint">
+            <span className="shrink-0 rounded-full bg-bg-subtle px-1.5 text-[10px] tabular-nums text-text-faint">
               {g.count}
             </span>
           </button>
