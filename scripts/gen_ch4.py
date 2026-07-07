@@ -62,7 +62,7 @@ def fig4_2() -> Fig:
     g.external("admin", 1095, 470, 170, 74, "管理员（规划）")
     for n in ("admin",):
         g.by_id(n).dashed = True
-    g.process("P0", 470, 210, 360, 190, "P0\n笔记与社区互动子系统",
+    g.process("P0", 480, 135, 340, 340, "P0\n笔记与社区互动子系统",
               shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
 
     ds = [("D1", "D1 草稿库"), ("D2", "D2 笔记库"), ("D3", "D3 互动库"),
@@ -108,11 +108,11 @@ def fig4_3() -> Fig:
     g.datastore("D2", 980, 600, 190, 54, "D2 笔记库", fill=F.PURPLE_F, stroke=F.PURPLE_S)
     g.external("ai", 980, 90, 190, 70, "外部 AI 服务")
 
-    g.process("P11", 290, 210, 190, 96, "P1.1\n编辑与自动保存", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("P12", 560, 300, 190, 96, "P1.2\n发布前校验", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("P13", 830, 300, 190, 96, "P1.3\nAI 摘要生成", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("P14", 830, 470, 190, 86, "P1.4\n首段截断兜底", fill=F.YELLOW_F, stroke=F.YELLOW_S)
-    g.process("P15", 540, 560, 210, 96, "P1.5\n创建笔记并删草稿", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("P11", 310, 183, 150, 150, "P1.1\n编辑与自动保存", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("P12", 580, 273, 150, 150, "P1.2\n发布前校验", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("P13", 850, 273, 150, 150, "P1.3\nAI 摘要生成", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("P14", 850, 438, 150, 150, "P1.4\n首段截断兜底", shape="ellipse", fill=F.YELLOW_F, stroke=F.YELLOW_S)
+    g.process("P15", 570, 533, 150, 150, "P1.5\n创建笔记并删草稿", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
 
     L = F.LINE
     g.link("user", "P11", label="编辑内容", kind="arrow", color=L)
@@ -147,11 +147,11 @@ def fig4_4() -> Fig:
     g.external("guest", 40, 60, 150, 66, "匿名访客")
     g.external("user", 40, 380, 150, 74, "注册用户")
 
-    g.process("Q1", 300, 60, 200, 90, "P3.1\n列表/详情查询", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("Q2", 300, 300, 200, 90, "P3.2\n笔记赞踩收藏", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("Q3", 300, 440, 200, 90, "P3.3\n评论/回复/表态", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("Q4", 300, 580, 200, 90, "P3.4\n合集管理与上下文", fill=F.GREEN_F, stroke=F.GREEN_S)
-    g.process("Q5", 300, 720, 200, 90, "P3.5\n每日签到与经验", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("Q1", 343, 53, 124, 124, "P3.1\n列表/详情查询", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("Q2", 343, 283, 124, 124, "P3.2\n笔记赞踩收藏", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("Q3", 343, 423, 124, 124, "P3.3\n评论/回复/表态", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("Q4", 343, 563, 124, 124, "P3.4\n合集管理与上下文", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
+    g.process("Q5", 343, 728, 124, 124, "P3.5\n每日签到与经验", shape="ellipse", fill=F.GREEN_F, stroke=F.GREEN_S)
 
     g.datastore("D2", 640, 70, 170, 54, "D2 笔记库", fill=F.PURPLE_F, stroke=F.PURPLE_S)
     g.datastore("D3", 640, 310, 170, 54, "D3 互动库", fill=F.PURPLE_F, stroke=F.PURPLE_S)

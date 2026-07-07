@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.models import Comment, Favorite, Like, Note, NoteDislike
+from app.services.blocks import blocked_sids
 from app.schemas.note import (
     CategoryId,
     ListNotesQuery,
@@ -202,6 +203,11 @@ async def list_notes(
         )
     if query.mine and user_sid:
         stmt = stmt.where(Note.author_sid == user_sid)
+
+    # One-directional block: hide blocked authors' notes from this viewer's feed.
+    blocked = await blocked_sids(db, user_sid)
+    if blocked:
+        stmt = stmt.where(Note.author_sid.notin_(blocked))
 
     notes_orm = list((await db.execute(stmt)).scalars().all())
 

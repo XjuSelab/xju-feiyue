@@ -19,6 +19,7 @@ from app.db.models import (
     User,
 )
 from app.deps import get_current_user, get_db, get_optional_user
+from app.ratelimit import rate_limit
 from app.schemas.interaction import CommentIn, CommentOut, PaginatedComments
 from app.schemas.note import NoteAuthorOut
 from app.services.comments import DEFAULT_LIMIT, list_comments
@@ -126,7 +127,7 @@ async def _comment_reaction_state(
     return liked, disliked
 
 
-@router.post("/notes/{note_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/notes/{note_id}/like", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def like(
     note_id: str,
     user: User = Depends(get_current_user),
@@ -143,7 +144,7 @@ async def like(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.delete("/notes/{note_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/notes/{note_id}/like", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def unlike(
     note_id: str,
     user: User = Depends(get_current_user),
@@ -156,7 +157,7 @@ async def unlike(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/notes/{note_id}/dislike", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/notes/{note_id}/dislike", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def dislike(
     note_id: str,
     user: User = Depends(get_current_user),
@@ -173,7 +174,7 @@ async def dislike(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.delete("/notes/{note_id}/dislike", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/notes/{note_id}/dislike", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def undislike(
     note_id: str,
     user: User = Depends(get_current_user),
@@ -189,7 +190,7 @@ async def undislike(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/notes/{note_id}/favorite", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/notes/{note_id}/favorite", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def favorite(
     note_id: str,
     user: User = Depends(get_current_user),
@@ -203,7 +204,7 @@ async def favorite(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.delete("/notes/{note_id}/favorite", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/notes/{note_id}/favorite", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def unfavorite(
     note_id: str,
     user: User = Depends(get_current_user),
@@ -227,7 +228,9 @@ async def list_comments_route(
     user: User | None = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ) -> PaginatedComments:
-    rows, next_cursor = await list_comments(db, note_id, cursor, limit)
+    rows, next_cursor = await list_comments(
+        db, note_id, cursor, limit, viewer_sid=user.sid if user else None
+    )
     comment_ids = [c.id for c in rows]
     like_counts, dislike_counts = await _count_comment_reactions(db, comment_ids)
     liked_ids, disliked_ids = await _comment_reaction_state(
@@ -252,6 +255,7 @@ async def list_comments_route(
     "/notes/{note_id}/comments",
     response_model=CommentOut,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(rate_limit("comment"))],
 )
 async def create_comment(
     note_id: str,
@@ -363,7 +367,7 @@ async def _clear_comment_reaction(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/comments/{comment_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/comments/{comment_id}/like", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def like_comment(
     comment_id: str,
     user: User = Depends(get_current_user),
@@ -372,7 +376,7 @@ async def like_comment(
     return await _set_comment_reaction(comment_id, "like", user, db)
 
 
-@router.delete("/comments/{comment_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/comments/{comment_id}/like", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def unlike_comment(
     comment_id: str,
     user: User = Depends(get_current_user),
@@ -381,7 +385,7 @@ async def unlike_comment(
     return await _clear_comment_reaction(comment_id, "like", user, db)
 
 
-@router.post("/comments/{comment_id}/dislike", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/comments/{comment_id}/dislike", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def dislike_comment(
     comment_id: str,
     user: User = Depends(get_current_user),
@@ -390,7 +394,7 @@ async def dislike_comment(
     return await _set_comment_reaction(comment_id, "dislike", user, db)
 
 
-@router.delete("/comments/{comment_id}/dislike", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/comments/{comment_id}/dislike", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(rate_limit("interaction"))])
 async def undislike_comment(
     comment_id: str,
     user: User = Depends(get_current_user),

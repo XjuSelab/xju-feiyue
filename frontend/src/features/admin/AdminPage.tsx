@@ -7,6 +7,7 @@ import type { Role } from '@/api/schemas/admin'
 import { Overview } from './components/Overview'
 import { UsersTab } from './components/UsersTab'
 import { MaterialsTab } from './components/MaterialsTab'
+import { ReportsTab } from './components/ReportsTab'
 import { RoleBadge } from './components/RoleBadge'
 
 /**
@@ -41,6 +42,7 @@ export function AdminPage() {
           <TabsTrigger value="overview">概览</TabsTrigger>
           <TabsTrigger value="users">用户</TabsTrigger>
           <TabsTrigger value="materials">资料</TabsTrigger>
+          <TabsTrigger value="reports">工单</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -51,6 +53,9 @@ export function AdminPage() {
         </TabsContent>
         <TabsContent value="materials">
           <MaterialsTab />
+        </TabsContent>
+        <TabsContent value="reports">
+          <ReportsTab />
         </TabsContent>
       </Tabs>
     </main>

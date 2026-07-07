@@ -22,6 +22,12 @@ class CollectionEntryAddIn(CamelModel):
     sort_order: int | None = Field(default=None, ge=0)
 
 
+class CollectionReorderIn(CamelModel):
+    """Full ordered list of note ids for a collection (drag-sort)."""
+
+    note_ids: list[str]
+
+
 class CollectionNoteOut(CamelModel):
     id: str
     title: str

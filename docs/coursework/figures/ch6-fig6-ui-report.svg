@@ -1,32 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="620" viewBox="0 0 1020 620" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif">
-<rect x="0" y="0" width="1020" height="620" fill="#ffffff"/>
-<rect x="30" y="30" width="960" height="560" rx="8" fill="#ffffff" stroke="#c4ccd6" stroke-width="1.4"/><path d="M30 60 L30 38 Q30 30 38 30 L982 30 Q990 30 990 38 L990 60 Z" fill="#eef2f7" stroke="#c4ccd6" stroke-width="1.4"/><circle cx="46" cy="45" r="5" fill="#ff6159"/><circle cx="62" cy="45" r="5" fill="#febc2e"/><circle cx="78" cy="45" r="5" fill="#28c840"/><text x="510.0" y="50.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#57606a">飞跃 · 管理后台 · 举报工单  /admin</text>
-<text x="55.0" y="103.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#b85450">规划项：当前管理后台未接入举报工单队列；下图为后续治理界面设计</text>
-<rect x="55" y="122" width="330" height="448" rx="8" fill="#f6f8fb" stroke="#d7dee8" stroke-width="1.1"/>
-<text x="66.0" y="141.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">工单队列</text>
-<rect x="66" y="158" width="308" height="50" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
-<text x="78.0" y="179.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">#1024 note</text>
-<text x="78.0" y="198.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">状态：pending</text>
-<rect x="66" y="220" width="308" height="50" rx="8" fill="#ffffff" stroke="#6c8ebf" stroke-width="1.1"/>
-<text x="78.0" y="241.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">#1025 comment</text>
-<text x="78.0" y="260.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#b85450">状态：ai_flagged</text>
-<rect x="66" y="282" width="308" height="50" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
-<text x="78.0" y="303.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">#1026 note</text>
-<text x="78.0" y="322.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#b85450">状态：ai_flagged</text>
-<rect x="66" y="344" width="308" height="50" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
-<text x="78.0" y="365.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">#1027 comment</text>
-<text x="78.0" y="384.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#3a9a5a">状态：resolved</text>
-<rect x="405" y="122" width="510" height="448" rx="8" fill="#fcfdff" stroke="#d7dee8" stroke-width="1.1"/>
-<text x="418.0" y="142.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="start" font-weight="bold" fill="#1f2328">工单 #1025 · comment</text>
-<rect x="418" y="160" width="484" height="96" rx="8" fill="#fff6d6" stroke="#d6b656" stroke-width="1.1"/>
-<text x="430.0" y="178.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">目标内容快照：</text>
-<text x="430.0" y="201.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">“被举报的评论正文文本内容……”</text>
-<rect x="418" y="272" width="484" height="96" rx="8" fill="#eef4ff" stroke="#6c8ebf" stroke-width="1.1"/>
-<text x="430.0" y="290.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">AI 审查结论：</text>
-<text x="430.0" y="314.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="start" font-weight="bold" fill="#1f2328">label = spam · confidence = 0.92</text>
-<text x="430.0" y="339.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">reason：疑似广告导流……</text>
-<text x="418.0" y="395.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">举报类型：广告营销 · 举报人 @xxx</text>
-<rect x="418" y="416" width="140" height="40" rx="6" fill="#2f6bd6" stroke="#2f6bd6" stroke-width="1.1"/><text x="488.0" y="441.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#ffffff">删除 / 隐藏</text>
-<rect x="574" y="416" width="140" height="40" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="644.0" y="441.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#1f2328">驳回恢复</text>
-<text x="418.0" y="487.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">高置信自动隐藏 → 人工复核；最终裁决权保留在管理员。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2890" height="1757" viewBox="0 0 2890 1757" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif">
+<rect width="2890" height="1757" fill="#ffffff"/>
+<rect x="85.0" y="85.0" width="2720.0" height="1587.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/><text x="1445.0" y="125.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#1f2328">飞跃 · 管理后台 · 举报工单  /admin</text>
+<text x="160.0" y="299.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">规划项：当前管理后台未接入举报工单队列；下图为后续治理界面设计</text>
+<rect x="156.0" y="346.0" width="935.0" height="1269.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="191.0" y="406.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">工单队列</text>
+<rect x="187.0" y="448.0" width="873.0" height="142.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="225.0" y="514.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">#1024 note</text>
+<text x="225.0" y="569.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">状态：pending</text>
+<rect x="187.0" y="623.0" width="873.0" height="142.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="225.0" y="690.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">#1025 comment</text>
+<text x="225.0" y="744.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">状态：ai_flagged</text>
+<rect x="187.0" y="799.0" width="873.0" height="142.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="225.0" y="865.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">#1026 note</text>
+<text x="225.0" y="920.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">状态：ai_flagged</text>
+<rect x="187.0" y="975.0" width="873.0" height="142.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="225.0" y="1041.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">#1027 comment</text>
+<text x="225.0" y="1096.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">状态：resolved</text>
+<rect x="1148.0" y="346.0" width="1445.0" height="1269.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="1188.0" y="406.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">工单 #1025 · comment</text>
+<rect x="1184.0" y="453.0" width="1371.0" height="272.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="1222.0" y="512.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">目标内容快照：</text>
+<text x="1222.0" y="610.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">“被举报的评论正文文本内容……”</text>
+<rect x="1184.0" y="771.0" width="1371.0" height="272.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="1222.0" y="829.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">AI 审查结论：</text>
+<text x="1222.0" y="894.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">label = spam · confidence = 0.92</text>
+<text x="1222.0" y="967.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">reason：疑似广告导流……</text>
+<text x="1188.0" y="1126.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">举报类型：广告营销 · 举报人 @xxx</text>
+<rect x="1184.0" y="1179.0" width="397.0" height="113.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/><text x="1382.5" y="1251.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">删除 / 隐藏</text>
+<rect x="1626.0" y="1179.0" width="397.0" height="113.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/><text x="1824.5" y="1251.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">驳回恢复</text>
+<text x="1188.0" y="1421.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">高置信自动隐藏 → 人工复核；最终裁决权保留在管理员。</text>
 </svg>
