@@ -1,10 +1,48 @@
-<mxfile host="app.diagrams.net" modified="2026-07-06T00:00:00.000Z" agent="Codex" version="24.7.17">
+<mxfile host="app.diagrams.net" agent="Codex">
   <diagram id="ch6-fig2-seq-publish-with-summary-fallback.drawio" name="草稿发布与摘要降级顺序图">
-    <mxGraphModel dx="1200" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="820" math="0" shadow="0">
+    <mxGraphModel dx="1046" dy="660" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="820" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell id="u" value="用户" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="40" y="60" width="110" height="50" as="geometry"/></mxCell><mxCell id="fe" value="WritePage" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="210" y="60" width="130" height="50" as="geometry"/></mxCell><mxCell id="api" value="drafts.py" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="400" y="60" width="130" height="50" as="geometry"/></mxCell><mxCell id="ai" value="ai_compose" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="590" y="60" width="130" height="50" as="geometry"/></mxCell><mxCell id="db" value="SQLite" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="780" y="60" width="130" height="50" as="geometry"/></mxCell><mxCell id="s1" value="点击发布" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="u" target="fe"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s2" value="POST /notes/drafts/{id}/publish" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="fe" target="api"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s3" value="读取草稿并校验" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="api" target="db"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s4" value="summary 为空时请求摘要" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="api" target="ai"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s5" value="成功摘要或首段兜底" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="ai" target="api"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s6" value="创建 Note、删除 Draft" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="api" target="db"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s7" value="返回 NoteOut" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="api" target="fe"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="s8" value="跳转详情页" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="fe" target="u"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="u" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="用户" vertex="1">
+          <mxGeometry height="50" width="110" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="WritePage" vertex="1">
+          <mxGeometry height="50" width="130" x="170" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="api" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="drafts.py" vertex="1">
+          <mxGeometry height="50" width="130" x="400" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ai" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="ai_compose" vertex="1">
+          <mxGeometry height="50" width="130" x="460" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="SQLite" vertex="1">
+          <mxGeometry height="50" width="130" x="780" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" edge="1" parent="1" source="u" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="fe" value="点击发布">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" edge="1" parent="1" source="fe" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="api" value="POST /notes/drafts/{id}/publish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" edge="1" parent="1" source="api" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="db" value="读取草稿并校验">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" edge="1" parent="1" source="api" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="ai" value="summary 为空时请求摘要">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" edge="1" parent="1" source="ai" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="api" value="成功摘要或首段兜底">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" edge="1" parent="1" source="api" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="db" value="创建 Note、删除 Draft">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" edge="1" parent="1" source="api" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="fe" value="返回 NoteOut">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" edge="1" parent="1" source="fe" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="u" value="跳转详情页">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

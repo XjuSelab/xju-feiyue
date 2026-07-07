@@ -30,6 +30,7 @@ async def test_checkin_is_idempotent(
 
     user = await db_session.get(User, demo_user.sid)
     assert user is not None
+    await db_session.refresh(user)
     assert user.exp == 5
     assert user.level == 0
 

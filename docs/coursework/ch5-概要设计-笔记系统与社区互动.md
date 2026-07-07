@@ -1,7 +1,7 @@
 # 五、系统概要设计（增量模块：笔记系统与社区互动）
 
 > 负责模块：笔记系统（写作 + 展示）+ 社区互动（评论、表态、收藏、举报、拉黑、等级）+ 笔记合集
-> 撰写者：〔待填〕
+> 撰写者：赵文彪
 > 本章为笔记系统与社区互动增量模块的概要设计，涵盖增量一（已交付）与增量二（本轮新增）全部功能的总体结构、功能—程序映射、数据库设计与接口概要。
 
 ## 1．引言
@@ -20,11 +20,11 @@
 |---|---|---|
 | 写作域 | 草稿自动保存、AI 选段润色、AI 摘要流式生成、草稿发布 | FR-01～FR-04 |
 | 浏览互动域 | 信息流浏览与检索、笔记详情、赞/踩、收藏、锚点评论、楼中楼回复（含图片）、评论赞/踩、评论删除 | FR-05～FR-14 |
-| 合集域 | 创建与维护笔记合集、合集侧拉栏浏览 | FR-21 |
-| 治理域 | 内容举报（8 类型）、AI 审查分类、管理员裁决、拉黑 | FR-15～FR-18 |
+| 合集域 | 创建与维护笔记合集、合集上下文查询；前端侧栏展示待接入 | FR-21 |
+| 治理域 | 内容举报（8 类型）、AI 审查分类、管理员裁决、拉黑；当前为数据模型预留与后续规划项 | FR-15～FR-18 |
 | 成长域 | 每日签到、经验与等级 | FR-19～FR-20 |
 
-模块性能目标：信息流游标分页每页 6 条；AI 摘要 SSE 流式返回首字节尽快到达；AI 审查完全异步，发布响应 < 2s；签到/表态/举报以数据库约束保证幂等。
+模块性能目标：信息流游标分页每页 6 条；AI 摘要 SSE 流式返回首字节尽快到达；发布响应 < 2s；签到、表态、收藏以数据库约束保证幂等，举报幂等需在后续 `/reports` 接口实现时补齐。
 
 ### 2.2 运行环境
 
@@ -39,8 +39,8 @@
 
 1. **前后端分离 + 分层单体后端**：React SPA 经 nginx 反向代理到达 FastAPI 单体，后端严格遵循 routes → services → db 的单向依赖分层；
 2. **发布为唯一建笔记路径**：后端不存在独立的 `POST /notes` 创建接口，笔记仅能通过 `POST /notes/drafts/{id}/publish` 从草稿发布生成；
-3. **AI 永不硬失败**：润色、摘要、审查一切 AI 依赖故障时降级而不阻断用户主流程；
-4. **幂等设计**：点赞、点踩、收藏、签到、举报均以数据库复合主键或唯一约束保证幂等，允许客户端安全重试；
+3. **AI 永不硬失败**：润色、摘要等已接入 AI 的链路在依赖故障时降级而不阻断用户主流程；内容审查链路仍为后续规划；
+4. **幂等设计**：点赞、点踩、收藏、签到以数据库复合主键或唯一约束保证幂等，允许客户端安全重试；举报幂等仍待接口实现；
 5. **合集单归属**：单篇笔记至多属于一个合集（collection_entries.note_id 唯一约束），仅合集创建者可维护合集内容。
 
 〔此处插入图 5-1 —— 源文件 figures/ch5-fig1-module-structure.drawio，app.diagrams.net 编辑后导出插入〕
@@ -57,7 +57,7 @@
 | drafts | `backend/app/routes/drafts.py` | 草稿创建、更新、发布（唯一建笔记路径） |
 | interactions | `backend/app/routes/interactions.py` | 笔记点赞/点踩、收藏、评论（含锚点/楼中楼/图片）、评论赞/踩；举报与拉黑仅有数据模型，接口尚未实现 |
 | ai | `backend/app/routes/ai.py` | AI 润色（一次性 + 流式）、AI 摘要生成、个性化欢迎语 |
-| collections | `backend/app/routes/collections.py` | 合集 CRUD、合集内笔记管理、合集侧栏数据查询 |
+| collections | `backend/app/routes/collections.py` | 合集 CRUD、合集内笔记管理、合集上下文数据查询 |
 | auth | `backend/app/routes/auth.py` | 登录/注册/个人信息、每日签到、经验流水查询、我的收藏列表 |
 
 对应服务层模块：
@@ -65,10 +65,10 @@
 | 服务模块 | 职责 |
 |---|---|
 | `services/notes.py` | 笔记列表查询、详情、编辑、删除；分类/标签/搜索/排序逻辑 |
-| `services/comments.py` | 评论创建（含锚点/图片/楼中楼）、评论列表（两层树组装）、评论删除 |
+| `services/comments.py` | 评论列表查询（按 created_at/id 倒序游标分页，返回平铺 CommentOut 列表）；评论创建和删除由 `routes/interactions.py` 负责 |
 | `services/ai_compose.py` | AI 润色、流式摘要生成（含降级兜底） |
 | `routes/interactions.py` | 点赞/点踩互斥、收藏幂等、评论创建与评论表态；当前代码尚未实现举报与拉黑接口 |
-| `routes/collections.py` | 合集 CRUD、笔记加入/移出合集校验、合集侧栏数据组装 |
+| `routes/collections.py` | 合集 CRUD、笔记加入/移出合集校验、合集上下文数据组装 |
 | `routes/auth.py` | 签到幂等校验、经验发放、等级计算、经验流水和我的收藏查询 |
 
 前端对应 feature 模块结构：
@@ -77,8 +77,8 @@
 |---|---|---|
 | WritePage | `/write` | 草稿编辑与自动保存（Zustand + localStorage）、AI 润色触发与控制 |
 | BrowsePage | `/browse` | 信息流浏览、分类/标签/搜索过滤、排序切换、游标分页 |
-| NoteDetailPage | `/note/:id` | 笔记详情展示（Markdown 渲染）、赞/踩/收藏按钮组、锚点评论与楼中楼回复、合集侧拉栏 |
-| ProfilePage | `/me` | 个人中心：已发布/草稿/收藏/合集 Tab、签到入口、经验等级展示、黑名单管理 |
+| NoteDetailPage | `/note/:id` | 笔记详情展示（Markdown 渲染）、点赞按钮、评论视图切换、锚点评论高亮与删除；点踩、收藏、合集入口/展示和举报/拉黑入口尚未接入前端 |
+| ProfilePage | `/me` | 个人中心：已发布笔记与草稿两个 Tab；收藏、合集、签到入口、经验等级展示和黑名单管理尚未接入该页面 |
 | AdminPage | `/admin` | 管理后台：用户、登录、资料库等管理能力；举报工单队列尚未接入 |
 
 ### 2.5 功能需求与程序的关系
@@ -97,17 +97,17 @@
 | FR-06 | 信息流浏览与检索 | notes | notes |
 | FR-07 | 笔记详情阅读 | notes | notes |
 | FR-08 | 笔记表态（赞/踩） | interactions | interactions |
-| FR-09 | 收藏笔记与我的收藏 | interactions, auth | interactions, growth |
+| FR-09 | 收藏笔记与我的收藏 | interactions, auth | routes/interactions.py, routes/auth.py |
 | FR-10 | 锚点评论 | interactions | comments |
 | FR-11 | 楼中楼回复 | interactions | comments |
 | FR-12 | 评论图片 | interactions | comments |
-| FR-13 | 评论表态（赞/踩） | interactions | interactions, growth |
+| FR-13 | 评论表态（赞/踩） | interactions | routes/interactions.py |
 | FR-14 | 评论删除 | interactions | comments |
 | FR-15 | 内容举报 | 未实现 | 当前代码仅预留 Report 数据模型，尚无 `/reports` 路由 |
 | FR-16 | AI 审查分类 | 未实现 | 当前代码尚无内容审核异步任务 |
 | FR-17 | 管理员举报裁决 | 未实现 | 当前管理后台未接入举报工单队列 |
 | FR-18 | 拉黑用户 | 未实现 | 当前代码仅有 Block 数据模型，尚无接口与前端入口 |
-| FR-19 | 每日签到 | auth | growth |
+| FR-19 | 每日签到 | auth | routes/auth.py |
 | FR-20 | 经验与等级 | auth | routes/auth.py |
 | FR-21 | 笔记合集 | collections | collections |
 
@@ -122,8 +122,8 @@
 前端用户接口按功能域划分：
 
 - **写作域**：Markdown 编辑器（支持草稿自动保存、AI 润色工具条与差异对照面板、摘要流式展示）、发布按钮（校验提示）
-- **浏览互动域**：分类/标签/搜索筛选栏、笔记卡片列表（支持分类/标签/排序/游标分页）、笔记详情页（Markdown 渲染、点赞/点踩/收藏按钮、评论区含锚点引用与楼中楼回复、举报/拉黑操作菜单）、合集侧拉栏
-- **合集域**：个人中心合集管理面板（创建/编辑/删除合集、向合集加入笔记）、详情页右侧合集侧拉栏（同合集笔记列表 + 当前笔记高亮）
+- **浏览互动域**：分类/标签/搜索筛选栏、笔记卡片列表（支持分类/标签/排序/游标分页）、笔记详情页（Markdown 渲染、点赞按钮、评论视图切换、锚点引用评论与删除）；点踩、收藏、评论表态、楼内回复输入、评论图片展示、举报/拉黑操作菜单在后端已有部分能力或模型预留，但前端尚未完整接入
+- **合集域**：后端提供合集 CRUD、加入/移出笔记与 `GET /notes/{noteId}/collection` 上下文接口；前端合集管理页面和详情页侧栏尚未接入
 - **治理域**：当前代码仅落库了 Report 与 Block 数据模型，内容举报、AI 审查裁决和黑名单管理接口仍为后续扩展项
 - **成长域**：上线签到弹窗、个人中心经验等级展示与明细
 
@@ -160,15 +160,15 @@
 - **笔记读写链路**：React SPA → nginx → FastAPI routes（notes/drafts/ai）→ services → SQLite 主库
 - **互动通信链路**：React SPA → nginx → FastAPI routes（interactions）→ services → SQLite 主库
 - **合集链路**：React SPA → nginx → FastAPI routes（collections）→ services → SQLite 主库
-- **治理旁路**：React SPA → interactions → 异步 AI 审查任务 → SQLite 主库
-- **成长旁路**：React SPA → auth → growth 服务 → 经验流水写入
+- **治理旁路（规划）**：当前仅有 Report/Block 数据模型，尚无 `/reports`、`/blocks` 路由和 AI 审查任务
+- **成长旁路**：React SPA → auth → `routes/auth.py` → check_ins / xp_events 写入
 
 ### 4.2 运行控制
 
 - 系统以 `feiyue-backend.service` 为 systemd 单元常驻运行
 - 写操作全部要求登录态（Bearer JWT），前端通过 localStorage 持久化令牌
 - 管理操作经服务端角色校验（非管理员返回 404 隐藏后台入口）
-- AI 审查为后端进程内异步任务，失败自动降级不重试阻塞
+- AI 润色和摘要链路具备降级兜底；AI 审查任务当前未实现，作为治理能力后续补齐
 - 签到、表态、收藏以数据库唯一约束/复合主键保证幂等；举报幂等仍需在接口实现时补齐
 
 ## 5．系统数据库设计
@@ -194,7 +194,7 @@
 - User 1—N CheckIn（签到）
 - User 1—N XpEvent（经验流水）
 
-〔此处插入图 5-2 —— 源文件 figures/ch5-fig2-er-core-and-extensions.drawio，app.diagrams.net 编辑后导出插入〕
+〔此处插入图 5-2 —— 源文件 figures/ch5-fig2-class-core-and-extensions.drawio，app.diagrams.net 编辑后导出插入〕
 
 图 5-2 笔记系统与社区互动模块 UML 类图
 

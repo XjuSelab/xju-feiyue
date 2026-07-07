@@ -67,12 +67,12 @@ def generate_figures() -> None:
                 cell("ai", "外部 AI 服务", 760, 430, 180, 90, BOX),
                 cell("p1", "WritePage\\n草稿编辑 / AI 润色 / 发布", 90, 140, 160, 70, BOX),
                 cell("p2", "BrowsePage\\n筛选 / 排序 / 分页", 90, 230, 160, 70, BOX),
-                cell("p3", "NoteDetailPage\\n阅读 / 评论 / 合集侧栏", 90, 320, 160, 70, BOX),
-                cell("p4", "ProfilePage / AdminPage\\n收藏 / 合集 / 签到 / 管理", 90, 410, 160, 70, BOX),
+                cell("p3", "NoteDetailPage\\n阅读 / 点赞 / 锚点评论", 90, 320, 160, 70, BOX),
+                cell("p4", "ProfilePage / AdminPage\\n已发布/草稿 / 管理", 90, 410, 160, 70, BOX),
                 cell("r1", "routes/drafts.py\\n草稿 CRUD、发布", 410, 125, 200, 55, BOX),
                 cell("r2", "routes/notes.py\\n列表、详情、编辑、删除", 410, 195, 200, 55, BOX),
                 cell("r3", "routes/interactions.py\\n赞踩、收藏、评论", 410, 265, 200, 55, BOX),
-                cell("r4", "routes/collections.py\\n合集 CRUD、侧栏上下文", 410, 335, 200, 55, BOX),
+                cell("r4", "routes/collections.py\\n合集 CRUD、上下文接口", 410, 335, 200, 55, BOX),
                 cell("r5", "routes/auth.py\\n签到、经验、我的收藏", 410, 405, 200, 55, BOX),
                 cell("t1", "users / notes / drafts", 790, 185, 120, 50, BOX),
                 cell("t2", "comments / likes / favorites", 790, 250, 120, 50, BOX),
@@ -85,7 +85,7 @@ def generate_figures() -> None:
     )
 
     diagram(
-        "ch5-fig2-er-core-and-extensions.drawio",
+        "ch5-fig2-class-core-and-extensions.drawio",
         "核心数据类图",
         "".join(
             [
@@ -126,9 +126,9 @@ def generate_figures() -> None:
             [
                 cell("Routes", "路由层\\nnotes.py\\ndrafts.py\\ninteractions.py\\ncollections.py\\nauth.py\\nai.py", 70, 70, 210, 170, CLASS),
                 cell("Services", "服务/查询层\\nservices/notes.py\\nservices/comments.py\\nservices/ai_compose.py\\nservices/auth.py", 410, 70, 230, 150, CLASS),
-                cell("Models", "模型层\\nUser / Note / Draft\\nComment / Like / Favorite\\nCollection / CheckIn / XpEvent", 760, 70, 260, 160, CLASS),
+                cell("Models", "模型层\\nUser / Note / Draft\\nComment / Like / NoteDislike\\nFavorite / CommentReaction\\nCollection / CheckIn / XpEvent", 760, 70, 260, 175, CLASS),
                 cell("Frontend", "前端页面\\nWritePage\\nBrowsePage\\nNoteDetailPage\\nProfilePage\\nAdminPage", 70, 330, 210, 150, CLASS),
-                cell("Api", "前端 API 封装\\nendpoints/notes.ts\\nendpoints/interactions.ts\\nendpoints/collections.ts\\nendpoints/auth.ts", 410, 330, 230, 150, CLASS),
+                cell("Api", "前端 API 封装\\nendpoints/notes.ts\\nendpoints/interactions.ts\\nendpoints/drafts.ts\\nendpoints/auth.ts\\n合集前端封装待接入", 410, 330, 230, 165, CLASS),
                 cell("Schema", "Pydantic/Zod Schema\\nNoteOut / CommentOut\\nCollectionOut / UserOut", 760, 330, 260, 120, CLASS),
                 edge("p1", "Frontend", "Api", "调用"),
                 edge("p2", "Api", "Routes", "REST"),
@@ -184,19 +184,19 @@ def generate_figures() -> None:
 
     diagram(
         "ch6-fig10-seq-collection-sidebar.drawio",
-        "合集侧栏加载顺序图",
+        "合集上下文查询顺序图",
         "".join(
             [
                 cell("u", "用户", 60, 70, 110, 50, BOX),
-                cell("detail", "NoteDetailPage", 230, 70, 150, 50, BOX),
+                cell("detail", "前端待接入侧栏", 230, 70, 150, 50, BOX),
                 cell("api", "collections.py", 460, 70, 150, 50, BOX),
                 cell("db", "SQLite", 690, 70, 130, 50, BOX),
-                edge("q1", "u", "detail", "打开笔记"),
+                edge("q1", "u", "detail", "后续打开入口"),
                 edge("q2", "detail", "api", "GET /notes/{id}/collection"),
                 edge("q3", "api", "db", "查 CollectionEntry"),
                 edge("q4", "db", "api", "合集 + entries + notes"),
                 edge("q5", "api", "detail", "NoteCollectionContextOut 或 null"),
-                edge("q6", "detail", "u", "展示侧栏入口/隐藏"),
+                edge("q6", "detail", "u", "当前仅接口可用"),
             ]
         ),
     )
@@ -299,12 +299,8 @@ def generate_figures() -> None:
 def replace_text() -> None:
     replacements = {
         "ch5-概要设计-笔记系统与社区互动.md": [
-            ("### 5.1 概念结构设计（E-R 图）", "### 5.1 概念结构设计（UML 类图）"),
-            ("E-R 图", "UML 类图"),
-            ("图 5-2 笔记系统与社区互动模块 E-R 图", "图 5-2 笔记系统与社区互动模块核心数据类图"),
             ("| `services/interactions.py` | 点赞/点踩互斥、收藏幂等、举报创建、拉黑管理 |", "| `routes/interactions.py` | 点赞/点踩互斥、收藏幂等、评论创建与评论表态；当前代码尚未实现举报与拉黑接口 |"),
             ("| `services/collections.py` | 合集 CRUD、笔记加入/移出合集校验、合集侧栏数据组装 |", "| `routes/collections.py` | 合集 CRUD、笔记加入/移出合集校验、合集侧栏数据组装 |"),
-            ("| `services/growth.py` | 签到幂等校验、经验加减与等级升级（对称扣回） |", "| `routes/auth.py` | 签到幂等校验、经验发放、等级计算、经验流水和我的收藏查询 |"),
             ("| FR-15 | 内容举报 | interactions | interactions |", "| FR-15 | 内容举报 | 未实现 | 当前代码仅预留 Report 数据模型，尚无 `/reports` 路由 |"),
             ("| FR-16 | AI 审查分类 | interactions | interactions |", "| FR-16 | AI 审查分类 | 未实现 | 当前代码尚无内容审核异步任务 |"),
             ("| FR-17 | 管理员举报裁决 | interactions | interactions |", "| FR-17 | 管理员举报裁决 | 未实现 | 当前管理后台未接入举报工单队列 |"),
@@ -314,7 +310,6 @@ def replace_text() -> None:
         "ch6-详细设计-笔记系统与社区互动.md": [
             ("`services/interactions.py` | 点赞/点踩互斥、收藏幂等、举报创建、拉黑管理", "`routes/interactions.py` | 点赞/点踩互斥、收藏幂等、评论创建与评论表态；举报和拉黑当前未实现"),
             ("`services/collections.py` | 合集 CRUD、笔记加入/移出校验", "`routes/collections.py` | 合集 CRUD、笔记加入/移出校验"),
-            ("`services/growth.py` | 签到幂等校验、经验加减与等级升级（对称扣回）", "`routes/auth.py` | 签到幂等校验、经验发放、等级计算与经验流水查询"),
             ("#### 3.2 services/interactions 模块", "#### 3.2 routes/interactions 模块"),
             ("互动服务负责笔记表态（赞/踩）的互斥逻辑、收藏幂等、举报创建与拉黑管理。", "互动路由负责笔记表态（赞/踩）的互斥逻辑、收藏幂等、评论创建与评论表态。当前代码尚未实现举报创建与拉黑管理接口。"),
             ("#### 3.3 services/collections 模块", "#### 3.3 routes/collections 模块"),
@@ -411,5 +406,6 @@ def replace_text() -> None:
 
 
 if __name__ == "__main__":
-    generate_figures()
-    replace_text()
+    from regenerate_standard_coursework_diagrams import main
+
+    main()

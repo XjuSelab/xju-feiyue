@@ -1,10 +1,68 @@
-<mxfile host="app.diagrams.net" modified="2026-07-06T00:00:00.000Z" agent="Codex" version="24.7.17">
+<mxfile host="app.diagrams.net" agent="Codex">
   <diagram id="ch5-fig1-module-structure.drawio" name="模块总体结构">
-    <mxGraphModel dx="1200" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="820" math="0" shadow="0">
+    <mxGraphModel dx="1046" dy="660" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="820" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell id="fe" value="前端 React SPA" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Microsoft YaHei;fontSize=14;fontStyle=1;fillColor=#eef2ff;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="60" y="80" width="220" height="420" as="geometry"/></mxCell><mxCell id="be" value="后端 FastAPI 单体" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Microsoft YaHei;fontSize=14;fontStyle=1;fillColor=#eef2ff;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="380" y="80" width="260" height="420" as="geometry"/></mxCell><mxCell id="db" value="SQLite 数据层" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Microsoft YaHei;fontSize=14;fontStyle=1;fillColor=#eef2ff;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="760" y="130" width="180" height="260" as="geometry"/></mxCell><mxCell id="ai" value="外部 AI 服务" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="760" y="430" width="180" height="90" as="geometry"/></mxCell><mxCell id="p1" value="WritePage\n草稿编辑 / AI 润色 / 发布" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="90" y="140" width="160" height="70" as="geometry"/></mxCell><mxCell id="p2" value="BrowsePage\n筛选 / 排序 / 分页" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="90" y="230" width="160" height="70" as="geometry"/></mxCell><mxCell id="p3" value="NoteDetailPage\n阅读 / 评论 / 合集侧栏" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="90" y="320" width="160" height="70" as="geometry"/></mxCell><mxCell id="p4" value="ProfilePage / AdminPage\n收藏 / 合集 / 签到 / 管理" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="90" y="410" width="160" height="70" as="geometry"/></mxCell><mxCell id="r1" value="routes/drafts.py\n草稿 CRUD、发布" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="410" y="125" width="200" height="55" as="geometry"/></mxCell><mxCell id="r2" value="routes/notes.py\n列表、详情、编辑、删除" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="410" y="195" width="200" height="55" as="geometry"/></mxCell><mxCell id="r3" value="routes/interactions.py\n赞踩、收藏、评论" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="410" y="265" width="200" height="55" as="geometry"/></mxCell><mxCell id="r4" value="routes/collections.py\n合集 CRUD、侧栏上下文" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="410" y="335" width="200" height="55" as="geometry"/></mxCell><mxCell id="r5" value="routes/auth.py\n签到、经验、我的收藏" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="410" y="405" width="200" height="55" as="geometry"/></mxCell><mxCell id="t1" value="users / notes / drafts" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="790" y="185" width="120" height="50" as="geometry"/></mxCell><mxCell id="t2" value="comments / likes / favorites" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="790" y="250" width="120" height="50" as="geometry"/></mxCell><mxCell id="t3" value="collections / check_ins / xp_events" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" vertex="1" parent="1"><mxGeometry x="790" y="315" width="120" height="55" as="geometry"/></mxCell><mxCell id="e1" value="REST JSON + JWT" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="fe" target="be"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="e2" value="SQLAlchemy" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="be" target="db"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="e3" value="摘要降级" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" edge="1" parent="1" source="r1" target="ai"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="fe" parent="1" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Microsoft YaHei;fontSize=14;fontStyle=1;fillColor=#eef2ff;strokeColor=#64748b;" value="前端 React SPA" vertex="1">
+          <mxGeometry height="420" width="220" x="10" y="82.5" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" parent="fe" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="WritePage\n草稿编辑 / AI 润色 / 发布" vertex="1">
+          <mxGeometry height="70" width="160" x="30" y="57.5" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" parent="fe" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="BrowsePage\n筛选 / 排序 / 分页" vertex="1">
+          <mxGeometry height="70" width="160" x="30" y="147.5" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" parent="fe" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="NoteDetailPage\n阅读 / 点赞 / 锚点评论" vertex="1">
+          <mxGeometry height="70" width="160" x="30" y="237.5" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" parent="fe" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="ProfilePage / AdminPage\n已发布/草稿 / 管理" vertex="1">
+          <mxGeometry height="70" width="160" x="30" y="327.5" as="geometry" />
+        </mxCell>
+        <mxCell id="be" parent="1" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Microsoft YaHei;fontSize=14;fontStyle=1;fillColor=#eef2ff;strokeColor=#64748b;" value="后端 FastAPI 单体" vertex="1">
+          <mxGeometry height="420" width="260" x="380" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="1" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Microsoft YaHei;fontSize=14;fontStyle=1;fillColor=#eef2ff;strokeColor=#64748b;" value="SQLite 数据层" vertex="1">
+          <mxGeometry height="260" width="180" x="730" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="ai" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="外部 AI 服务" vertex="1">
+          <mxGeometry height="90" width="180" x="730" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="routes/drafts.py\n草稿 CRUD、发布" vertex="1">
+          <mxGeometry height="55" width="200" x="410" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="routes/notes.py\n列表、详情、编辑、删除" vertex="1">
+          <mxGeometry height="55" width="200" x="410" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="routes/interactions.py\n赞踩、收藏、评论" vertex="1">
+          <mxGeometry height="55" width="200" x="410" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="routes/collections.py\n合集 CRUD、上下文接口" vertex="1">
+          <mxGeometry height="55" width="200" x="410" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="routes/auth.py\n签到、经验、我的收藏" vertex="1">
+          <mxGeometry height="55" width="200" x="410" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="users / notes / drafts" vertex="1">
+          <mxGeometry height="50" width="120" x="760" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="comments / likes / favorites" vertex="1">
+          <mxGeometry height="50" width="120" x="760" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontFamily=Microsoft YaHei;fontSize=13;fillColor=#f8fafc;strokeColor=#64748b;" value="collections / check_ins / xp_events" vertex="1">
+          <mxGeometry height="55" width="120" x="760" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="fe" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="be" value="REST JSON + JWT">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="db" value="SQLAlchemy">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="370" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="r1" style="endArrow=block;html=1;rounded=0;strokeColor=#59636e;fontSize=12;fontFamily=Microsoft YaHei;" target="ai" value="摘要降级">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
