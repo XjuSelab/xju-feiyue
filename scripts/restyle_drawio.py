@@ -77,6 +77,11 @@ def restyle(path: Path, target_w: int) -> None:
         if "style" in cell.attrib:
             cell.attrib["style"] = _bw_style(cell.attrib["style"])
     for geo in model.iter("mxGeometry"):
+        # Relative geometry (edges + edge labels): x/y are a fraction in [-1,1]
+        # along the edge, NOT absolute pixels — scaling them flings multiplicity
+        # labels off the line. Only the absolute mxPoints inside get scaled below.
+        if geo.get("relative") == "1":
+            continue
         _scale_attrs(geo, s)
     for pt in model.iter("mxPoint"):
         _scale_attrs(pt, s)
