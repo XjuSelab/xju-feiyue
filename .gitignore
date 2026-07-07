@@ -27,6 +27,7 @@ __pycache__/
 *.bak-*.docx
 *.tables-bak-*.docx
 *.tao-bak-*.docx
+*.balanced-bak-*.docx
 *:Zone.Identifier
 
 # Backend file-uploads (avatars etc.) — not tracked; deploy syncs them
