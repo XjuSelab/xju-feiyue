@@ -2,17 +2,31 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
+  Ban,
+  Bookmark,
   Clock,
+  Flag,
   Heart,
   MessageSquare,
   MessageSquareOff,
   PanelRight,
   Pencil,
+  ThumbsDown,
   Trash2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { notesApi, useComments, useNote, useToggleLike, ApiError } from '@/api'
+import {
+  notesApi,
+  useBlockUser,
+  useComments,
+  useNote,
+  useToggleDislike,
+  useToggleFavorite,
+  useToggleLike,
+  ApiError,
+} from '@/api'
+import { ReportDialog } from '@/features/reports/ReportDialog'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
@@ -44,6 +58,10 @@ export function NoteDetailPage() {
   const authMode = useAuthStore((s) => s.mode)
   const currentSid = useAuthStore((s) => s.user?.sid)
   const toggleLike = useToggleLike()
+  const toggleDislike = useToggleDislike()
+  const toggleFavorite = useToggleFavorite()
+  const blockAuthor = useBlockUser()
+  const [reportOpen, setReportOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [viewMode, setViewMode] = useCommentViewMode()
@@ -149,6 +167,33 @@ export function NoteDetailPage() {
       return
     }
     toggleLike.mutate({ id: note.id, liked: note.likedByMe })
+  }
+
+  const onDislikeClick = () => {
+    if (authMode !== 'authed') {
+      toast.error('请先登录后再操作')
+      return
+    }
+    toggleDislike.mutate({ id: note.id, active: note.dislikedByMe })
+  }
+
+  const onFavoriteClick = () => {
+    if (authMode !== 'authed') {
+      toast.error('请先登录后再收藏')
+      return
+    }
+    toggleFavorite.mutate({ id: note.id, active: note.favoritedByMe })
+  }
+
+  const onBlockAuthor = () => {
+    if (authMode !== 'authed') {
+      toast.error('请先登录')
+      return
+    }
+    blockAuthor.mutate(note.author.sid, {
+      onSuccess: () => toast.success('已拉黑，之后不再看到该用户的内容'),
+      onError: (e) => toast.error(e instanceof ApiError ? e.message : '操作失败'),
+    })
   }
 
   const onConfirmDelete = async () => {
@@ -340,9 +385,59 @@ export function NoteDetailPage() {
             <Heart size={12} aria-hidden fill={note.likedByMe ? 'currentColor' : 'none'} />{' '}
             {note.likes}
           </button>
+          <button
+            type="button"
+            onClick={onDislikeClick}
+            disabled={toggleDislike.isPending}
+            aria-label={note.dislikedByMe ? '取消点踩' : '点踩'}
+            aria-pressed={note.dislikedByMe}
+            className={cn(
+              'inline-flex items-center rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong',
+              note.dislikedByMe && 'text-text',
+            )}
+          >
+            <ThumbsDown size={12} aria-hidden fill={note.dislikedByMe ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            type="button"
+            onClick={onFavoriteClick}
+            disabled={toggleFavorite.isPending}
+            aria-label={note.favoritedByMe ? '取消收藏' : '收藏'}
+            aria-pressed={note.favoritedByMe}
+            className={cn(
+              'inline-flex items-center gap-1 rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong',
+              note.favoritedByMe && 'text-amber-500 hover:text-amber-500',
+            )}
+          >
+            <Bookmark size={12} aria-hidden fill={note.favoritedByMe ? 'currentColor' : 'none'} />
+            {note.favoritedByMe ? '已收藏' : '收藏'}
+          </button>
           <span className="inline-flex items-center gap-1">
             <MessageSquare size={12} aria-hidden /> {note.comments}
           </span>
+          {authMode === 'authed' && !isAuthor && (
+            <>
+              <button
+                type="button"
+                onClick={() => setReportOpen(true)}
+                aria-label="举报笔记"
+                title="举报"
+                className="inline-flex items-center transition hover:text-text-muted"
+              >
+                <Flag size={12} aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={onBlockAuthor}
+                disabled={blockAuthor.isPending}
+                aria-label="拉黑作者"
+                title="拉黑作者"
+                className="inline-flex items-center transition hover:text-red-500"
+              >
+                <Ban size={12} aria-hidden />
+              </button>
+            </>
+          )}
         </span>
       </div>
 
@@ -437,6 +532,13 @@ export function NoteDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        targetType="note"
+        targetId={note.id}
+      />
     </>
   )
 }

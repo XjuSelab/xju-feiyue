@@ -144,3 +144,56 @@ async def test_collection_rejects_note_already_in_other_collection(
         json={"noteId": note_id},
     )
     assert r2.status_code == 409
+
+async def test_reorder_collection_entries(
+    client: AsyncClient,
+    demo_user: User,
+    auth_headers: dict[str, str],
+    db_session: AsyncSession,
+) -> None:
+    r = await client.post(
+        "/collections", headers=auth_headers, json={"title": "C", "description": ""}
+    )
+    assert r.status_code == 201, r.text
+    cid = r.json()["id"]
+
+    ids: list[str] = []
+    for i in range(3):
+        nid = await _seed_note(db_session, demo_user.sid, f"reorder_n{i}")
+        ids.append(nid)
+        ra = await client.post(
+            f"/collections/{cid}/entries", headers=auth_headers, json={"noteId": nid}
+        )
+        assert ra.status_code == 200, ra.text
+
+    # default order = insertion order
+    detail = (await client.get(f"/collections/{cid}")).json()
+    assert [e["id"] for e in detail["entries"]] == ids
+
+    # reorder reversed → persists
+    rev = list(reversed(ids))
+    rr = await client.patch(
+        f"/collections/{cid}/entries/order", headers=auth_headers, json={"noteIds": rev}
+    )
+    assert rr.status_code == 200, rr.text
+    assert [e["id"] for e in rr.json()["entries"]] == rev
+    detail2 = (await client.get(f"/collections/{cid}")).json()
+    assert [e["id"] for e in detail2["entries"]] == rev
+
+
+async def test_reorder_requires_owner(
+    client: AsyncClient,
+    demo_user: User,
+    auth_headers: dict[str, str],
+    db_session: AsyncSession,
+) -> None:
+    r = await client.post(
+        "/collections", headers=auth_headers, json={"title": "C", "description": ""}
+    )
+    cid = r.json()["id"]
+    await _seed_user(db_session, "20990000001", "other")
+    other = await _login(client, "20990000001")
+    rr = await client.patch(
+        f"/collections/{cid}/entries/order", headers=other, json={"noteIds": []}
+    )
+    assert rr.status_code == 403

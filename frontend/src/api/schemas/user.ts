@@ -25,6 +25,9 @@ export const UserSchema = z.object({
   isAdmin: z.boolean().nullish(),
   /** 仅 superadmin（后端 computed）。可增删管理员。nullish 向后兼容。 */
   isSuperAdmin: z.boolean().nullish(),
+  /** 经验值与等级（后端 UserOut）。`.default(0)` 兼容旧持久化 / mock。 */
+  exp: z.number().int().nonnegative().default(0),
+  level: z.number().int().nonnegative().default(0),
 })
 export type User = z.infer<typeof UserSchema>
 

@@ -14,7 +14,14 @@ os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 os.environ.setdefault("JWT_SECRET", "test-secret-do-not-use-in-prod")
 os.environ.setdefault("DEEPSEEK_DRY_RUN", "1")
 os.environ.setdefault("AUTHOR_SYNC_ENABLED", "0")
+# Off by default so existing multi-op suites don't trip the limiter; the
+# dedicated test_ratelimit.py flips settings.rate_limit_enabled on per-case.
+os.environ.setdefault("RATE_LIMIT_ENABLED", "0")
+# Off in tests so POST /reports doesn't spawn a background review against the
+# shared in-memory DB; test_moderation.py drives review_report/classify directly.
+os.environ.setdefault("MODERATION_ENABLED", "0")
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -24,6 +31,15 @@ from app.db.base import Base
 from app.db import models  # noqa: F401 - register models
 from app.deps import get_db
 from app.main import app
+from app.ratelimit import limiter
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    """Isolate the in-process limiter between tests."""
+    limiter.reset()
+    yield
+    limiter.reset()
 
 
 @pytest_asyncio.fixture

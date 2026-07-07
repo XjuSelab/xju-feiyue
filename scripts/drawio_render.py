@@ -186,10 +186,10 @@ def render_vertex(c: Cell, cells: dict) -> str:
         val = c.value.replace("\n", " ").strip()
         if val.startswith("«") and "»" in val:
             ster, name = val.split("»", 1)
-            parts.append(txt(x + w / 2, y + head / 2 - 3, ster + "»", size=11, italic=True))
-            parts.append(txt(x + w / 2, y + head / 2 + 13, name.strip(), size=13, bold=True))
+            parts.append(txt(x + w / 2, y + head * 0.40, ster + "»", size=int(fsize * 0.72), italic=True))
+            parts.append(txt(x + w / 2, y + head * 0.80, name.strip(), size=fsize, bold=True))
         else:
-            parts.append(txt(x + w / 2, y + head / 2 + 5, val, size=13, bold=True))
+            parts.append(txt(x + w / 2, y + head / 2 + fsize * 0.35, val, size=fsize, bold=True))
         return "".join(parts)
 
     # ---- UML lifeline ----
@@ -244,6 +244,18 @@ def render_vertex(c: Cell, cells: dict) -> str:
             parts.append(txt(x + w / 2, y + h / 2 - (len(c.value.split(chr(10)))-1)*8 + i * 16, ln, size=fsize))
         return "".join(parts)
 
+    # ---- decision / choice diamond (判断 -> 菱形) ----
+    if "rhombus" in st:
+        cx, cy = x + w / 2, y + h / 2
+        pts = f"{cx},{y} {x+w},{cy} {cx},{y+h} {x},{cy}"
+        parts.append(f'<polygon points="{pts}" fill="{fill if fill != "none" else WHITE}" '
+                     f'stroke="{stroke}" stroke-width="1.2"/>')
+        lines = c.value.split("\n")
+        for i, ln in enumerate(lines):
+            parts.append(txt(cx, cy - (len(lines) - 1) * (fsize * 0.62) + i * (fsize + 4)
+                             + fsize * 0.35, ln, size=fsize))
+        return "".join(parts)
+
     # ---- actor standalone ----
     if st.get("shape") == "umlActor":
         cx = x + w / 2; top = y; r = 11
@@ -269,7 +281,11 @@ def render_vertex(c: Cell, cells: dict) -> str:
         col = st.get("fontColor", INK)
         align = st.get("align", "center")
         lines = _wrap(c.value.replace("\n", "\n"), max(int(w / (fsize * 0.6)), 4))
-        y0 = y + h / 2 - (len(lines) - 1) * (fsize + 2) / 2 + fsize / 2 - 1
+        if st.get("verticalAlign") == "top":
+            # container title (e.g. use-case boundary, layer group) sits at top
+            y0 = y + fsize + 6
+        else:
+            y0 = y + h / 2 - (len(lines) - 1) * (fsize + 2) / 2 + fsize / 2 - 1
         for i, ln in enumerate(lines):
             if align == "left":
                 parts.append(txt(x + 6, y0 + i * (fsize + 2), ln, size=fsize, anchor="start", fill=col, bold="fontStyle" in st))

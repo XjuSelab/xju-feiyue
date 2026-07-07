@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { router } from '@/router'
 import { useAuthStore } from '@/stores/authStore'
+import { DailyCheckin } from '@/features/growth/DailyCheckin'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +26,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <DailyCheckin />
       <Toaster position="bottom-right" />
     </QueryClientProvider>
   )

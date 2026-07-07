@@ -33,6 +33,38 @@ export async function unlikeNote(id: string): Promise<void> {
   })
 }
 
+export async function dislikeNote(id: string): Promise<void> {
+  await request({ method: 'POST', path: `/notes/${id}/dislike`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function undislikeNote(id: string): Promise<void> {
+  await request({ method: 'DELETE', path: `/notes/${id}/dislike`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function favoriteNote(id: string): Promise<void> {
+  await request({ method: 'POST', path: `/notes/${id}/favorite`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function unfavoriteNote(id: string): Promise<void> {
+  await request({ method: 'DELETE', path: `/notes/${id}/favorite`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function likeComment(commentId: string): Promise<void> {
+  await request({ method: 'POST', path: `/comments/${commentId}/like`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function unlikeComment(commentId: string): Promise<void> {
+  await request({ method: 'DELETE', path: `/comments/${commentId}/like`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function dislikeComment(commentId: string): Promise<void> {
+  await request({ method: 'POST', path: `/comments/${commentId}/dislike`, schema: z.null(), headers: authHeaders() })
+}
+
+export async function undislikeComment(commentId: string): Promise<void> {
+  await request({ method: 'DELETE', path: `/comments/${commentId}/dislike`, schema: z.null(), headers: authHeaders() })
+}
+
 export async function listComments(
   noteId: string,
   options?: { cursor?: string; limit?: number },

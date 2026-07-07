@@ -20,9 +20,21 @@ import * as notesApi from './endpoints/notes'
 import * as interactionsApi from './endpoints/interactions'
 import * as aiApi from './endpoints/ai'
 import * as draftsApi from './endpoints/drafts'
+import * as authApi from './endpoints/auth'
+import * as collectionsApi from './endpoints/collections'
+import * as reportsApi from './endpoints/reports'
+import * as blocksApi from './endpoints/blocks'
 import type { Note, ListNotesQuery, PaginatedNotes } from './schemas/note'
 import type { Comment, CommentIn, PaginatedComments } from './schemas/interaction'
 import type { AIComposeRequest, AIComposeResponse } from './schemas/ai'
+import type { CheckIn, XpEvent } from './schemas/growth'
+import type {
+  Collection,
+  CollectionDetail,
+  CollectionCreateIn,
+  CollectionUpdateIn,
+} from './schemas/collection'
+import type { Block, Report, ReportCreateIn, ReportResolveIn } from './schemas/report'
 import type { Draft } from './endpoints/drafts'
 
 if (import.meta.env.DEV && !import.meta.env['VITE_API_BASE']) {
@@ -71,6 +83,40 @@ export {
   type CommentIn,
   type PaginatedComments,
 } from './schemas/interaction'
+export {
+  CheckInSchema,
+  XpEventSchema,
+  XpEventListSchema,
+  type CheckIn,
+  type XpEvent,
+} from './schemas/growth'
+export * as collectionsApi from './endpoints/collections'
+export {
+  CollectionSchema,
+  CollectionDetailSchema,
+  CollectionNoteSchema,
+  NoteCollectionContextSchema,
+  type Collection,
+  type CollectionDetail,
+  type CollectionNote,
+  type NoteCollectionContext,
+  type CollectionCreateIn,
+  type CollectionUpdateIn,
+} from './schemas/collection'
+export * as reportsApi from './endpoints/reports'
+export * as blocksApi from './endpoints/blocks'
+export {
+  ReportSchema,
+  BlockSchema,
+  ReportReasonSchema,
+  REPORT_REASONS,
+  reasonLabel,
+  type Report,
+  type Block,
+  type ReportReason,
+  type ReportCreateIn,
+  type ReportResolveIn,
+} from './schemas/report'
 export {
   AIComposeRequestSchema,
   AIComposeResponseSchema,
@@ -228,6 +274,94 @@ export function useToggleLike(): UseMutationResult<void, Error, ToggleLikeVars, 
   })
 }
 
+// ------ Favorite / Dislike (note) ------
+//
+// Same optimistic dance as useToggleLike (patch ['note',id] + every ['notes']
+// list, snapshot + rollback on error, refetch on settle). Factored into a
+// private hook so the 3 note toggles don't diverge. `active` = the current
+// state before the toggle (mirrors useToggleLike's `liked`).
+
+type NoteToggleVars = { id: string; active: boolean }
+type NoteToggleSnapshot = {
+  prevNote: Note | undefined
+  notesQueries: Array<[readonly unknown[], unknown]>
+}
+
+function useNoteToggle(
+  fn: (id: string, active: boolean) => Promise<void>,
+  apply: (note: Note, active: boolean) => Note,
+): UseMutationResult<void, Error, NoteToggleVars, NoteToggleSnapshot> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, active }: NoteToggleVars) => fn(id, active),
+    onMutate: async ({ id, active }: NoteToggleVars): Promise<NoteToggleSnapshot> => {
+      await qc.cancelQueries({ queryKey: ['note', id] })
+      await qc.cancelQueries({ queryKey: ['notes'] })
+      const prevNote = qc.getQueryData<Note>(['note', id])
+      const notesQueries = qc.getQueriesData<unknown>({ queryKey: ['notes'] })
+      if (prevNote) qc.setQueryData<Note>(['note', id], apply(prevNote, active))
+      for (const [key, data] of notesQueries) {
+        if (!data) continue
+        if (
+          typeof data === 'object' &&
+          'pages' in (data as object) &&
+          Array.isArray((data as { pages: unknown }).pages)
+        ) {
+          const inf = data as { pages: PaginatedNotes[]; pageParams: unknown[] }
+          qc.setQueryData(key, {
+            ...inf,
+            pages: inf.pages.map((page) => ({
+              ...page,
+              items: page.items.map((n) => (n.id === id ? apply(n, active) : n)),
+            })),
+          })
+        } else if (Array.isArray(data)) {
+          qc.setQueryData(key, (data as Note[]).map((n) => (n.id === id ? apply(n, active) : n)))
+        }
+      }
+      return { prevNote, notesQueries }
+    },
+    onError: (_err: Error, vars: NoteToggleVars, ctx?: NoteToggleSnapshot) => {
+      if (!ctx) return
+      if (ctx.prevNote) qc.setQueryData(['note', vars.id], ctx.prevNote)
+      for (const [key, data] of ctx.notesQueries) qc.setQueryData(key, data)
+    },
+    onSettled: (_d, _e, { id }: NoteToggleVars) => {
+      void qc.invalidateQueries({ queryKey: ['note', id] })
+      void qc.invalidateQueries({ queryKey: ['notes'] })
+    },
+  })
+}
+
+function applyFavoriteDelta(note: Note, active: boolean): Note {
+  return { ...note, favoritedByMe: !active }
+}
+
+function applyDislikeDelta(note: Note, active: boolean): Note {
+  const on = !active
+  return {
+    ...note,
+    dislikedByMe: on,
+    // 点赞点踩互斥：点踩时若原本点过赞，前端也乐观撤掉（与后端一致）。
+    likedByMe: on ? false : note.likedByMe,
+    likes: on && note.likedByMe ? Math.max(0, note.likes - 1) : note.likes,
+  }
+}
+
+export function useToggleFavorite(): UseMutationResult<void, Error, NoteToggleVars, NoteToggleSnapshot> {
+  return useNoteToggle(
+    (id, active) => (active ? interactionsApi.unfavoriteNote(id) : interactionsApi.favoriteNote(id)),
+    applyFavoriteDelta,
+  )
+}
+
+export function useToggleDislike(): UseMutationResult<void, Error, NoteToggleVars, NoteToggleSnapshot> {
+  return useNoteToggle(
+    (id, active) => (active ? interactionsApi.undislikeNote(id) : interactionsApi.dislikeNote(id)),
+    applyDislikeDelta,
+  )
+}
+
 // ------ Comments ------
 
 const COMMENT_PAGE_SIZE = 20
@@ -283,6 +417,15 @@ export function useCreateComment(
           },
           content: body.content,
           createdAt: new Date().toISOString(),
+          parentId: body.parentId ?? null,
+          replyToSid: body.replyToSid ?? null,
+          replyTo: null,
+          images: body.images ?? [],
+          status: 'visible',
+          likes: 0,
+          dislikes: 0,
+          likedByMe: false,
+          dislikedByMe: false,
           anchorText: body.anchorText ?? null,
           anchorOffsetStart: body.anchorOffsetStart ?? null,
           anchorOffsetEnd: body.anchorOffsetEnd ?? null,
@@ -336,6 +479,232 @@ export function useDeleteComment(
     },
     onSettled: () => {
       void qc.invalidateQueries({ queryKey: key })
+    },
+  })
+}
+
+// ------ Comment reactions (like / dislike) ------
+
+type CommentReactionVars = { commentId: string; kind: 'like' | 'dislike'; active: boolean }
+type CommentReactionSnapshot = { prevData: CommentsInfiniteData | undefined }
+
+function applyCommentReaction(c: Comment, kind: 'like' | 'dislike', active: boolean): Comment {
+  const on = !active // toggling to this new state
+  if (kind === 'like') {
+    return {
+      ...c,
+      likedByMe: on,
+      likes: Math.max(0, c.likes + (on ? 1 : -1)),
+      // 赞踩互斥：点赞时撤掉原有点踩
+      dislikedByMe: on ? false : c.dislikedByMe,
+      dislikes: on && c.dislikedByMe ? Math.max(0, c.dislikes - 1) : c.dislikes,
+    }
+  }
+  return {
+    ...c,
+    dislikedByMe: on,
+    dislikes: Math.max(0, c.dislikes + (on ? 1 : -1)),
+    likedByMe: on ? false : c.likedByMe,
+    likes: on && c.likedByMe ? Math.max(0, c.likes - 1) : c.likes,
+  }
+}
+
+export function useToggleCommentReaction(
+  noteId: string,
+): UseMutationResult<void, Error, CommentReactionVars, CommentReactionSnapshot> {
+  const qc = useQueryClient()
+  const key = ['note', noteId, 'comments'] as const
+  return useMutation({
+    mutationFn: ({ commentId, kind, active }: CommentReactionVars) => {
+      if (kind === 'like') {
+        return active
+          ? interactionsApi.unlikeComment(commentId)
+          : interactionsApi.likeComment(commentId)
+      }
+      return active
+        ? interactionsApi.undislikeComment(commentId)
+        : interactionsApi.dislikeComment(commentId)
+    },
+    onMutate: async ({ commentId, kind, active }: CommentReactionVars) => {
+      await qc.cancelQueries({ queryKey: key })
+      const prevData = qc.getQueryData<CommentsInfiniteData>(key)
+      if (prevData) {
+        qc.setQueryData<CommentsInfiniteData>(key, {
+          ...prevData,
+          pages: prevData.pages.map((p) => ({
+            ...p,
+            items: p.items.map((c) =>
+              c.id === commentId ? applyCommentReaction(c, kind, active) : c,
+            ),
+          })),
+        })
+      }
+      return { prevData }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevData) qc.setQueryData(key, ctx.prevData)
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: key })
+    },
+  })
+}
+
+// ------ Growth: daily check-in + xp ledger ------
+
+export function useCheckin(): UseMutationResult<CheckIn, Error, void> {
+  return useMutation({
+    mutationFn: () => authApi.checkin(),
+  })
+}
+
+export function useXpEvents(enabled: boolean): UseQueryResult<XpEvent[]> {
+  return useQuery({
+    queryKey: ['me', 'xp-events'],
+    queryFn: () => authApi.xpEvents(),
+    enabled,
+  })
+}
+
+// ------ Collections ------
+
+export function useMyCollections(enabled = true): UseQueryResult<Collection[]> {
+  return useQuery({
+    queryKey: ['collections', 'mine'],
+    queryFn: () => collectionsApi.listMine(),
+    enabled,
+  })
+}
+
+export function useCollectionDetail(id: string | null): UseQueryResult<CollectionDetail> {
+  return useQuery({
+    queryKey: ['collection', id],
+    queryFn: () => collectionsApi.getDetail(id as string),
+    enabled: !!id,
+  })
+}
+
+export function useCreateCollection(): UseMutationResult<Collection, Error, CollectionCreateIn> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CollectionCreateIn) => collectionsApi.create(body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['collections', 'mine'] }),
+  })
+}
+
+export function useUpdateCollection(): UseMutationResult<
+  Collection,
+  Error,
+  { id: string; body: CollectionUpdateIn }
+> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: CollectionUpdateIn }) =>
+      collectionsApi.update(id, body),
+    onSuccess: (_d, { id }) => {
+      void qc.invalidateQueries({ queryKey: ['collections', 'mine'] })
+      void qc.invalidateQueries({ queryKey: ['collection', id] })
+    },
+  })
+}
+
+export function useDeleteCollection(): UseMutationResult<void, Error, string> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => collectionsApi.remove(id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['collections', 'mine'] }),
+  })
+}
+
+type EntryVars = { collectionId: string; noteId: string }
+
+export function useAddCollectionEntry(): UseMutationResult<CollectionDetail, Error, EntryVars> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ collectionId, noteId }: EntryVars) =>
+      collectionsApi.addEntry(collectionId, noteId),
+    onSuccess: (detail, { collectionId }) => {
+      qc.setQueryData(['collection', collectionId], detail)
+      void qc.invalidateQueries({ queryKey: ['collections', 'mine'] })
+    },
+  })
+}
+
+export function useRemoveCollectionEntry(): UseMutationResult<void, Error, EntryVars> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ collectionId, noteId }: EntryVars) =>
+      collectionsApi.removeEntry(collectionId, noteId),
+    onSuccess: (_d, { collectionId }) => {
+      void qc.invalidateQueries({ queryKey: ['collection', collectionId] })
+      void qc.invalidateQueries({ queryKey: ['collections', 'mine'] })
+    },
+  })
+}
+
+export function useReorderCollectionEntries(): UseMutationResult<
+  CollectionDetail,
+  Error,
+  { collectionId: string; noteIds: string[] }
+> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ collectionId, noteIds }: { collectionId: string; noteIds: string[] }) =>
+      collectionsApi.reorderEntries(collectionId, noteIds),
+    onSuccess: (detail, { collectionId }) => {
+      qc.setQueryData(['collection', collectionId], detail)
+    },
+  })
+}
+
+// ------ Governance: reports + blocks ------
+
+export function useCreateReport(): UseMutationResult<Report, Error, ReportCreateIn> {
+  return useMutation({ mutationFn: (body: ReportCreateIn) => reportsApi.createReport(body) })
+}
+
+export function useReports(status?: string): UseQueryResult<Report[]> {
+  return useQuery({
+    queryKey: ['reports', status ?? 'all'],
+    queryFn: () => reportsApi.listReports(status),
+  })
+}
+
+export function useResolveReport(): UseMutationResult<
+  Report,
+  Error,
+  { id: string; body: ReportResolveIn }
+> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: ReportResolveIn }) =>
+      reportsApi.resolveReport(id, body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['reports'] }),
+  })
+}
+
+export function useMyBlocks(enabled = true): UseQueryResult<Block[]> {
+  return useQuery({ queryKey: ['blocks'], queryFn: () => blocksApi.listBlocks(), enabled })
+}
+
+export function useBlockUser(): UseMutationResult<void, Error, string> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (sid: string) => blocksApi.blockUser(sid),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['blocks'] })
+      void qc.invalidateQueries({ queryKey: ['notes'] })
+    },
+  })
+}
+
+export function useUnblockUser(): UseMutationResult<void, Error, string> {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (sid: string) => blocksApi.unblockUser(sid),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['blocks'] })
+      void qc.invalidateQueries({ queryKey: ['notes'] })
     },
   })
 }

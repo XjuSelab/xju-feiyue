@@ -16,6 +16,7 @@ from app.schemas.collection import (
     CollectionEntryAddIn,
     CollectionNoteOut,
     CollectionOut,
+    CollectionReorderIn,
     CollectionUpdateIn,
     NoteCollectionContextOut,
 )
@@ -229,6 +230,25 @@ async def add_collection_entry(
     elif body.sort_order is not None:
         existing.sort_order = body.sort_order
 
+    await db.commit()
+    await db.refresh(collection)
+    return await _load_detail(db, collection)
+
+
+@router.patch("/collections/{collection_id}/entries/order", response_model=CollectionDetailOut)
+async def reorder_collection_entries(
+    collection_id: str,
+    body: CollectionReorderIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CollectionDetailOut:
+    """Persist a drag-sorted order: sort_order = position in `note_ids`."""
+    collection = await _ensure_owned_collection(db, collection_id, user.sid)
+    by_note = {e.note_id: e for e in await _load_entries(db, collection.id)}
+    for idx, note_id in enumerate(body.note_ids):
+        entry = by_note.get(note_id)
+        if entry is not None:
+            entry.sort_order = idx
     await db.commit()
     await db.refresh(collection)
     return await _load_detail(db, collection)
