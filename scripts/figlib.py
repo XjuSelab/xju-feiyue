@@ -45,6 +45,7 @@ DRAWIO_FONT = "SimSun"   # what draw.io / WPS will show on the user's box
 H_HEADER = 26            # uml class name band height
 LINE_H = 20              # uml class member line height
 SEP_H = 8
+EMPTY_COMPT_H = 12       # blank compartment height (empty attrs / methods)
 
 
 def _sty(d: dict) -> str:
@@ -130,21 +131,27 @@ class Fig:
 
     def uml(self, nid, x, y, w, name, attrs=None, methods=None, *, stereotype="",
             header_fill=BLUE_F, header_stroke=BLUE_S, line_h=LINE_H, h=None):
+        """Standard 3-compartment UML class box.
+
+        Compartment 1: «stereotype» + class name (类名及其抽象/接口性质)
+        Compartment 2: attributes / 成员变量
+        Compartment 3: operations / 成员函数
+        All three are always drawn (empty ones get a thin blank band).
+        """
         attrs = attrs or []
         methods = methods or []
         title = name if not stereotype else f"«{stereotype}»\n{name}"
         title_lines = 1 + (1 if stereotype else 0)
         head = H_HEADER + (LINE_H - 6) * (title_lines - 1)
-        sep = SEP_H if (attrs and methods) else 0
-        body = len(attrs) * line_h + sep + len(methods) * line_h
-        if not attrs and not methods:
-            body = 8
-        auto_h = head + body + 6
+        attr_h = len(attrs) * line_h if attrs else EMPTY_COMPT_H
+        meth_h = len(methods) * line_h if methods else EMPTY_COMPT_H
+        auto_h = head + attr_h + SEP_H + meth_h + 4
         n = Node(nid, "uml_class", x, y, w, h or auto_h, label=title,
                  attrs=attrs, methods=methods, header_fill=header_fill,
                  header_stroke=header_stroke, stroke=header_stroke)
         n.extra["head"] = head
         n.extra["line_h"] = line_h
+        n.extra["attr_h"] = attr_h
         return self.add(n)
 
     def box(self, nid, x, y, w, h, label="", *, fill=WHITE, stroke=INK,
@@ -388,21 +395,27 @@ def _node_svg(n: Node) -> str:
                      f'fill="{n.header_fill}" stroke="{n.header_stroke}" stroke-width="1.3"/>')
         title_lines = n.label.split("\n")
         ty = y + (head - (len(title_lines) - 1) * 14) / 2 + 10
-        parts.append(_svg_multiline(x + w / 2, ty, title_lines, size=13, bold=True,
-                                    lh=14))
+        # stereotype line (if any) rendered a touch smaller
+        if len(title_lines) > 1:
+            parts.append(_svg_text(x + w / 2, ty, title_lines[0], size=11, italic=True))
+            parts.append(_svg_text(x + w / 2, ty + 15, title_lines[1], size=13, bold=True))
+        else:
+            parts.append(_svg_text(x + w / 2, ty, title_lines[0], size=13, bold=True))
+        # compartment 2: attributes / 成员变量
+        attr_h = n.extra["attr_h"]
         cy = y + head
         for a in n.attrs:
             cy += lh
             parts.append(_svg_text(x + 8, cy - 5, a, size=12, anchor="start"))
-        if n.methods:
-            if n.attrs:
-                cy_sep = cy + 4
-                parts.append(f'<line x1="{x}" y1="{cy_sep}" x2="{x+w}" y2="{cy_sep}" '
-                             f'stroke="{n.header_stroke}" stroke-width="1"/>')
-                cy = cy_sep
-            for m in n.methods:
-                cy += lh
-                parts.append(_svg_text(x + 8, cy - 5, m, size=12, anchor="start", italic=True))
+        # divider between attributes and operations (always present)
+        div_y = y + head + attr_h + SEP_H / 2
+        parts.append(f'<line x1="{x}" y1="{div_y}" x2="{x+w}" y2="{div_y}" '
+                     f'stroke="{n.header_stroke}" stroke-width="1"/>')
+        # compartment 3: operations / 成员函数
+        cy = y + head + attr_h + SEP_H
+        for m in n.methods:
+            cy += lh
+            parts.append(_svg_text(x + 8, cy - 5, m, size=12, anchor="start", italic=True))
         return "".join(parts)
 
     if k in ("box", "state", "action"):
@@ -752,30 +765,41 @@ def _drawio_node(fig: Fig, n: Node, out: list[str]):
             "points": "[[0,0.5],[1,0.5]]", "portConstraint": "eastwest",
             "fontFamily": DRAWIO_FONT, "fontSize": 12, "html": 1,
         })
+        sep_st = _sty({
+            "line": "", "strokeWidth": 1, "fillColor": "none", "align": "left",
+            "verticalAlign": "middle", "spacingTop": -1, "spacingLeft": 3,
+            "spacingRight": 3, "rotatable": 0, "labelPosition": "right",
+            "points": "[]", "portConstraint": "eastwest",
+            "strokeColor": n.header_stroke, "html": 1,
+        })
+        # compartment 2: attributes (blank row if empty so the band stays visible)
         yy = head
-        for i, a in enumerate(n.attrs):
+        attr_rows = n.attrs or [""]
+        for i, a in enumerate(attr_rows):
+            rh = lh if n.attrs else EMPTY_COMPT_H
             out.append(f'<mxCell id="{n.id}_a{i}" value="{escape(a)}" style="{line_st}" vertex="1" parent="{n.id}">'
-                       f'<mxGeometry y="{yy}" width="{w}" height="{lh}" as="geometry"/></mxCell>')
-            yy += lh
-        if n.methods:
-            if n.attrs:
-                sep_st = _sty({
-                    "line": "", "strokeWidth": 1, "fillColor": "none", "align": "left",
-                    "verticalAlign": "middle", "spacingTop": -1, "spacingLeft": 3,
-                    "spacingRight": 3, "rotatable": 0, "labelPosition": "right",
-                    "points": "[]", "portConstraint": "eastwest",
-                    "strokeColor": n.header_stroke, "html": 1,
-                })
-                out.append(f'<mxCell id="{n.id}_sep" value="" style="{sep_st}" vertex="1" parent="{n.id}">'
-                           f'<mxGeometry y="{yy}" width="{w}" height="{SEP_H}" as="geometry"/></mxCell>')
-                yy += SEP_H
-            for i, m in enumerate(n.methods):
-                out.append(f'<mxCell id="{n.id}_m{i}" value="{escape(m)}" style="{line_st}" vertex="1" parent="{n.id}">'
-                           f'<mxGeometry y="{yy}" width="{w}" height="{lh}" as="geometry"/></mxCell>')
-                yy += lh
+                       f'<mxGeometry y="{yy}" width="{w}" height="{rh}" as="geometry"/></mxCell>')
+            yy += rh
+        # divider (always present -> three visible compartments)
+        out.append(f'<mxCell id="{n.id}_sep" value="" style="{sep_st}" vertex="1" parent="{n.id}">'
+                   f'<mxGeometry y="{yy}" width="{w}" height="{SEP_H}" as="geometry"/></mxCell>')
+        yy += SEP_H
+        # compartment 3: operations
+        meth_rows = n.methods or [""]
+        for i, m in enumerate(meth_rows):
+            rh = lh if n.methods else EMPTY_COMPT_H
+            out.append(f'<mxCell id="{n.id}_m{i}" value="{escape(m)}" style="{line_st}" vertex="1" parent="{n.id}">'
+                       f'<mxGeometry y="{yy}" width="{w}" height="{rh}" as="geometry"/></mxCell>')
+            yy += rh
         return
 
     style = _drawio_shape_style(n)
+    if k == "lifeline":
+        # full-height lifeline so draw.io shows the dashed line + head/actor
+        full_h = int(n.extra["bottom"]) - y
+        out.append(f'<mxCell id="{n.id}" value="{escape(n.label)}" style="{style}" vertex="1" parent="1">'
+                   f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{full_h}" as="geometry"/></mxCell>')
+        return
     out.append(f'<mxCell id="{n.id}" value="{escape(n.label)}" style="{style}" vertex="1" parent="1">'
                f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
 
@@ -842,11 +866,17 @@ def _drawio_shape_style(n: Node) -> str:
     if k == "bar":
         return _sty({"html": 1, "fillColor": INK, "strokeColor": INK})
     if k == "lifeline":
-        return _sty({"shape": "umlLifeline", "perimeter": "lifelinePerimeter",
-                     "whiteSpace": "wrap", "html": 1, "container": 0,
-                     "collapsible": 0, "fontFamily": DRAWIO_FONT, "fontSize": n.font,
-                     "fillColor": n.fill, "strokeColor": n.stroke,
-                     "size": int(n.h)})
+        st = {"shape": "umlLifeline", "perimeter": "lifelinePerimeter",
+              "whiteSpace": "wrap", "html": 1, "container": 1, "collapsible": 0,
+              "recursiveResize": 0, "outlineConnect": 0,
+              "fontFamily": DRAWIO_FONT, "fontSize": n.font, "verticalAlign": "top",
+              "fillColor": n.fill, "strokeColor": n.stroke, "size": int(n.h)}
+        if n.extra.get("actor"):
+            # stick-figure head + dashed lifeline
+            st.update({"participant": "umlActor", "size": 40, "fillColor": "none",
+                       "strokeColor": n.stroke, "verticalLabelPosition": "bottom",
+                       "labelPosition": "center"})
+        return _sty(st)
     if k == "note":
         base["shape"] = "note"
         base["size"] = 12
