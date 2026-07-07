@@ -1,0 +1,15 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+<diagram id="图6-12 状态图·评论" name="图6-12 状态图·评论">
+<mxGraphModel dx="1280" dy="820" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1080" pageHeight="440" math="0" shadow="0"><root>
+<mxCell id="0"/><mxCell id="1" parent="0"/>
+<mxCell id="i" value="" style="ellipse=;html=1;fillColor=#1f2328;strokeColor=#1f2328;" vertex="1" parent="1"><mxGeometry x="70" y="190" width="24" height="24" as="geometry"/></mxCell>
+<mxCell id="visible" value="可见 visible" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;rounded=1;arcSize=40;" vertex="1" parent="1"><mxGeometry x="200" y="168" width="200" height="66" as="geometry"/></mxCell>
+<mxCell id="f" value="" style="ellipse=;shape=endState;html=1;fillColor=#1f2328;strokeColor=#1f2328;" vertex="1" parent="1"><mxGeometry x="620" y="188" width="26" height="26" as="geometry"/></mxCell>
+<mxCell id="pending" value="隐藏 pending" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=12;fillColor=#f2f4f7;strokeColor=#8a94a6;dashed=1;rounded=1;arcSize=40;" vertex="1" parent="1"><mxGeometry x="200" y="320" width="200" height="62" as="geometry"/></mxCell>
+<mxCell id="note" value="已实现：创建(visible) → 删除；pending 隐藏态与治理裁决为后续规划（虚线）。" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=11;fontColor=#57606a;fontStyle=0;" vertex="1" parent="1"><mxGeometry x="60" y="398" width="900" height="20" as="geometry"/></mxCell>
+<mxCell id="e0" value="创建（含锚点/楼中楼/图片）" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#5b6b7b;fontFamily=SimSun;fontSize=11;fontColor=#57606a;" edge="1" parent="1" source="i" target="visible"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+<mxCell id="e1" value="评论作者 / 笔记作者删除
+（顶层删除级联楼内）" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#5b6b7b;fontFamily=SimSun;fontSize=11;fontColor=#57606a;" edge="1" parent="1" source="visible" target="f"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+<mxCell id="e2" value="AI 高置信 / 管理员裁决（规划）" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#57606a;fontFamily=SimSun;fontSize=11;fontColor=#57606a;dashed=1;" edge="1" parent="1" source="visible" target="pending"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+<mxCell id="e3" value="恢复（规划）" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#57606a;fontFamily=SimSun;fontSize=11;fontColor=#57606a;dashed=1;" edge="1" parent="1" source="pending" target="visible"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="160" y="351"/><mxPoint x="160" y="234"/></Array></mxGeometry></mxCell>
+</root></mxGraphModel></diagram></mxfile>

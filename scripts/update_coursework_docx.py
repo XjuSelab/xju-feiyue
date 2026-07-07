@@ -2,25 +2,31 @@ from __future__ import annotations
 
 import re
 import shutil
+import struct
 import sys
 from datetime import datetime
 from pathlib import Path
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-
-
-XJU_DOCX_SCRIPTS = Path.home() / ".codex" / "skills" / "xju-docx" / "scripts"
-if XJU_DOCX_SCRIPTS.exists():
-    sys.path.insert(0, str(XJU_DOCX_SCRIPTS))
-    import xju_format
-else:
-    xju_format = None
+from docx.shared import Cm
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# vendored xju-docx skill scripts (新疆大学规范排版库)
+for _cand in (ROOT / "scripts" / "xju_docx",
+              Path.home() / ".claude" / "skills" / "xju-docx" / "scripts",
+              Path.home() / ".codex" / "skills" / "xju-docx" / "scripts"):
+    if (_cand / "xju_format.py").exists():
+        sys.path.insert(0, str(_cand))
+        import xju_format
+        break
+else:
+    xju_format = None
+
 DOCS = ROOT / "docs"
 COURSEWORK = DOCS / "coursework"
+FIGS = COURSEWORK / "figures"
 TARGET = DOCS / "赵文彪-飞跃 .docx"
 
 CHAPTERS = [
@@ -29,6 +35,43 @@ CHAPTERS = [
     COURSEWORK / "ch6-详细设计-笔记系统与社区互动.md",
     COURSEWORK / "ch7-系统测试-笔记系统与社区互动.md",
 ]
+
+# 图号 -> figures/<stem>.png（渲染后的插图）
+FIG_MAP = {
+    "4-1": "ch4-fig1-system-flow", "4-2": "ch4-fig2-dfd-top",
+    "4-3": "ch4-fig3-dfd-publish", "4-4": "ch4-fig4-dfd-interaction",
+    "4-5": "ch4-fig5-usecase",
+    "5-1": "ch5-fig1-module-structure", "5-2": "ch5-fig2-class-domain",
+    "6-1": "ch6-fig1-class-program", "6-2": "ch6-fig2-ui-write",
+    "6-3": "ch6-fig3-ui-browse", "6-4": "ch6-fig4-ui-detail",
+    "6-5": "ch6-fig5-ui-collection", "6-6": "ch6-fig6-ui-report",
+    "6-7": "ch6-fig7-ui-checkin", "6-8": "ch6-fig8-seq-publish",
+    "6-9": "ch6-fig9-seq-report", "6-10": "ch6-fig10-seq-collection",
+    "6-11": "ch6-fig11-state-note", "6-12": "ch6-fig12-state-comment",
+    "6-13": "ch6-fig13-state-report", "6-14": "ch6-fig14-activity-browse",
+    "6-15": "ch6-fig15-activity-ai",
+}
+
+
+def _png_size(path: Path) -> tuple[int, int]:
+    with open(path, "rb") as fh:
+        head = fh.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n":
+        return 1600, 1000
+    return struct.unpack(">II", head[16:24])
+
+
+def _fig_width(path: Path):
+    """Fit the figure inside the A4 content box, preserving aspect.
+
+    A4 width 21cm − 左右各 3.17cm 页边距 → 正文宽约 14.66cm；正文高约 21cm。
+    """
+    max_w, max_h = 14.5, 20.0  # cm
+    w, h = _png_size(path)
+    width = max_w
+    if width * h / w > max_h:
+        width = max_h * w / h
+    return Cm(round(width, 2))
 
 
 def remove_paragraph(paragraph) -> None:
@@ -80,6 +123,19 @@ def add_table_before(doc: Document, anchor, rows: list[list[str]]) -> None:
                 table.cell(r_idx, c_idx).text = value
     insert_element_before(anchor, table._element)
     add_before(doc, anchor, "")
+
+
+def add_image_before(doc: Document, anchor, png_path: Path):
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = paragraph.add_run()
+    run.add_picture(str(png_path), width=_fig_width(png_path))
+    if xju_format is not None:
+        xju_format.spacing_attrs(
+            paragraph._p.get_or_add_pPr(), before_lines=0, after_lines=0, line=240
+        )
+    insert_element_before(anchor, paragraph._element)
+    return paragraph
 
 
 def parse_table(lines: list[str], start: int) -> tuple[list[list[str]], int]:
@@ -145,6 +201,16 @@ def insert_markdown(doc: Document, anchor, md_text: str) -> None:
         line = raw.strip()
         if not line:
             add_before(doc, anchor, "")
+            i += 1
+            continue
+        if "此处插入图" in line:
+            m = re.search(r"图\s*(\d+[-－]\d+)", line)
+            stem = FIG_MAP.get(m.group(1).replace("－", "-")) if m else None
+            png = FIGS / f"{stem}.png" if stem else None
+            if png and png.exists():
+                add_image_before(doc, anchor, png)
+            else:
+                print(f"  [warn] no image for placeholder: {line[:40]}")
             i += 1
             continue
         if line.startswith("|"):

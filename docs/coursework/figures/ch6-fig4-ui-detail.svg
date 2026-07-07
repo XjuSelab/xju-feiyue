@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="700" viewBox="0 0 1020 700" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif">
+<rect x="0" y="0" width="1020" height="700" fill="#ffffff"/>
+<rect x="30" y="30" width="960" height="640" rx="8" fill="#ffffff" stroke="#c4ccd6" stroke-width="1.4"/><path d="M30 60 L30 38 Q30 30 38 30 L982 30 Q990 30 990 38 L990 60 Z" fill="#eef2f7" stroke="#c4ccd6" stroke-width="1.4"/><circle cx="46" cy="45" r="5" fill="#ff6159"/><circle cx="62" cy="45" r="5" fill="#febc2e"/><circle cx="78" cy="45" r="5" fill="#28c840"/><text x="510.0" y="50.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#57606a">飞跃 · 笔记详情  /note/:id</text>
+<rect x="55" y="92" width="560" height="550" rx="8" fill="#fcfdff" stroke="#d7dee8" stroke-width="1.1"/>
+<text x="72.0" y="122.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="14" text-anchor="start" font-weight="bold" fill="#1f2328">保研经验：从择校到复试全流程</text>
+<text x="72.0" y="148.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">@作者 · research · 阅读约 8 分钟</text>
+<text x="72.0" y="188.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="start" fill="#1f2328">## 一、择校与定位</text>
+<text x="72.0" y="228.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="start" fill="#1f2328">正文 Markdown 渲染，支持代码高亮：</text>
+<text x="72.0" y="268.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="start" fill="#1f2328">```python  def plan(): ...  ```</text>
+<text x="72.0" y="308.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="start" fill="#1f2328">划选正文即可发起「锚点引用评论」。</text>
+<rect x="72" y="336" width="400" height="30" rx="8" fill="#fff6d6" stroke="#d6b656" stroke-width="1.1"/><text x="80.0" y="350.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#1f2328">被引用的原文片段（高亮 mark）</text>
+<rect x="72" y="590" width="96" height="32" rx="6" fill="#2f6bd6" stroke="#2f6bd6" stroke-width="1.1"/><text x="120.0" y="610.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="middle" font-weight="bold" fill="#ffffff">♥ 点赞 128</text>
+<rect x="178" y="590" width="150" height="32" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="253.0" y="610.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">评论显示：inline ▼</text>
+<text x="340.0" y="609.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">评论 20</text>
+<rect x="635" y="92" width="355" height="430" rx="8" fill="#f6f8fb" stroke="#d7dee8" stroke-width="1.1"/>
+<text x="648.0" y="111.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">评论区（锚点引用 · 平铺分页）</text>
+<rect x="648" y="128" width="328" height="84" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="660.0" y="146.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">@某同学 · 12:30</text>
+<rect x="660" y="156" width="300" height="22" rx="8" fill="#fff6d6" stroke="#d6b656" stroke-width="1.1"/><text x="668.0" y="170.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#1f2328">「引用原文片段…」</text>
+<text x="660.0" y="194.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#1f2328">评论正文……回跳高亮原文</text>
+<rect x="648" y="224" width="328" height="84" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="660.0" y="242.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">@某同学 · 12:30</text>
+<text x="660.0" y="264.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#1f2328">评论正文……（可删除）</text>
+<rect x="648" y="320" width="328" height="84" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="660.0" y="338.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">@某同学 · 12:30</text>
+<text x="660.0" y="360.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#1f2328">评论正文……（可删除）</text>
+<rect x="648" y="470" width="250" height="34" rx="4" fill="#ffffff" stroke="#c4ccd6" stroke-width="1.1"/><text x="656.0" y="485.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">写评论 / 划选正文引用…</text>
+<rect x="906" y="470" width="68" height="34" rx="6" fill="#2f6bd6" stroke="#2f6bd6" stroke-width="1.1"/><text x="940.0" y="491.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="middle" font-weight="bold" fill="#ffffff">发送</text>
+<rect x="635" y="536" width="355" height="100" rx="8" fill="#fdf2f2" stroke="#b85450" stroke-width="1.1" stroke-dasharray="6 4"/>
+<text x="648.0" y="555.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#b85450">尚未接入前端（规划项）：</text>
+<text x="648.0" y="579.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#b85450">点踩 · 收藏 · 合集侧栏 · 评论九宫格图片 · 评论赞</text><text x="648.0" y="594.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#b85450">踩 · 举报/拉黑菜单</text>
+</svg>
