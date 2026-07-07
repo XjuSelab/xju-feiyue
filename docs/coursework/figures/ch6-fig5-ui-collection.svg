@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620" viewBox="0 0 1000 620" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif">
+<rect x="0" y="0" width="1000" height="620" fill="#ffffff"/>
+<rect x="30" y="30" width="940" height="560" rx="8" fill="#ffffff" stroke="#c4ccd6" stroke-width="1.4"/><path d="M30 60 L30 38 Q30 30 38 30 L962 30 Q970 30 970 38 L970 60 Z" fill="#eef2f7" stroke="#c4ccd6" stroke-width="1.4"/><circle cx="46" cy="45" r="5" fill="#ff6159"/><circle cx="62" cy="45" r="5" fill="#febc2e"/><circle cx="78" cy="45" r="5" fill="#28c840"/><text x="500.0" y="50.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#57606a">飞跃 · 个人中心  /me</text>
+<rect x="55" y="92" width="140" height="34" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="125.0" y="113.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">已发布</text>
+<rect x="205" y="92" width="140" height="34" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="275.0" y="113.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">草稿</text>
+<rect x="355" y="92" width="140" height="34" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="425.0" y="113.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">我的收藏 ·规划</text>
+<rect x="505" y="92" width="140" height="34" rx="6" fill="#2f6bd6" stroke="#2f6bd6" stroke-width="1.1"/><text x="575.0" y="113.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#ffffff">笔记合集 ·规划</text>
+<rect x="655" y="92" width="140" height="34" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="725.0" y="113.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">签到·经验 ·规划</text>
+<text x="55.0" y="149.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#b85450">后端已提供合集 CRUD 与条目管理接口；/me 合集 Tab 为前端后续接入（规划项）</text>
+<rect x="55" y="168" width="300" height="400" rx="8" fill="#f6f8fb" stroke="#d7dee8" stroke-width="1.1"/>
+<text x="66.0" y="187.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">我的合集</text>
+<rect x="66" y="204" width="278" height="48" rx="8" fill="#ffffff" stroke="#6c8ebf" stroke-width="1.1"/>
+<text x="78.0" y="229.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328">● 保研全流程 · 6 篇</text>
+<rect x="66" y="264" width="278" height="48" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="78.0" y="289.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">竞赛打怪之路 · 4 篇</text>
+<rect x="66" y="324" width="278" height="48" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="78.0" y="349.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#1f2328">Kaggle 入门 · 3 篇</text>
+<rect x="66" y="512" width="160" height="34" rx="6" fill="#2f6bd6" stroke="#2f6bd6" stroke-width="1.1"/><text x="146.0" y="533.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="middle" font-weight="bold" fill="#ffffff">＋ 新建合集</text>
+<rect x="375" y="168" width="540" height="400" rx="8" fill="#fcfdff" stroke="#d7dee8" stroke-width="1.1"/>
+<text x="388.0" y="187.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6">合集「保研全流程」内笔记（拖拽排序 · 单归属校验）</text>
+<rect x="388" y="206" width="514" height="66" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="402.0" y="227.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6"># 1</text>
+<rect x="452" y="214" width="70" height="48" rx="4" fill="#eef1f5" stroke="#c4ccd6" stroke-width="1.1"/><path d="M452 214 L522 262 M522 214 L452 262" stroke="#c4ccd6" stroke-width="1" fill="none"/><text x="487.0" y="241.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" fill="#1f2328">封面</text>
+<text x="536.0" y="229.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328">择校定位与信息搜集</text>
+<text x="536.0" y="252.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">visible · 本人笔记</text>
+<rect x="812" y="224" width="76" height="30" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="850.0" y="243.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">移出</text>
+<rect x="388" y="284" width="514" height="66" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="402.0" y="305.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6"># 2</text>
+<rect x="452" y="292" width="70" height="48" rx="4" fill="#eef1f5" stroke="#c4ccd6" stroke-width="1.1"/><path d="M452 292 L522 340 M522 292 L452 340" stroke="#c4ccd6" stroke-width="1" fill="none"/><text x="487.0" y="319.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" fill="#1f2328">封面</text>
+<text x="536.0" y="307.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328">择校定位与信息搜集</text>
+<text x="536.0" y="330.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">visible · 本人笔记</text>
+<rect x="812" y="302" width="76" height="30" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="850.0" y="321.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">移出</text>
+<rect x="388" y="362" width="514" height="66" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="402.0" y="383.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6"># 3</text>
+<rect x="452" y="370" width="70" height="48" rx="4" fill="#eef1f5" stroke="#c4ccd6" stroke-width="1.1"/><path d="M452 370 L522 418 M522 370 L452 418" stroke="#c4ccd6" stroke-width="1" fill="none"/><text x="487.0" y="397.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" fill="#1f2328">封面</text>
+<text x="536.0" y="385.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328">择校定位与信息搜集</text>
+<text x="536.0" y="408.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">visible · 本人笔记</text>
+<rect x="812" y="380" width="76" height="30" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="850.0" y="399.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">移出</text>
+<rect x="388" y="440" width="514" height="66" rx="8" fill="#ffffff" stroke="#e3e8f0" stroke-width="1.1"/>
+<text x="402.0" y="461.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" fill="#8a94a6"># 4</text>
+<rect x="452" y="448" width="70" height="48" rx="4" fill="#eef1f5" stroke="#c4ccd6" stroke-width="1.1"/><path d="M452 448 L522 496 M522 448 L452 496" stroke="#c4ccd6" stroke-width="1" fill="none"/><text x="487.0" y="475.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" fill="#1f2328">封面</text>
+<text x="536.0" y="463.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328">择校定位与信息搜集</text>
+<text x="536.0" y="486.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="start" fill="#8a94a6">visible · 本人笔记</text>
+<rect x="812" y="458" width="76" height="30" rx="6" fill="#eef2f8" stroke="#c4ccd6" stroke-width="1.1"/><text x="850.0" y="477.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="10" text-anchor="middle" font-weight="bold" fill="#1f2328">移出</text>
+</svg>

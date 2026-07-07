@@ -194,7 +194,7 @@
 - User 1—N CheckIn（签到）
 - User 1—N XpEvent（经验流水）
 
-〔此处插入图 5-2 —— 源文件 figures/ch5-fig2-class-core-and-extensions.drawio，app.diagrams.net 编辑后导出插入〕
+〔此处插入图 5-2 —— 源文件 figures/ch5-fig2-class-domain.drawio，app.diagrams.net 编辑后导出插入〕
 
 图 5-2 笔记系统与社区互动模块 UML 类图
 
