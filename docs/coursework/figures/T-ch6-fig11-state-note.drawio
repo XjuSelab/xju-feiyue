@@ -1,0 +1,57 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-11 状态图·笔记生命周期" name="图6-11 状态图·笔记生命周期">
+    <mxGraphModel dx="910" dy="574" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3173" pageHeight="1303" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="draft" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=40;" value="草稿 Draft" vertex="1">
+          <mxGeometry height="187" width="482" x="482" y="504" as="geometry" />
+        </mxCell>
+        <mxCell id="visible" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=40;" value="可见 visible" vertex="1">
+          <mxGeometry height="187" width="510" x="1332" y="504" as="geometry" />
+        </mxCell>
+        <mxCell id="f" parent="1" style="ellipse=;shape=endState;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="74" width="74" x="2352" y="561" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;dashed=1;rounded=1;arcSize=40;" value="隐藏 pending" vertex="1">
+          <mxGeometry height="176" width="538" x="1332" y="935" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="draft" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="visible" value="发布（唯一路径）">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="visible" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="f" value="作者删除 （级联清赞/评论）">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="visible" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="pending" value="AI 高置信 / 管理员裁决（规划）">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="pending" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="visible" value="恢复（规划）">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1218" y="1023" />
+              <mxPoint x="1218" y="691" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="pending" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="f" value="删除（规划）">
+          <mxGeometry relative="1" x="-0.4911" y="29" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="2153" y="1023" />
+              <mxPoint x="2382" y="1023" />
+              <mxPoint x="2388" y="691" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aMwW7EojY36qO-6wOLfi-19" parent="1" style="ellipse;html=1;shape=startState;fillColor=#000000;strokeColor=#333333;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="708" y="787" as="geometry" />
+        </mxCell>
+        <mxCell id="aMwW7EojY36qO-6wOLfi-20" edge="1" parent="1" source="aMwW7EojY36qO-6wOLfi-19" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#333333;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="draft" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="887" y="884" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

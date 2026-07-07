@@ -1,0 +1,129 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图4-4 功能级DFD·互动评论合集签到" name="图4-4 功能级DFD·互动评论合集签到">
+    <mxGraphModel dx="4184" dy="2640" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3627" pageHeight="2437" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="guest" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=process;size=0.06;" value="匿名访客" vertex="1">
+          <mxGeometry height="187" width="425" x="238" y="219" as="geometry" />
+        </mxCell>
+        <mxCell id="user" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=process;size=0.06;" value="注册用户" vertex="1">
+          <mxGeometry height="210" width="425" x="113" y="1077" as="geometry" />
+        </mxCell>
+        <mxCell id="Q1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P3.1 列表/详情查询" vertex="1">
+          <mxGeometry height="351" width="351" x="972" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="Q2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P3.2 笔记赞踩收藏" vertex="1">
+          <mxGeometry height="351" width="351" x="972" y="802" as="geometry" />
+        </mxCell>
+        <mxCell id="Q3" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P3.3 评论/回复/表态" vertex="1">
+          <mxGeometry height="351" width="351" x="972" y="1198" as="geometry" />
+        </mxCell>
+        <mxCell id="Q4" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P3.4 合集管理与上下文" vertex="1">
+          <mxGeometry height="351" width="351" x="972" y="1595" as="geometry" />
+        </mxCell>
+        <mxCell id="Q5" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P3.5 每日签到与经验" vertex="1">
+          <mxGeometry height="351" width="351" x="969" y="1973" as="geometry" />
+        </mxCell>
+        <mxCell id="D2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D2 笔记库" vertex="1">
+          <mxGeometry height="153" width="482" x="1707" y="236" as="geometry" />
+        </mxCell>
+        <mxCell id="D3" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D3 互动库" vertex="1">
+          <mxGeometry height="153" width="482" x="1813" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="D4" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D4 评论库" vertex="1">
+          <mxGeometry height="153" width="482" x="1813" y="1275" as="geometry" />
+        </mxCell>
+        <mxCell id="D7" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D7 合集库" vertex="1">
+          <mxGeometry height="153" width="482" x="1813" y="1672" as="geometry" />
+        </mxCell>
+        <mxCell id="D6" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D6 成长库" vertex="1">
+          <mxGeometry height="153" width="482" x="1813" y="2068" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="guest" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="Q1" value="浏览/检索">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="Q1" value="浏览/检索">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="708" y="567" />
+            </Array>
+            <mxPoint x="326" y="1133" as="sourcePoint" />
+            <mxPoint x="850" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="Q1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D2" value="读笔记/计数">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="Q1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D3" value="读互动">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1417" y="340" as="sourcePoint" />
+            <mxPoint x="1700" y="935" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="Q1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="1ggAXdvl5TC0OOIL-Mge-2" value="读评论">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="2843" y="622" as="sourcePoint" />
+            <mxPoint x="1672" y="1332" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="Q2" value="赞/踩/收藏">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="Q2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D3" value="幂等写入">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="Q3" value="评论/回复/表态">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="708" y="1332" />
+            </Array>
+            <mxPoint x="326" y="1247" as="sourcePoint" />
+            <mxPoint x="850" y="1360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="Q3" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D4" value="写评论">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="Q4" value="合集维护">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="1757" />
+            </Array>
+            <mxPoint x="326" y="1275" as="sourcePoint" />
+            <mxPoint x="850" y="1757" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="Q4" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D7" value="读写合集">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="Q4" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="1ggAXdvl5TC0OOIL-Mge-1" value="校验已发布">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="1417" y="1700" as="sourcePoint" />
+            <mxPoint x="2153" y="351" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="Q5" value="签到">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="2153" />
+            </Array>
+            <mxPoint x="326" y="1286" as="sourcePoint" />
+            <mxPoint x="850" y="2153" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="Q5" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D6" value="签到/经验流水">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="1ggAXdvl5TC0OOIL-Mge-1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D2 笔记库" vertex="1">
+          <mxGeometry height="153" width="482" x="1814" y="1474" as="geometry" />
+        </mxCell>
+        <mxCell id="1ggAXdvl5TC0OOIL-Mge-2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D4 评论库" vertex="1">
+          <mxGeometry height="153" width="482" x="1796" y="474" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

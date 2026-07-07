@@ -1,0 +1,102 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-15 活动图·AI摘要三层降级" name="图6-15 活动图·AI摘要三层降级">
+    <mxGraphModel dx="1162" dy="733" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3400" pageHeight="2550" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="a1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="触发生成摘要" vertex="1">
+          <mxGeometry height="142" width="567" x="170" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="SSE 流式接收" vertex="1">
+          <mxGeometry height="142" width="567" x="170" y="623" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rhombus=;" value="首个 chunk 到达？" vertex="1">
+          <mxGeometry height="283" width="510" x="198" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="s_ok" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="逐字写入展示" vertex="1">
+          <mxGeometry height="142" width="567" x="170" y="1303" as="geometry" />
+        </mxCell>
+        <mxCell id="done" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="完成：回填摘要" vertex="1">
+          <mxGeometry height="159" width="623" x="1332" y="2040" as="geometry" />
+        </mxCell>
+        <mxCell id="f" parent="1" style="ellipse=;shape=endState;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="74" width="74" x="1587" y="2323" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="回退 one-shot 生成" vertex="1">
+          <mxGeometry height="142" width="623" x="1077" y="907" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rhombus=;" value="one-shot 成功？" vertex="1">
+          <mxGeometry height="283" width="510" x="1133" y="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="b_ok" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="回填结果" vertex="1">
+          <mxGeometry height="142" width="623" x="1077" y="1587" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="mock 伪流式" vertex="1">
+          <mxGeometry height="142" width="623" x="2040" y="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="生成静态兜底文本" vertex="1">
+          <mxGeometry height="142" width="623" x="2040" y="1445" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="a1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="a2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="d1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="d1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="s_ok" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="s_ok" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="done" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="453" y="1445" />
+              <mxPoint x="453" y="2119" />
+              <mxPoint x="1332" y="2119" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="d1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="b1" value="否 / Stream 失败">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="b1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="d2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="d2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="b_ok" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="b_ok" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="done" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1388" y="1728" />
+              <mxPoint x="1388" y="2040" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="d2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="c1" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="c1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="c2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="c2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="done" value="兜底摘要">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2352" y="1615" />
+              <mxPoint x="2352" y="2119" />
+              <mxPoint x="1955" y="2119" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="done" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="f" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y4VOQl4S8oRbHP8HnrHV-1" edge="1" parent="1" style="html=1;verticalAlign=bottom;startArrow=circle;startFill=1;endArrow=open;startSize=6;endSize=8;curved=0;rounded=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" value="">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="455" y="249" as="sourcePoint" />
+            <mxPoint x="455.25" y="368" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
