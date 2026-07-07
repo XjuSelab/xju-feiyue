@@ -23,6 +23,12 @@ roster_*.csv
 # Python bytecode cache.
 __pycache__/
 
+# Local Word merge backups and Windows alternate data stream markers.
+*.bak-*.docx
+*.tables-bak-*.docx
+*.tao-bak-*.docx
+*:Zone.Identifier
+
 # Backend file-uploads (avatars etc.) — not tracked; deploy syncs them
 # via the HF state-sync (or remount the volume in prod).
 backend/uploads/
