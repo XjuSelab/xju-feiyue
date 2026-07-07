@@ -38,3 +38,6 @@ backend/data/schools/
 # out-of-band to the xju-feiyue-data HF dataset under the conferences/ namespace
 # (`make conf-push` / `make conf-pull`). Regenerable, so kept out of git.
 backend/data/conferences/
+
+# Microsoft Office 锁/临时文件（~$开头）
+~$*
