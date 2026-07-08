@@ -1,0 +1,91 @@
+<mxfile host="Electron">
+  <diagram name="第 1 页" id="-IM-OWGcS1g1_ylC1eKP">
+    <mxGraphModel dx="921" dy="559" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-8" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-15" connectable="0" parent="XEN2in0RU4AGIh6FxiVJ-8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="会议本年度初始占位&lt;div&gt;deadline=null&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.22" y="1" as="geometry">
+            <mxPoint x="7" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-1" parent="1" style="ellipse;html=1;shape=startState;fillColor=#000000;strokeColor=light-dark(#0a0000, #ff9090);rotation=-90;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="20" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-9" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-19" connectable="0" parent="XEN2in0RU4AGIh6FxiVJ-9" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="抽取到未来deadline" vertex="1">
+          <mxGeometry relative="1" x="0.04" y="2" as="geometry">
+            <mxPoint x="-3" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-14" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="370" />
+              <mxPoint x="610" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-18" connectable="0" parent="XEN2in0RU4AGIh6FxiVJ-14" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="抽取到过期 deadline" vertex="1">
+          <mxGeometry relative="1" x="0.014" y="4" as="geometry">
+            <mxPoint y="-6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-3" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="未公布" vertex="1">
+          <mxGeometry height="80" width="100" x="160" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-10" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-20" connectable="0" parent="XEN2in0RU4AGIh6FxiVJ-10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="超过当前时区&lt;div&gt;系统时间&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.14" y="-3" as="geometry">
+            <mxPoint y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-5" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="已公布" vertex="1">
+          <mxGeometry height="80" width="100" x="360" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-11" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-6" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="已截止" vertex="1">
+          <mxGeometry height="80" width="100" x="560" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-7" parent="1" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=light-dark(#050000, #ff9090);" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="760" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-12" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="435" y="160" />
+              <mxPoint x="385" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-17" connectable="0" parent="XEN2in0RU4AGIh6FxiVJ-12" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="截稿时间延期&lt;div&gt;（ccfc更新）&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0286" as="geometry">
+            <mxPoint x="-2" y="-15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-13" edge="1" parent="1" source="XEN2in0RU4AGIh6FxiVJ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="XEN2in0RU4AGIh6FxiVJ-3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="235" y="160" />
+              <mxPoint x="185" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XEN2in0RU4AGIh6FxiVJ-16" connectable="0" parent="XEN2in0RU4AGIh6FxiVJ-13" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="未找到CFP" vertex="1">
+          <mxGeometry relative="1" x="0.0429" y="2" as="geometry">
+            <mxPoint x="3" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

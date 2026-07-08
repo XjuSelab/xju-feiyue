@@ -1,0 +1,67 @@
+<mxfile host="Electron">
+  <diagram name="第 1 页" id="MJHe_vQT8geZjhAPcodc">
+    <mxGraphModel dx="921" dy="559" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="520" width="490" x="174" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-14" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-16" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-18" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="匿名访客&lt;div&gt;（免登录）&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="104" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-19" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-20" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-3" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="外部系统&lt;div&gt;（爬虫自动更新）&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="694" y="135" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-22" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-4" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-4" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="管理员&lt;div&gt;（手动重爬）&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="694" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-7" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="拼音模糊搜索导师" vertex="1">
+          <mxGeometry height="70" width="120" x="234" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-8" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="浏览导师详情抽屉" vertex="1">
+          <mxGeometry height="70" width="120" x="234" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-9" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="查看会议清单与时间轴" vertex="1">
+          <mxGeometry height="70" width="130" x="229" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-10" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;解析与抽取会议元数据&lt;/span&gt;" vertex="1">
+          <mxGeometry height="73" width="124" x="440" y="77" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-11" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;会议自动更新抓取&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="130" x="444" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-12" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="手动触发重新爬取" vertex="1">
+          <mxGeometry height="70" width="120" x="444" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-13" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="系统日志与运行审计" vertex="1">
+          <mxGeometry height="70" width="120" x="444" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-21" edge="1" parent="1" source="pS7N6HTOjivLuEEt0ZFi-4" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.571;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;" target="pS7N6HTOjivLuEEt0ZFi-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pS7N6HTOjivLuEEt0ZFi-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="会议/导师模块" vertex="1">
+          <mxGeometry height="30" width="90" x="369" y="45" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
