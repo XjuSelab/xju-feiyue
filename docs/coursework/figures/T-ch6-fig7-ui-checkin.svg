@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2550" height="1757" viewBox="0 0 2550 1757" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif">
+<rect width="2550" height="1757" fill="#ffffff"/>
+<rect x="57.0" y="57.0" width="2437.0" height="1587.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/><text x="1275.5" y="97.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#1f2328">飞跃 · 首页  /（每日首次上线）</text>
+<rect x="113.0" y="198.0" width="2323.0" height="1388.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="174.0" y="293.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="start" font-weight="bold" fill="#000000">首页信息流（弹窗遮罩下）</text>
+<rect x="765.0" y="425.0" width="1020.0" height="963.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="1275.5" y="534.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">每日签到</text>
+<rect x="1091.0" y="584.0" width="368.0" height="278.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+<text x="1275.0" y="741.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">＋5 EXP</text>
+<text x="1275.5" y="971.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">经验 +5</text>
+<text x="1275.5" y="1050.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">已连续签到 7 天 · 当前 Lv2（exp 155）</text>
+<rect x="935.0" y="1111.0" width="680.0" height="130.0" rx="12" fill="#ffffff" stroke="#000000" stroke-width="1.2"/><text x="1275.0" y="1192.0" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">一键签到</text>
+<text x="1275.5" y="1319.5" font-family="WenQuanYi Zen Hei, Microsoft YaHei, SimSun, sans-serif" font-size="34" text-anchor="middle" font-weight="bold" fill="#000000">当日已签到则不再弹出（幂等，不重复加经验）</text>
+</svg>
