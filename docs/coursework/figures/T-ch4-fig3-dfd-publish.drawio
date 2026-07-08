@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="figlib">
   <diagram id="图4-3 功能级DFD·草稿发布" name="图4-3 功能级DFD·草稿发布">
-    <mxGraphModel dx="3487" dy="2200" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3570" pageHeight="2040" math="0" shadow="0">
+    <mxGraphModel dx="2989" dy="1886" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3570" pageHeight="2040" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -16,89 +16,101 @@
         <mxCell id="ai" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=process;size=0.06;" value="外部 AI 服务" vertex="1">
           <mxGeometry height="198" width="538" x="2330.5" y="250" as="geometry" />
         </mxCell>
-        <mxCell id="P11" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P1.1 编辑与自动保存" vertex="1">
-          <mxGeometry height="425" width="425" x="878" y="518" as="geometry" />
+        <mxCell id="e0" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-1" value="编辑内容">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1086.0683003128256" y="943" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="P12" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P1.2 发布前校验" vertex="1">
-          <mxGeometry height="425" width="425" x="1643" y="774" as="geometry" />
+        <mxCell id="e1" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D1" value="保存草稿">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1303" y="628.0669497060744" as="sourcePoint" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="P13" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P1.3 AI 摘要生成" vertex="1">
-          <mxGeometry height="425" width="425" x="2387" y="611" as="geometry" />
-        </mxCell>
-        <mxCell id="P14" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P1.4 首段截断兜底" vertex="1">
-          <mxGeometry height="425" width="425" x="2373" y="1190" as="geometry" />
-        </mxCell>
-        <mxCell id="P15" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;ellipse=;" value="P1.5 创建笔记并删草稿" vertex="1">
-          <mxGeometry height="425" width="425" x="1615" y="1510" as="geometry" />
-        </mxCell>
-        <mxCell id="e0" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P11" value="编辑内容">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="P11" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D1" value="保存草稿">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P12" value="发布">
+        <mxCell id="e2" edge="1" parent="1" source="user" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-2" value="发布">
           <mxGeometry relative="1" as="geometry">
             <Array as="points" />
             <mxPoint x="326" y="963" as="sourcePoint" />
-            <mxPoint x="1587" y="1020" as="targetPoint" />
+            <mxPoint x="1643" y="1047.782258064516" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="D1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P12" value="读草稿">
+        <mxCell id="e3" edge="1" parent="1" source="D1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-2" value="读草稿">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="1133" y="323" as="sourcePoint" />
-            <mxPoint x="1700" y="850" as="targetPoint" />
+            <mxPoint x="1855.67" y="774" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e4" edge="1" parent="1" source="P12" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.002;exitY=0.88;exitDx=0;exitDy=0;exitPerimeter=0;" target="user" value="错误提示">
+        <mxCell id="e4" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" target="user" value="错误提示">
           <mxGeometry relative="1" as="geometry">
             <Array as="points" />
-            <mxPoint x="1728" y="1122" as="sourcePoint" />
+            <mxPoint x="1643.8499999999995" y="1148" as="sourcePoint" />
             <mxPoint x="544" y="1037" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="P12" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P13" value="摘要为空">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e6" edge="1" parent="1" source="P13" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="ai" value="生成请求">
+        <mxCell id="e5" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-3" value="摘要为空">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="2564" y="850" as="sourcePoint" />
+            <mxPoint x="2068" y="939.9442204301076" as="sourcePoint" />
+            <mxPoint x="2387" y="879.9613526570047" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="ai" value="生成请求">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2599.5" y="611" as="sourcePoint" />
             <mxPoint x="2848" y="453" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e7" edge="1" parent="1" source="ai" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P13" value="摘要文本">
+        <mxCell id="e7" edge="1" parent="1" source="ai" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-3" value="摘要文本">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="3074" y="453" as="sourcePoint" />
-            <mxPoint x="2791" y="850" as="targetPoint" />
+            <mxPoint x="2599.5" y="611" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="P13" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="P14" value="超时/失败">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e9" edge="1" parent="1" source="P13" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P15" value="摘要就绪">
+        <mxCell id="e8" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-3" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="cC13Kz3hTqTNKW7Jbnkk-4" value="超时/失败">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="2352" y="1077" as="sourcePoint" />
-            <mxPoint x="1983" y="1417" as="targetPoint" />
+            <mxPoint x="2594.3618307426605" y="1036" as="sourcePoint" />
+            <mxPoint x="2589.020052310375" y="1190" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e10" edge="1" parent="1" source="P14" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="P15" value="兜底摘要">
+        <mxCell id="e9" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-3" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-5" value="摘要就绪">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="2352" y="1473" as="sourcePoint" />
-            <mxPoint x="1983" y="1587" as="targetPoint" />
+            <mxPoint x="2417.019466073415" y="1036" as="sourcePoint" />
+            <mxPoint x="2010.033575825406" y="1510" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e11" edge="1" parent="1" source="P15" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D2" value="新笔记">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="e10" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-4" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="cC13Kz3hTqTNKW7Jbnkk-5" value="兜底摘要">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2373" y="1492.2097625329816" as="sourcePoint" />
+            <mxPoint x="2040" y="1640.8956185567013" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e12" edge="1" parent="1" source="P15" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" target="f7S6bDtn5v77WmVMMy-G-1" value="删草稿">
+        <mxCell id="e11" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-5" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D2" value="新笔记">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2040" y="1740.7607416127134" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="cC13Kz3hTqTNKW7Jbnkk-5" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" target="f7S6bDtn5v77WmVMMy-G-1" value="删草稿">
           <mxGeometry relative="1" as="geometry">
             <Array as="points" />
-            <mxPoint x="1587" y="1587" as="sourcePoint" />
+            <mxPoint x="1615" y="1649.2481290926098" as="sourcePoint" />
             <mxPoint x="1020" y="323" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="f7S6bDtn5v77WmVMMy-G-1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="D1 草稿库" vertex="1">
           <mxGeometry height="153" width="482" x="811" y="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="cC13Kz3hTqTNKW7Jbnkk-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;span style=&quot;font-family: SimSun; font-size: 34px;&quot;&gt;P1.1 编辑与自动保存&lt;/span&gt;" vertex="1">
+          <mxGeometry height="395" width="395" x="887" y="533" as="geometry" />
+        </mxCell>
+        <mxCell id="cC13Kz3hTqTNKW7Jbnkk-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;span style=&quot;font-family: SimSun; font-size: 34px;&quot;&gt;P1.2 发布前校验&lt;/span&gt;" vertex="1">
+          <mxGeometry height="432" width="432" x="1659" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="cC13Kz3hTqTNKW7Jbnkk-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;span style=&quot;font-family: SimSun; font-size: 34px;&quot;&gt;P1.3 AI 摘要生成&lt;/span&gt;" vertex="1">
+          <mxGeometry height="430" width="430" x="2380" y="614" as="geometry" />
+        </mxCell>
+        <mxCell id="cC13Kz3hTqTNKW7Jbnkk-4" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;span style=&quot;font-family: SimSun; font-size: 34px;&quot;&gt;P1.4 首段截断兜底&lt;/span&gt;" vertex="1">
+          <mxGeometry height="421" width="421" x="2393" y="1214" as="geometry" />
+        </mxCell>
+        <mxCell id="cC13Kz3hTqTNKW7Jbnkk-5" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;span style=&quot;font-family: SimSun; font-size: 34px;&quot;&gt;P1.5 创建笔记并删草稿&lt;/span&gt;" vertex="1">
+          <mxGeometry height="365" width="365" x="1637" y="1533" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
