@@ -14,8 +14,8 @@ import { RoleBadge } from './components/RoleBadge'
  * 隐藏的管理后台 —— 仅 URL 进入（无导航按钮，呼应后端 /admin/* 对非管理员返回 404）。
  *
  * - 角色守卫：非 admin/superadmin 渲染「页面不存在」NotFound 视图，不泄露后台存在。
- * - 三 Tab：概览（统计 + 内置 SVG 可视化）/ 用户（表 + 重置密码 + 导入 + 升降级）/
- *   资料（全量资料 + 删除）。
+ * - 四 Tab：概览（统计 + 内置 SVG 可视化）/ 用户（表 + 重置密码 + 导入 + 升降级）/
+ *   资料（全量资料 + 删除）/ 工单（举报处理 + AI 预审）。
  * - 后端对每个写操作再次鉴权（层级守卫），前端按权限隐藏按钮只是 UX。
  */
 export function AdminPage() {

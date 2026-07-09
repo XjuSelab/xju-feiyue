@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -47,7 +47,7 @@ const inputCls =
 
 export function CollectionsTab() {
   const collectionsQ = useMyCollections(true)
-  const collections = collectionsQ.data ?? []
+  const collections = useMemo(() => collectionsQ.data ?? [], [collectionsQ.data])
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
   useEffect(() => {
