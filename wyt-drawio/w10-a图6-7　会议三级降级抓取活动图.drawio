@@ -1,0 +1,89 @@
+<mxfile host="Electron">
+  <diagram name="第 1 页" id="AivLJ3nGcWItEjIXmn5n">
+    <mxGraphModel dx="1842" dy="1118" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-22" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="开始" vertex="1">
+          <mxGeometry height="50" width="80" x="374" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-23" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="读取due conferences" vertex="1">
+          <mxGeometry height="40" width="120" x="354" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-24" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-42" connectable="0" parent="eMTKGkIRlJLUlTHgR-c0-24" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="否" vertex="1">
+          <mxGeometry relative="1" x="-0.0689" y="-3" as="geometry">
+            <mxPoint y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-25" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-41" connectable="0" parent="eMTKGkIRlJLUlTHgR-c0-25" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="是" vertex="1">
+          <mxGeometry relative="1" x="-0.2" y="1" as="geometry">
+            <mxPoint x="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-3" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="是否有待抓取记录" vertex="1">
+          <mxGeometry height="70" width="130" x="349" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-26" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="拉取ccfddl allconf/allacc" vertex="1">
+          <mxGeometry height="40" width="146" x="341" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-27" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="遍历会议" vertex="1">
+          <mxGeometry height="40" width="120" x="354" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="结束：updated=0" vertex="1">
+          <mxGeometry height="40" width="120" x="550" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-28" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-43" connectable="0" parent="eMTKGkIRlJLUlTHgR-c0-28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="是" vertex="1">
+          <mxGeometry relative="1" x="0.4273" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-29" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="eMTKGkIRlJLUlTHgR-c0-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-44" connectable="0" parent="eMTKGkIRlJLUlTHgR-c0-29" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="否" vertex="1">
+          <mxGeometry relative="1" x="0.4111" y="1" as="geometry">
+            <mxPoint x="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-8" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="ccfddl是否匹配" vertex="1">
+          <mxGeometry height="70" width="130" x="349" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="从YAML抽取dealine/地点/会期/录取率" vertex="1">
+          <mxGeometry height="40" width="120" x="229" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-12" edge="1" parent="1" source="eMTKGkIRlJLUlTHgR-c0-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="539" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eMTKGkIRlJLUlTHgR-c0-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="DDG搜索CFP页面" vertex="1">
+          <mxGeometry height="40" width="120" x="479" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="CRrzt7-RWb3hjVxUqFLp-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="实现数据的原子替换与只读引擎热加载" vertex="1">
+          <mxGeometry height="60" width="120" x="479" y="631" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
