@@ -1,0 +1,98 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图4-1 系统流程图" name="图4-1 系统流程图">
+    <mxGraphModel dx="2989" dy="1886" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3003" pageHeight="2663" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="U" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=process;size=0.06;" value="用户 / 管理员" vertex="1">
+          <mxGeometry height="181" width="737" x="1133" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="SPA" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="浏览器 · React 18 SPA" vertex="1">
+          <mxGeometry height="170" width="737" x="1133" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="NG" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="nginx 反向代理 静态资源直出 + API 反向代理" vertex="1">
+          <mxGeometry height="187" width="850" x="1077" y="742" as="geometry" />
+        </mxCell>
+        <mxCell id="BE" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;align=center;" value="" vertex="1">
+          <mxGeometry height="907" width="1020" x="992" y="1054" as="geometry" />
+        </mxCell>
+        <mxCell id="BElbl" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="FastAPI 单体后端（routes → services → db）" vertex="1">
+          <mxGeometry height="57" width="907" x="1037" y="1082" as="geometry" />
+        </mxCell>
+        <mxCell id="R" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="路由层 routes" vertex="1">
+          <mxGeometry height="153" width="623" x="1190" y="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="S" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="服务层 services" vertex="1">
+          <mxGeometry height="153" width="623" x="1190" y="1417" as="geometry" />
+        </mxCell>
+        <mxCell id="D" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="数据层 db（SQLAlchemy）" vertex="1">
+          <mxGeometry height="153" width="623" x="1190" y="1643" as="geometry" />
+        </mxCell>
+        <mxCell id="DB" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="SQLite 主库 labnotes.db" vertex="1">
+          <mxGeometry height="170" width="737" x="1133" y="2097" as="geometry" />
+        </mxCell>
+        <mxCell id="AI" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;shape=process;size=0.06;" value="外部 AI 服务 DeepSeek · OpenAI 兼容" vertex="1">
+          <mxGeometry height="210" width="623" x="2210" y="1332" as="geometry" />
+        </mxCell>
+        <mxCell id="MOD" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;dashed=1;align=center;" value="AI 审查分类（规划）" vertex="1">
+          <mxGeometry height="153" width="623" x="2210" y="1672" as="geometry" />
+        </mxCell>
+        <mxCell id="HF" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;dashed=1;shape=partialRectangle;top=1;bottom=1;left=1;right=0;" value="HF 私有 Dataset · 灾备快照" vertex="1">
+          <mxGeometry height="170" width="680" x="2153" y="2097" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="U" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="SPA" value="操作">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="SPA" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="NG" value="HTTPS 请求">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="NG" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="R" value="REST · JWT">
+          <mxGeometry relative="1" x="-0.4023" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="R" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="S" value="复杂查询/AI/鉴权">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="R" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D" value="轻量写入">
+          <mxGeometry relative="1" x="0.0986" y="-31" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1133" y="1266" />
+              <mxPoint x="1133" y="1720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="S" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="D" value="ORM 查询">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="D" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="DB" value="读写">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="S" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="AI" value="润色 / 摘要">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="S" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="MOD" value="审查(规划)">
+          <mxGeometry relative="1" x="0.6386" y="28" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1983" y="1503" />
+              <mxPoint x="1983" y="1748" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="DB" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="HF" value="cron 快照">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="SPA" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="U" value="页面响应">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1955" y="510" />
+              <mxPoint x="1955" y="204" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

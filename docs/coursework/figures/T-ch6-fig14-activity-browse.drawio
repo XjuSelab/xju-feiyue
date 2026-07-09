@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-14 活动图·信息流筛选排序分页" name="图6-14 活动图·信息流筛选排序分页">
+    <mxGraphModel dx="996" dy="629" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2550" pageHeight="3343" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="a1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="选择分类（7 类）" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="输入关键词" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="499" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="选择标签" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="742" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="切换排序（最新/热门/我赞过）" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="986" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="GET /notes（游标 + 过滤参数）" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="1230" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="后端应用层过滤 + 排序" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="1473" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="keyset 游标分页（每页 6~8）" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="1717" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="返回列表 + nextCursor" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="1961" as="geometry" />
+        </mxCell>
+        <mxCell id="a9" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="前端渲染笔记卡片" vertex="1">
+          <mxGeometry height="142" width="963" x="538" y="2204" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rhombus=;" value="有下一页 且滚动到底？" vertex="1">
+          <mxGeometry height="255" width="510" x="765" y="2448" as="geometry" />
+        </mxCell>
+        <mxCell id="f" parent="1" style="ellipse=;shape=endState;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="74" width="74" x="983" y="2873" as="geometry" />
+        </mxCell>
+        <mxCell id="more" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=30;" value="加载更多 更新游标" vertex="1">
+          <mxGeometry height="142" width="567" x="1615" y="2476" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="a1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="a2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="a3" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="a4" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="a5" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="a6" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="a7" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="a8" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a9" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="a9" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="d1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="d1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="f" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="d1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="more" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="more" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="a9" value="追加列表">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2352" y="2476" />
+              <mxPoint x="2352" y="2275" />
+            </Array>
+            <mxPoint x="1898" y="2476" as="sourcePoint" />
+            <mxPoint x="1502" y="2275" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PgIwJrOxzdahjyPdYed0-1" edge="1" parent="1" style="html=1;verticalAlign=bottom;startArrow=circle;startFill=1;endArrow=open;startSize=6;endSize=8;curved=0;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="a1" value="">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="1020" y="136" as="sourcePoint" />
+            <mxPoint x="1459" y="311" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

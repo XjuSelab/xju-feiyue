@@ -43,6 +43,14 @@ export const NoteSchema = z.object({
   readMinutes: z.number().int().positive(),
   /** Whether the current viewer has liked this note. Anon viewers see false. */
   likedByMe: z.boolean(),
+  /**
+   * Dislike / favorite state. Backend always returns these (CamelModel
+   * defaults); `.default()` keeps dev mock fixtures + older cached payloads
+   * parseable without them. Dislike count is not shown publicly (see UI).
+   */
+  dislikes: z.number().int().nonnegative().default(0),
+  dislikedByMe: z.boolean().default(false),
+  favoritedByMe: z.boolean().default(false),
 })
 export type Note = z.infer<typeof NoteSchema>
 

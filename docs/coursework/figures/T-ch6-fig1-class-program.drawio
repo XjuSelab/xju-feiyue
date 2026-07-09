@@ -1,0 +1,455 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-1 程序结构类图" name="图6-1 程序结构类图">
+    <mxGraphModel dx="5230" dy="3300" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="4420" pageHeight="4165" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="band_① 前端表现层  React 组件（boundary）" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;align=center;" value="" vertex="1">
+          <mxGeometry height="808" width="4250" x="85" y="128" as="geometry" />
+        </mxCell>
+        <mxCell id="bandlbl_① 前端表现层  React 组件（boundary）" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="① 前端表现层  React 组件（boundary）" vertex="1">
+          <mxGeometry height="57" width="4193" x="125" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="band_② 前端接口层  API 封装 / 数据契约" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;align=center;" value="" vertex="1">
+          <mxGeometry height="581" width="4250" x="85" y="1006" as="geometry" />
+        </mxCell>
+        <mxCell id="bandlbl_② 前端接口层  API 封装 / 数据契约" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="② 前端接口层  API 封装 / 数据契约" vertex="1">
+          <mxGeometry height="57" width="4193" x="125" y="1028" as="geometry" />
+        </mxCell>
+        <mxCell id="band_③ 后端路由层  routes（control · FastAPI）" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;align=center;" value="" vertex="1">
+          <mxGeometry height="949" width="4250" x="85" y="1658" as="geometry" />
+        </mxCell>
+        <mxCell id="bandlbl_③ 后端路由层  routes（control · FastAPI）" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="③ 后端路由层  routes（control · FastAPI）" vertex="1">
+          <mxGeometry height="57" width="4193" x="125" y="1680" as="geometry" />
+        </mxCell>
+        <mxCell id="band_④ 后端服务层  services（control）" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;align=center;" value="" vertex="1">
+          <mxGeometry height="708" width="3258" x="85" y="2678" as="geometry" />
+        </mxCell>
+        <mxCell id="bandlbl_④ 后端服务层  services（control）" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="④ 后端服务层  services（control）" vertex="1">
+          <mxGeometry height="57" width="3202" x="125" y="2700" as="geometry" />
+        </mxCell>
+        <mxCell id="band_⑤ 数据层  models（entity · SQLAlchemy ORM）" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;align=center;" value="" vertex="1">
+          <mxGeometry height="609" width="4250" x="85" y="3457" as="geometry" />
+        </mxCell>
+        <mxCell id="bandlbl_⑤ 数据层  models（entity · SQLAlchemy ORM）" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="⑤ 数据层  models（entity · SQLAlchemy ORM）" vertex="1">
+          <mxGeometry height="57" width="4193" x="125" y="3479" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» WritePage" vertex="1">
+          <mxGeometry height="431" width="623" x="156" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage_a0" parent="WritePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- draftStore" vertex="1">
+          <mxGeometry height="57" width="623" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage_a1" parent="WritePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- aiState" vertex="1">
+          <mxGeometry height="57" width="623" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage_sep" parent="WritePage" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="623" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage_m0" parent="WritePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ autoSave()" vertex="1">
+          <mxGeometry height="57" width="623" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage_m1" parent="WritePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ aiPolish()" vertex="1">
+          <mxGeometry height="57" width="623" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="WritePage_m2" parent="WritePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ publish()" vertex="1">
+          <mxGeometry height="57" width="623" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="BrowsePage" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» BrowsePage" vertex="1">
+          <mxGeometry height="374" width="609" x="850" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="BrowsePage_a0" parent="BrowsePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- filters" vertex="1">
+          <mxGeometry height="57" width="609" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="BrowsePage_a1" parent="BrowsePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- cursor" vertex="1">
+          <mxGeometry height="57" width="609" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="BrowsePage_sep" parent="BrowsePage" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="609" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="BrowsePage_m0" parent="BrowsePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ filterSort()" vertex="1">
+          <mxGeometry height="57" width="609" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="BrowsePage_m1" parent="BrowsePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ loadMore()" vertex="1">
+          <mxGeometry height="57" width="609" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="NoteDetailPage" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» NoteDetailPage" vertex="1">
+          <mxGeometry height="374" width="638" x="1530" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="NoteDetailPage_a0" parent="NoteDetailPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- noteId" vertex="1">
+          <mxGeometry height="57" width="638" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="NoteDetailPage_a1" parent="NoteDetailPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- cmtMode" vertex="1">
+          <mxGeometry height="57" width="638" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="NoteDetailPage_sep" parent="NoteDetailPage" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="638" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="NoteDetailPage_m0" parent="NoteDetailPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ like()" vertex="1">
+          <mxGeometry height="57" width="638" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="NoteDetailPage_m1" parent="NoteDetailPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ toggleCmtMode()" vertex="1">
+          <mxGeometry height="57" width="638" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» CommentSection" vertex="1">
+          <mxGeometry height="431" width="666" x="2238" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection_a0" parent="CommentSection" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- comments" vertex="1">
+          <mxGeometry height="57" width="666" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection_a1" parent="CommentSection" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- anchor" vertex="1">
+          <mxGeometry height="57" width="666" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection_sep" parent="CommentSection" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="666" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection_m0" parent="CommentSection" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ createComment()" vertex="1">
+          <mxGeometry height="57" width="666" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection_m1" parent="CommentSection" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ deleteComment()" vertex="1">
+          <mxGeometry height="57" width="666" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentSection_m2" parent="CommentSection" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ anchorJump()" vertex="1">
+          <mxGeometry height="57" width="666" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="ProfilePage" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» ProfilePage" vertex="1">
+          <mxGeometry height="317" width="609" x="2975" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="ProfilePage_a0" parent="ProfilePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- activeTab" vertex="1">
+          <mxGeometry height="57" width="609" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="ProfilePage_sep" parent="ProfilePage" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="609" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ProfilePage_m0" parent="ProfilePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ notesTab()" vertex="1">
+          <mxGeometry height="57" width="609" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="ProfilePage_m1" parent="ProfilePage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ draftsTab()" vertex="1">
+          <mxGeometry height="57" width="609" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="AdminPage" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» AdminPage" vertex="1">
+          <mxGeometry height="317" width="609" x="3655" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="AdminPage_a0" parent="AdminPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- role" vertex="1">
+          <mxGeometry height="57" width="609" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="AdminPage_sep" parent="AdminPage" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="609" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="AdminPage_m0" parent="AdminPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ manageUsers()" vertex="1">
+          <mxGeometry height="57" width="609" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="AdminPage_m1" parent="AdminPage" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ loginAudit()" vertex="1">
+          <mxGeometry height="57" width="609" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«boundary» ApiClient" vertex="1">
+          <mxGeometry height="431" width="907" x="156" y="1133" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient_a0" parent="ApiClient" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- baseURL: str" vertex="1">
+          <mxGeometry height="57" width="907" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient_a1" parent="ApiClient" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- token: JWT" vertex="1">
+          <mxGeometry height="57" width="907" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient_sep" parent="ApiClient" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="907" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient_m0" parent="ApiClient" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ get() / post() / put() / del()" vertex="1">
+          <mxGeometry height="57" width="907" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient_m1" parent="ApiClient" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ authBearer()" vertex="1">
+          <mxGeometry height="57" width="907" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="ApiClient_m2" parent="ApiClient" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ zodParse(schema)" vertex="1">
+          <mxGeometry height="57" width="907" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«pydantic · Zod» DTO / Schemas" vertex="1">
+          <mxGeometry height="408" width="1360" x="1218" y="1133" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas_a0" parent="Schemas" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="NoteOut · DraftOut · NoteCard" vertex="1">
+          <mxGeometry height="57" width="1360" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas_a1" parent="Schemas" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="CommentIn · CommentOut · PaginatedComments" vertex="1">
+          <mxGeometry height="57" width="1360" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas_a2" parent="Schemas" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="CollectionOut · CollectionDetailOut" vertex="1">
+          <mxGeometry height="57" width="1360" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas_a3" parent="Schemas" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="AIComposeIn/Out · CheckinOut · XpEventOut" vertex="1">
+          <mxGeometry height="57" width="1360" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas_sep" parent="Schemas" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="1360" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="Schemas_m0" parent="Schemas" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="" vertex="1">
+          <mxGeometry height="34" width="1360" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» NotesRoutes" vertex="1">
+          <mxGeometry height="487" width="638" x="142" y="1842" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_a0" parent="NotesRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- svc: NotesService" vertex="1">
+          <mxGeometry height="57" width="638" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_a1" parent="NotesRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db" vertex="1">
+          <mxGeometry height="57" width="638" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_sep" parent="NotesRoutes" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="638" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_m0" parent="NotesRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ list()" vertex="1">
+          <mxGeometry height="57" width="638" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_m1" parent="NotesRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ detail()" vertex="1">
+          <mxGeometry height="57" width="638" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_m2" parent="NotesRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ edit()" vertex="1">
+          <mxGeometry height="57" width="638" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesRoutes_m3" parent="NotesRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ delete()" vertex="1">
+          <mxGeometry height="57" width="638" y="419" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» DraftsRoutes" vertex="1">
+          <mxGeometry height="431" width="652" x="850" y="1842" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes_a0" parent="DraftsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- ai: AiComposeService" vertex="1">
+          <mxGeometry height="57" width="652" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes_a1" parent="DraftsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db" vertex="1">
+          <mxGeometry height="57" width="652" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes_sep" parent="DraftsRoutes" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="652" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes_m0" parent="DraftsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ create()" vertex="1">
+          <mxGeometry height="57" width="652" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes_m1" parent="DraftsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ update()" vertex="1">
+          <mxGeometry height="57" width="652" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="DraftsRoutes_m2" parent="DraftsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ publish()" vertex="1">
+          <mxGeometry height="57" width="652" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» InteractionsRoutes" vertex="1">
+          <mxGeometry height="487" width="722" x="1572" y="1842" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_a0" parent="InteractionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- cmt: CommentsService" vertex="1">
+          <mxGeometry height="57" width="722" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_a1" parent="InteractionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db" vertex="1">
+          <mxGeometry height="57" width="722" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_sep" parent="InteractionsRoutes" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="722" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_m0" parent="InteractionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ like() / dislike()" vertex="1">
+          <mxGeometry height="57" width="722" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_m1" parent="InteractionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ favorite()" vertex="1">
+          <mxGeometry height="57" width="722" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_m2" parent="InteractionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ createComment()" vertex="1">
+          <mxGeometry height="57" width="722" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="InteractionsRoutes_m3" parent="InteractionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ reactComment()" vertex="1">
+          <mxGeometry height="57" width="722" y="419" as="geometry" />
+        </mxCell>
+        <mxCell id="CollectionsRoutes" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» CollectionsRoutes" vertex="1">
+          <mxGeometry height="374" width="666" x="2366" y="1842" as="geometry" />
+        </mxCell>
+        <mxCell id="CollectionsRoutes_a0" parent="CollectionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db" vertex="1">
+          <mxGeometry height="57" width="666" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="CollectionsRoutes_sep" parent="CollectionsRoutes" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="666" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="CollectionsRoutes_m0" parent="CollectionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ crud()" vertex="1">
+          <mxGeometry height="57" width="666" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="CollectionsRoutes_m1" parent="CollectionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ addEntry()" vertex="1">
+          <mxGeometry height="57" width="666" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="CollectionsRoutes_m2" parent="CollectionsRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ noteContext()" vertex="1">
+          <mxGeometry height="57" width="666" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="AiRoutes" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» AiRoutes" vertex="1">
+          <mxGeometry height="317" width="567" x="3102" y="1842" as="geometry" />
+        </mxCell>
+        <mxCell id="AiRoutes_a0" parent="AiRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- ai: AiComposeService" vertex="1">
+          <mxGeometry height="57" width="567" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="AiRoutes_sep" parent="AiRoutes" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="567" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="AiRoutes_m0" parent="AiRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ compose()" vertex="1">
+          <mxGeometry height="57" width="567" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="AiRoutes_m1" parent="AiRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ composeStream()" vertex="1">
+          <mxGeometry height="57" width="567" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthRoutes" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» AuthRoutes" vertex="1">
+          <mxGeometry height="374" width="567" x="3726" y="1842" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthRoutes_a0" parent="AuthRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db" vertex="1">
+          <mxGeometry height="57" width="567" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthRoutes_sep" parent="AuthRoutes" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="567" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthRoutes_m0" parent="AuthRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ login() / register()" vertex="1">
+          <mxGeometry height="57" width="567" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthRoutes_m1" parent="AuthRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ dailyCheckin()" vertex="1">
+          <mxGeometry height="57" width="567" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthRoutes_m2" parent="AuthRoutes" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ xpEvents()" vertex="1">
+          <mxGeometry height="57" width="567" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesService" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» NotesService" vertex="1">
+          <mxGeometry height="374" width="708" x="198" y="2833" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesService_a0" parent="NotesService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db: AsyncSession" vertex="1">
+          <mxGeometry height="57" width="708" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesService_sep" parent="NotesService" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="708" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesService_m0" parent="NotesService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ listNotes()" vertex="1">
+          <mxGeometry height="57" width="708" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesService_m1" parent="NotesService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ detail()" vertex="1">
+          <mxGeometry height="57" width="708" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="NotesService_m2" parent="NotesService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ edit() / delete()" vertex="1">
+          <mxGeometry height="57" width="708" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentsService" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» CommentsService" vertex="1">
+          <mxGeometry height="261" width="694" x="1133" y="2833" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentsService_a0" parent="CommentsService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- db: AsyncSession" vertex="1">
+          <mxGeometry height="57" width="694" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentsService_sep" parent="CommentsService" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="694" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="CommentsService_m0" parent="CommentsService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ listComments()  «keyset»" vertex="1">
+          <mxGeometry height="57" width="694" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«control» AiComposeService" vertex="1">
+          <mxGeometry height="431" width="765" x="2040" y="2833" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService_a0" parent="AiComposeService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- client: OpenAI" vertex="1">
+          <mxGeometry height="57" width="765" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService_a1" parent="AiComposeService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="- model: str" vertex="1">
+          <mxGeometry height="57" width="765" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService_sep" parent="AiComposeService" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="765" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService_m0" parent="AiComposeService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ polish()" vertex="1">
+          <mxGeometry height="57" width="765" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService_m1" parent="AiComposeService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ summarizeStream()" vertex="1">
+          <mxGeometry height="57" width="765" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="AiComposeService_m2" parent="AiComposeService" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ fallbackTruncate()" vertex="1">
+          <mxGeometry height="57" width="765" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="AiExternal" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«external» AI 服务" vertex="1">
+          <mxGeometry height="317" width="765" x="3485" y="2833" as="geometry" />
+        </mxCell>
+        <mxCell id="AiExternal_a0" parent="AiExternal" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ endpoint: /v1/chat/completions" vertex="1">
+          <mxGeometry height="57" width="765" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="AiExternal_a1" parent="AiExternal" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ model" vertex="1">
+          <mxGeometry height="57" width="765" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="AiExternal_sep" parent="AiExternal" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="765" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="AiExternal_m0" parent="AiExternal" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="+ chatCompletions()  «一次性/SSE»" vertex="1">
+          <mxGeometry height="57" width="765" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM" parent="1" style="swimlane=;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=SimSun;fontSize=34;" value="«entity» ORM 模型（SQLAlchemy · 详见图5-2）" vertex="1">
+          <mxGeometry height="408" width="3627" x="368" y="3584" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM_a0" parent="ORM" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="User · Note · Draft · Comment" vertex="1">
+          <mxGeometry height="57" width="3627" y="113" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM_a1" parent="ORM" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="Like · NoteDislike · Favorite · CommentReaction" vertex="1">
+          <mxGeometry height="57" width="3627" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM_a2" parent="ORM" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="Collection · CollectionEntry · CheckIn · XpEvent · LoginEvent" vertex="1">
+          <mxGeometry height="57" width="3627" y="227" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM_a3" parent="ORM" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="Report · Block（规划·预留）" vertex="1">
+          <mxGeometry height="57" width="3627" y="283" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM_sep" parent="ORM" style="line=;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;html=1;" value="" vertex="1">
+          <mxGeometry height="23" width="3627" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="ORM_m0" parent="ORM" style="text=;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=SimSun;fontSize=34;html=1;" value="" vertex="1">
+          <mxGeometry height="34" width="3627" y="363" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="NoteDetailPage" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="ApiClient" value="调用">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="WritePage" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="ApiClient" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="833" y="972" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="ApiClient" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="InteractionsRoutes" value="REST JSON + JWT">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1358" y="1710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="InteractionsRoutes" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="CommentsService" value="复用查询">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="NotesRoutes" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;entryX=1;entryY=0;entryDx=0;entryDy=0;" target="NotesService" value="复用查询">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="934" y="2570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="AiRoutes" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="AiComposeService" value="AI 编排">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2918" y="2635" />
+              <mxPoint x="2422" y="2678" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="AuthRoutes" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="ORM" value="签到/经验写入">
+          <mxGeometry relative="1" x="0.4394" y="-77" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="4009" y="2550" />
+              <mxPoint x="4373" y="2550" />
+              <mxPoint x="4350" y="3551" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="InteractionsRoutes" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;entryX=0.428;entryY=-0.308;entryDx=0;entryDy=0;entryPerimeter=0;" target="bandlbl_⑤ 数据层  models（entity · SQLAlchemy ORM）" value="轻量写入">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="NotesService" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="ORM" value="SQLAlchemy 查询">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="AiComposeService" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="AiExternal" value="AI 润色/摘要">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

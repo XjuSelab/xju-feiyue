@@ -1,0 +1,161 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-9 顺序图·举报审查裁决(规划)" name="图6-9 顺序图·举报审查裁决(规划)">
+    <mxGraphModel dx="4184" dy="2640" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3910" pageHeight="2323" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="U" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=none;strokeColor=#000000;size=107;participant=umlActor;verticalLabelPosition=bottom;labelPosition=center;" value="注册用户" vertex="1">
+          <mxGeometry height="2000" width="96" x="215" y="131" as="geometry" />
+        </mxCell>
+        <mxCell id="W" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=60;" value="前端" vertex="1">
+          <mxGeometry height="2000" width="538" x="581" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="jHqlKSbrRNCzeZSdilEu-1" parent="W" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="364" width="10" x="264" y="286" as="geometry" />
+        </mxCell>
+        <mxCell id="API" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=76;" value="ReportsRoutes（规划）" vertex="1">
+          <mxGeometry height="2000" width="538" x="1261" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="jHqlKSbrRNCzeZSdilEu-2" parent="API" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="1406" width="10" x="264" y="402" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="API" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-403" y="415.0000000000002" as="sourcePoint" />
+            <mxPoint x="271.5" y="415.0000000000002" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DB" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=63;" value="DB · reports" vertex="1">
+          <mxGeometry height="2013" width="525" x="1897" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="jHqlKSbrRNCzeZSdilEu-3" parent="DB" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="1317" width="10" x="264" y="508" as="geometry" />
+        </mxCell>
+        <mxCell id="MOD" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=55;" value="AI 审查任务（规划）" vertex="1">
+          <mxGeometry height="2000" width="538" x="2508" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="jHqlKSbrRNCzeZSdilEu-5" parent="MOD" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="918" width="10" x="264" y="776" as="geometry" />
+        </mxCell>
+        <mxCell id="t11" parent="MOD" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="工单列表 + 快照 + 置信度" vertex="1">
+          <mxGeometry height="45" width="850" x="-464" y="1461" as="geometry" />
+        </mxCell>
+        <mxCell id="ADM" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=none;strokeColor=#000000;size=86;participant=umlActor;verticalLabelPosition=bottom;labelPosition=center;" value="管理员" vertex="1">
+          <mxGeometry height="2000" width="67" x="3454" y="159" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="点击「举报」，选择类型" vertex="1">
+          <mxGeometry height="45" width="850" x="133" y="371" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="POST /reports" vertex="1">
+          <mxGeometry height="45" width="850" x="765" y="484" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="创建工单 pending" vertex="1">
+          <mxGeometry height="45" width="850" x="1417" y="592" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="已受理" vertex="1">
+          <mxGeometry height="45" width="850" x="765" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="异步送审（不阻塞受理）" vertex="1">
+          <mxGeometry height="45" width="850" x="1728" y="858" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="" vertex="1">
+          <mxGeometry height="45" width="850" x="2352" y="966" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="AI 分类" vertex="1">
+          <mxGeometry height="85" width="737" x="3009" y="1003" as="geometry" />
+        </mxCell>
+        <mxCell id="t8" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="写回结论；高置信→自动隐藏目标" vertex="1">
+          <mxGeometry height="45" width="850" x="2040" y="1164" as="geometry" />
+        </mxCell>
+        <mxCell id="t9" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="打开举报队列" vertex="1">
+          <mxGeometry height="45" width="850" x="2082" y="1363" as="geometry" />
+        </mxCell>
+        <mxCell id="t10" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="查工单 + AI 结论" vertex="1">
+          <mxGeometry height="45" width="850" x="1417" y="1476" as="geometry" />
+        </mxCell>
+        <mxCell id="t12" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="裁决：删除 / 恢复" vertex="1">
+          <mxGeometry height="45" width="850" x="2082" y="1748" as="geometry" />
+        </mxCell>
+        <mxCell id="t13" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="更新工单 resolved / dismissed" vertex="1">
+          <mxGeometry height="45" width="850" x="1417" y="1856" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-1" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="269" y="425" as="sourcePoint" />
+            <mxPoint x="850" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-3" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1530" y="646" as="sourcePoint" />
+            <mxPoint x="2153" y="646" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="jHqlKSbrRNCzeZSdilEu-2" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;exitX=0.8;exitY=0.162;exitDx=0;exitDy=0;exitPerimeter=0;" target="jHqlKSbrRNCzeZSdilEu-1" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1530" y="754" as="sourcePoint" />
+            <mxPoint x="850" y="754" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1530" y="912" as="sourcePoint" />
+            <mxPoint x="2777" y="912" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2777" y="1020" as="sourcePoint" />
+            <mxPoint x="2777" y="1020" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2986" y="997" />
+              <mxPoint x="2986" y="1071" />
+            </Array>
+            <mxPoint x="2777" y="997" as="sourcePoint" />
+            <mxPoint x="2794" y="1071" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-3" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2777" y="1218" as="sourcePoint" />
+            <mxPoint x="2153" y="1218" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="3485" y="1417" as="sourcePoint" />
+            <mxPoint x="1530" y="1417" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1530" y="1530" as="sourcePoint" />
+            <mxPoint x="2153" y="1530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2153" y="1638" as="sourcePoint" />
+            <mxPoint x="3485" y="1638" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="jHqlKSbrRNCzeZSdilEu-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="3485" y="1802" as="sourcePoint" />
+            <mxPoint x="1530" y="1802" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1530" y="1910" as="sourcePoint" />
+            <mxPoint x="2153" y="1910" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

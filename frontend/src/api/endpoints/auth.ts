@@ -8,6 +8,12 @@ import {
   type UserMeUpdate,
   type PasswordChange,
 } from '../schemas/user'
+import {
+  CheckInSchema,
+  XpEventListSchema,
+  type CheckIn,
+  type XpEvent,
+} from '../schemas/growth'
 
 export const TOKEN_KEY = 'labnotes.auth.token'
 
@@ -58,6 +64,26 @@ export async function changePassword(body: PasswordChange): Promise<void> {
     path: '/auth/me/password',
     body,
     schema: z.null(),
+    headers: authHeaders(),
+  })
+}
+
+/** POST /auth/me/checkin — daily check-in; idempotent (alreadyCheckedIn). */
+export async function checkin(): Promise<CheckIn> {
+  return request({
+    method: 'POST',
+    path: '/auth/me/checkin',
+    schema: CheckInSchema,
+    headers: authHeaders(),
+  })
+}
+
+/** GET /auth/me/xp-events — recent experience ledger, newest first. */
+export async function xpEvents(): Promise<XpEvent[]> {
+  return request({
+    method: 'GET',
+    path: '/auth/me/xp-events',
+    schema: XpEventListSchema,
     headers: authHeaders(),
   })
 }

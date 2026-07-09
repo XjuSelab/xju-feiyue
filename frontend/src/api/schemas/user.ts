@@ -35,6 +35,9 @@ export const UserSchema = z.object({
   isClassCommittee: z.boolean().nullish(),
   /** 班委职务名称（班长 / 团支书 / …）；display only。 */
   committeeTitle: z.string().nullish(),
+  /** 经验值与等级（后端 UserOut）。`.default(0)` 兼容旧持久化 / mock。 */
+  exp: z.number().int().nonnegative().default(0),
+  level: z.number().int().nonnegative().default(0),
 })
 export type User = z.infer<typeof UserSchema>
 

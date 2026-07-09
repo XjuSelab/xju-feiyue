@@ -15,6 +15,8 @@ export type AuthState = {
   login: (sid: string, password: string) => Promise<User>
   logout: () => void
   enterAsGuest: () => void
+  /** Merge fields into the stored current user (e.g. exp/level after check-in). */
+  patchUser: (partial: Partial<User>) => void
   /** Read existing token at boot; sets authed mode if me() returns a user. */
   hydrateFromToken: () => Promise<void>
 }
@@ -46,6 +48,10 @@ const creator: StateCreator<
   },
   enterAsGuest: () => {
     set({ user: null, token: null, mode: 'guest' })
+  },
+  patchUser: (partial) => {
+    const u = get().user
+    if (u) set({ user: { ...u, ...partial } })
   },
   hydrateFromToken: async () => {
     const token = get().token ?? localStorage.getItem(authApi.TOKEN_KEY)

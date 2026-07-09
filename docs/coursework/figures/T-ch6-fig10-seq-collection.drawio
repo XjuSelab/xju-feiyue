@@ -1,0 +1,140 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-10 顺序图·合集上下文查询" name="图6-10 顺序图·合集上下文查询">
+    <mxGraphModel dx="2615" dy="1650" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3400" pageHeight="1757" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="C" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=none;strokeColor=#000000;size=90;participant=umlActor;verticalLabelPosition=bottom;labelPosition=center;" value="前端 / 调试客户端" vertex="1">
+          <mxGeometry height="1462" width="77" x="410" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="API" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=60;" value="CollectionsRoutes" vertex="1">
+          <mxGeometry height="1462" width="538" x="1091" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="DB" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=66;" value="DB · entries 表" vertex="1">
+          <mxGeometry height="1462" width="538" x="2054" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="1QRozSfQPWL_RqCteZRp-4" parent="DB" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="544" width="10" x="265" y="416" as="geometry" />
+        </mxCell>
+        <mxCell id="N" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fontFamily=SimSun;fontSize=34;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;size=64;" value="DB · notes/users" vertex="1">
+          <mxGeometry height="1462" width="538" x="2819" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="GET /notes/{id}/collection" vertex="1">
+          <mxGeometry height="45" width="850" x="482" y="371" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="查 collection_entries[note_id]" vertex="1">
+          <mxGeometry height="45" width="850" x="1417" y="502" as="geometry" />
+        </mxCell>
+        <mxCell id="fr3" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=none;strokeColor=#000000;dashed=1;align=center;" value="" vertex="1">
+          <mxGeometry height="215" width="1465" x="1085" y="635" as="geometry" />
+        </mxCell>
+        <mxCell id="frtab4" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="" vertex="1">
+          <mxGeometry height="62" width="226" x="1085" y="635" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="alt [无归属]" vertex="1">
+          <mxGeometry height="45" width="317" x="1108" y="643" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="无记录" vertex="1">
+          <mxGeometry height="45" width="850" x="1417" y="688" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="200 / null" vertex="1">
+          <mxGeometry height="45" width="850" x="442" y="828" as="geometry" />
+        </mxCell>
+        <mxCell id="fr8" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=none;strokeColor=#000000;dashed=1;align=center;" value="" vertex="1">
+          <mxGeometry height="482" width="2240" x="990" y="935" as="geometry" />
+        </mxCell>
+        <mxCell id="frtab9" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;align=center;" value="" vertex="1">
+          <mxGeometry height="62" width="340" x="990" y="935" as="geometry" />
+        </mxCell>
+        <mxCell id="t10" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=1;" value="[已归属合集]" vertex="1">
+          <mxGeometry height="45" width="317" x="1013" y="944" as="geometry" />
+        </mxCell>
+        <mxCell id="t11" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="collection_id" vertex="1">
+          <mxGeometry height="45" width="850" x="1417" y="989" as="geometry" />
+        </mxCell>
+        <mxCell id="t12" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="JOIN 同合集 visible 条目（排序）" vertex="1">
+          <mxGeometry height="45" width="850" x="1799" y="1102" as="geometry" />
+        </mxCell>
+        <mxCell id="t13" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="entries + author" vertex="1">
+          <mxGeometry height="45" width="850" x="1799" y="1216" as="geometry" />
+        </mxCell>
+        <mxCell id="t14" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="组装 currentIndex" vertex="1">
+          <mxGeometry height="85" width="737" x="1592" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="t15" parent="1" style="text=;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontFamily=SimSun;fontSize=34;fontColor=#000000;fontStyle=0;" value="collection + entries + currentIndex" vertex="1">
+          <mxGeometry height="45" width="850" x="482" y="1459" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="1QRozSfQPWL_RqCteZRp-2" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="453" y="425" as="sourcePoint" />
+            <mxPoint x="1360" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="1QRozSfQPWL_RqCteZRp-4" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="555" as="sourcePoint" />
+            <mxPoint x="2323" y="555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="1QRozSfQPWL_RqCteZRp-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2323" y="742" as="sourcePoint" />
+            <mxPoint x="1360" y="742" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1356" y="887" as="sourcePoint" />
+            <mxPoint x="449" y="887" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="1QRozSfQPWL_RqCteZRp-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2323" y="1043" as="sourcePoint" />
+            <mxPoint x="1360" y="1043" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="1QRozSfQPWL_RqCteZRp-5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="1156" as="sourcePoint" />
+            <mxPoint x="3088" y="1156" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="3088" y="1269" as="sourcePoint" />
+            <mxPoint x="1360" y="1269" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="1QRozSfQPWL_RqCteZRp-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1570" y="1354" />
+              <mxPoint x="1570" y="1428" />
+            </Array>
+            <mxPoint x="1360" y="1354" as="sourcePoint" />
+            <mxPoint x="1377" y="1428" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" style="html=1;rounded=0;endArrow=open;endFill=0;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="1513" as="sourcePoint" />
+            <mxPoint x="453" y="1513" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1QRozSfQPWL_RqCteZRp-3" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="1QRozSfQPWL_RqCteZRp-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="453" y="425" as="sourcePoint" />
+            <mxPoint x="1360" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1QRozSfQPWL_RqCteZRp-2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="1132" width="10" x="1355" y="407" as="geometry" />
+        </mxCell>
+        <mxCell id="1QRozSfQPWL_RqCteZRp-5" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="156" width="10" x="3083" y="1136" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

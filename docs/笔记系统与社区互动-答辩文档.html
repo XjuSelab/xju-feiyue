@@ -1,0 +1,166 @@
+<meta charset="utf-8">
+<title>笔记系统与社区互动模块 · 最终答辩文档（陶语涵）</title>
+<style>
+  :root{--navy:#004098;--red:#c8102e;--ink:#1a2740;--gray:#6b7686;
+    --l0:#f4f7fc;--l1:#e9eef7;--l2:#dce7f5;--line:#d5deeb;}
+  *{box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);
+    line-height:1.8;margin:0;background:#eaeff6;}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 26px 90px;}
+  h1{font-size:24px;color:var(--navy);margin:0 0 2px;}
+  .sub{color:var(--gray);font-size:13.5px;margin:0 0 14px;}
+  h2{font-size:18px;color:var(--navy);margin:28px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--l1);}
+  h2 .n{color:var(--red);}
+  code{background:var(--l1);color:#22437d;padding:1px 6px;border-radius:4px;
+    font-family:ui-monospace,Consolas,monospace;font-size:.85em;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px;
+    box-shadow:0 2px 8px rgba(0,64,152,.05);}
+  .grid{display:grid;grid-template-columns:132px 1fr;gap:4px 14px;font-size:13.6px;}
+  .grid dt{color:var(--red);font-weight:700;}
+  .grid dd{margin:0;color:#2c3a4d;}
+  .grid dd b{color:var(--navy);}
+  .demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:4px;}
+  .demo div{background:var(--l1);border:1px solid var(--line);border-left:3px solid var(--red);
+    border-radius:8px;padding:8px 12px;font-size:13px;}
+  .demo div b{display:block;color:var(--navy);}
+  .warn{background:#fdeef0;border:1px solid #f2c6cd;border-left:4px solid var(--red);
+    border-radius:10px;padding:12px 16px;font-size:13.4px;margin:12px 0;}
+  .warn b{color:var(--red)}
+  .script{background:#fff;border:1px solid var(--line);border-left:4px solid var(--navy);
+    border-radius:12px;padding:8px 22px 16px;box-shadow:0 2px 8px rgba(0,64,152,.05);}
+  .beat{display:flex;gap:14px;margin:14px 0;}
+  .beat .t{flex:0 0 80px;color:var(--red);font-weight:700;font-size:12.5px;padding-top:3px;}
+  .beat .p{flex:1;font-size:14.6px;}
+  .beat .p .lbl{display:block;color:var(--navy);font-weight:700;font-size:12.5px;margin-bottom:2px;}
+  .qa .q{color:var(--navy);font-weight:700;font-size:14.6px;margin:15px 0 4px;}
+  .qa .q::before{content:"Q　";color:var(--red);}
+  .qa .a{font-size:13.8px;margin:0 0 13px;color:#2c3a4d;}
+  .qa .a::before{content:"A　";color:var(--gray);font-weight:700;}
+  .sep{color:var(--red);font-weight:800;font-size:14px;margin:20px 0 2px;border-top:1px dashed var(--line);padding-top:14px;}
+  .flag{color:var(--red);font-weight:700;}
+</style>
+
+<div class="wrap">
+  <h1>笔记系统与社区互动模块 · 最终答辩文档</h1>
+  <p class="sub">陶语涵　·　依据《新疆大学飞跃手册》最终版　·　含熟悉卡 / 3 分钟讲稿 / 五个必演示闭环 / 16 条 Q&A</p>
+
+  <!-- ============ ① 模块速览 熟悉卡 ============ -->
+  <h2><span class="n">一、</span>模块速览（30 秒熟悉你负责的东西）</h2>
+  <div class="card">
+    <dl class="grid">
+      <dt>我负责</dt><dd><b>笔记系统与社区互动模块</b>——平台的内容生产与社区互动入口，是内容沉淀的核心闭环。</dd>
+      <dt>覆盖页面</dt><dd><code>/write</code> 写作页 · <code>/browse</code> 浏览页 · 笔记详情页 · 个人中心（部分入口后续接入）</dd>
+      <dt>核心接口</dt><dd><code>POST /notes/drafts/{id}/publish</code> · <code>POST /notes/{id}/comments</code> · <code>POST /notes/{id}/interaction</code> · <code>GET /notes/{id}/collection</code> · <code>POST /auth/checkin</code></dd>
+      <dt>核心数据表</dt><dd><b>Note</b>（发布态，status visible/deleted）· <b>Draft</b>（草稿）· <b>Comment</b>（自引用 parent_id）· <b>note_interactions</b>（唯一约束保幂等）· <b>Collection / collection_entries</b>（note_id 唯一→单归属）· <b>CheckIn / 经验</b></dd>
+      <dt>四条关键链路</dt><dd>① 草稿发布 ② 评论创建 ③ 赞踩收藏 ④ 合集上下文查询</dd>
+      <dt>一句话原则</dt><dd><b>前端校验只提升体验，后端校验决定权限和数据一致性；AI 只作辅助、可拒绝、可降级。</b></dd>
+      <dt>✅ 已实现</dt><dd>草稿发布、浏览、评论、赞踩、收藏、合集、签到经验 —— <b>均有代码或测试依据</b></dd>
+      <dt>🕐 后续/规划</dt><dd><span class="flag">举报、AI 审查、拉黑、等级徽章展示、合集拖拽排序</span> —— 保留设计口径，<b>不能说成已上线</b></dd>
+      <dt>相关配图</dt><dd>图4-x 用例/DFD · 图5-1 架构+类图 · 图6-1b 程序结构 · 图6-2 写作页 · 图6-3 浏览页 · 图6-4 发布与 AI 摘要降级顺序图</dd>
+    </dl>
+  </div>
+
+  <!-- ============ ② 五个必演示闭环 ============ -->
+  <h2><span class="n">二、</span>现场必演示的五个闭环（文档测试章点名要求）</h2>
+  <div class="demo">
+    <div><b>① 草稿→发布</b>草稿自动保存，发布生成公开笔记</div>
+    <div><b>② 匿名浏览</b>未登录也能读公开笔记、进详情</div>
+    <div><b>③ 登录评论</b>登录用户发表评论、楼中楼回复</div>
+    <div><b>④ 赞踩互斥</b>同一用户点赞取消、点踩生效、计数一致</div>
+    <div><b>⑤ 合集上下文</b>把笔记加入合集，详情页看到前一篇/后一篇</div>
+  </div>
+  <p class="sub" style="margin-top:8px;">文档原话：质量关键<b>不在单接口返回 200，而在多接口组合后状态一致</b>——发布后能检索到、详情能评论、收藏后个人入口能读到、加入合集能看前后篇。演示时按这五步走一遍最稳。</p>
+
+  <div class="warn"><b>口径红线（务必先记）：</b>文档明确写「举报、AI 审查、拉黑、等级徽章、合集拖拽排序 = 治理扩展 / 后续迭代，保留设计口径，<span class="flag">不描述为已完整上线</span>」。答辩必须与文档一致，别说这些已上线。</div>
+
+  <!-- ============ ③ 3分钟讲稿 ============ -->
+  <h2><span class="n">三、</span>完整讲稿（3 分钟 · 照读）</h2>
+  <div class="script">
+    <div class="beat"><div class="t">～20s 开场</div><div class="p">
+      各位老师好。我负责<b>笔记系统与社区互动模块</b>——平台的内容生产与互动入口，覆盖写作、浏览、详情、评论、点赞收藏和合集，是内容沉淀的核心闭环。我按需求、概要、详细、测试四个阶段讲我做了什么。
+    </div></div>
+    <div class="beat"><div class="t">～30s 需求</div><div class="p">
+      <span class="lbl">① 需求分析</span>
+      我厘清了匿名访客、注册用户、作者、管理员四类角色的权限边界，并把功能分成<b>四层优先级</b>：写作、发布、浏览、互动是必须可演示可测试的核心闭环；合集、签到后端优先于前端；AI 只作辅助、失败不阻断；举报、审查、拉黑保留设计口径、作为后续。这个分层是整个模块的主线。
+    </div></div>
+    <div class="beat"><div class="t">～40s 概要</div><div class="p">
+      <span class="lbl">② 概要设计</span>
+      模块前后端分离，后端 <code>routes/services/schemas/models</code> 分层，写入统一收敛到服务层；对象模型<b>以 Note 为中心</b>，Draft 管写作、Note 管发布、Comment 与互动管反馈、Collection 管整理。三个关键约束我在这层定死：评论 <code>parent_id</code> 自引用但<b>限两层楼中楼</b>；赞踩收藏用<b>唯一约束保证幂等</b>、赞踩互斥服务层处理；合集条目 <code>note_id</code> 唯一，保证一篇笔记<b>只属一个合集</b>。接口边界也划清：只消费鉴权给的身份，AI 只走统一封装。
+    </div></div>
+    <div class="beat"><div class="t">～45s 详细</div><div class="p">
+      <span class="lbl">③ 详细设计</span>
+      详细设计围绕<b>四条关键链路</b>展开，都遵循「前端校验提体验、后端校验定权限和一致性」。最典型是<b>发布链路</b>：后端先读草稿、确认作者、校验标题正文分类；摘要为空就调 AI，AI 失败用<b>本地截断兜底</b>；最后在<b>一个事务</b>里写 Note、删 Draft，AI 失败绝不回滚主流程。评论采用平铺存储、逻辑分层展示，服务层限制 parent_id 只指向顶层，避免无限嵌套。赞踩互斥用「写入前先移除对立操作」实现，收藏和签到靠唯一约束保幂等。
+    </div></div>
+    <div class="beat"><div class="t">～25s 测试</div><div class="p">
+      <span class="lbl">④ 系统测试</span>
+      后端用 pytest 加内存 SQLite 验证服务函数、接口状态码和数据库约束，前端做组件和纯函数测试，富文本渲染等靠人工验证。用例覆盖发布、评论、赞踩互斥、重复收藏、合集单归属冲突、重复签到幂等这些边界，规划功能只记风险、不计入通过项。
+    </div></div>
+    <div class="beat"><div class="t">～15s 收尾</div><div class="p">
+      总结：我把「经验被写下、被找到、被讨论」做成了一条可演示、可测试的可靠闭环，AI 只作增强、永不硬失败，治理能力保留口径作后续。谢谢，请老师批评指正。
+    </div></div>
+  </div>
+
+  <!-- ============ ④ Q&A ============ -->
+  <h2><span class="n">四、</span>可能被问到的问题与参考回答</h2>
+  <div class="card qa">
+    <p class="q">图为什么画 UML 类图而不是 ER 图？</p>
+    <p class="a">实体除字段外还有明确行为（Note 的发布、Draft 的自动保存、Comment 的回复），UML 类图能同时表达属性、操作和关联关系，更贴合我们的分层对象设计，也能一一对应到后端 models 与 services，便于代码与文档对照。</p>
+
+    <p class="q">举报、AI 审查、拉黑实现了吗？</p>
+    <p class="a"><span class="flag">（按文档口径答）</span>目前完成的是数据模型和设计口径——字段、状态流转和接口边界已在设计中给出；举报裁决、AI 审查、拉黑、等级徽章、合集拖拽排序作为<b>治理扩展、后续迭代</b>，不计入本阶段已完成项。文档里我明确区分了「有代码或测试依据的」和「保留设计口径的」。</p>
+
+    <p class="q">AI 服务失败，会导致发布失败吗？</p>
+    <p class="a">不会，这是发布链路最核心的原则。摘要生成不是发布事务的必要条件：AI 超时或失败时用正文首段截断兜底，发布主流程照常提交；AI 只是「有则更好」。测试里我专门用 dry-run 模拟 AI 不可用，验证发布仍成功。</p>
+
+    <p class="q">评论说支持楼中楼，怎么防止无限嵌套？</p>
+    <p class="a">数据库平铺存储、只存 parent_id 和 reply_to；<b>服务层限制 parent_id 只能指向顶层评论</b>，对回复的回复仍挂到同一顶层，前端再按 parent_id 组装成两层。删顶层评论时级联清理回复，保证楼中楼不产生孤儿数据。</p>
+
+    <p class="q">点赞、点踩、收藏怎么保证幂等和互斥？</p>
+    <p class="a">互动表对「同用户+同笔记+同类型」加<b>唯一约束</b>，重复请求不产生重复记录、天然幂等；赞踩互斥用「<b>写入当前操作前先移除对立操作</b>」实现，放在一个小事务里，最终以数据库记录为准，前端重新拉取计数刷新。</p>
+
+    <p class="q">合集为什么限制一篇笔记只属于一个合集？</p>
+    <p class="a">这是刻意的产品约束——合集是「作者把一组笔记编成可排序、有前后篇的册子」，一篇属于多个册子会让排序和上下文产生歧义。技术上给 collection_entries 的 note_id 加唯一约束；重复加入时返回冲突提示，引导先移出原合集。要做多对多，去掉唯一约束、加关联表即可扩展。</p>
+
+    <p class="q">草稿自动保存怎么保证不丢内容？</p>
+    <p class="a">写作过程中前端持续把草稿自动保存到后端 Draft，网络波动或关页面后重进写作页也能恢复；发布时后端再校验标题、正文、分类，校验不过只提示、不清空输入，可修改后重试。</p>
+
+    <p class="q">权限怎么保证不被前端绕过？</p>
+    <p class="a">所有涉及作者身份的写操作都<b>以后端当前登录用户为准</b>，接口不接受客户端传入身份；前端隐藏按钮只是体验层，真正鉴权在服务层完成——编辑/删除只能作用于本人内容，越权直接被后端拒绝。</p>
+
+    <p class="q">你这个模块和 AI、鉴权、其他模块怎么划接口边界？</p>
+    <p class="a">对鉴权，只消费当前用户的身份、昵称、角色，不维护密码；对 AI，只通过统一封装调用，超时/限流/降级封装内处理，写作页和评论区不各自直连模型；对资料库等模块，只在页面层做内容链接，<b>不直接写对方的表</b>。</p>
+
+    <p class="q">测试结果能说明什么？</p>
+    <p class="a">说明核心不变量是被机制保证、不是靠约定：AI 不可用时发布仍成功、互动幂等、越权被拒、合集单归属冲突被拦、重复签到不重复发经验。用内存库和 dry-run 让测试零依赖、可重复，比只演示一遍更能证明闭环稳定。</p>
+
+    <p class="sep">▼ 进阶追问（评委可能深挖）</p>
+
+    <p class="q">「一个事务里写 Note、删 Draft」，如果一步成功一步失败，原子性怎么保证？隔离级别是什么？</p>
+    <p class="a">两步在同一数据库 session、同一次 commit：任一步抛异常就整体 rollback，不会出现「草稿删了笔记没建」或反过来的中间态。SQLite 写事务是串行的、同一时刻只有一个写者，天然避免并发写交叉——这也是当前规模选 SQLite 的原因之一；上到多写并发再补行级锁或版本号即可。</p>
+
+    <p class="q">AI 摘要失败用「首段截断」，正文是 Markdown、代码块或公式时会不会截成半个语法？</p>
+    <p class="a">兜底是「够用不完美」策略：先取纯文本、去掉标记、截到句读边界，不直接截原始 Markdown。目标只是「发布不阻断 + 有个基本简介」，质量本就不如 AI，用户随时能手动改或重试。我不会声称它和 AI 一样好。</p>
+
+    <p class="q">赞踩互斥「先移除对立操作再写入」，高并发下两个请求同时来会不会又赞又踩？</p>
+    <p class="a">最终由<b>数据库唯一约束兜底</b>，不只靠服务层判断。同类型唯一键让并发写最多成功一条；「先撤后写」在一个小事务里做，即使有竞态，最终状态也由唯一约束和事务收敛，不会出现又赞又踩的脏数据，前端再按后端返回刷新计数。</p>
+
+    <p class="q">笔记删除后，它的评论、收藏、合集条目怎么办？</p>
+    <p class="a">笔记删除优先用<b>软删除或状态变更</b>（status=deleted），不直接物删，避免评论、收藏、合集条目和外部引用失效；评论删除按复杂度可硬删或状态隐藏，但必须保证楼中楼回复不变孤儿——顶层删了要级联处理其下回复。</p>
+
+    <p class="q">信息流用什么分页？数据量大了会不会翻着翻着重复或漏？</p>
+    <p class="a">用 keyset 游标分页，按稳定排序键翻页，避免传统 offset 在数据插入时的重复和跳漏；文档里也把「随数据增长补充大数据量回归测试」列为后续加强项。</p>
+
+    <p class="q">举报数据模型都建了，为什么不顺手把接口做了？</p>
+    <p class="a">是优先级和验收边界取舍，不是技术难点。举报是「建单→队列→人工或 AI 裁决→下架/申诉」一整条闭环，还牵扯管理员后台，工作量不小；本阶段我把时间压在「内容生产与互动」这条课程验收核心闭环上、保证可演示可测试。治理的数据模型和状态流转我先落进设计、留了字段，让后续接入不必改表——先立骨架、后填肉。</p>
+  </div>
+
+  <!-- ============ ⑤ 边界 ============ -->
+  <h2><span class="n">五、</span>不要说错的边界</h2>
+  <div class="warn">
+    <b>① 治理口径</b>：举报 / AI 审查 / 拉黑 / 等级徽章 / 合集拖拽排序 = <b>后续扩展</b>，别说已上线。<br>
+    <b>② AI 定位</b>：AI 是「辅助、可拒绝、可降级」，不是必需依赖——被追问强调「永不硬失败」。<br>
+    <b>③ 前后端进度差</b>：合集、签到等<b>后端能力优先于前端完整入口</b>，部分前端入口在后续接入，别一口咬定「全部前端已完成」。
+  </div>
+
+  <p class="sub" style="text-align:center;margin-top:22px;">—— 熟悉卡 + 3 分钟讲稿 + 五闭环 + 16 条 Q&A · 与《新疆大学飞跃手册》最终版口径一致 · 祝答辩顺利 ——</p>
+</div>

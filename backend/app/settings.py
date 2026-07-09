@@ -14,6 +14,13 @@ class Settings(BaseSettings):
     deepseek_dry_run: bool = False
     deepseek_timeout_s: float = 30.0
 
+    # AI pre-screening of new reports (see app/services/moderation.py). Runs as
+    # a fire-and-forget background task after POST /reports. Disabled in tests
+    # (see conftest) so the queue stays deterministic; flag_threshold is the
+    # min AI confidence at which a report auto-jumps to `ai_flagged`.
+    moderation_enabled: bool = True
+    moderation_flag_threshold: float = 0.75
+
     # Wire as a comma-separated string (e.g. CORS_ORIGINS=a,b,c).
     # pydantic-settings v2 would try JSON-parsing list[str] env vars and
     # crash on plain CSV; sticking to str + a derived list property avoids it.
@@ -29,6 +36,11 @@ class Settings(BaseSettings):
     # disable this to keep the lifespan deterministic and avoid noisy log
     # output when the test DB schema isn't fully set up.
     author_sync_enabled: bool = True
+
+    # Per-user throttling of high-frequency interaction writes (see
+    # app/ratelimit.py). Disabled in tests so existing multi-op suites don't
+    # trip the limiter; a dedicated test flips it on.
+    rate_limit_enabled: bool = True
 
     # Single-admin gate for /admin/* routes. Match by `users.sid`; any
     # request from a non-matching sid gets a generic 404 so the route

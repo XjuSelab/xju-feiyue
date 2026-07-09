@@ -119,9 +119,31 @@ async def test_list_cursor_pagination_walks_all_pages(
 async def test_hot_endpoint_returns_top_by_engagement(
     client: AsyncClient, seeded_notes
 ) -> None:
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    week_start = now - timedelta(
+        days=now.weekday(),
+        hours=now.hour,
+        minutes=now.minute,
+        seconds=now.second,
+        microseconds=now.microsecond,
+    )
+    spec = [
+        ("note_005", 1, 1, 1, "Tools E"),
+        ("note_004", 2, 3, 2, "Kaggle D"),
+        ("note_003", 3, 2, 0, "Research C"),
+        ("note_002", 4, 1, 1, "Kaggle B"),
+        ("note_001", 5, 0, 0, "Research A"),
+    ]
+    eligible = [s for s in spec if (now - timedelta(days=s[1])) >= week_start]
+    expected = [
+        s[0] for s in sorted(eligible, key=lambda s: (-s[2], -s[3], s[4]))
+    ][:6]
+
     r = await client.get("/notes/hot")
     ids = [n["id"] for n in r.json()]
-    assert ids[0] == "note_004"  # 3 likes + 2 comments = 5
+    assert ids == expected
     assert len(ids) <= 6
 
 

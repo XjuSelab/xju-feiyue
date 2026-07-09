@@ -16,7 +16,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.db.models import Comment, Like, Note
+from app.db.models import Comment, Favorite, Like, Note, NoteDislike
+from app.services.blocks import blocked_sids
 from app.schemas.note import (
     CategoryId,
     ListNotesQuery,
@@ -59,13 +60,37 @@ async def count_likes(db: AsyncSession, note_ids: Iterable[str]) -> dict[str, in
     return {row[0]: row[1] for row in await db.execute(stmt)}
 
 
+async def count_dislikes(db: AsyncSession, note_ids: Iterable[str]) -> dict[str, int]:
+    ids = list(note_ids)
+    if not ids:
+        return {}
+    stmt = (
+        select(NoteDislike.note_id, func.count(NoteDislike.user_sid))
+        .where(NoteDislike.note_id.in_(ids))
+        .group_by(NoteDislike.note_id)
+    )
+    return {row[0]: row[1] for row in await db.execute(stmt)}
+
+
+async def count_favorites(db: AsyncSession, note_ids: Iterable[str]) -> dict[str, int]:
+    ids = list(note_ids)
+    if not ids:
+        return {}
+    stmt = (
+        select(Favorite.note_id, func.count(Favorite.user_sid))
+        .where(Favorite.note_id.in_(ids))
+        .group_by(Favorite.note_id)
+    )
+    return {row[0]: row[1] for row in await db.execute(stmt)}
+
+
 async def count_comments(db: AsyncSession, note_ids: Iterable[str]) -> dict[str, int]:
     ids = list(note_ids)
     if not ids:
         return {}
     stmt = (
         select(Comment.note_id, func.count(Comment.id))
-        .where(Comment.note_id.in_(ids))
+        .where(Comment.note_id.in_(ids), Comment.status == "visible")
         .group_by(Comment.note_id)
     )
     return {row[0]: row[1] for row in await db.execute(stmt)}
@@ -84,8 +109,40 @@ async def liked_by_user(
     return {row[0] for row in await db.execute(stmt)}
 
 
+async def disliked_by_user(
+    db: AsyncSession, user_sid: str | None, note_ids: Iterable[str]
+) -> set[str]:
+    ids = list(note_ids)
+    if not ids or not user_sid:
+        return set()
+    stmt = select(NoteDislike.note_id).where(
+        NoteDislike.user_sid == user_sid, NoteDislike.note_id.in_(ids)
+    )
+    return {row[0] for row in await db.execute(stmt)}
+
+
+async def favorited_by_user(
+    db: AsyncSession, user_sid: str | None, note_ids: Iterable[str]
+) -> set[str]:
+    ids = list(note_ids)
+    if not ids or not user_sid:
+        return set()
+    stmt = select(Favorite.note_id).where(
+        Favorite.user_sid == user_sid, Favorite.note_id.in_(ids)
+    )
+    return {row[0] for row in await db.execute(stmt)}
+
+
 def to_note_out(
-    note: Note, likes: int, comments: int, liked_by_me: bool = False
+    note: Note,
+    likes: int,
+    comments: int,
+    liked_by_me: bool = False,
+    *,
+    dislikes: int = 0,
+    favorites: int = 0,
+    disliked_by_me: bool = False,
+    favorited_by_me: bool = False,
 ) -> NoteOut:
     return NoteOut(
         id=note.id,
@@ -103,9 +160,14 @@ def to_note_out(
         ),
         created_at=note.created_at,
         likes=likes,
+        dislikes=dislikes,
+        favorites=favorites,
         comments=comments,
         read_minutes=note.read_minutes,
+        status=note.status,
         liked_by_me=liked_by_me,
+        disliked_by_me=disliked_by_me,
+        favorited_by_me=favorited_by_me,
     )
 
 
@@ -114,10 +176,20 @@ async def list_notes(
     db: AsyncSession,
     user_sid: str | None = None,
 ) -> PaginatedNotes:
-    stmt = select(Note).options(selectinload(Note.author))
+    stmt = (
+        select(Note)
+        .where(Note.status == "visible")
+        .options(selectinload(Note.author))
+    )
     if query.sort == "hot":
         now = datetime.now(timezone.utc)
-        week_start = now - timedelta(days=now.weekday(), hours=now.hour, minutes=now.minute, seconds=now.second, microseconds=now.microsecond)
+        week_start = now - timedelta(
+            days=now.weekday(),
+            hours=now.hour,
+            minutes=now.minute,
+            seconds=now.second,
+            microseconds=now.microsecond,
+        )
         stmt = stmt.where(Note.created_at >= week_start)
     if query.cat:
         stmt = stmt.where(Note.category == query.cat)
@@ -132,6 +204,11 @@ async def list_notes(
     if query.mine and user_sid:
         stmt = stmt.where(Note.author_sid == user_sid)
 
+    # One-directional block: hide blocked authors' notes from this viewer's feed.
+    blocked = await blocked_sids(db, user_sid)
+    if blocked:
+        stmt = stmt.where(Note.author_sid.notin_(blocked))
+
     notes_orm = list((await db.execute(stmt)).scalars().all())
 
     # Tag filtering — Python-side because the StringList column is JSON on
@@ -143,11 +220,22 @@ async def list_notes(
 
     note_ids = [n.id for n in notes_orm]
     likes = await count_likes(db, note_ids)
+    dislikes = await count_dislikes(db, note_ids)
+    favorites = await count_favorites(db, note_ids)
     comments = await count_comments(db, note_ids)
     liked = await liked_by_user(db, user_sid, note_ids)
+    disliked = await disliked_by_user(db, user_sid, note_ids)
+    favorited = await favorited_by_user(db, user_sid, note_ids)
 
-    rows: list[tuple[Note, int, int]] = [
-        (n, likes.get(n.id, 0), comments.get(n.id, 0)) for n in notes_orm
+    rows: list[tuple[Note, int, int, int, int]] = [
+        (
+            n,
+            likes.get(n.id, 0),
+            comments.get(n.id, 0),
+            dislikes.get(n.id, 0),
+            favorites.get(n.id, 0),
+        )
+        for n in notes_orm
     ]
 
     sort = query.sort or "latest"
@@ -160,7 +248,7 @@ async def list_notes(
 
     start = 0
     if query.cursor:
-        for i, (n, _l, _c) in enumerate(rows):
+        for i, (n, _l, _c, _d, _f) in enumerate(rows):
             if n.id == query.cursor:
                 start = i + 1
                 break
@@ -173,8 +261,17 @@ async def list_notes(
 
     return PaginatedNotes(
         items=[
-            to_note_out(n, like_count, c, n.id in liked)
-            for n, like_count, c in page
+            to_note_out(
+                n,
+                like_count,
+                comment_count,
+                n.id in liked,
+                dislikes=dislike_count,
+                favorites=favorite_count,
+                disliked_by_me=n.id in disliked,
+                favorited_by_me=n.id in favorited,
+            )
+            for n, like_count, comment_count, dislike_count, favorite_count in page
         ],
         next_cursor=next_cursor,
     )

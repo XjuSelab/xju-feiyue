@@ -5,10 +5,15 @@ import { CATEGORIES, getCategory } from '@/lib/categories'
 import type { Note } from '@/api/schemas/note'
 import notesJson from '@/api/mock/notes.json'
 
-// Mock fixture pre-dates the likedByMe field; coerce by injecting a default.
-const NOTES = (notesJson as readonly Omit<Note, 'likedByMe'>[]).map((n) => ({
+// Mock fixture pre-dates the interaction fields; coerce by injecting defaults.
+const NOTES = (
+  notesJson as readonly Omit<Note, 'likedByMe' | 'dislikes' | 'dislikedByMe' | 'favoritedByMe'>[]
+).map((n) => ({
   ...n,
   likedByMe: false,
+  dislikes: 0,
+  dislikedByMe: false,
+  favoritedByMe: false,
 })) as readonly Note[]
 
 /**

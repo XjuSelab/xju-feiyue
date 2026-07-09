@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.db.models import Comment
+from app.services.blocks import blocked_sids
 
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 100
@@ -16,8 +17,9 @@ async def list_comments(
     note_id: str,
     cursor: str | None,
     limit: int,
+    viewer_sid: str | None = None,
 ) -> tuple[list[Comment], str | None]:
-    """Cursor-paginated comment list for one note, newest first.
+    """Cursor-paginated visible comments for one note, newest first.
 
     Cursor = the previous page's last comment id. We over-fetch by one row to
     detect whether the next page exists without a separate COUNT query.
@@ -26,10 +28,13 @@ async def list_comments(
 
     stmt = (
         select(Comment)
-        .where(Comment.note_id == note_id)
+        .where(Comment.note_id == note_id, Comment.status == "visible")
         .order_by(Comment.created_at.desc(), Comment.id.desc())
         .limit(capped_limit + 1)
-        .options(selectinload(Comment.author))
+        .options(
+            selectinload(Comment.author),
+            selectinload(Comment.reply_to),
+        )
     )
 
     if cursor:
@@ -44,6 +49,10 @@ async def list_comments(
                     & (Comment.id < anchor.id)
                 )
             )
+
+    blocked = await blocked_sids(db, viewer_sid)
+    if blocked:
+        stmt = stmt.where(Comment.author_sid.notin_(blocked))
 
     rows = list((await db.execute(stmt)).scalars().all())
     next_cursor = rows[capped_limit - 1].id if len(rows) > capped_limit else None

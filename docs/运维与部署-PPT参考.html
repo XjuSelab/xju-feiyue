@@ -1,0 +1,136 @@
+<meta charset="utf-8">
+<title>部署 + 运维 · PPT 参考（讲者 E）</title>
+<style>
+  :root{
+    --navy:#004098; --red:#c8102e; --ink:#1a2740; --gray:#6b7686;
+    --l0:#f4f7fc; --l1:#e9eef7; --l2:#d5e0f1; --line:#d5deeb;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    color:var(--ink); line-height:1.78; margin:0; background:#eaeff6;}
+  .wrap{max-width:1000px; margin:0 auto; padding:34px 26px 80px;}
+  h1{font-size:26px; color:var(--navy); margin:0 0 4px;}
+  .lead{color:var(--gray); margin:0 0 18px; font-size:14px;}
+  .role{display:inline-block; background:var(--navy); color:#fff; font-size:12.5px;
+    font-weight:700; padding:2px 11px; border-radius:20px;}
+  .note{background:#fdeef0; border:1px solid #f2c6cd; border-left:4px solid var(--red);
+    border-radius:10px; padding:12px 16px; margin:16px 0 26px; font-size:13.5px;}
+  .note b{color:var(--red)}
+  code{background:var(--l1); color:#22437d; padding:1px 6px; border-radius:4px;
+    font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.88em;}
+  em.hi{font-style:normal; color:var(--red); font-weight:700;}
+
+  section{background:#fff; border:1px solid var(--line); border-radius:16px;
+    padding:22px 26px 24px; margin:22px 0; box-shadow:0 2px 8px rgba(0,64,152,.06);}
+  .sh{display:flex; align-items:baseline; gap:11px; margin-bottom:6px;}
+  .badge{background:var(--navy); color:#fff; font-weight:800; font-size:14px;
+    padding:3px 12px; border-radius:8px;}
+  .sh h2{font-size:20px; color:var(--navy); margin:0;}
+  .theme{color:var(--navy); font-weight:700; font-size:15.5px; margin:2px 0 12px;
+    padding-left:12px; border-left:3px solid var(--red);}
+  p.intro{font-size:14px; margin:0 0 15px; color:#2c3a4d; text-align:justify;}
+  figure{margin:8px 0 14px; text-align:center;}
+  figure img{max-width:100%;}
+  figcaption{font-size:12.5px; color:var(--gray); margin-top:4px;}
+  .say{background:var(--l0); border:1px solid var(--line); border-left:4px solid var(--navy);
+    border-radius:10px; padding:11px 15px; font-size:13.6px; margin-top:14px;}
+  .say::before{content:"讲稿　"; font-weight:700; color:var(--navy);}
+
+  .facts{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px;}
+  .facts span{background:var(--l1); border:1px solid var(--line); color:var(--navy);
+    font-size:12.5px; font-weight:700; padding:4px 12px; border-radius:8px;}
+  table{width:100%; border-collapse:collapse; margin:6px 0 4px; font-size:13.5px;}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--navy); color:#fff; font-weight:700;}
+  td:first-child{background:var(--l0); color:var(--gray); font-weight:700; width:74px;}
+  .cmds{background:#08203f; border-radius:10px; padding:14px 16px; font-size:13px;
+    line-height:1.95; margin:6px 0 4px; font-family:ui-monospace,Consolas,monospace;}
+  .cmds .k{color:#6fb0ff} .cmds .c{color:#7f93ad}
+  .split{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start;}
+  .col h4{margin:2px 0 8px; font-size:15px; color:var(--navy);}
+  .col h4 small{color:var(--gray); font-weight:400; font-size:12.5px;}
+  .strip{margin-top:14px; background:var(--l1); border:1px solid var(--line);
+    border-radius:10px; padding:10px 15px; font-size:13.3px;}
+  .strip b{color:var(--navy)}
+  @media(max-width:680px){.split{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <h1>部署 + 运维 · 内容参考</h1>
+  <p class="lead"><span class="role">讲者 E</span>　负责 S13–S16 共 4 页　·　工程项目开发综合实践 · 飞跃手册<br>
+    四页分别采用拓扑 / 流水线 / 环路 / 分栏四种版式；配图为 <b>#004098 藏青 + 红点缀</b> 的 SVG，文件位于 <code>docs/ppt-figures/</code>，可直接插入 PPT。</p>
+
+  <div class="note"><b>两处须核实：</b>
+    ① 服务名——大纲记为 <code>aurash-backend.service</code>，本仓库 <code>deploy.sh</code> 实为 <code>feiyue-backend.service</code>（<code>:8001</code>），部署源在 <code>winbeau/Aurash</code>，请以生产实际为准（图按 <code>feiyue-backend</code> 绘制）。
+    ② 规模数字（≈182 commits / 62 seed / 144KB）取自大纲既有口径，建议临答辩前复核。</div>
+
+  <!-- ===================== S13：拓扑主视觉 + 流程条 ===================== -->
+  <section>
+    <div class="sh"><span class="badge">S13</span><h2>部署 · 生产架构</h2></div>
+    <div class="theme">单机双角色：nginx 兼任静态分发与 API 网关，systemd 保障进程级可用性。</div>
+    <p class="intro">平台以单台华为云 VPS 承载全部线上服务，架构核心在于 nginx 的双重职责——对前端构建产物直接分发，对 <code>/api</code> 请求反向代理至后端；后端进程由 systemd 托管，实现开机自启与故障自愈的进程级可用性。发布流程收敛为单一脚本，并以健康探活作为上线闸门，达成可重复、低风险的部署。</p>
+    <figure><img src="ppt-figures/s13-topology.svg" alt="部署拓扑" width="600">
+      <figcaption>请求链路：浏览器 → nginx →〔静态 dist / 反代〕→ uvicorn:8001 → SQLite</figcaption></figure>
+    <figure><img src="ppt-figures/s13-deploy-flow.svg" alt="一键发布流程" width="750">
+      <figcaption><code>deploy.sh</code> 串行六步；重启与探活构成上线闸门</figcaption></figure>
+    <div class="facts">
+      <span>华为云 VPS · huawei2</span><span>winbeau.top 主 + feiyue.selab.top 镜像</span>
+      <span>systemd · feiyue-backend :8001</span><span>nginx 静态服 + 反向代理</span>
+    </div>
+    <div class="say">平台部署在一台华为云 VPS 上，nginx 同时承担两个职责：把前端 <code>dist</code> 作静态资源直接分发，同时把 <code>/api</code> 反向代理到后端；后端是 FastAPI，用 uvicorn 跑在 8001 端口，由 systemd 托管，开机自启、崩溃自愈。上线只需一条 <code>deploy.sh</code>：拉取主分支、同步依赖、迁移数据库、重启服务、健康探活、再构建前端。winbeau.top 为主域名，feiyue.selab.top 为镜像。</div>
+  </section>
+
+  <!-- ===================== S14：流水线 + 对比表 ===================== -->
+  <section>
+    <div class="sh"><span class="badge">S14</span><h2>部署 · CI 与双库维护</h2></div>
+    <div class="theme">双库分工 + 提交前静态检查，维持多人协作下的代码有序性。</div>
+    <p class="intro">面向多人协作，代码库通过双库分工与提交前静态检查维持有序：规范库承载文档、规范与源码评审，部署源承载生产实际运行代码，二者职责隔离；每次提交先经本地检查门禁校验提交规范，通过后方进入发布流水线，从而保证提交历史的一致性与可追溯性。</p>
+    <figure><img src="ppt-figures/s14-pipeline.svg" alt="双库与发布流水线" width="720">
+      <figcaption>提交 →〔规范库 / 部署源〕→ deploy.sh 上线；规范库另触发 Pages 自动部署</figcaption></figure>
+    <table>
+      <tr><th>　</th><th>团队规范库 · XjuSelab/xju-feiyue</th><th>部署源 · winbeau/Aurash</th></tr>
+      <tr><td>职责</td><td>文档 / 规范 / 源码评审</td><td>生产实际运行代码</td></tr>
+      <tr><td>下游</td><td>GitHub Pages「发展历程」时间轴自动部署</td><td>deploy.sh 拉取 → 华为云上线</td></tr>
+      <tr><td>门禁</td><td colspan="2">conventional commits（feat/fix/docs…）+ Husky + lint-staged 提交前静态检查</td></tr>
+    </table>
+    <div class="say">我们采用双库策略：团队规范库存放文档与规范，部署源承载生产代码，职责相互隔离。所有提交遵循 conventional commits，由 Husky 配合 lint-staged 在提交前自动检查、拦截不合规改动，保证历史干净可追溯。对外的「发展历程」时间轴由 GitHub Pages 自动部署。前端以 pnpm + Vite 打包，后端以 uv 锁定依赖版本，确保换机后的一致性。</div>
+  </section>
+
+  <!-- ===================== S15：环路 + 命令速查 ===================== -->
+  <section>
+    <div class="sh"><span class="badge">S15</span><h2>运维 · 数据持久化与恢复</h2></div>
+    <div class="theme">异地留存与命名空间隔离，实现单命令的整站数据恢复。</div>
+    <p class="intro">数据持久性是运维的首要约束。系统将数据库、用户上传附件与密钥统一同步至私有 HuggingFace 数据集实现异地留存，并按命名空间隔离「实时状态」与「参考数据」，避免相互干扰；面向换机与故障场景，单条命令即可完成整站数据的恢复复现，显著降低单点丢失风险。</p>
+    <figure><img src="ppt-figures/s15-backup.svg" alt="备份恢复环路" width="640">
+      <figcaption>生产 VPS ⇄ 私有 HF 数据集（state / schools·conf 分区）⇄ 换机复现</figcaption></figure>
+    <div class="cmds">
+      <span class="k">make sync-push</span>   <span class="c"># 定时(cron)将 DB+附件+密钥推送至私有数据集</span><br>
+      <span class="k">make data-pull</span>   <span class="c"># 换机 / 灾备：一键拉回整站数据并复现</span><br>
+      <span class="k">make schools-pull</span> / <span class="k">conf-pull</span>  <span class="c"># 拉取高校导师 / CCF 会议参考库</span>
+    </div>
+    <div class="say">数据不能丢是运维的底线。我把数据库、上传附件和密钥统一同步到一个私有的 HuggingFace 数据集异地留存，并按命名空间分区：state 存放实时状态，schools 与 conf 存放高校导师库和会议库。日常备份由 <code>make sync-push</code> 定时 cron 完成；一旦换机或灾备，一条 <code>make data-pull</code> 即可拉回整站数据复现。内容真源为 62 篇 seed，加上站内用户直接发布的笔记。</div>
+  </section>
+
+  <!-- ===================== S16：左右分栏 安全 | 性能 ===================== -->
+  <section>
+    <div class="sh"><span class="badge">S16</span><h2>运维 · 安全与性能</h2></div>
+    <div class="theme">安全四层递进设防，性能双预算约束开销。</div>
+    <div class="split">
+      <div class="col">
+        <h4>安全 <small>· 四层递进防护</small></h4>
+        <figure style="margin:0"><img src="ppt-figures/s16-security.svg" alt="安全四道防线" width="370"></figure>
+        <p class="intro" style="margin-top:10px; font-size:13.3px;">其中以<em class="hi">双重机制抑制存储型 XSS</em>：上传阶段按扩展名实施准入拦截，静态响应阶段统一注入 <code>nosniff</code> 头，二者互为兜底。</p>
+      </div>
+      <div class="col">
+        <h4>性能 <small>· 双预算约束</small></h4>
+        <figure style="margin:0"><img src="ppt-figures/s16-perf.svg" alt="首屏体积预算" width="410"></figure>
+        <p class="intro" style="margin-top:10px; font-size:13.3px;">首屏 JS gzip 后约 <em class="hi">144KB</em> 并全路由懒加载；AI 欢迎语缓存 3h 轮换摊薄外部调用。WritePage 因集成编辑器、字级 diff 与公式渲染超出预算，已作为已知偏差披露。</p>
+      </div>
+    </div>
+    <div class="strip"><b>管理后台（第四维保障）：</b>登录事件审计 · 数据热 reload（不停机换数据）· 会议爬取手动触发。
+      <span style="color:var(--gray)">〔可插一张后台截图；运行中系统我无法访问，需你自截〕</span></div>
+    <div class="say">安全与性能上设置了四道防线。鉴权采用 HS256 的 JWT，有效期 7 天，口令经 bcrypt 哈希。文件安全上，上传阶段拦截 svg、html 等可被当作脚本执行的扩展名，静态服务再统一注入 nosniff 头，双重抑制存储型 XSS，并配以 50MB 上限与 magic-byte 类型核验。性能上首屏 JS 压缩后约 144KB，全路由懒加载，AI 欢迎语缓存 3 小时以节省外部调用。管理后台支持登录审计、数据热更新与会议爬取手动触发。</div>
+  </section>
+
+  <p class="lead" style="text-align:center; margin-top:26px;">—— 四页四版式 · 6 张 #004098 SVG 位于 <code>docs/ppt-figures/</code> · 直接插入 PPT ——</p>
+</div>

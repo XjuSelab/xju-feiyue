@@ -9,6 +9,10 @@ frontend/playwright/screenshots/
 # Local screenshots from manual UI iteration (per-session, regenerable).
 *.png
 
+# 例外：课程配图（docs/coursework/figures 下的 .drawio 渲染产物）需入库，
+# 供协作者与 docx 引用，不随上面的全局 *.png 一起忽略。
+!docs/coursework/figures/*.png
+
 # Personal transcript PDFs used to test 学分统计 — contain real name/student-id,
 # must never be committed. Drop test PDFs at repo root (e.g. 查看成绩.pdf).
 /*.pdf
@@ -45,3 +49,6 @@ backend/data/schools/
 # out-of-band to the xju-feiyue-data HF dataset under the conferences/ namespace
 # (`make conf-push` / `make conf-pull`). Regenerable, so kept out of git.
 backend/data/conferences/
+
+# Microsoft Office 锁/临时文件（~$开头）
+~$*

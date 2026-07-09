@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod'
+import type { ZodType, ZodTypeDef } from 'zod'
 
 /**
  * 单一 fetcher：mock dispatch（dev 默认）或真 fetch（设置了
@@ -97,7 +97,9 @@ export type QueryValue =
 type RequestOpts<T> = {
   method: HttpMethod
   path: string
-  schema: ZodType<T>
+  // Input 放开为 unknown：带 .default() 的 schema input/output 类型不同，
+  // 绑死 Input=Output 会让 T 被推断成 input 形状（默认字段变可选）。
+  schema: ZodType<T, ZodTypeDef, unknown>
   body?: unknown
   query?: Record<string, QueryValue>
   headers?: Record<string, string>

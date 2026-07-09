@@ -1,0 +1,135 @@
+<meta charset="utf-8">
+<title>部署 + 运维 · 最终答辩讲稿与 Q&A（讲者 E）</title>
+<style>
+  :root{--navy:#004098;--red:#c8102e;--ink:#1a2740;--gray:#6b7686;
+    --l0:#f4f7fc;--l1:#e9eef7;--line:#d5deeb;}
+  *{box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);
+    line-height:1.85;margin:0;background:#eaeff6;}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 28px 90px;}
+  h1{font-size:25px;color:var(--navy);margin:0 0 2px;}
+  .sub{color:var(--gray);font-size:14px;margin:0 0 18px;}
+  h2{font-size:19px;color:var(--navy);margin:30px 0 10px;padding-bottom:6px;
+    border-bottom:2px solid var(--l1);}
+  h2 .n{color:var(--red);}
+  .map{background:var(--l0);border:1px solid var(--line);border-radius:12px;padding:14px 18px;
+    font-size:13.5px;margin:6px 0 8px;}
+  .map b{color:var(--navy)}
+  .script{background:#fff;border:1px solid var(--line);border-left:4px solid var(--navy);
+    border-radius:12px;padding:8px 22px 16px;box-shadow:0 2px 8px rgba(0,64,152,.05);}
+  .beat{display:flex;gap:14px;margin:16px 0;}
+  .beat .t{flex:0 0 74px;color:var(--red);font-weight:700;font-size:12.5px;padding-top:3px;}
+  .beat .p{flex:1;font-size:15px;}
+  .beat .p .lbl{display:block;color:var(--navy);font-weight:700;font-size:13px;margin-bottom:2px;}
+  code{background:var(--l1);color:#22437d;padding:1px 6px;border-radius:4px;
+    font-family:ui-monospace,Consolas,monospace;font-size:.85em;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 16px;
+    margin:12px 0;font-size:12.5px;}
+  .card b{color:var(--navy)}
+  .qa{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 20px;
+    box-shadow:0 2px 8px rgba(0,64,152,.05);}
+  .qa .q{color:var(--navy);font-weight:700;font-size:15px;margin:16px 0 4px;}
+  .qa .q::before{content:"Q　";color:var(--red);}
+  .qa .a{font-size:14px;margin:0 0 14px;color:#2c3a4d;}
+  .qa .a::before{content:"A　";color:var(--gray);font-weight:700;}
+  .flag{color:var(--red);font-weight:700;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+  .chips span{background:var(--l1);border:1px solid var(--line);color:var(--navy);
+    font-weight:700;font-size:13px;padding:4px 12px;border-radius:8px;}
+  .warn{background:#fdeef0;border:1px solid #f2c6cd;border-left:4px solid var(--red);
+    border-radius:10px;padding:12px 16px;font-size:13.3px;margin:10px 0;}
+  .warn b{color:var(--red)}
+</style>
+
+<div class="wrap">
+  <h1>部署 + 运维 · 最终答辩讲稿与问答</h1>
+  <p class="sub">讲者 E　·　对应 S13–S16 四页　·　全程约 3.5–4 分钟</p>
+
+  <div class="map">
+    <b>与文档八阶段的对应：</b>最终文档依「引言 → 可行性 → 开发计划 → 需求分析 → 概要设计 → 详细设计 → 系统测试 → 用户操作手册」逐阶段推进。
+    我负责的<b>部署与运维</b>，正是把<b>第七章测试通过</b>的系统真正落地到<b>第八章所述的运行环境</b>、并保证其长期稳定与可恢复——是整条工程链路的<b>收口环节</b>。
+  </div>
+
+  <!-- ===================== 完整讲稿 ===================== -->
+  <h2><span class="n">一、</span>完整讲稿（照读即可）</h2>
+  <div class="script">
+    <div class="beat"><div class="t">～25s 开场</div><div class="p">
+      各位老师好。前面几位同学已经完整介绍了系统从可行性分析、需求、概要与详细设计一直到测试的全过程；我这一部分要回答的是最后一个问题——<b>如何让这套系统真正、稳定地跑在真实用户面前</b>。我从「上得去、协作有序、丢不了、防得住」四个方面来讲。
+    </div></div>
+
+    <div class="beat"><div class="t">～60s S13</div><div class="p">
+      <span class="lbl">① 生产架构</span>
+      整个平台部署在一台华为云 VPS 上，核心思路是让 nginx 一身两职：对前端构建产物直接做静态分发，对 <code>/api</code> 请求反向代理到后端。后端是 FastAPI，用 uvicorn 常驻在 8001 端口，交给 systemd 托管，做到开机自启、进程崩溃自动拉起。发布被收敛成一条脚本 <code>deploy.sh</code>：拉取主分支、同步依赖、迁移数据库、重启服务，最后用一次 <code>/health</code> 健康探活确认服务真的活着，再构建前端。<code>winbeau.top</code> 是主域名，<code>feiyue.selab.top</code> 是镜像。
+    </div></div>
+
+    <div class="beat"><div class="t">～35s S14</div><div class="p">
+      <span class="lbl">② CI 与双库</span>
+      为了让五个人协作不乱，我们用双库分工：一个规范库管文档与评审，一个部署源管真正在生产上跑的代码，职责隔离；每次提交都先过 Husky 加 lint-staged 的提交前检查，不合规的改动直接拦下，保证提交历史干净可追溯。对外的「发展历程」时间轴页则由 GitHub Pages 自动部署。
+    </div></div>
+
+    <div class="beat"><div class="t">～40s S15</div><div class="p">
+      <span class="lbl">③ 数据持久化与恢复</span>
+      运维上我最当回事的是数据不能丢。我把数据库、用户上传的附件和密钥，定时同步到一个私有的 HuggingFace 数据集异地留存，并按命名空间把「实时状态」和「参考数据」分开存放；真要换机或出故障，一条 <code>make data-pull</code> 就能把整站数据拉回来复现，把单点丢失的风险降到最低。
+    </div></div>
+
+    <div class="beat"><div class="t">～50s S16</div><div class="p">
+      <span class="lbl">④ 安全与性能</span>
+      最后是稳与快两条线。安全上设了四道防线：JWT 加 bcrypt 做鉴权，上传按扩展名拦掉 svg、html 这类可被当脚本执行的文件，静态响应再统一注入 nosniff 头，双重抑制存储型 XSS，另加体积上限和真实类型校验。性能上首屏 JS 压缩后约 144KB、全路由懒加载，AI 欢迎语缓存三小时轮换来摊薄外部调用。
+    </div></div>
+
+    <div class="beat"><div class="t">～15s 收尾</div><div class="p">
+      总结一句：我负责的部署与运维，把这套系统从「能跑」，做到了「稳定地对外服务、并且随时可恢复」。谢谢，请老师批评指正。
+    </div></div>
+  </div>
+
+  <!-- ===================== 速记卡 ===================== -->
+  <h2><span class="n">二、</span>上场前 30 秒速记卡（关键数字别报错）</h2>
+  <div class="chips">
+    <span>1 台华为云 VPS</span><span>2 域名 winbeau.top + feiyue.selab.top</span>
+    <span>uvicorn :8001</span><span>systemd feiyue-backend</span>
+    <span>deploy.sh 六步</span><span>JWT 7 天 + bcrypt</span>
+    <span>首屏 ≈144KB / 预算 200KB</span><span>缓存 3h</span><span>上传 ≤50MB</span>
+    <span>拦 .svg/.html/.htm/.xml + nosniff</span>
+  </div>
+
+  <!-- ===================== Q&A ===================== -->
+  <h2><span class="n">三、</span>可能被问到的问题与参考回答</h2>
+  <div class="qa">
+    <p class="q">生产环境为什么用 SQLite，而不是 MySQL / PostgreSQL？靠谱吗？</p>
+    <p class="a">本项目是校内中小规模——百级用户、千级内容，读多写少，SQLite 单文件、零额外运维、事务完整，完全够用；而且后端用的是 SQLAlchemy 异步引擎，数据层与具体数据库解耦，日后要切 Postgres 只需改连接串（代码里已保留 asyncpg 作备用）。它的写并发是短板，但对当前负载不构成瓶颈。</p>
+
+    <p class="q">只有一台 VPS，单点故障怎么办？</p>
+    <p class="a">诚实讲，当前是单机部署，确实存在单点。我们的容灾思路不是多副本，而是「数据异地留存 + 快速重建」：全部状态定时同步到私有数据集，换一台机器只要 uv 同步依赖、跑迁移、再 <code>data-pull</code>，十几分钟就能整站复现。多副本与负载均衡属于规模上来后的后续演进。</p>
+
+    <p class="q">密钥也同步到数据集，不怕泄露？</p>
+    <p class="a">这个数据集是私有的、非公开，只有持有账号 token 才能访问；同步的是密钥文件的异地备份而非对外暴露。更严格的做法是密钥走独立的密钥管理或环境注入、不进备份，这是可以加强的点。</p>
+
+    <p class="q">deploy.sh 部署会停机吗？能回滚吗？</p>
+    <p class="a">会有秒级中断——<code>systemctl restart</code> 期间后端短暂不可用，对当前场景可接受。真正的零停机需要蓝绿或多 worker 滚动重启，是后续。回滚上，部署本质就是 git 拉取，回退到上一个提交重跑脚本即可；数据库迁移我们尽量保持向前兼容，以降低回滚风险。</p>
+
+    <p class="q">为什么不用 gunicorn 多 worker？单进程性能够吗？</p>
+    <p class="a">FastAPI 是异步框架，单进程对 IO 密集型并发已能支撑当前负载，配合 nginx 足够。多 worker（gunicorn + uvicorn worker）是现成的纵向扩展手段，需要时加一行配置即可，属于容量规划、不是架构改动。</p>
+
+    <p class="q">JWT 有效期 7 天会不会太长？能主动吊销吗？</p>
+    <p class="a">7 天是易用性与安全的折中，适合校内低敏场景。当前是无状态 JWT、不支持主动吊销，这是明确的取舍；要吊销可改成「短期 access + 刷新 token」或加服务端黑名单，属于安全增强的后续项。</p>
+
+    <p class="q">上传只拦 svg/html 就够防 XSS 吗？</p>
+    <p class="a">这是第一道；更关键的是第二道——静态服务对每个响应统一注入 <code>nosniff</code>，即使有文件漏网，浏览器也不会把它当脚本执行，两道互为兜底；再加 50MB 上限和 magic-byte 真实类型核验，防止改扩展名伪装。</p>
+
+    <p class="q">首屏 144KB 怎么测的？WritePage 464KB 怎么解释？</p>
+    <p class="a">是 Vite 构建后统计各 chunk 的 gzip 体积得到的，首屏 main ≈144KB，在 200KB 预算内。WritePage 因为集成了 CodeMirror 编辑器、字级 diff 和公式渲染，单页 464KB 超预算——我们没有回避，而是作为「已知偏差」写进文档，并靠路由懒加载保证它只在进入写作页时才加载，不拖累首屏。</p>
+
+    <p class="q">HTTPS 证书怎么管理？<span class="flag">〔按你实际情况确认再答〕</span></p>
+    <p class="a">TLS 在 nginx 层终止，证书用 Let's Encrypt 自动签发与续期。<span class="flag">（这条我不确定你们服务器的真实配置，答辩前请核实：是否 certbot 自动续期，还是手动。）</span></p>
+  </div>
+
+  <!-- ===================== 边界提醒 ===================== -->
+  <h2><span class="n">四、</span>不要说错的边界</h2>
+  <div class="warn">
+    <b>① 服务名</b>：图与讲稿按 <code>feiyue-backend.service</code>；若你们生产上实际叫 <code>aurash-backend</code>（部署源是 winbeau/Aurash），临场以真实为准，别报反。<br>
+    <b>② 规模数字</b>：≈182 commits / 62 seed / 144KB 取自既有口径，答辩前复核一遍。<br>
+    <b>③ 别把「规划项」说成「已上线」</b>：多副本、零停机、JWT 吊销、独立密钥管理、监控告警——这些如实说是「后续增强」，评委反而认可你清楚边界。
+  </div>
+
+  <p class="sub" style="text-align:center;margin-top:24px;">—— 讲稿 3.5–4 分钟 · 9 条 Q&A · 配图见 <code>运维与部署-PPT参考.html</code> ——</p>
+</div>

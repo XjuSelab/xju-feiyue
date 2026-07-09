@@ -1,0 +1,41 @@
+<mxfile host="app.diagrams.net" agent="figlib">
+  <diagram id="图6-12 状态图·评论" name="图6-12 状态图·评论">
+    <mxGraphModel dx="996" dy="629" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3060" pageHeight="1247" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="visible" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;rounded=1;arcSize=40;" value="可见 visible" vertex="1">
+          <mxGeometry height="187" width="567" x="567" y="476" as="geometry" />
+        </mxCell>
+        <mxCell id="f" parent="1" style="ellipse=;shape=endState;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="74" width="74" x="1603" y="532.5" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="whiteSpace=wrap;html=1;fontFamily=SimSun;fontSize=34;fillColor=#ffffff;strokeColor=#000000;dashed=1;rounded=1;arcSize=40;" value="隐藏 pending" vertex="1">
+          <mxGeometry height="176" width="567" x="567" y="907" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="visible" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;" target="f" value="评论作者 / 笔记作者删除">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="visible" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="pending" value="AI 高置信 / 管理员裁决（规划）">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pending" style="html=1;rounded=0;endArrow=block;endFill=1;strokeColor=#000000;fontFamily=SimSun;fontSize=34;fontColor=#000000;dashed=1;" target="visible" value="恢复（规划）">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="453" y="994" />
+              <mxPoint x="453" y="663" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xw4WqqsOlv2MYpSYADbx-1" parent="1" style="ellipse;html=1;shape=startState;fillColor=#333333;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="443" y="532.5" as="geometry" />
+        </mxCell>
+        <mxCell id="xw4WqqsOlv2MYpSYADbx-2" edge="1" parent="1" source="xw4WqqsOlv2MYpSYADbx-1" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#000000;rounded=0;entryX=0.002;entryY=0.384;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#333333;" target="visible" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="458" y="622.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
