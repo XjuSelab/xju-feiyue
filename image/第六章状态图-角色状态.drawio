@@ -1,0 +1,117 @@
+<mxfile host="Electron" agent="Codex">
+  <diagram name="User.role 状态图" id="state-user-role">
+    <mxGraphModel dx="1016" dy="755" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" parent="1" style="ellipse;html=1;aspect=fixed;fillColor=#17212b;strokeColor=#17212b;" value="" vertex="1">
+          <mxGeometry height="36" width="36" x="124" y="304" as="geometry" />
+        </mxCell>
+        <mxCell id="user" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fontSize=15;fontStyle=1;" value="user&#xa;普通用户 / 默认角色" vertex="1">
+          <mxGeometry height="105" width="190" x="250" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="admin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fontSize=15;fontStyle=1;" value="admin&#xa;管理员" vertex="1">
+          <mxGeometry height="105" width="190" x="520" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-19" edge="1" parent="1" source="superadmin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="_o3EWIhzY_PbfaTXSDHD-21">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="142" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-20" connectable="0" parent="_o3EWIhzY_PbfaTXSDHD-19" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="用户退出" vertex="1">
+          <mxGeometry relative="1" x="-0.2469" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="superadmin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fontSize=15;fontStyle=1;" value="superadmin&#xa;超级管理员" vertex="1">
+          <mxGeometry height="105" width="190" x="47" y="432.5" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-start-user" edge="1" parent="1" source="start" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#334155;" target="user" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-1" connectable="0" parent="edge-start-user" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="用户登录" vertex="1">
+          <mxGeometry relative="1" x="-0.3154" y="-3" as="geometry">
+            <mxPoint x="9" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-2" edge="1" parent="1" source="admin" style="endArrow=classic;html=1;rounded=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" target="user" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="580" y="440" as="sourcePoint" />
+            <mxPoint x="630" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-3" connectable="0" parent="_o3EWIhzY_PbfaTXSDHD-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="超级管理员降权" vertex="1">
+          <mxGeometry relative="1" x="0.1027" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-4" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" target="admin" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="330" y="240" />
+              <mxPoint x="615" y="240" />
+            </Array>
+            <mxPoint x="330" y="270" as="sourcePoint" />
+            <mxPoint x="380" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-5" connectable="0" parent="_o3EWIhzY_PbfaTXSDHD-4" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="超级管理员升权" vertex="1">
+          <mxGeometry relative="1" x="0.0075" y="2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-6" edge="1" parent="1" source="user" style="endArrow=classic;html=1;rounded=0;exitX=0.371;exitY=0.994;exitDx=0;exitDy=0;exitPerimeter=0;" target="_o3EWIhzY_PbfaTXSDHD-10" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="580" y="440" as="sourcePoint" />
+            <mxPoint x="320" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-7" connectable="0" parent="_o3EWIhzY_PbfaTXSDHD-6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="用户退出" vertex="1">
+          <mxGeometry relative="1" x="-0.1025" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-8" edge="1" parent="1" source="admin" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="580" y="440" as="sourcePoint" />
+            <mxPoint x="615" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-9" connectable="0" parent="_o3EWIhzY_PbfaTXSDHD-8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="用户退出" vertex="1">
+          <mxGeometry relative="1" x="0.1012" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-10" parent="1" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=light-dark(#080808, #ff9090);" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="305" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-11" parent="1" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="600" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="结束" vertex="1">
+          <mxGeometry height="30" width="60" x="290" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="结束" vertex="1">
+          <mxGeometry height="30" width="60" x="585" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-17" edge="1" parent="1" source="start" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="superadmin" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="500" y="340" as="sourcePoint" />
+            <mxPoint x="550" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-18" connectable="0" parent="_o3EWIhzY_PbfaTXSDHD-17" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="用户登录" vertex="1">
+          <mxGeometry relative="1" x="0.0551" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-21" parent="1" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="127" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="_o3EWIhzY_PbfaTXSDHD-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="结束" vertex="1">
+          <mxGeometry height="30" width="60" x="112" y="625" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,240 @@
+<mxfile host="Electron" agent="Codex">
+  <diagram name="班级管理详细类图" id="class-management-detailed-class-diagram">
+    <mxGraphModel dx="616" dy="458" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1250" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="User&lt;div&gt;&lt;br&gt;&lt;div&gt;+ sid: String(11) PK&lt;br&gt;+ name: String&lt;br&gt;+ nickname: String&lt;br&gt;+ avatarThumb: String?&lt;br&gt;+ role: user | admin | superadmin&lt;br&gt;+ classId: int? FK&lt;br&gt;+ isClassCommittee: bool&lt;br&gt;+ committeeTitle: String?&lt;br&gt;&lt;br&gt;&lt;div&gt;+ classFullName(): String?&lt;br&gt;+ classShortName(): String?&lt;br&gt;+ setUserClass(classId?)&lt;br&gt;+ setUserCommittee(flag,title?)&lt;br&gt;+ setMemberCommittee(sid,flag,title?)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="300" width="290" x="40" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="student-class" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="StudentClass&lt;br&gt;&lt;br&gt;+ id: int PK&lt;br&gt;+ fullName: String(120) unique&lt;br&gt;+ shortName: String(64) unique&lt;br&gt;+ createdAt: DateTime&lt;br&gt;&lt;br&gt;+ listClasses()&lt;br&gt;+ createClass(fullName, shortName)&lt;br&gt;+ updateClass(id, names)&lt;br&gt;+ deleteClass(id)&lt;br&gt;+ countClassMembers()" vertex="1">
+          <mxGeometry height="240" width="300" x="430" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="rollcall-session" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="RollCallSession&lt;br&gt;&lt;br&gt;+ id: String PK&lt;br&gt;+ classId: int FK&lt;br&gt;+ title: String?&lt;br&gt;+ createdBySid: String FK&lt;br&gt;+ createdAt: DateTime&lt;br&gt;+ closedAt: DateTime?&lt;br&gt;&lt;br&gt;+ createRollcall(title?)&lt;br&gt;+ listRollcalls(limit,offset)&lt;br&gt;+ updateRollcall(title?,closed?)&lt;br&gt;+ deleteRollcall()&lt;br&gt;+ rollcallDetail()" vertex="1">
+          <mxGeometry height="260" width="310" x="830" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="rollcall-record" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="RollCallRecord&lt;br&gt;&lt;br&gt;&lt;div&gt;+ sessionId: String PK, FK&lt;br&gt;+ sid: String PK, FK&lt;br&gt;+ present: bool&lt;br&gt;+ checkedAt: DateTime?&lt;br&gt;+ checkedBySid: String?&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ upsertRecord(sid,present)&lt;br&gt;+ setPresent(present)&lt;br&gt;+ auditCheckedBy(actor)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="295" x="1215" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="group-member" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#17212b;" value="GroupMember&lt;div&gt;&lt;br&gt;+ groupId: String PK, FK&lt;br&gt;+ sid: String PK, FK&lt;br&gt;+ role: leader | member&lt;br&gt;+ joinedAt: DateTime&lt;br&gt;&lt;br&gt;+ membershipOf(gid,sid)&lt;br&gt;+ transferLeader(targetSid)&lt;br&gt;+ removeMember(sid)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="290" x="40" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="group" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="Group&lt;br&gt;&lt;br&gt;+ id: String PK&lt;br&gt;+ classId: int FK&lt;br&gt;+ name: String&lt;br&gt;+ logo: String?&lt;br&gt;+ logoThumb: String?&lt;br&gt;+ intro: Text&lt;br&gt;+ leaderSid: String FK&lt;br&gt;+ deleted: bool&lt;br&gt;+ createdAt: DateTime&lt;br&gt;+ updatedAt: DateTime&lt;br&gt;&lt;br&gt;+ createGroup(name,intro)&lt;br&gt;+ updateGroup(name?,intro?)&lt;br&gt;+ uploadLogo(file)&lt;br&gt;+ softDeleteGroup()&lt;br&gt;+ groupDetailOut(viewer)" vertex="1">
+          <mxGeometry height="300" width="310" x="430" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="join-request" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="GroupJoinRequest&lt;br&gt;&lt;br&gt;+ id: String PK&lt;br&gt;+ groupId: String FK&lt;br&gt;+ sid: String FK&lt;br&gt;+ message: String?&lt;br&gt;+ status: pending | approved | rejected&lt;br&gt;+ createdAt: DateTime&lt;br&gt;+ decidedBySid: String?&lt;br&gt;+ decidedAt: DateTime?&lt;br&gt;&lt;br&gt;&lt;div&gt;+ createJoinRequest(message?)&lt;br&gt;+ approveRequest(actor)&lt;br&gt;+ rejectRequest(actor)&lt;br&gt;+ cancelPending()&lt;/div&gt;" vertex="1">
+          <mxGeometry height="280" width="320" x="820" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="group-file" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="GroupFile&lt;br&gt;&lt;br&gt;+ id: String PK&lt;br&gt;+ groupId: String FK&lt;br&gt;+ name: String&lt;br&gt;+ ext: String?&lt;br&gt;+ mime: String?&lt;br&gt;+ sizeBytes: int?&lt;br&gt;+ url: String?&lt;br&gt;+ storagePath: String?&lt;br&gt;+ uploadedBySid: String FK&lt;br&gt;+ deleted: bool&lt;br&gt;+ createdAt: DateTime&lt;br&gt;&lt;br&gt;+ uploadFiles(files)&lt;br&gt;+ listGroupFiles()&lt;br&gt;+ downloadFile()&lt;br&gt;+ deleteFile()" vertex="1">
+          <mxGeometry height="300" width="295" x="1215" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="classes-service" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="ClassesService&lt;br&gt;&lt;br&gt;+ ensureInClass(user): int&lt;br&gt;+ isCommitteeOf(user,classId): bool&lt;br&gt;+ ensureCommittee(user,classId)&lt;br&gt;+ isBanzhangOf(user,classId): bool&lt;br&gt;+ listClassMembers(classId)&lt;br&gt;+ createRollcall(classId,actor,title?)&lt;br&gt;+ rollcallSummaries(classId,limit,offset)&lt;br&gt;+ rollcallDetail(session)&lt;br&gt;+ upsertRecord(session,sid,present,actor)" vertex="1">
+          <mxGeometry height="245" width="340" x="40" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="h96o6Iu7uFUoDamMKbWI-3" edge="1" parent="1" source="groups-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="group-task" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="groups-service" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="GroupsService&lt;br&gt;&lt;br&gt;+ getGroupOr404(gid)&lt;br&gt;+ ensureClassMember(group,user)&lt;br&gt;+ ensureGroupMember(group,user)&lt;br&gt;+ ensureGroupManager(group,user)&lt;br&gt;+ createGroup(classId,creator,name,intro)&lt;br&gt;+ createJoinRequest(group,user,message?)&lt;br&gt;+ approveRequest(group,request,actor)&lt;br&gt;+ rejectRequest(request,actor)&lt;br&gt;+ validateAssignees(group,sids)&lt;br&gt;+ setTaskAssignees(taskId,sids)&lt;br&gt;+ tasksOut(gid)" vertex="1">
+          <mxGeometry height="285" width="330" x="430" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="group-task" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;" value="&lt;&lt;entity&gt;&gt;&#xa;GroupTask&#xa;------------------------------&#xa;+ id: String PK&#xa;+ groupId: String FK&#xa;+ title: String&#xa;+ description: Text&#xa;+ startDate: Date&#xa;+ endDate: Date&#xa;+ status: todo | doing | done&#xa;+ progress: int 0-100&#xa;+ createdBySid: String FK&#xa;+ createdAt: DateTime&#xa;+ updatedAt: DateTime&#xa;------------------------------&#xa;+ createTask(body)&#xa;+ updateTask(patch)&#xa;+ deleteTask()&#xa;+ validateTaskDates(start,end)" vertex="1">
+          <mxGeometry height="300" width="320" x="820" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="e-class-user" edge="1" parent="1" source="student-class" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;fontSize=11;fontColor=#334155;" target="user" value="class.* students&lt;div&gt;&lt;br/&gt;&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="290" />
+              <mxPoint x="360" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-class-rollcall" edge="1" parent="1" source="student-class" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;fontSize=11;fontColor=#334155;" target="rollcall-session" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rollcall-record" edge="1" parent="1" source="rollcall-session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=open;strokeWidth=1.8;fontSize=11;fontColor=#334155;" target="rollcall-record" value="组合">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-rollcall-created" edge="1" parent="1" source="rollcall-session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;fontSize=11;fontColor=#475569;" target="user" value="创建用户操作">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="975" y="150" />
+              <mxPoint x="185" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-class-group" edge="1" parent="1" source="student-class" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;fontSize=11;fontColor=#334155;" target="group" value="1 / 0..*&amp;nbsp;&lt;br&gt;级联删除">
+          <mxGeometry relative="1" x="0.0606" y="85" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-member" edge="1" parent="1" source="group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=open;strokeWidth=1.8;fontSize=11;fontColor=#334155;" target="group-member" value="组合&lt;br&gt;n ：1">
+          <mxGeometry relative="1" x="-0.2378" y="10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-user-member" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.4;fontSize=11;fontColor=#334155;" target="group-member" value="n：n">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-group-leader" edge="1" parent="1" source="group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;fontSize=11;fontColor=#475569;" target="user" value="leaderSid 1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="475" />
+              <mxPoint x="185" y="475" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-request" edge="1" parent="1" source="group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;fontSize=11;fontColor=#334155;" target="join-request" value="1 / 0..* requests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-approve-member" edge="1" parent="1" source="join-request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;strokeWidth=1.6;fontSize=11;fontColor=#14532d;" target="group-member" value="">
+          <mxGeometry relative="1" x="0.3043" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="980" y="830" />
+              <mxPoint x="185" y="830" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h96o6Iu7uFUoDamMKbWI-1" connectable="0" parent="e-approve-member" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="通过组成员，拒绝其他邀请" vertex="1">
+          <mxGeometry relative="1" x="0.4241" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h96o6Iu7uFUoDamMKbWI-2" connectable="0" parent="e-approve-member" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="管理" vertex="1">
+          <mxGeometry relative="1" x="-0.3006" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-file" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;fontSize=11;fontColor=#334155;entryX=0.004;entryY=0.16;entryDx=0;entryDy=0;entryPerimeter=0;" target="group-file" value="1 / 0..* files&lt;br&gt;文件删除操作">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="723" y="492" />
+              <mxPoint x="961" y="492" />
+              <mxPoint x="961" y="470" />
+              <mxPoint x="1216" y="470" />
+            </Array>
+            <mxPoint x="723.18" y="501.79999999999995" as="sourcePoint" />
+            <mxPoint x="1210" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-user-file" edge="1" parent="1" source="group-file" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;fontSize=11;fontColor=#475569;" target="user" value="更新信息">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1363" y="455" />
+              <mxPoint x="185" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-task" edge="1" parent="1" source="group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;fontSize=11;fontColor=#334155;entryX=0.668;entryY=-0.007;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.967;exitDx=0;exitDy=0;exitPerimeter=0;" target="group-task" value="1 / 0..* tasks">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="740" y="730" as="sourcePoint" />
+            <mxPoint x="980" y="930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-user-task" edge="1" parent="1" source="group-task" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" target="user" value="createdBySid">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="1175" />
+              <mxPoint x="20" y="1175" />
+              <mxPoint x="20" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-classes-service-user" edge="1" parent="1" source="classes-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;fontSize=11;fontColor=#9a3412;" target="user" value="uses">
+          <mxGeometry relative="1" x="-0.4942" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="210" y="780" />
+              <mxPoint x="340" y="780" />
+              <mxPoint x="340" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-classes-service-rollcall" edge="1" parent="1" source="classes-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;fontSize=11;fontColor=#9a3412;" target="rollcall-session" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="1155" />
+              <mxPoint x="775" y="1155" />
+              <mxPoint x="775" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-12" connectable="0" parent="e-classes-service-rollcall" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="级联删除" vertex="1">
+          <mxGeometry relative="1" x="0.9489" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h96o6Iu7uFUoDamMKbWI-4" connectable="0" parent="e-classes-service-rollcall" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="管理" vertex="1">
+          <mxGeometry relative="1" x="0.0753" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-groups-service-group" edge="1" parent="1" source="groups-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;fontSize=11;fontColor=#9a3412;" target="group" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-groups-service-request" edge="1" parent="1" source="groups-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;fontSize=11;fontColor=#9a3412;" target="join-request" value="">
+          <mxGeometry relative="1" x="0.774" y="-10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-groups-service-task" edge="1" parent="1" source="groups-service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;fontSize=11;fontColor=#9a3412;" target="group-task" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-5" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="290" x="40" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-6" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="290" x="40" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-7" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="300" x="430" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-8" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="300" x="430" y="276" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-10" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="310" x="830" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-11" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="10" width="310" x="830" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-14" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="295" x="1215" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-15" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="295" x="1215" y="286" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-17" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="190" width="290" x="40" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-18" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="290" x="40" y="641" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-19" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="310" x="430" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-20" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="310" x="430" y="690" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-21" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="320" x="820" y="527" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-22" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="340" x="40" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-24" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="320" x="820" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-25" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="330" x="430" y="890" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-26" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="300" x="1210" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="Um1M0NybxCraxLs-eZ_f-27" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="295" x="1215" y="682" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
