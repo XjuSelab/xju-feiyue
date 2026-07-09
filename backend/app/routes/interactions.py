@@ -66,15 +66,18 @@ def _to_comment_out(
 
 
 async def _ensure_note(db: AsyncSession, note_id: str) -> Note:
+    # 隐藏（moderation resolve → status='hidden'）与不存在同样返回 404：
+    # 读路径（notes.get_one / 列表）已按 visible 过滤，写路径必须一致，
+    # 否则被隐藏的内容仍可被点赞/点踩/收藏/回复。
     note = await db.get(Note, note_id)
-    if not note:
+    if not note or note.status != "visible":
         raise HTTPException(status_code=404, detail="笔记不存在")
     return note
 
 
 async def _ensure_comment(db: AsyncSession, comment_id: str) -> Comment:
     comment = await db.get(Comment, comment_id)
-    if not comment:
+    if not comment or comment.status != "visible":
         raise HTTPException(status_code=404, detail="评论不存在")
     return comment
 
@@ -268,7 +271,7 @@ async def create_comment(
     parent: Comment | None = None
     if body.parent_id is not None:
         parent = await db.get(Comment, body.parent_id)
-        if parent is None or parent.note_id != note_id:
+        if parent is None or parent.note_id != note_id or parent.status != "visible":
             raise HTTPException(status_code=404, detail="父评论不存在")
         if parent.parent_id is not None:
             raise HTTPException(status_code=422, detail="仅支持两层评论")

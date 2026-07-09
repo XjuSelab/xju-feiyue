@@ -15,6 +15,7 @@ Privilege hierarchy for acting on *other* accounts:
 
 from __future__ import annotations
 
+import shutil
 from datetime import datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -404,6 +405,9 @@ async def delete_user(
             fname = url.rsplit("/", 1)[-1]
             if fname and "/" not in fname and ".." not in fname:
                 (groups_svc.UPLOAD_ROOT / "avatars" / fname).unlink(missing_ok=True)
+    # 4. 笔记/评论图片与文档附件 —— 统一落在 uploads/notes/<sid>/ 一个目录下
+    #    （见 routes/uploads.py），行随 CASCADE 消失，目录整体删掉即可。
+    shutil.rmtree(groups_svc.UPLOAD_ROOT / "notes" / sid, ignore_errors=True)
 
     # Core DELETE（绕过 ORM 级联机制 —— User.notes/drafts 是 lazy="raise"，
     # session.delete 会尝试加载它们；DB 级 CASCADE 已覆盖全部子表）。

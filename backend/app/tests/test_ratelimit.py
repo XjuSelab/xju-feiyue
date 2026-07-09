@@ -87,6 +87,28 @@ async def test_interaction_endpoint_throttled_when_enabled(
     assert int(blocked.headers["Retry-After"]) >= 1
 
 
+async def test_report_endpoint_throttled_when_enabled(
+    client: AsyncClient,
+    auth_headers: dict[str, str],
+    demo_user: User,
+    db_session: AsyncSession,
+    monkeypatch,
+) -> None:
+    """POST /reports 走 'report' 桶 —— 每单触发后台 AI 预审，必须挡刷单。"""
+    note_id = await _seed_note(db_session, demo_user.sid, nid="rl_note3")
+    monkeypatch.setattr(settings, "rate_limit_enabled", True)
+    monkeypatch.setitem(ratelimit.LIMITS, "report", (2, 60.0))
+
+    body = {"targetType": "note", "targetId": note_id, "reason": "spam"}
+    for _ in range(2):
+        r = await client.post("/reports", headers=auth_headers, json=body)
+        assert r.status_code == 201, r.text
+
+    blocked = await client.post("/reports", headers=auth_headers, json=body)
+    assert blocked.status_code == 429
+    assert int(blocked.headers["Retry-After"]) >= 1
+
+
 async def test_not_throttled_when_disabled(
     client: AsyncClient,
     auth_headers: dict[str, str],

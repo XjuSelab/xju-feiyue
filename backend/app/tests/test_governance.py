@@ -183,6 +183,67 @@ async def test_report_comment_resolve_hide(
     assert cid not in [x["id"] for x in listed.json()["items"]]
 
 
+async def test_hidden_note_locked_for_writes(
+    client: AsyncClient,
+    demo_user: User,
+    auth_headers: dict[str, str],
+    db_session: AsyncSession,
+) -> None:
+    """隐藏后的笔记对写操作与不存在等价（404）——读路径已过滤，写路径必须一致。"""
+    await _seed_user(db_session, AUTHOR, "author")
+    await _seed_note(db_session, AUTHOR, "gov_n6")
+    admin_h = await _login(client, (await _seed_user(db_session, ADMIN, "adm", role="admin")).sid)
+
+    r = await client.post(
+        "/reports",
+        headers=auth_headers,
+        json={"targetType": "note", "targetId": "gov_n6", "reason": "spam"},
+    )
+    await client.post(
+        f"/reports/{r.json()['id']}/resolve", headers=admin_h, json={"action": "hide"}
+    )
+
+    for path in ("like", "dislike", "favorite"):
+        assert (
+            await client.post(f"/notes/gov_n6/{path}", headers=auth_headers)
+        ).status_code == 404
+    c = await client.post("/notes/gov_n6/comments", headers=auth_headers, json={"content": "x"})
+    assert c.status_code == 404
+
+
+async def test_hidden_comment_locked_for_writes(
+    client: AsyncClient,
+    demo_user: User,
+    auth_headers: dict[str, str],
+    db_session: AsyncSession,
+) -> None:
+    author_h = await _login(client, (await _seed_user(db_session, AUTHOR, "author")).sid)
+    await _seed_note(db_session, AUTHOR, "gov_n7")
+    admin_h = await _login(client, (await _seed_user(db_session, ADMIN, "adm", role="admin")).sid)
+
+    c = await client.post("/notes/gov_n7/comments", headers=author_h, json={"content": "bad"})
+    cid = c.json()["id"]
+    r = await client.post(
+        "/reports",
+        headers=auth_headers,
+        json={"targetType": "comment", "targetId": cid, "reason": "harassment"},
+    )
+    await client.post(
+        f"/reports/{r.json()['id']}/resolve", headers=admin_h, json={"action": "hide"}
+    )
+
+    # 隐藏评论：不能表态，也不能作为父评论被回复
+    assert (
+        await client.post(f"/comments/{cid}/like", headers=auth_headers)
+    ).status_code == 404
+    reply = await client.post(
+        "/notes/gov_n7/comments",
+        headers=auth_headers,
+        json={"content": "re", "parentId": cid},
+    )
+    assert reply.status_code == 404
+
+
 async def test_block_hides_notes_and_unblock_restores(
     client: AsyncClient,
     demo_user: User,

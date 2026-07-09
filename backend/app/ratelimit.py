@@ -24,6 +24,8 @@ LIMITS: dict[str, tuple[int, float]] = {
     "interaction": (30, 10.0),
     # 发评论
     "comment": (10, 60.0),
+    # 提交举报（每单还会触发一次后台 AI 预审调用，必须挡刷单）
+    "report": (5, 60.0),
 }
 
 

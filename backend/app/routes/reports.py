@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Comment, Note, Report, User
 from app.deps import get_current_user, get_db, require_admin
+from app.ratelimit import rate_limit
 from app.schemas.note import NoteAuthorOut
 from app.schemas.report import ReportCreateIn, ReportOut, ReportResolveIn
 from app.services.moderation import review_report
@@ -55,7 +56,12 @@ def _report_out(report: Report, reporter: User | None = None) -> ReportOut:
     )
 
 
-@router.post("/reports", response_model=ReportOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/reports",
+    response_model=ReportOut,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(rate_limit("report"))],
+)
 async def create_report(
     body: ReportCreateIn,
     background: BackgroundTasks,
