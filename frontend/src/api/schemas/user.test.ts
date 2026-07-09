@@ -3,27 +3,35 @@ import { LoginRequestSchema, LoginResponseSchema, UserSchema } from './user'
 
 describe('UserSchema', () => {
   it('accepts a minimal user', () => {
-    expect(() => UserSchema.parse({ id: 'u1', sid: '20211010001', name: 'Alice' })).not.toThrow()
+    expect(() =>
+      UserSchema.parse({ sid: '20211010001', name: 'Alice', nickname: '小A' }),
+    ).not.toThrow()
   })
 
   it('accepts optional avatar URL and bio', () => {
     expect(() =>
       UserSchema.parse({
-        id: 'u1',
         sid: '20211010001',
         name: 'Alice',
+        nickname: '小A',
         avatar: 'https://example.com/a.png',
         bio: 'hello',
       }),
     ).not.toThrow()
   })
 
+  it('defaults exp/level to 0 for legacy payloads', () => {
+    const u = UserSchema.parse({ sid: '20211010001', name: 'Alice', nickname: '小A' })
+    expect(u.exp).toBe(0)
+    expect(u.level).toBe(0)
+  })
+
   it('rejects non-URL avatar', () => {
     expect(() =>
       UserSchema.parse({
-        id: 'u1',
         sid: '20211010001',
         name: 'Alice',
+        nickname: '小A',
         avatar: 'not-a-url',
       }),
     ).toThrow()
@@ -57,7 +65,7 @@ describe('LoginResponseSchema', () => {
   it('requires user + token', () => {
     expect(() =>
       LoginResponseSchema.parse({
-        user: { id: 'u1', sid: '20211010001', name: 'A' },
+        user: { sid: '20211010001', name: 'A', nickname: '小A' },
         token: 'abc',
       }),
     ).not.toThrow()
@@ -66,7 +74,7 @@ describe('LoginResponseSchema', () => {
   it('rejects empty token', () => {
     expect(() =>
       LoginResponseSchema.parse({
-        user: { id: 'u1', sid: '20211010001', name: 'A' },
+        user: { sid: '20211010001', name: 'A', nickname: '小A' },
         token: '',
       }),
     ).toThrow()

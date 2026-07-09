@@ -7,7 +7,7 @@ import {
 } from './ai'
 
 describe('AIComposeModeSchema', () => {
-  it.each(['polish', 'shorten', 'expand', 'tone', 'translate', 'custom'] as const)(
+  it.each(['polish', 'shorten', 'expand', 'tone', 'translate', 'custom', 'summarize'] as const)(
     'accepts %s',
     (mode) => {
       expect(() => AIComposeModeSchema.parse(mode)).not.toThrow()
@@ -15,7 +15,7 @@ describe('AIComposeModeSchema', () => {
   )
 
   it('rejects unknown mode', () => {
-    expect(() => AIComposeModeSchema.parse('summarize')).toThrow()
+    expect(() => AIComposeModeSchema.parse('rewrite')).toThrow()
   })
 })
 

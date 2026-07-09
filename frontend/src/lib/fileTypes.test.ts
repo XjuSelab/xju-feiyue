@@ -52,11 +52,12 @@ describe('isDocFile / isImageFile', () => {
 })
 
 describe('kindOf', () => {
-  it('maps office families to brand token classes', () => {
+  it('maps office families to brand colors', () => {
+    // Word 用品牌蓝任意值（见 fileTypes.ts 注释），其余家族仍走 cat-* token。
     expect(kindOf('.docx')).toMatchObject({
       kind: 'word',
-      iconColorClass: 'text-cat-kaggle',
-      tileBgClass: 'bg-tag-kaggle',
+      iconColorClass: 'text-[#2b579a]',
+      tileBgClass: 'bg-[#2b579a]/10',
     })
     expect(kindOf('xls')).toMatchObject({ kind: 'excel', iconColorClass: 'text-cat-tools' })
     expect(kindOf('.PPTX')).toMatchObject({ kind: 'ppt', iconColorClass: 'text-cat-course' })

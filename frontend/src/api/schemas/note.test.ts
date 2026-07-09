@@ -8,11 +8,12 @@ const VALID_NOTE = {
   content: '',
   category: 'research' as const,
   tags: ['paper'],
-  author: { id: 'u1', name: 'Alice' },
+  author: { sid: '20211010001', nickname: 'Alice' },
   createdAt: '2026-05-09T00:00:00Z',
   likes: 10,
   comments: 2,
   readMinutes: 5,
+  likedByMe: false,
 }
 
 describe('NoteSchema', () => {
