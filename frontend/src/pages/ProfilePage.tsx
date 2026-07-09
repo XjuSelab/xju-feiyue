@@ -1,8 +1,15 @@
 import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { FileText, NotebookPen, Pencil, Trash2 } from 'lucide-react'
-import { useMyNotes, useMyDrafts, useDeleteDraft, useXpEvents, type XpEvent } from '@/api'
+import { Bookmark, FileText, NotebookPen, Pencil, Trash2 } from 'lucide-react'
+import {
+  useMyNotes,
+  useMyDrafts,
+  useMyFavorites,
+  useDeleteDraft,
+  useXpEvents,
+  type XpEvent,
+} from '@/api'
 import { useAuthStore } from '@/stores/authStore'
 import { LevelBadge } from '@/features/growth/LevelBadge'
 import { CollectionsTab } from '@/features/collections/CollectionsTab'
@@ -17,7 +24,7 @@ import type { Note } from '@/api/schemas/note'
 import type { Draft } from '@/api/endpoints/drafts'
 
 /**
- * /me — 当前用户的已发布笔记 + 草稿。两个 tab，刷新计数。
+ * /me — 当前用户的已发布笔记 / 草稿 / 收藏 / 笔记合集 / 已拉黑，五个 tab。
  */
 export function ProfilePage() {
   const user = useAuthStore((s) => s.user)
@@ -25,6 +32,7 @@ export function ProfilePage() {
 
   const notesQ = useMyNotes(authed)
   const draftsQ = useMyDrafts(authed)
+  const favoritesQ = useMyFavorites(authed)
   const xpQ = useXpEvents(authed)
 
   const publishedNotes = useMemo<Note[]>(
@@ -68,6 +76,7 @@ export function ProfilePage() {
         <TabsList>
           <TabsTrigger value="published">已发布 ({publishedNotes.length})</TabsTrigger>
           <TabsTrigger value="drafts">草稿 ({drafts.length})</TabsTrigger>
+          <TabsTrigger value="favorites">收藏</TabsTrigger>
           <TabsTrigger value="collections">笔记合集</TabsTrigger>
           <TabsTrigger value="blocks">已拉黑</TabsTrigger>
         </TabsList>
@@ -92,6 +101,16 @@ export function ProfilePage() {
             isError={draftsQ.isError}
             errorMessage={draftsQ.error?.message}
             onRetry={() => void draftsQ.refetch()}
+          />
+        </TabsContent>
+
+        <TabsContent value="favorites" className="mt-6">
+          <FavoritesList
+            notes={favoritesQ.data ?? []}
+            isPending={favoritesQ.isPending}
+            isError={favoritesQ.isError}
+            errorMessage={favoritesQ.error?.message}
+            onRetry={() => void favoritesQ.refetch()}
           />
         </TabsContent>
 
@@ -183,6 +202,55 @@ function PublishedList({
   )
 }
 
+type FavoritesListProps = {
+  notes: Note[]
+  isPending: boolean
+  isError: boolean
+  errorMessage?: string | undefined
+  onRetry: () => void
+}
+
+function FavoritesList({ notes, isPending, isError, errorMessage, onRetry }: FavoritesListProps) {
+  if (isPending) return <LoadingSkeleton preset="card" count={3} />
+  if (isError) {
+    return <ErrorState title="加载收藏失败" message={errorMessage ?? ''} onRetry={onRetry} />
+  }
+  if (notes.length === 0) {
+    return (
+      <EmptyState
+        icon={Bookmark}
+        title="还没有收藏的笔记"
+        description="在笔记页点击收藏，就会出现在这里。"
+      >
+        <Button asChild variant="outline" size="sm">
+          <Link to="/browse">去逛逛</Link>
+        </Button>
+      </EmptyState>
+    )
+  }
+
+  return (
+    <ul className="space-y-3">
+      {notes.map((n) => (
+        <li key={n.id}>
+          <ItemRow
+            kind="favorite"
+            to={`/note/${n.id}`}
+            title={n.title}
+            summary={n.summary}
+            categoryId={n.category}
+            tags={n.tags}
+            timestamp={n.createdAt}
+            action={
+              <span className="text-xs text-text-faint">{n.author.nickname}</span>
+            }
+          />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 type DraftListProps = {
   drafts: Draft[]
   isPending: boolean
@@ -264,7 +332,7 @@ function DraftList({ drafts, isPending, isError, errorMessage, onRetry }: DraftL
 }
 
 type ItemRowProps = {
-  kind: 'published' | 'draft'
+  kind: 'published' | 'draft' | 'favorite'
   to: string
   title: string
   summary: string
@@ -320,7 +388,7 @@ function ItemRow({
   )
 }
 
-function KindBadge({ kind }: { kind: 'published' | 'draft' }) {
+function KindBadge({ kind }: { kind: 'published' | 'draft' | 'favorite' }) {
   if (kind === 'published') {
     return (
       <span
@@ -328,6 +396,16 @@ function KindBadge({ kind }: { kind: 'published' | 'draft' }) {
         className="inline-flex items-center rounded-sm border bg-bg px-1.5 py-0.5 text-[11px] font-medium"
       >
         发布
+      </span>
+    )
+  }
+  if (kind === 'favorite') {
+    return (
+      <span
+        style={{ color: 'var(--cat-recommend)', borderColor: 'var(--cat-recommend)' }}
+        className="inline-flex items-center rounded-sm border bg-bg px-1.5 py-0.5 text-[11px] font-medium"
+      >
+        收藏
       </span>
     )
   }

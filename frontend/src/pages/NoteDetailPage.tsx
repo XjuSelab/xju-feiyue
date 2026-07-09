@@ -27,6 +27,7 @@ import {
   ApiError,
 } from '@/api'
 import { ReportDialog } from '@/features/reports/ReportDialog'
+import { NoteCollectionCard } from '@/features/collections/NoteCollectionCard'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSkeleton } from '@/components/common/LoadingSkeleton'
@@ -458,6 +459,8 @@ export function NoteDetailPage() {
           ))}
         </div>
       )}
+
+      <NoteCollectionCard noteId={note.id} />
     </>
   )
 

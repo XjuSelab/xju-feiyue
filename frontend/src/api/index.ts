@@ -33,6 +33,7 @@ import type {
   CollectionDetail,
   CollectionCreateIn,
   CollectionUpdateIn,
+  NoteCollectionContext,
 } from './schemas/collection'
 import type { Block, Report, ReportCreateIn, ReportResolveIn } from './schemas/report'
 import type { Draft } from './endpoints/drafts'
@@ -576,6 +577,16 @@ export function useMyCollections(enabled = true): UseQueryResult<Collection[]> {
   })
 }
 
+export function useNoteCollectionContext(
+  noteId: string,
+): UseQueryResult<NoteCollectionContext | null> {
+  return useQuery({
+    queryKey: ['note', noteId, 'collection'],
+    queryFn: () => collectionsApi.getNoteCollection(noteId),
+    enabled: !!noteId,
+  })
+}
+
 export function useCollectionDetail(id: string | null): UseQueryResult<CollectionDetail> {
   return useQuery({
     queryKey: ['collection', id],
@@ -723,6 +734,16 @@ export function useMyNotes(
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last: PaginatedNotes) => last.nextCursor ?? undefined,
+    enabled,
+  })
+}
+
+export function useMyFavorites(enabled = true): UseQueryResult<Note[]> {
+  return useQuery({
+    // Key 挂在 ['notes'] 前缀下：useNoteToggle 的乐观更新按此前缀扫 Note[]
+    // 数据、onSettled 也按它失效 —— 取消收藏后本列表自动同步，无需额外接线。
+    queryKey: ['notes', 'favorites'],
+    queryFn: () => authApi.myFavorites(),
     enabled,
   })
 }
