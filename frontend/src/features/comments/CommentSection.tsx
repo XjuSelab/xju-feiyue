@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { Flag, Heart, ImageIcon, Send, ThumbsDown, Trash2, X } from 'lucide-react'
+import { Flag, Heart, ImageIcon, MoreHorizontal, Send, ThumbsDown, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { ApiError } from '@/api/client'
 import {
@@ -11,6 +11,12 @@ import {
 } from '@/api'
 import { uploadNoteImage } from '@/api/endpoints/uploads'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Textarea } from '@/components/ui/textarea'
 import { ReportDialog } from '@/features/reports/ReportDialog'
 import { useAuthStore } from '@/stores/authStore'
@@ -329,15 +335,25 @@ export const CommentSection = forwardRef<CommentSectionHandle, Props>(function C
             <button type="button" onClick={() => onReply(c)} className="transition hover:text-text-muted">
               回复
             </button>
+            {/* 负向操作收进右侧 ⋯ 菜单（举报只在点开后出现）。 */}
             {me && me.sid !== c.author.sid && (
-              <button
-                type="button"
-                onClick={() => setReportTarget(c.id)}
-                aria-label="举报评论"
-                className="inline-flex items-center gap-1 transition hover:text-text-muted"
-              >
-                <Flag size={11} aria-hidden /> 举报
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="更多操作"
+                    className="ml-auto inline-flex items-center rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong data-[state=open]:text-text-muted"
+                  >
+                    <MoreHorizontal size={13} aria-hidden />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onSelect={() => setReportTarget(c.id)} className="gap-2">
+                    <Flag size={14} aria-hidden />
+                    举报评论
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
 

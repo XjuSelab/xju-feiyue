@@ -9,6 +9,7 @@ import {
   Heart,
   MessageSquare,
   MessageSquareOff,
+  MoreHorizontal,
   PanelRight,
   Pencil,
   ThumbsDown,
@@ -41,6 +42,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { CommentSection, type CommentSectionHandle } from '@/features/comments/CommentSection'
 import { useCommentViewMode } from '@/features/comments/useCommentViewMode'
 import { useTextSelection } from '@/features/comments/useTextSelection'
@@ -388,19 +395,6 @@ export function NoteDetailPage() {
           </button>
           <button
             type="button"
-            onClick={onDislikeClick}
-            disabled={toggleDislike.isPending}
-            aria-label={note.dislikedByMe ? '取消点踩' : '点踩'}
-            aria-pressed={note.dislikedByMe}
-            className={cn(
-              'inline-flex items-center rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong',
-              note.dislikedByMe && 'text-text',
-            )}
-          >
-            <ThumbsDown size={12} aria-hidden fill={note.dislikedByMe ? 'currentColor' : 'none'} />
-          </button>
-          <button
-            type="button"
             onClick={onFavoriteClick}
             disabled={toggleFavorite.isPending}
             aria-label={note.favoritedByMe ? '取消收藏' : '收藏'}
@@ -416,29 +410,48 @@ export function NoteDetailPage() {
           <span className="inline-flex items-center gap-1">
             <MessageSquare size={12} aria-hidden /> {note.comments}
           </span>
-          {authMode === 'authed' && !isAuthor && (
-            <>
+          {/* 低频/负向操作收进 ⋯ 菜单，动作行只留点赞/收藏/评论。 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                onClick={() => setReportOpen(true)}
-                aria-label="举报笔记"
-                title="举报"
-                className="inline-flex items-center transition hover:text-text-muted"
+                aria-label="更多操作"
+                className="inline-flex items-center rounded px-1 py-0.5 transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-strong data-[state=open]:text-text-muted"
               >
-                <Flag size={12} aria-hidden />
+                <MoreHorizontal size={14} aria-hidden />
               </button>
-              <button
-                type="button"
-                onClick={onBlockAuthor}
-                disabled={blockAuthor.isPending}
-                aria-label="拉黑作者"
-                title="拉黑作者"
-                className="inline-flex items-center transition hover:text-red-500"
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onSelect={onDislikeClick}
+                disabled={toggleDislike.isPending}
+                className="gap-2"
               >
-                <Ban size={12} aria-hidden />
-              </button>
-            </>
-          )}
+                <ThumbsDown
+                  size={14}
+                  aria-hidden
+                  fill={note.dislikedByMe ? 'currentColor' : 'none'}
+                />
+                {note.dislikedByMe ? '取消点踩' : '点踩'}
+              </DropdownMenuItem>
+              {authMode === 'authed' && !isAuthor && (
+                <>
+                  <DropdownMenuItem onSelect={() => setReportOpen(true)} className="gap-2">
+                    <Flag size={14} aria-hidden />
+                    举报笔记
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={onBlockAuthor}
+                    disabled={blockAuthor.isPending}
+                    className="gap-2 text-cat-research focus:text-cat-research"
+                  >
+                    <Ban size={14} aria-hidden />
+                    拉黑作者
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </span>
       </div>
 
