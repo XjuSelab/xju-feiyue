@@ -24,7 +24,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # 只在团队库部署 Pages(xjuselab.github.io/xju-feiyue/);部署源库 winbeau/Aurash 不跑,避免红叉。
+    # 只在团队库部署 Pages(xjuselab.github.io/xju-feiyue/);fork/镜像库不跑,避免红叉。
     if: github.repository == 'XjuSelab/xju-feiyue'
     environment:
       name: github-pages

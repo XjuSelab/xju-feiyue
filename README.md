@@ -6,11 +6,10 @@
 
 <sub>Feiyue Handbook · Xinjiang University</sub>
 
-> 学长姐把踩过的坑、走通的路留给下一届。<br/>
-> _Paths cleared by those before you, kept open for those after._
+> 踏前人之路，追未尽之远。<br/>
+> _Tread the paths of those before, chase the distance yet unreached._
 
 [![飞跃手册](https://img.shields.io/badge/飞跃手册-feiyue.selab.top-0F7B6C?style=flat-square&logo=cloudflare&logoColor=white)](https://feiyue.selab.top)
-[![主站](https://img.shields.io/badge/主站-winbeau.top-2383E2?style=flat-square&logo=googlechrome&logoColor=white)](https://winbeau.top)
 [![发展历程](https://img.shields.io/badge/发展历程-Pages-9065B0?style=flat-square&logo=githubpages&logoColor=white)](https://xjuselab.github.io/xju-feiyue/)
 [![License](https://img.shields.io/badge/License-MIT-37352F?style=flat-square&logo=git&logoColor=white)](./LICENSE)
 ![Stars](https://img.shields.io/github/stars/XjuSelab/xju-feiyue?style=flat-square&color=D9730D&logo=github&logoColor=white&label=Stars)
@@ -226,15 +225,14 @@ xju-feiyue/
 
 ### 部署 · Deployment
 
-生产环境使用 huawei2 VPS（华为云），nginx 静态服 `frontend/dist` + 反代 FastAPI：
+生产环境使用云 VPS，nginx 静态服 `frontend/dist` + 反代 FastAPI：
 
 ```
-winbeau.top             # 主域名，nginx 直接服 frontend/dist
-feiyue.selab.top        # 镜像，同一 VPS 多域名配置
+feiyue.selab.top        # 主域名，nginx 直接服 frontend/dist
 feiyue-backend.service  # systemd 管理后端进程（uvicorn）
 ```
 
-数据持久化经私有 HuggingFace Dataset `winbeau/xju-feiyue-data` 同步（`make data-pull` 一键恢复）。代码双库维护：[`XjuSelab/xju-feiyue`](https://github.com/XjuSelab/xju-feiyue)（团队规范库）+ `winbeau/Aurash`（部署源）。发展历程页由 GitHub Actions 自动部署（`site/**` 变更触发）。
+数据持久化经私有 HuggingFace Dataset 同步（`make data-pull` 一键恢复）。代码托管于 [`XjuSelab/xju-feiyue`](https://github.com/XjuSelab/xju-feiyue)，部署机拉同一仓库，`./deploy.sh` 一键部署（拉取 → 迁移 → 重启 → 健康检查 → 前端构建）。发展历程页由 GitHub Actions 自动部署（`site/**` 变更触发）。
 
 ---
 

@@ -81,7 +81,7 @@ make data-pull                            # DB + uploads + secrets + schools, al
 cd backend && uv sync && uv run alembic upgrade head   # alembic is idempotent
 ```
 
-The DB stores absolute `https://winbeau.top/uploads/...` URLs, so restoring
+The DB stores absolute `<PUBLIC_BASE_URL>/uploads/...` URLs, so restoring
 `backend/uploads/` to the same path is what keeps avatars/images from 404'ing.
 
 ## Adding future state (extension interface)

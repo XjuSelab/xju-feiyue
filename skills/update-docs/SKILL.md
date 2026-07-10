@@ -28,7 +28,7 @@ GitHub Actions 自动重部署。
 ### 3) 刷新规模数据(prod DB 真实值,**绝不编造**)
 prod 数据库是 huawei2 上的 **SQLite**(`~/xju-feiyue/backend/labnotes.db`,不是 Postgres)。经 tmux 远程查:
 ```bash
-~/.claude/skills/tmux-ssh-remote/tmux-inject.sh -t 60 --auto-recover "Aurash" \
+~/.claude/skills/tmux-ssh-remote/tmux-inject.sh -t 60 --auto-recover "feiyue-prod" \
   'python3 - ~/xju-feiyue/backend/labnotes.db <<PYEOF
 import sqlite3,sys; c=sqlite3.connect(sys.argv[1]).cursor()
 f=lambda q:c.execute(q).fetchone()[0]
@@ -37,7 +37,7 @@ for t in ["users","notes","material_resources","material_files","likes","comment
 print("distinct_login", f("select count(distinct user_sid) from login_events"))
 PYEOF'
 ```
-(若没有 tmux 会话,先用 tmux-ssh-remote skill 拉起名为 `Aurash` 的双跳会话:`ssh -t wsl "ssh -t huawei2"`。)
+(若没有 tmux 会话,先用 tmux-ssh-remote skill 拉起名为 `feiyue-prod` 的双跳会话:`ssh -t wsl "ssh -t huawei2"`。)
 
 ### 4) 更新 `site/index.html`
 - **时间轴倒序约定:最新在最上**。有新里程碑就在 `<div class="timeline">` 内**最前面**插入一个新
@@ -65,7 +65,7 @@ PYEOF'
 ### 8) 提交并部署
 - `git add README.md site/index.html skills/update-docs/VERSIONS.md`(+ frontend 改动若有)。
 - commit(conventional:`docs:` 或 `feat:` 前缀,正文写本版要点)。
-- **推两库**:`git push origin main && git push xju main`(团队库 `XjuSelab/xju-feiyue` + 部署源 `winbeau/Aurash`)。
+- **推库**:`git push origin main`(团队库 `XjuSelab/xju-feiyue`;部署机拉同一 origin)。
 - 推 xju 后 `site/**` 改动触发 Actions 重部署 Pages;`gh run list --repo XjuSelab/xju-feiyue --workflow deploy-pages.yml -L1` 看 success。
 - 只动 `README.md`/`site/` → 无需 FE 部署;若动了 `frontend/` → 还要 FE 部署(huawei2 `git pull` + `pnpm build`)。
 - `curl https://xjuselab.github.io/xju-feiyue/` 复验上线内容(注意 base 域名;Pages CDN 可能延迟几十秒)。

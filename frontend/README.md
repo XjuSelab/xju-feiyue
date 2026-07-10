@@ -4,7 +4,7 @@ Notion-style minimal shell + Claude-style prose container for browsing & writing
 seven categories of research notes. Mock-only data layer with a contract-frozen
 seam so the future real backend swap is zero-churn.
 
-> 工程位置：`/home/winbeau/wenbiao_zhao/Aurash/frontend/`
+> 工程位置：仓库根下 `frontend/`
 > 设计稿（已归档）：`../archive/design-refs/`
 > 后端契约：`../BACKEND_SPEC.md`
 
