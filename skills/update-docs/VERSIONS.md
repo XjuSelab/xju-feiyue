@@ -13,7 +13,7 @@
 - **README.md**:全量重写——居中头部(标题/双语副标/箴言/5 枚 flat-square 徽章,配色对齐 org 主页 2383E2/0F7B6C/9065B0/37352F)、`中文 · English` 双语小节、`:--` 对齐表格、居中 footer。内容新增:社区互动与成长体系(楼中楼/点踩收藏/合集/举报工单+AI 预审/等级签到/限流)、班级空间 /class、管理后台四 Tab、Phase 11/12、贡献者表刷新(winbeau 236 / tyhlt114514-stack 44 / wyiting235-creator 1 / Wenbiao Zhao 1;co-author: Opus 4.7 ×132 / Opus 4.8 1M ×55 / **Fable 5 ×15** / Opus 4.7 1M ×9)、后端服务名改 feiyue-backend、测试规模(pytest 281 / vitest 448)。
 - **site/index.html**:时间轴置顶插入 Phase 12(2026-07-09 社区互动与成长体系,首批同学 PR 合入)与 Phase 11(2026-07-04~07 班级空间);Section 04 引导句更新为 61 天/282 次提交/十二大里程碑;TL;DR 与 Section 01 简介补社区/班级;ftag 增 5 枚(楼中楼/收藏合集/举报工单/等级签到/班级空间)。样式基线未动。
 - **仓库清理(同日 a983090/02deadc)**:删 feiyue.doc.bak(与 文档模板.doc md5 相同)与误提交的 ~$考勤.docx;根目录 5 个课程文档归位 docs/;uv.lock + 3 个 e2e spec + greeting 单测入库。
-- **规模数据**:⚠️ 本次 prod DB 查询被权限分类器拦截(生产读需人工确认),平台数字沿用 2026-06-04 已核实值并明确标注日期;仓库数字(282 commits/61 天/测试数)为本地 git 事实。**下次跑本 skill 优先补一次 prod 统计刷新。**
+- **规模数据(2026-07-10 prod DB,用户授权后经 Aurash tmux 会话查得)**:用户 111 / 笔记 89 / 资料 15 类 139 文件 / 点赞 41 / 评论 7 / 班级 1 / 小组 11 / 登录事件 306(去重活跃 68)。⚠️ **prod 部署路径已改名 `~/xju-feiyue`(原 ~/Aurash,本 skill 步骤 3 的路径需更新)**;prod alembic 头仍在 0012_class_missions —— **Phase 12 社区迁移(0010_community_growth_collections)尚未部署**,favorites/collections/reports/check_ins 表在 prod 还不存在,下次部署须 `alembic upgrade head`(先备份,comments 表会重建)。
 - **当前 Phase 数:12**(最新 = Phase 12 社区互动与成长体系)。**下一个里程碑为 Phase 13。**
 - 注:本仓库 clone 只配了 origin(XjuSelab/xju-feiyue),无 winbeau/Aurash remote;Pages 部署走 origin push 即触发。
 

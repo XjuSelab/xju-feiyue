@@ -26,10 +26,10 @@ GitHub Actions 自动重部署。
 - 里程碑级新功能 → 准备一条新的 timeline 条目(Phase N+1);仅小修补 → 只更 VERSIONS + 规模数字。
 
 ### 3) 刷新规模数据(prod DB 真实值,**绝不编造**)
-prod 数据库是 huawei2 上的 **SQLite**(`~/Aurash/backend/labnotes.db`,不是 Postgres)。经 tmux 远程查:
+prod 数据库是 huawei2 上的 **SQLite**(`~/xju-feiyue/backend/labnotes.db`,不是 Postgres)。经 tmux 远程查:
 ```bash
 ~/.claude/skills/tmux-ssh-remote/tmux-inject.sh -t 60 --auto-recover "Aurash" \
-  'python3 - ~/Aurash/backend/labnotes.db <<PYEOF
+  'python3 - ~/xju-feiyue/backend/labnotes.db <<PYEOF
 import sqlite3,sys; c=sqlite3.connect(sys.argv[1]).cursor()
 f=lambda q:c.execute(q).fetchone()[0]
 for t in ["users","notes","material_resources","material_files","likes","comments"]:
