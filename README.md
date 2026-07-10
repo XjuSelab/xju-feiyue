@@ -12,8 +12,7 @@
 [![飞跃手册](https://img.shields.io/badge/飞跃手册-feiyue.selab.top-0F7B6C?style=flat-square&logo=cloudflare&logoColor=white)](https://feiyue.selab.top)
 [![发展历程](https://img.shields.io/badge/发展历程-Pages-9065B0?style=flat-square&logo=githubpages&logoColor=white)](https://xjuselab.github.io/xju-feiyue/)
 [![License](https://img.shields.io/badge/License-MIT-37352F?style=flat-square&logo=git&logoColor=white)](./LICENSE)
-![Stars](https://img.shields.io/github/stars/XjuSelab/xju-feiyue?style=flat-square&color=D9730D&logo=github&logoColor=white&label=Stars)
-
+![Stars](https://img.shields.io/github/stars/XjuSelab/xju-feiyue?style=flat-square&color=D9730D&logo=github&logoColor=white&label=Stars)<br/>
 ![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
