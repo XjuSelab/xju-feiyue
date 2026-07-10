@@ -505,14 +505,14 @@
       <!-- ────── TL;DR ────── -->
       <div class="tldr">
         <div class="tldr-label">TL;DR</div>
-        新疆大学飞跃手册是一个面向 XJU 在校生的全栈知识平台，覆盖科研笔记、课程资料、选校情报、CCF 会议截止日期与学分达标自检，于 2026-05-09 单日内完成前后端基础架构（由 Claude Opus 4.7 完成 5 轮结构化设计），此后历经 26 天迭代上线十大功能模块。截至 2026-06-04，已有 <strong>108 位注册用户</strong>，累积 <strong>85 篇笔记</strong>、<strong>55 个共享文件</strong>、<strong>41 个点赞</strong>，25 名用户活跃登录，项目代码托管于 <a href="https://winbeau.top" target="_blank" rel="noopener">winbeau.top</a>。
+        新疆大学飞跃手册是一个面向 XJU 在校生的全栈知识平台，覆盖科研笔记、社区互动、班级空间、课程资料、选校情报、CCF 会议截止日期与学分达标自检，于 2026-05-09 单日内完成前后端基础架构（由 Claude Opus 4.7 完成 5 轮结构化设计），此后历经 61 天迭代上线十二大功能模块。截至 2026-06-04，已有 <strong>108 位注册用户</strong>，累积 <strong>85 篇笔记</strong>、<strong>55 个共享文件</strong>、<strong>41 个点赞</strong>，25 名用户活跃登录，项目部署于 <a href="https://winbeau.top" target="_blank" rel="noopener">winbeau.top</a>。
       </div>
 
       <!-- ────── Section 01: 项目简介 ────── -->
       <section>
         <h2><span class="num">01</span>项目简介</h2>
         <p>
-          飞跃手册起源于一个简单的需求：让 XJU 学生在申请科研、选择高校、备战竞赛时，能找到来自真实同学、而非碎片化论坛的第一手经验。平台以 <strong>Markdown 长文笔记</strong>为核心，支持 KaTeX 公式、围栏代码块、GFM 表格与评论互动；配套的 <strong>资料库</strong>（/materials）可上传、预览、分类管理课程文件；<strong>高校导师库</strong>（/schools）和 <strong>CCF 会议页</strong>（/conferences）打通选校与科研信息流；<strong>学分统计页</strong>（/credits）更可直接解析教务成绩单 PDF，自动核查通识选修模块达标情况。
+          飞跃手册起源于一个简单的需求：让 XJU 学生在申请科研、选择高校、备战竞赛时，能找到来自真实同学、而非碎片化论坛的第一手经验。平台以 <strong>Markdown 长文笔记</strong>为核心，支持 KaTeX 公式、围栏代码块、GFM 表格，配套<strong>社区互动</strong>（楼中楼评论、点踩收藏、笔记合集、举报工单 + AI 预审、经验等级与每日签到）；<strong>班级空间</strong>（/class）承载点名、小组、组内文件与分组任务；<strong>资料库</strong>（/materials）可上传、预览、分类管理课程文件；<strong>高校导师库</strong>（/schools）和 <strong>CCF 会议页</strong>（/conferences）打通选校与科研信息流；<strong>学分统计页</strong>（/credits）更可直接解析教务成绩单 PDF，自动核查通识选修模块达标情况。
         </p>
         <p>
           线上地址：<a href="https://winbeau.top" target="_blank" rel="noopener">https://winbeau.top</a>（主站）&nbsp;&nbsp;/&nbsp;&nbsp;<a href="https://feiyue.selab.top" target="_blank" rel="noopener">https://feiyue.selab.top</a>（团队镜像）
@@ -528,6 +528,11 @@
           <span class="ftag">学分达标检查</span>
           <span class="ftag">教务一键导入</span>
           <span class="ftag">点赞 / 评论</span>
+          <span class="ftag">楼中楼回复</span>
+          <span class="ftag">收藏 / 合集</span>
+          <span class="ftag">举报工单 + AI 预审</span>
+          <span class="ftag">等级 / 签到</span>
+          <span class="ftag">班级空间</span>
           <span class="ftag">个性化欢迎语</span>
           <span class="ftag">草稿自动保存</span>
           <span class="ftag">全文检索</span>
@@ -609,9 +614,25 @@
       <!-- ────── Section 04: 版本里程碑 ────── -->
       <section>
         <h2><span class="num">04</span>版本里程碑</h2>
-        <p>从 2026-05-09 到 2026-06-04，历经 26 天、182 次提交，完成十大功能里程碑。</p>
+        <p>从 2026-05-09 到 2026-07-09，历经 61 天、282 次提交，完成十二大功能里程碑。</p>
 
         <div class="timeline">
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-07-09</div>
+            <span class="tl-tag">Phase 12</span>
+            <div class="tl-title">社区互动与成长体系 —— 首批同学 PR 合入</div>
+            <div class="tl-body">合并来自同学的第一批协作 PR：评论升级为楼中楼两层回复（可配图、点赞点踩表态）；新增笔记点踩 / 收藏（个人主页「收藏」tab）与笔记合集（拖拽排序 + 文末「收录于合集 · 上/下一篇」导航）；治理侧上线举报工单（7 类理由，DeepSeek 后台预审打标，管理端下架/删除/驳回）与拉黑；成长侧上线经验等级（Lv0-5，token 化配色徽标）、每日签到与经验流水。合并时同步加固：被隐藏内容读写双向封锁、举报限流、迁移链重接并在库副本演练后上线。</div>
+          </div>
+
+          <div class="tl-item done">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2026-07-04 ~ 2026-07-07</div>
+            <span class="tl-tag">Phase 11</span>
+            <div class="tl-title">班级空间（/class）—— 点名 / 小组 / 分组任务</div>
+            <div class="tl-body">AppShell 之外的独立页面（仅 URL 直达，同 /admin 策略）：课堂点名、小组创建与审批、组内空间（文件共享列表/卡片双视图 + 甘特图）、页顶分组任务、班委职务体系（班长/团支书红、其余橙，权限仅限本班），以及对齐学校 docx 版式（横版仿宋）的班级分组信息导出。管理端同步新增班级管理与成员操作（设班委 / 超管硬删账户）。</div>
+          </div>
 
           <div class="tl-item done">
             <div class="tl-dot"></div>
