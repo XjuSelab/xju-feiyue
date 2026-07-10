@@ -128,8 +128,6 @@ class User(Base):
     # above stays the single source of truth for permissions. Set/cleared
     # together with the flag by the admin endpoint.
     committee_title: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    exp: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
-    level: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -379,35 +377,6 @@ class Block(Base):
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-
-
-class CheckIn(Base):
-    __tablename__ = "check_ins"
-
-    user_sid: Mapped[str] = mapped_column(
-        ForeignKey("users.sid", ondelete="CASCADE"), primary_key=True
-    )
-    checkin_date: Mapped[date] = mapped_column(Date, primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-
-
-class XpEvent(Base):
-    __tablename__ = "xp_events"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_sid: Mapped[str] = mapped_column(
-        ForeignKey("users.sid", ondelete="CASCADE"), nullable=False, index=True
-    )
-    source_type: Mapped[str] = mapped_column(String(32), nullable=False)
-    delta: Mapped[int] = mapped_column(Integer, nullable=False)
-    ref_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    ref_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )
 
 

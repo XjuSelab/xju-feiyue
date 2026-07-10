@@ -20,12 +20,6 @@ describe('UserSchema', () => {
     ).not.toThrow()
   })
 
-  it('defaults exp/level to 0 for legacy payloads', () => {
-    const u = UserSchema.parse({ sid: '20211010001', name: 'Alice', nickname: '小A' })
-    expect(u.exp).toBe(0)
-    expect(u.level).toBe(0)
-  })
-
   it('rejects non-URL avatar', () => {
     expect(() =>
       UserSchema.parse({

@@ -27,7 +27,6 @@ import * as blocksApi from './endpoints/blocks'
 import type { Note, ListNotesQuery, PaginatedNotes } from './schemas/note'
 import type { Comment, CommentIn, PaginatedComments } from './schemas/interaction'
 import type { AIComposeRequest, AIComposeResponse } from './schemas/ai'
-import type { CheckIn, XpEvent } from './schemas/growth'
 import type {
   Collection,
   CollectionDetail,
@@ -84,13 +83,6 @@ export {
   type CommentIn,
   type PaginatedComments,
 } from './schemas/interaction'
-export {
-  CheckInSchema,
-  XpEventSchema,
-  XpEventListSchema,
-  type CheckIn,
-  type XpEvent,
-} from './schemas/growth'
 export * as collectionsApi from './endpoints/collections'
 export {
   CollectionSchema,
@@ -548,22 +540,6 @@ export function useToggleCommentReaction(
     onSettled: () => {
       void qc.invalidateQueries({ queryKey: key })
     },
-  })
-}
-
-// ------ Growth: daily check-in + xp ledger ------
-
-export function useCheckin(): UseMutationResult<CheckIn, Error, void> {
-  return useMutation({
-    mutationFn: () => authApi.checkin(),
-  })
-}
-
-export function useXpEvents(enabled: boolean): UseQueryResult<XpEvent[]> {
-  return useQuery({
-    queryKey: ['me', 'xp-events'],
-    queryFn: () => authApi.xpEvents(),
-    enabled,
   })
 }
 

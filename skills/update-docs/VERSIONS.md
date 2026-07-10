@@ -6,6 +6,16 @@
 
 ---
 
+## v0.2.1 · 2026-07-10 · since: 552f162
+
+**主题**:签到领经验体系整体移除(产品决定)。
+
+- **代码**:删每日签到 + 经验/等级全链路——backend(checkin/xp-events 端点、CheckIn/XpEvent 模型、users.exp/level、CheckInOut/XpEventOut、test_checkin)+ frontend(features/growth 整目录、schemas/growth、useCheckin/useXpEvents、ProfilePage 等级/经验明细、App 挂载)。迁移 `0013_drop_growth_checkin`(users 列纯 DROP COLUMN,不 batch;生产删除时两表 0 行无损)。
+- **README/site**:功能列表与 Phase 12 条目去掉等级/签到;时间轴保留一句「签到领经验体系经产品评估于同周整体移除」作历史记录。
+- 测试:pytest 279 / vitest 447(各减去被删功能的用例)。
+
+---
+
 ## v0.2.0 · 2026-07-09 · since: a983090
 
 **主题**:README 全量重写为 GitHub 风格(对齐 XjuSelab 组织主页 README)+ 时间轴补 Phase 11/12 + 仓库根目录清理。

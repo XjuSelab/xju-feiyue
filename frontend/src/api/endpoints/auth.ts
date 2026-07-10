@@ -8,12 +8,6 @@ import {
   type UserMeUpdate,
   type PasswordChange,
 } from '../schemas/user'
-import {
-  CheckInSchema,
-  XpEventListSchema,
-  type CheckIn,
-  type XpEvent,
-} from '../schemas/growth'
 import { NoteListSchema, type Note } from '../schemas/note'
 
 export const TOKEN_KEY = 'labnotes.auth.token'
@@ -69,32 +63,12 @@ export async function changePassword(body: PasswordChange): Promise<void> {
   })
 }
 
-/** POST /auth/me/checkin — daily check-in; idempotent (alreadyCheckedIn). */
-export async function checkin(): Promise<CheckIn> {
-  return request({
-    method: 'POST',
-    path: '/auth/me/checkin',
-    schema: CheckInSchema,
-    headers: authHeaders(),
-  })
-}
-
 /** GET /auth/me/favorites — 我收藏的笔记（仅 visible），最新收藏在前。 */
 export async function myFavorites(): Promise<Note[]> {
   return request({
     method: 'GET',
     path: '/auth/me/favorites',
     schema: NoteListSchema,
-    headers: authHeaders(),
-  })
-}
-
-/** GET /auth/me/xp-events — recent experience ledger, newest first. */
-export async function xpEvents(): Promise<XpEvent[]> {
-  return request({
-    method: 'GET',
-    path: '/auth/me/xp-events',
-    schema: XpEventListSchema,
     headers: authHeaders(),
   })
 }

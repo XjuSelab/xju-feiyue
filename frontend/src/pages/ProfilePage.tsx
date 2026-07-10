@@ -2,16 +2,8 @@ import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Bookmark, FileText, NotebookPen, Pencil, Trash2 } from 'lucide-react'
-import {
-  useMyNotes,
-  useMyDrafts,
-  useMyFavorites,
-  useDeleteDraft,
-  useXpEvents,
-  type XpEvent,
-} from '@/api'
+import { useMyNotes, useMyDrafts, useMyFavorites, useDeleteDraft } from '@/api'
 import { useAuthStore } from '@/stores/authStore'
-import { LevelBadge } from '@/features/growth/LevelBadge'
 import { CollectionsTab } from '@/features/collections/CollectionsTab'
 import { BlocksList } from '@/features/reports/BlocksList'
 import { Button } from '@/components/ui/button'
@@ -33,7 +25,6 @@ export function ProfilePage() {
   const notesQ = useMyNotes(authed)
   const draftsQ = useMyDrafts(authed)
   const favoritesQ = useMyFavorites(authed)
-  const xpQ = useXpEvents(authed)
 
   const publishedNotes = useMemo<Note[]>(
     () => notesQ.data?.pages.flatMap((p) => p.items) ?? [],
@@ -62,14 +53,11 @@ export function ProfilePage() {
         <h1 className="font-serif text-2xl font-semibold text-text">我的笔记</h1>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-muted">
           <span>{user?.nickname ?? user?.name ?? user?.sid ?? ''}</span>
-          <LevelBadge level={user?.level ?? 0} />
-          <span>{user?.exp ?? 0} 经验</span>
           <span aria-hidden>·</span>
           <span>
             已发布 {publishedNotes.length} · 草稿 {drafts.length}
           </span>
         </div>
-        <XpLedger events={xpQ.data ?? []} loading={xpQ.isLoading} />
       </header>
 
       <Tabs defaultValue="published">
@@ -443,38 +431,3 @@ function formatRelative(iso: string): string {
   })
 }
 
-const XP_LABEL: Record<string, string> = {
-  daily_checkin: '每日签到',
-  note_liked: '笔记被赞',
-  note_favorited: '笔记被收藏',
-  comment_liked: '评论被赞',
-}
-
-function XpLedger({ events, loading }: { events: XpEvent[]; loading: boolean }) {
-  if (loading || events.length === 0) return null
-  const recent = events.slice(0, 6)
-  return (
-    <details className="mt-3 rounded-md border border-border text-sm">
-      <summary className="cursor-pointer px-3 py-2 text-xs text-text-muted">
-        经验明细（最近 {recent.length} 条）
-      </summary>
-      <ul className="divide-y divide-border px-3 pb-1">
-        {recent.map((e) => (
-          <li key={e.id} className="flex items-center justify-between gap-2 py-1.5 text-xs">
-            <span className="text-text-muted">{XP_LABEL[e.sourceType] ?? e.sourceType}</span>
-            <span className="flex items-center gap-2">
-              <span className="text-text-faint">{formatRelative(e.createdAt)}</span>
-              <span
-                className={
-                  e.delta >= 0 ? 'tabular-nums text-emerald-600' : 'tabular-nums text-red-500'
-                }
-              >
-                {e.delta >= 0 ? `+${e.delta}` : e.delta}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </details>
-  )
-}
