@@ -14,10 +14,6 @@
 [![License](https://img.shields.io/badge/License-MIT-37352F?style=flat-square&logo=git&logoColor=white)](./LICENSE)
 ![Stars](https://img.shields.io/github/stars/XjuSelab/xju-feiyue?style=flat-square&color=D9730D&logo=github&logoColor=white&label=Stars)
 
-</div>
-
-<div align="center">
-
 ![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
@@ -27,7 +23,6 @@
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
 ![Docker](https://img.shields.io/badge/nginx-009639?style=flat-square&logo=nginx&logoColor=white)
 
-</div>
 
 ---
 
