@@ -1,0 +1,153 @@
+<mxfile host="Electron">
+  <diagram name="第 1 页" id="FRbnyINr6rIdt-qHqTrh">
+    <mxGraphModel dx="1030" dy="770" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="GhHInYECOu98RfK8GLp2-1" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};participant=umlActor;" value="" vertex="1">
+          <mxGeometry height="670" width="20" x="50" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-7" parent="GhHInYECOu98RfK8GLp2-1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-17" parent="GhHInYECOu98RfK8GLp2-1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="5" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="组长" vertex="1">
+          <mxGeometry height="30" width="60" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-3" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="审批弹窗" vertex="1">
+          <mxGeometry height="690" width="100" x="190" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-9" parent="GhHInYECOu98RfK8GLp2-3" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="45" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-19" parent="GhHInYECOu98RfK8GLp2-3" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="45" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-4" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="组路由" vertex="1">
+          <mxGeometry height="690" width="100" x="420" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-10" parent="GhHInYECOu98RfK8GLp2-4" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="45" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-21" parent="GhHInYECOu98RfK8GLp2-4" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="170" width="10" x="45" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-5" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="组服务" vertex="1">
+          <mxGeometry height="680" width="100" x="650" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-24" parent="GhHInYECOu98RfK8GLp2-5" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="45" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-28" parent="GhHInYECOu98RfK8GLp2-5" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="210" width="10" x="45" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-6" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="数据库" vertex="1">
+          <mxGeometry height="710" width="100" x="830" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-23" parent="GhHInYECOu98RfK8GLp2-6" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="45" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-27" parent="GhHInYECOu98RfK8GLp2-6" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="230" width="10" x="45" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-3" value="打开审批队列">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="60" y="130" as="sourcePoint" />
+            <mxPoint x="140" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-4" value="取入组审批信息">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="240" y="160" as="sourcePoint" />
+            <mxPoint x="320" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-13" edge="1" parent="1" source="GhHInYECOu98RfK8GLp2-15" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-6" value="读取信息">
+          <mxGeometry relative="1" width="80" x="NaN" y="100" as="geometry">
+            <mxPoint x="-99" y="-10" as="offset" />
+            <mxPoint x="469.5" y="180" as="sourcePoint" />
+            <mxPoint x="550" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-15" value="">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="469.5" y="180" as="sourcePoint" />
+            <mxPoint x="880" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-15" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="875" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-16" edge="1" parent="1" source="GhHInYECOu98RfK8GLp2-15" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;entryX=1;entryY=1;entryDx=0;entryDy=-5;entryPerimeter=0;" target="GhHInYECOu98RfK8GLp2-10" value="返回信息到路由">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="870" y="210" as="sourcePoint" />
+            <mxPoint x="790" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-3" value="给予通过指令">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="60" y="270" as="sourcePoint" />
+            <mxPoint x="140" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-20" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-4" value="传输通过指令">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="240" y="290" as="sourcePoint" />
+            <mxPoint x="320" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-22" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-6" value="取小组信息">
+          <mxGeometry relative="1" width="80" x="-0.4139" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="470" y="320" as="sourcePoint" />
+            <mxPoint x="550" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-25" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-5" value="同意入组确认">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="470" y="350" as="sourcePoint" />
+            <mxPoint x="550" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-26" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-5" value="同意指令发出">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="470" y="410" as="sourcePoint" />
+            <mxPoint x="550" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-29" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-6" value="插入新数据">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="700" y="520" as="sourcePoint" />
+            <mxPoint x="780" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-30" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-6" value="小组数据更新">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="700" y="560" as="sourcePoint" />
+            <mxPoint x="780" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-31" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-27" value="搜索新组员数据">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="700" y="590" as="sourcePoint" />
+            <mxPoint x="780" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-33" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-5" value="返回数据">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="640" as="sourcePoint" />
+            <mxPoint x="800" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GhHInYECOu98RfK8GLp2-34" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" target="GhHInYECOu98RfK8GLp2-6" value="COMMIT">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="700" y="700" as="sourcePoint" />
+            <mxPoint x="780" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

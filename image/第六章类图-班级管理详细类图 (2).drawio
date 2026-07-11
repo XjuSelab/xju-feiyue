@@ -1,0 +1,181 @@
+<mxfile host="Electron" modified="2026-07-06T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram name="班级管理详细类图" id="class-management-detailed-class-diagram">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1250" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="班级管理模块详细类图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=24;fontStyle=1;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="640" y="25" width="520" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="范围：/classes/me 班级空间、/admin/classes 后台班级维护、/groups 小组空间。类中列出核心字段和主要业务操作，关系线标注 FK、组合关系、状态枚举和权限边界。" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="330" y="82" width="1140" height="54" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user" value="&lt;&lt;entity&gt;&gt;&#xa;User&#xa;------------------------------&#xa;+ sid: String(11) PK&#xa;+ name: String&#xa;+ nickname: String&#xa;+ avatarThumb: String?&#xa;+ role: user | admin | superadmin&#xa;+ classId: int? FK&#xa;+ isClassCommittee: bool&#xa;+ committeeTitle: String?&#xa;------------------------------&#xa;+ classFullName(): String?&#xa;+ classShortName(): String?&#xa;+ setUserClass(classId?)&#xa;+ setUserCommittee(flag,title?)&#xa;+ setMemberCommittee(sid,flag,title?)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="40" y="170" width="290" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="student-class" value="&lt;&lt;entity&gt;&gt;&#xa;StudentClass&#xa;------------------------------&#xa;+ id: int PK&#xa;+ fullName: String(120) unique&#xa;+ shortName: String(64) unique&#xa;+ createdAt: DateTime&#xa;------------------------------&#xa;+ listClasses()&#xa;+ createClass(fullName, shortName)&#xa;+ updateClass(id, names)&#xa;+ deleteClass(id)&#xa;+ countClassMembers()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="430" y="170" width="300" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="rollcall-session" value="&lt;&lt;entity&gt;&gt;&#xa;RollCallSession&#xa;------------------------------&#xa;+ id: String PK&#xa;+ classId: int FK&#xa;+ title: String?&#xa;+ createdBySid: String FK&#xa;+ createdAt: DateTime&#xa;+ closedAt: DateTime?&#xa;------------------------------&#xa;+ createRollcall(title?)&#xa;+ listRollcalls(limit,offset)&#xa;+ updateRollcall(title?,closed?)&#xa;+ deleteRollcall()&#xa;+ rollcallDetail()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="820" y="170" width="310" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="rollcall-record" value="&lt;&lt;entity&gt;&gt;&#xa;RollCallRecord&#xa;------------------------------&#xa;+ sessionId: String PK, FK&#xa;+ sid: String PK, FK&#xa;+ present: bool&#xa;+ checkedAt: DateTime?&#xa;+ checkedBySid: String?&#xa;------------------------------&#xa;+ upsertRecord(sid,present)&#xa;+ setPresent(present)&#xa;+ auditCheckedBy(actor)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="170" width="295" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="enums" value="&lt;&lt;enum&gt;&gt;&#xa;状态与角色枚举&#xa;------------------------------&#xa;UserRole = user | admin | superadmin&#xa;GroupRole = leader | member&#xa;JoinRequestStatus = pending | approved | rejected&#xa;TaskStatus = todo | doing | done" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#fefce8;strokeColor=#ca8a04;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="170" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="group-member" value="&lt;&lt;association&gt;&gt;&#xa;GroupMember&#xa;------------------------------&#xa;+ groupId: String PK, FK&#xa;+ sid: String PK, FK&#xa;+ role: leader | member&#xa;+ joinedAt: DateTime&#xa;------------------------------&#xa;+ membershipOf(gid,sid)&#xa;+ transferLeader(targetSid)&#xa;+ removeMember(sid)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="40" y="535" width="290" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="group" value="&lt;&lt;entity&gt;&gt;&#xa;Group&#xa;------------------------------&#xa;+ id: String PK&#xa;+ classId: int FK&#xa;+ name: String&#xa;+ logo: String?&#xa;+ logoThumb: String?&#xa;+ intro: Text&#xa;+ leaderSid: String FK&#xa;+ deleted: bool&#xa;+ createdAt: DateTime&#xa;+ updatedAt: DateTime&#xa;------------------------------&#xa;+ createGroup(name,intro)&#xa;+ updateGroup(name?,intro?)&#xa;+ uploadLogo(file)&#xa;+ softDeleteGroup()&#xa;+ groupDetailOut(viewer)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="430" y="500" width="310" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="join-request" value="&lt;&lt;entity&gt;&gt;&#xa;GroupJoinRequest&#xa;------------------------------&#xa;+ id: String PK&#xa;+ groupId: String FK&#xa;+ sid: String FK&#xa;+ message: String?&#xa;+ status: pending | approved | rejected&#xa;+ createdAt: DateTime&#xa;+ decidedBySid: String?&#xa;+ decidedAt: DateTime?&#xa;------------------------------&#xa;+ createJoinRequest(message?)&#xa;+ approveRequest(actor)&#xa;+ rejectRequest(actor)&#xa;+ cancelPending()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="820" y="500" width="320" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="group-file" value="&lt;&lt;entity&gt;&gt;&#xa;GroupFile&#xa;------------------------------&#xa;+ id: String PK&#xa;+ groupId: String FK&#xa;+ name: String&#xa;+ ext: String?&#xa;+ mime: String?&#xa;+ sizeBytes: int?&#xa;+ url: String?&#xa;+ storagePath: String?&#xa;+ uploadedBySid: String FK&#xa;+ deleted: bool&#xa;+ createdAt: DateTime&#xa;------------------------------&#xa;+ uploadFiles(files)&#xa;+ listGroupFiles()&#xa;+ downloadFile()&#xa;+ deleteFile()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="480" width="295" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="rules" value="&lt;&lt;constraint&gt;&gt;&#xa;核心业务规则&#xa;------------------------------&#xa;1. 普通用户 URL 不暴露 classId，均从 JWT user.classId 推导。&#xa;2. 读班级需本班成员；点名写入需班委或 admin。&#xa;3. 小组管理需组长、班委或 admin。&#xa;4. 同班每人最多一个 live group。&#xa;5. approve 入组会创建 GroupMember 并自动拒绝同班其它 pending。" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#fff7ed;strokeColor=#fb923c;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="450" width="210" height="270" as="geometry" />
+        </mxCell>
+
+        <mxCell id="classes-service" value="&lt;&lt;service&gt;&gt;&#xa;ClassesService&#xa;------------------------------&#xa;+ ensureInClass(user): int&#xa;+ isCommitteeOf(user,classId): bool&#xa;+ ensureCommittee(user,classId)&#xa;+ isBanzhangOf(user,classId): bool&#xa;+ listClassMembers(classId)&#xa;+ createRollcall(classId,actor,title?)&#xa;+ rollcallSummaries(classId,limit,offset)&#xa;+ rollcallDetail(session)&#xa;+ upsertRecord(session,sid,present,actor)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#fff7ed;strokeColor=#f97316;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="340" height="245" as="geometry" />
+        </mxCell>
+        <mxCell id="groups-service" value="&lt;&lt;service&gt;&gt;&#xa;GroupsService&#xa;------------------------------&#xa;+ getGroupOr404(gid)&#xa;+ ensureClassMember(group,user)&#xa;+ ensureGroupMember(group,user)&#xa;+ ensureGroupManager(group,user)&#xa;+ createGroup(classId,creator,name,intro)&#xa;+ createJoinRequest(group,user,message?)&#xa;+ approveRequest(group,request,actor)&#xa;+ rejectRequest(request,actor)&#xa;+ validateAssignees(group,sids)&#xa;+ setTaskAssignees(taskId,sids)&#xa;+ tasksOut(gid)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#fff7ed;strokeColor=#f97316;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="430" y="860" width="330" height="285" as="geometry" />
+        </mxCell>
+        <mxCell id="group-task" value="&lt;&lt;entity&gt;&gt;&#xa;GroupTask&#xa;------------------------------&#xa;+ id: String PK&#xa;+ groupId: String FK&#xa;+ title: String&#xa;+ description: Text&#xa;+ startDate: Date&#xa;+ endDate: Date&#xa;+ status: todo | doing | done&#xa;+ progress: int 0-100&#xa;+ createdBySid: String FK&#xa;+ createdAt: DateTime&#xa;+ updatedAt: DateTime&#xa;------------------------------&#xa;+ createTask(body)&#xa;+ updateTask(patch)&#xa;+ deleteTask()&#xa;+ validateTaskDates(start,end)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="820" y="850" width="320" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="task-assignee" value="&lt;&lt;association&gt;&gt;&#xa;GroupTaskAssignee&#xa;------------------------------&#xa;+ taskId: String PK, FK&#xa;+ sid: String PK, FK&#xa;------------------------------&#xa;+ validateAssignees(sids)&#xa;+ replaceAll(taskId,sids)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#f8fafc;strokeColor=#64748b;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="865" width="295" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-class-user" value="1 class / 0..* students&#xa;users.class_id SET NULL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="student-class" target="user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-class-rollcall" value="1 / 0..* rollcalls&#xa;ondelete CASCADE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="student-class" target="rollcall-session">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rollcall-record" value="composition&#xa;1 / 0..* records" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=open;strokeWidth=1.8;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="rollcall-session" target="rollcall-record">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-rollcall-created" value="createdBySid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="rollcall-session" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="975" y="150" />
+              <mxPoint x="185" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-user-rollcall-record" value="sid / checkedBySid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="rollcall-record" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1363" y="130" />
+              <mxPoint x="185" y="130" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e-class-group" value="1 / 0..* groups&#xa;ondelete CASCADE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="student-class" target="group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-group-member" value="composition&#xa;1 / 1..* members" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=open;strokeWidth=1.8;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="group" target="group-member">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-member" value="User 0..* memberships" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.4;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="user" target="group-member">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-group-leader" value="leaderSid 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="group" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="475" />
+              <mxPoint x="185" y="475" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-request" value="1 / 0..* requests" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="group" target="join-request">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-request" value="applicant sid&#xa;decidedBySid optional" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="join-request" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="480" />
+              <mxPoint x="185" y="480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-approve-member" value="approve creates GroupMember&#xa;and rejects other pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;dashed=1;strokeWidth=1.6;strokeColor=#16a34a;fontSize=11;fontColor=#14532d;" edge="1" parent="1" source="join-request" target="group-member">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="830" />
+              <mxPoint x="185" y="830" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-file" value="1 / 0..* files&#xa;soft delete" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="group" target="group-file">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-file" value="uploadedBySid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="group-file" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1363" y="455" />
+              <mxPoint x="185" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-group-task" value="1 / 0..* tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;strokeWidth=1.6;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="group" target="group-task">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-task-assignee" value="composition&#xa;0..* assignees" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=open;strokeWidth=1.8;strokeColor=#334155;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="group-task" target="task-assignee">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-user-task" value="createdBySid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="group-task" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="1175" />
+              <mxPoint x="20" y="1175" />
+              <mxPoint x="20" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-user-task-assignee" value="assignee sid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.3;strokeColor=#64748b;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="task-assignee" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1363" y="1175" />
+              <mxPoint x="20" y="1175" />
+              <mxPoint x="20" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e-classes-service-user" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;strokeColor=#f97316;fontSize=11;fontColor=#9a3412;" edge="1" parent="1" source="classes-service" target="user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-classes-service-rollcall" value="manages" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;strokeColor=#f97316;fontSize=11;fontColor=#9a3412;" edge="1" parent="1" source="classes-service" target="rollcall-session">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="1155" />
+              <mxPoint x="775" y="1155" />
+              <mxPoint x="775" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-groups-service-group" value="manages" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;strokeColor=#f97316;fontSize=11;fontColor=#9a3412;" edge="1" parent="1" source="groups-service" target="group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-groups-service-request" value="approves" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;strokeColor=#f97316;fontSize=11;fontColor=#9a3412;" edge="1" parent="1" source="groups-service" target="join-request">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-groups-service-task" value="validates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;dashed=1;strokeWidth=1.2;strokeColor=#f97316;fontSize=11;fontColor=#9a3412;" edge="1" parent="1" source="groups-service" target="group-task">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

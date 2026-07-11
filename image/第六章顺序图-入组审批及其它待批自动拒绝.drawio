@@ -1,0 +1,160 @@
+<mxfile host="Electron" modified="2026-07-06T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram name="入组审批及其它待批自动拒绝" id="seq-approve-join-auto-reject">
+    <mxGraphModel dx="1500" dy="980" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1450" pageHeight="980" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="入组审批 + 同班其它待批自动拒绝顺序图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=24;fontStyle=1;fontColor=#17212b;" vertex="1" parent="1">
+          <mxGeometry x="405" y="24" width="640" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="desc" value="对应 POST /groups/{gid}/join-requests/{req_id}/approve：通过一个申请后，新增 group_members，并在同一事务中把申请人在同班其它小组的 pending 申请置为 rejected。" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="130" y="82" width="1190" height="58" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p-actor" value="审批者&#xa;组长 / 班委 / admin" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fontStyle=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0c4a6e;" vertex="1" parent="1">
+          <mxGeometry x="55" y="170" width="155" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="p-ui" value="前端&#xa;JoinRequestsDialog" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fontStyle=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0c4a6e;" vertex="1" parent="1">
+          <mxGeometry x="285" y="170" width="170" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="p-route" value="GroupsRouter&#xa;approve_join_request" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fontStyle=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0c4a6e;" vertex="1" parent="1">
+          <mxGeometry x="540" y="170" width="190" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="p-service" value="GroupsService&#xa;approve_request" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fontStyle=1;fillColor=#fff7ed;strokeColor=#f97316;fontColor=#7c2d12;" vertex="1" parent="1">
+          <mxGeometry x="820" y="170" width="185" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="p-db" value="数据库&#xa;Group / Request / Member" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fontSize=13;fontStyle=1;fillColor=#dcfce7;strokeColor=#16a34a;fontColor=#14532d;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="170" width="220" height="58" as="geometry" />
+        </mxCell>
+
+        <mxCell id="life-actor" value="" style="shape=line;html=1;strokeColor=#94a3b8;dashed=1;dashPattern=6 6;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="132" y="228" width="1" height="665" as="geometry" />
+        </mxCell>
+        <mxCell id="life-ui" value="" style="shape=line;html=1;strokeColor=#94a3b8;dashed=1;dashPattern=6 6;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="370" y="228" width="1" height="665" as="geometry" />
+        </mxCell>
+        <mxCell id="life-route" value="" style="shape=line;html=1;strokeColor=#94a3b8;dashed=1;dashPattern=6 6;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="635" y="228" width="1" height="665" as="geometry" />
+        </mxCell>
+        <mxCell id="life-service" value="" style="shape=line;html=1;strokeColor=#94a3b8;dashed=1;dashPattern=6 6;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="912" y="228" width="1" height="665" as="geometry" />
+        </mxCell>
+        <mxCell id="life-db" value="" style="shape=line;html=1;strokeColor=#94a3b8;dashed=1;dashPattern=6 6;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="228" width="1" height="665" as="geometry" />
+        </mxCell>
+
+        <mxCell id="act-ui" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="366" y="260" width="8" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="act-route" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="631" y="330" width="8" height="410" as="geometry" />
+        </mxCell>
+        <mxCell id="act-service" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="908" y="440" width="8" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="act-db" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="1246" y="360" width="8" height="330" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1" value="打开审批队列" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-actor" target="life-ui">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="132" y="270" as="sourcePoint" />
+            <mxPoint x="370" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="GET /groups/{gid}/join-requests?status=pending" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-ui" target="life-route">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="315" as="sourcePoint" />
+            <mxPoint x="635" y="315" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="查询 pending 申请" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-route" target="life-db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="360" as="sourcePoint" />
+            <mxPoint x="1250" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="JoinRequestOut[]" style="endArrow=open;html=1;rounded=0;dashed=1;strokeWidth=1.4;strokeColor=#64748b;fontSize=12;fontColor=#475569;" edge="1" parent="1" source="life-db" target="life-ui">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1250" y="405" as="sourcePoint" />
+            <mxPoint x="370" y="405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="点击通过 req_id" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-actor" target="life-ui">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="132" y="455" as="sourcePoint" />
+            <mxPoint x="370" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="POST /groups/{gid}/join-requests/{req_id}/approve" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-ui" target="life-route">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="500" as="sourcePoint" />
+            <mxPoint x="635" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="get_group_or_404 + get_request_or_404" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-route" target="life-db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="545" as="sourcePoint" />
+            <mxPoint x="1250" y="545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="ensure_class_member + ensure_group_manager" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-route" target="life-service">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="590" as="sourcePoint" />
+            <mxPoint x="912" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="approve_request(group, req, actor)" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;strokeColor=#334155;fontSize=12;fontColor=#334155;" edge="1" parent="1" source="life-route" target="life-service">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="635" as="sourcePoint" />
+            <mxPoint x="912" y="635" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="alt" value="alt 冲突：req 非 pending / 申请人已不在本班 / 已加入其它 live 小组" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fontSize=12;fontColor=#7f1d1d;align=left;spacing=8;fillColor=#fef2f2;strokeColor=#f87171;" vertex="1" parent="1">
+          <mxGeometry x="775" y="655" width="520" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="m10" value="409：该申请已被处理或无法通过" style="endArrow=open;html=1;rounded=0;dashed=1;strokeWidth=1.6;strokeColor=#dc2626;fontSize=12;fontColor=#7f1d1d;" edge="1" parent="1" source="life-service" target="life-route">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="912" y="720" as="sourcePoint" />
+            <mxPoint x="635" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m11" value="INSERT GroupMember(role='member')" style="endArrow=block;html=1;rounded=0;strokeWidth=1.8;strokeColor=#16a34a;fontSize=12;fontColor=#14532d;" edge="1" parent="1" source="life-service" target="life-db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="912" y="765" as="sourcePoint" />
+            <mxPoint x="1250" y="765" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="UPDATE 当前申请：status=approved, decidedBySid, decidedAt" style="endArrow=block;html=1;rounded=0;strokeWidth=1.8;strokeColor=#16a34a;fontSize=12;fontColor=#14532d;" edge="1" parent="1" source="life-service" target="life-db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="912" y="810" as="sourcePoint" />
+            <mxPoint x="1250" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="loop" value="loop 申请人在同班其它 pending 申请" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fontSize=12;fontColor=#334155;align=left;spacing=8;fillColor=#f1f5f9;strokeColor=#94a3b8;" vertex="1" parent="1">
+          <mxGeometry x="795" y="828" width="545" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="m13" value="UPDATE other.status=rejected, decidedBySid, decidedAt" style="endArrow=block;html=1;rounded=0;dashed=1;strokeWidth=1.8;strokeColor=#dc2626;fontSize=12;fontColor=#7f1d1d;" edge="1" parent="1" source="life-service" target="life-db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="912" y="870" as="sourcePoint" />
+            <mxPoint x="1250" y="870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m14" value="COMMIT 同一事务" style="endArrow=block;html=1;rounded=0;strokeWidth=1.8;strokeColor=#16a34a;fontSize=12;fontColor=#14532d;" edge="1" parent="1" source="life-service" target="life-db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="912" y="915" as="sourcePoint" />
+            <mxPoint x="1250" y="915" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m15" value="JoinRequestOut(status=approved)" style="endArrow=open;html=1;rounded=0;dashed=1;strokeWidth=1.4;strokeColor=#64748b;fontSize=12;fontColor=#475569;" edge="1" parent="1" source="life-route" target="life-ui">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="635" y="945" as="sourcePoint" />
+            <mxPoint x="370" y="945" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
