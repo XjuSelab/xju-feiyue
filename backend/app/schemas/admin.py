@@ -23,6 +23,7 @@ class AdminUserRow(CamelModel):
     name: str
     nickname: str
     role: str
+    is_lab_member: bool = False
     email: str | None = None
     phone: str | None = None
     avatar_thumb: str | None = None
@@ -65,6 +66,12 @@ class SetRoleIn(CamelModel):
     """POST /admin/users/{sid}/role — promote/demote (super-admin only)."""
 
     role: AssignableRole
+
+
+class SetLabMemberIn(CamelModel):
+    """POST /admin/users/{sid}/lab-member — super-admin only."""
+
+    is_lab_member: bool
 
 
 # --- 班级 management ---------------------------------------------------------

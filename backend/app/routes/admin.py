@@ -33,8 +33,6 @@ from app.db.models import (
     StudentClass,
     User,
 )
-from app.services import groups as groups_svc
-from app.services import materials as materials_svc
 from app.deps import get_db, require_admin, require_superadmin
 from app.schemas._base import CamelModel, UtcDateTime
 from app.schemas.admin import (
@@ -50,10 +48,13 @@ from app.schemas.admin import (
     RoleCount,
     SetClassIn,
     SetCommitteeIn,
+    SetLabMemberIn,
     SetRoleIn,
     TopUploader,
     UserCreateIn,
 )
+from app.services import groups as groups_svc
+from app.services import materials as materials_svc
 from app.services.auth import effective_role, hash_password, is_superadmin
 from app.services.greeting import familiar_name
 from app.settings import settings
@@ -106,6 +107,7 @@ async def list_users(
             User.name,
             User.nickname,
             User.role,
+            User.is_lab_member,
             User.email,
             User.phone,
             User.avatar_thumb,
@@ -131,6 +133,7 @@ async def list_users(
             name=r.name,
             nickname=r.nickname,
             role=effective_role_str(r.sid, r.role),
+            is_lab_member=r.is_lab_member,
             email=r.email,
             phone=r.phone,
             avatar_thumb=r.avatar_thumb,
@@ -306,6 +309,7 @@ async def _user_row(db: AsyncSession, target: User) -> AdminUserRow:
         name=target.name,
         nickname=target.nickname,
         role=effective_role(target),
+        is_lab_member=target.is_lab_member,
         email=target.email,
         phone=target.phone,
         avatar_thumb=target.avatar_thumb,
@@ -464,6 +468,33 @@ async def set_role(
         raise HTTPException(status_code=403, detail="不能修改超级管理员的角色")
 
     target.role = body.role
+    await db.commit()
+    await db.refresh(target)
+    return await _user_row(db, target)
+
+
+# ---------------------------------------------------------------------------
+# ICT&软开实验室成员标记 (superadmin only)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/users/{sid}/lab-member", response_model=AdminUserRow)
+async def set_lab_member(
+    sid: str,
+    body: SetLabMemberIn,
+    _actor: User = Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db),
+) -> AdminUserRow:
+    """Mark or unmark a Feiyue account as an ICTHub laboratory member.
+
+    Feiyue remains the source of truth for identity, passwords and JWTs.
+    ICTHub consumes this flag from ``/auth/me`` and keeps no local user table.
+    """
+    target = await db.get(User, sid)
+    if not target:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    target.is_lab_member = body.is_lab_member
     await db.commit()
     await db.refresh(target)
     return await _user_row(db, target)

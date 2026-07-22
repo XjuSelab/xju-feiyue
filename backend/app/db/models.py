@@ -112,6 +112,12 @@ class User(Base):
     role: Mapped[str] = mapped_column(
         String(16), nullable=False, server_default="user", default="user"
     )
+    # ICT laboratory membership remains owned by Feiyue. ICTHub only reads
+    # isLabMember from /auth/me and never stores local users or passwords.
+    # Only a Feiyue super-admin can change this field through the narrow API.
+    is_lab_member: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("0"), default=False
+    )
     # 班级 membership — admin-managed (roster import / /admin UI); NULL until
     # assigned. ondelete='SET NULL': deleting a class detaches its students.
     class_id: Mapped[int | None] = mapped_column(

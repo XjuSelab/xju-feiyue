@@ -25,6 +25,8 @@ export const UserSchema = z.object({
   isAdmin: z.boolean().nullish(),
   /** 仅 superadmin（后端 computed）。可增删管理员。nullish 向后兼容。 */
   isSuperAdmin: z.boolean().nullish(),
+  /** ICT&软开实验室成员；由飞跃超管维护，供 ICTHub 鉴权。 */
+  isLabMember: z.boolean().nullish(),
   /** 班级 id（classes 表 FK；管理员设置，用户只读）。nullish 向后兼容。 */
   classId: z.number().nullish(),
   /** 班级全名（如 计算机科学与技术24-3）；未分配为 null。 */

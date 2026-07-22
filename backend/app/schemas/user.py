@@ -28,6 +28,9 @@ class UserOut(CamelModel):
     # users.role column; legacy/absent → 'user'. Drives the hidden /admin
     # dashboard + material-management UI on the frontend.
     role: str = "user"
+    # Feiyue-owned ICT laboratory membership flag, exposed for ICTHub access
+    # control without copying users, passwords or authentication data.
+    is_lab_member: bool = False
     # 班级 — flattened from the classes table via User.class_full_name /
     # class_short_name properties (the wire keeps the two-field shape the
     # product spec asked for). Admin-managed; NULL until assigned.

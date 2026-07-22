@@ -18,6 +18,7 @@ export const AdminUserRowSchema = z.object({
   name: z.string(),
   nickname: z.string(),
   role: RoleSchema,
+  isLabMember: z.boolean(),
   email: z.string().nullish(),
   phone: z.string().nullish(),
   avatarThumb: z.string().url().nullish(),

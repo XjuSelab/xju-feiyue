@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {
   GraduationCap,
+  FlaskConical,
   KeyRound,
   MoreHorizontal,
   Search,
@@ -35,7 +36,12 @@ import { cn } from '@/lib/cn'
 
 import { CommitteeBadge } from '@/components/common/CommitteeBadge'
 
-import { useAdminUsers, useSetRole, useSetUserCommittee } from '../hooks/useAdmin'
+import {
+  useAdminUsers,
+  useSetLabMember,
+  useSetRole,
+  useSetUserCommittee,
+} from '../hooks/useAdmin'
 import { formatDate, formatRelative } from '../lib/format'
 import type { AdminUserRow } from '@/api/schemas/admin'
 import { RoleBadge } from './RoleBadge'
@@ -61,6 +67,7 @@ export function UsersTab({
 }) {
   const { data, isPending, isError, error, refetch } = useAdminUsers()
   const setRole = useSetRole()
+  const setLabMember = useSetLabMember()
   const setCommittee = useSetUserCommittee()
 
   const [q, setQ] = React.useState('')
@@ -161,7 +168,15 @@ export function UsersTab({
                       </div>
                     </td>
                     <td className="px-3 py-2">
-                      <RoleBadge role={u.role} />
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <RoleBadge role={u.role} />
+                        {u.isLabMember ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-cat-tools-bg px-2 py-0.5 text-xs font-medium text-cat-tools">
+                            <FlaskConical className="size-3" aria-hidden />
+                            实验室
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="hidden px-3 py-2 md:table-cell">
                       {u.classShortName ? (
@@ -235,6 +250,21 @@ export function UsersTab({
                                     设为管理员
                                   </>
                                 )}
+                              </DropdownMenuItem>
+                            ) : null}
+                            {isSuperAdmin ? (
+                              <DropdownMenuItem
+                                className={cn('gap-2', u.isLabMember && 'text-cat-research')}
+                                disabled={setLabMember.isPending}
+                                onSelect={() =>
+                                  setLabMember.mutate({
+                                    sid: u.sid,
+                                    isLabMember: !u.isLabMember,
+                                  })
+                                }
+                              >
+                                <FlaskConical className="size-4" />
+                                {u.isLabMember ? '取消实验室成员' : '标记实验室成员'}
                               </DropdownMenuItem>
                             ) : null}
                           </DropdownMenuContent>

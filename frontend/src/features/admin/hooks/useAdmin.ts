@@ -16,6 +16,7 @@ import {
   resetUserPassword,
   setUserClass,
   setUserCommittee,
+  setUserLabMember,
   setUserRole,
 } from '@/api/endpoints/admin'
 import type {
@@ -103,6 +104,23 @@ export function useSetRole() {
       )
     },
     onError: (e) => toast.error(errMsg(e, '修改角色失败')),
+  })
+}
+
+export function useSetLabMember() {
+  const invalidate = useInvalidateAdmin()
+  return useMutation({
+    mutationFn: ({ sid, isLabMember }: { sid: string; isLabMember: boolean }) =>
+      setUserLabMember(sid, isLabMember),
+    onSuccess: (row) => {
+      invalidate()
+      toast.success(
+        row.isLabMember
+          ? `已将 ${row.nickname} 标记为实验室成员`
+          : `已取消 ${row.nickname} 的实验室成员标记`,
+      )
+    },
+    onError: (e) => toast.error(errMsg(e, '设置实验室成员失败')),
   })
 }
 

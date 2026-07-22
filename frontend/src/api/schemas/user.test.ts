@@ -20,6 +20,16 @@ describe('UserSchema', () => {
     ).not.toThrow()
   })
 
+  it('accepts the Feiyue-owned ICTHub membership flag', () => {
+    const user = UserSchema.parse({
+      sid: '20211010001',
+      name: 'Alice',
+      nickname: '小A',
+      isLabMember: true,
+    })
+    expect(user.isLabMember).toBe(true)
+  })
+
   it('rejects non-URL avatar', () => {
     expect(() =>
       UserSchema.parse({

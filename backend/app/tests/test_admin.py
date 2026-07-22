@@ -258,6 +258,64 @@ async def test_set_role_guards(
 
 
 # ---------------------------------------------------------------------------
+# ICT&软开实验室成员标记 (super-admin only)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_set_lab_member_requires_superadmin(
+    client: AsyncClient,
+    auth_headers: dict[str, str],
+    admin_headers: dict[str, str],
+) -> None:
+    path = f"/admin/users/{NORMAL_SID}/lab-member"
+    assert (
+        await client.post(path, json={"isLabMember": True}, headers=auth_headers)
+    ).status_code == 404
+    assert (
+        await client.post(path, json={"isLabMember": True}, headers=admin_headers)
+    ).status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_superadmin_sets_lab_member_and_me_exposes_flag(
+    client: AsyncClient,
+    auth_headers: dict[str, str],
+    super_headers: dict[str, str],
+) -> None:
+    before = (await client.get("/auth/me", headers=auth_headers)).json()
+    assert before["isLabMember"] is False
+
+    path = f"/admin/users/{NORMAL_SID}/lab-member"
+    marked = await client.post(path, json={"isLabMember": True}, headers=super_headers)
+    assert marked.status_code == 200, marked.text
+    assert marked.json()["isLabMember"] is True
+
+    me = (await client.get("/auth/me", headers=auth_headers)).json()
+    assert me["isLabMember"] is True
+
+    rows = (await client.get("/admin/users", headers=super_headers)).json()
+    row = next(item for item in rows if item["sid"] == NORMAL_SID)
+    assert row["isLabMember"] is True
+
+    unmarked = await client.post(path, json={"isLabMember": False}, headers=super_headers)
+    assert unmarked.status_code == 200
+    assert unmarked.json()["isLabMember"] is False
+
+
+@pytest.mark.asyncio
+async def test_set_lab_member_missing_user_404(
+    client: AsyncClient, super_headers: dict[str, str]
+) -> None:
+    r = await client.post(
+        "/admin/users/19999999999/lab-member",
+        json={"isLabMember": True},
+        headers=super_headers,
+    )
+    assert r.status_code == 404
+
+
+# ---------------------------------------------------------------------------
 # /auth/me role flags + bootstrap behaviour
 # ---------------------------------------------------------------------------
 

@@ -95,6 +95,20 @@ export async function setUserRole(
   })
 }
 
+/** POST /admin/users/{sid}/lab-member — 超管维护 ICTHub 实验室成员资格。 */
+export async function setUserLabMember(
+  sid: string,
+  isLabMember: boolean,
+): Promise<AdminUserRow> {
+  return request({
+    method: 'POST',
+    path: `/admin/users/${sid}/lab-member`,
+    body: { isLabMember },
+    schema: AdminUserRowSchema,
+    headers: authHeaders(),
+  })
+}
+
 /** DELETE /admin/users/{sid} — 硬删账户（超管专属；级联清笔记/资料/文件/
  * 点名记录/小组关系，其任组长的小组随之删除）。不可恢复。 */
 export async function deleteAdminUser(sid: string): Promise<null> {
